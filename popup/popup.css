@@ -1,0 +1,122 @@
+* {
+	box-sizing: border-box;
+}
+
+body, html, h1, h3 {
+	margin: 0;
+}
+body {
+	width: 22em;
+	padding: .5em;
+}
+div.section {
+	padding: 1em 0;
+}
+.flex {
+	display: flex;
+}
+.flex-center {
+	justify-content: center;
+	align-items: center;
+}
+.space-around {
+	justify-content: space-around;
+}
+img {
+	max-width: 3em;
+}
+.center {
+	text-align: center;
+}
+.tab {
+	margin: .5em .5em 0;
+	padding: .5em .5em .25em;
+	align-items: center;
+	border-radius: .33em;
+	max-width: 100%;
+	background-color: #efefef;
+}
+#tab-favicon {
+	max-height: 1.5em;
+	padding-right: .5em;
+}
+
+#tab-title {
+	/*width: 80%;*/
+	line-height: 1.5;
+	max-height: 3em;
+	overflow-y: hidden;
+}
+
+.choice {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin: .25em .5em;
+	padding: .25em .5em;
+	border-radius: .33em;
+	background-color: #f7f7f7;
+	cursor: pointer;
+	height: 2.5em;
+	transition: all .3s ease-in-out;
+}
+.choice:hover {
+	background-color: #dfdfdf;
+}
+.choice[data-option="monday"]:hover {
+	background-color: #F8CB50;
+}
+.choice[data-option="tom-morning"]:hover {
+	background-color: #97D0EE;
+}
+.choice[data-option="today-morning"]:hover{
+	background-color: #538D49;
+}
+.choice[data-option="weekend"]:hover{
+	background-color: #E26991;
+}
+.choice[data-option="tom-evening"]:hover{
+	background-color: #1E5896;
+}
+
+.choice[data-option="today-morning"]:hover,
+.choice[data-option="today-morning"]:hover .time, 
+.choice[data-option="today-morning"]:hover .date,
+.choice[data-option="tom-evening"]:hover,
+.choice[data-option="tom-evening"]:hover .time, 
+.choice[data-option="tom-evening"]:hover .date,
+.choice[data-option="weekend"]:hover,
+.choice[data-option="weekend"]:hover .time, 
+.choice[data-option="weekend"]:hover .date {
+	color: #fff;
+}
+
+.choice.disabled {
+	/*pointer-events: none;
+	touch-actions: none;
+	opacity: .1;
+	cursor: unset;*/
+}
+.choice img {
+	max-height: 1.5em;
+	padding-right: .5em;
+}
+
+.choice > div:first-of-type {
+	display: flex;
+	align-items: center;
+	pointer-events: none;
+}
+.choice .time, .choice .date {
+	color: #999;
+	font-size: .75em;
+	text-transform: uppercase;
+	pointer-events: none;
+	text-align: right;
+	transition: all .3s ease-in-out;
+}
+.choice div:last-of-type div:first-of-type {
+	font-size: 1em;
+	color: #777;
+	font-weight: bold;
+}

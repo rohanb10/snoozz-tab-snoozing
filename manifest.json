@@ -1,0 +1,23 @@
+{
+	"name": "Tab Snoozer",
+	"description": "Declutter your workflow by snoozing tabs for later",
+
+	"icons": {
+		"128": "pillow.png"
+	},
+
+	"browser_action": {
+		"default_popup": "popup/popup.html"
+	},
+
+	
+	"background": {
+		"scripts": ["background.js"],
+		"persistent": false
+	},
+
+	"permissions": ["alarms", "storage", "tabs"],
+
+	"manifest_version": 2,
+	"version": "1.0"
+}

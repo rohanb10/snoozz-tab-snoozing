@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Tab Snoozer</title>
+	<link rel="stylesheet" href="./popup.css" />
+</head>
+<body>
+	<div class="flex space-around section">
+		<div>
+			<img src="../pillo.png">
+		</div>
+		<div>
+			<h1>Tab Snoozer</h1>
+			<a href="#">Settings</a> | <a href="#">About</a>
+		</div>
+	</div>
+	<div class="section">
+		<h3 class="center">Current Tab</h3>
+		<div class="tab flex">
+			<div><img id="tab-favicon" src="../unknown.svg"></div>
+			<div id="tab-title" class="">https://developer.chrome.com/extensions/tabs#method-query</div>
+		</div>
+	</div>
+	<div class="section">
+		<h3 class="center">Snooze until</h3>
+		<div class="choice" data-option="today-morning">
+			<div>
+				<img src="../today-morning.png">
+				<div class="label">This Morning</div>
+			</div>
+			<div>
+				<div class="date">9am</div>
+				<div class="time">9am</div>
+			</div>
+		</div>
+		<div class="choice" data-option="today-evening">
+			<div>
+				<img src="../unknown.svg">
+				<div class="label">This Evening</div>
+			</div>
+			<div>
+				<div class="date">9am</div>
+				<div class="time">9am</div>
+			</div>
+		</div>
+		<div class="choice" data-option="tom-morning">
+			<div>
+				<img src="../tom-morning.png">
+				<div class="label">Tomorrow Morning</div>
+			</div>
+			<div>
+				<div class="date">9am</div>
+				<div class="time">9am</div>
+			</div>
+		</div>
+		<div class="choice" data-option="tom-evening">
+			<div>
+				<img src="../tom-evening.png">
+				<div class="label">Tomorrow Evening</div>
+			</div>
+			<div>
+				<div class="date">9am</div>
+				<div class="time">9am</div>
+			</div>
+		</div>
+		<div class="choice" data-option="weekend">
+			<div>
+				<img src="../weekend.png">
+				<div class="label">Weekend</div>
+			</div>
+			<div>
+				<div class="date">9am</div>
+				<div class="time">9am</div>
+			</div>
+		</div>
+		<div class="choice" data-option="monday">
+			<div>
+				<img src="../monday.png">
+				<div class="label">Next Monday</div>
+			</div>
+			<div>
+				<div class="date">9am</div>
+				<div class="time">9am</div>
+			</div>
+		</div>
+		<div class="choice" data-option="week">
+			<div>
+				<img src="../unknown.svg">
+				<div class="label">Next Week</div>
+			</div>
+			<div>
+				<div class="date">9am</div>
+				<div class="time">9am</div>
+			</div>
+		</div>
+		<div class="choice" data-option="month">
+			<div>
+				<img src="../unknown.svg">
+				<div class="label">Next Month</div>
+			</div>
+			<div>
+				<div class="date">9am</div>
+				<div class="time">9am</div>
+			</div>
+		</div>
+		<div class="choice" data-option="custom">
+			<div>
+				<img src="../unknown.svg">
+				<div class="label">Choose your own time</div>
+			</div>
+			<div>
+				<div class="date"></div>
+				<div class="time"></div>
+			</div>
+		</div>
+	</div>
+	<div class="section center">
+		<button id="btn">See Snoozed Tabs</button>
+	</div>
+	<script type="text/javascript" src="../day.min.js"></script>
+	<script type="text/javascript" src="./popup.js"></script>
+</body>
+</html>
