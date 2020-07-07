@@ -3,110 +3,248 @@
 }
 
 body, html, h1, h3 {
-	margin: 0;
+	margin: 0 auto;
 }
+
 body {
-	width: 22em;
+	position: relative;
+	width: 45em;
 	padding: .5em;
 }
-div.section {
+.section:first-of-type, .section:last-of-type {
 	padding: 1em 0;
 }
+
 .flex {
 	display: flex;
+	align-items: center;
 }
-.flex-center {
+
+img {
+	max-width: 4.5em;
+	padding-right: 1em;
+}
+
+a {
+	color: #000;
+}
+
+.title .flex {
+	padding: 0 .5em;
+	justify-content: center;
+}
+
+.center {
+	text-align: center;
+	justify-content: center;
+}
+
+.tab {
+	margin: .5em .25em .5em 0;
+	padding: .5em;
+	align-items: center;
+	border-radius: .33em;
+	height: 3.5em;
+	max-width: 100%;
+	background-image: linear-gradient(to right, #ddd 50%, #ddd 0);
+	background-position: right;
+	background-size: 200% 200%;
+	transition: background-position 1.7s linear, color .4s ease-in-out .75s;
+}
+.tab.snoozed {
+	display: flex;
 	justify-content: center;
 	align-items: center;
 }
-.space-around {
-	justify-content: space-around;
+.tab.animate {
+	background-position: left;
 }
-img {
-	max-width: 3em;
-}
-.center {
-	text-align: center;
-}
-.tab {
-	margin: .5em .5em 0;
-	padding: .5em .5em .25em;
-	align-items: center;
-	border-radius: .33em;
-	max-width: 100%;
-	background-color: #efefef;
+.tab.snoozed span {
+	font-size: 2em;
+	font-weight: bolder;
 }
 #tab-favicon {
 	max-height: 1.5em;
 	padding-right: .5em;
 }
 
-#tab-title {
-	/*width: 80%;*/
-	line-height: 1.5;
-	max-height: 3em;
-	overflow-y: hidden;
+.section {
+	display: flex;
+	flex-wrap: wrap;
+	width: 100%;
+}
+.section:first-of-type {
+	justify-content: space-between;
+}
+.section > div {
+	max-width: 48.8%;
+	flex-basis: 48.8%;
 }
 
-.choice {
+#tab-title {
+	line-height: 1.5;
+	max-height: 3em;
+	overflow: scroll;
+}
+
+.choice, .custom-choice {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
-	margin: .25em .5em;
+	margin: .25em;
 	padding: .25em .5em;
 	border-radius: .33em;
 	background-color: #f7f7f7;
 	cursor: pointer;
-	height: 2.5em;
+	height: 4.5em;
 	transition: all .3s ease-in-out;
+	justify-content: space-between;
 }
+
+.custom-choice {
+	cursor: unset;
+	height: 4.5em;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	justify-content: unset;
+}
+
+.custom-choice div:first-of-type {
+	flex-basis: 52%;
+}
+
+.custom-choice .input{
+	flex-basis: 38%;
+	display: flex;
+	flex-direction: column;
+}
+
+input {
+	-webkit-appearance: none;
+	border: none;
+	width: 10em;
+	background: transparent;
+	position: relative;
+}
+
+input:focus,input:active {
+	outline: none;
+}
+
+input::-webkit-datetime-edit {
+	text-transform: uppercase;
+	font-family: 'Monaco';
+}
+
+input::-webkit-datetime-edit-fields-wrapper {
+	padding: .35em 0;
+}
+
+input::-webkit-datetime-edit-month-field,
+input::-webkit-datetime-edit-day-field,
+input::-webkit-datetime-edit-year-field,
+input::-webkit-datetime-edit-hour-field,
+input::-webkit-datetime-edit-minute-field {
+	background: rgba(0,0,0,.05);
+	padding: .25em .5em;
+	border-radius: .33em;
+	cursor: pointer;
+}
+input.invalid::-webkit-datetime-edit-month-field,
+input.invalid::-webkit-datetime-edit-day-field,
+input.invalid::-webkit-datetime-edit-year-field,
+input.invalid::-webkit-datetime-edit-hour-field,
+input.invalid::-webkit-datetime-edit-minute-field {
+	background: rgba(255,0,0,.15);
+}
+
+input::-webkit-calendar-picker-indicator {
+	position: absolute;
+	z-index: 2;
+	cursor: pointer;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    color: transparent;
+    background: transparent;
+}
+
+.custom-choice div:last-of-type {
+	flex-basis: 10%;
+	text-align: right;
+}
+
 .choice:hover {
 	background-color: #dfdfdf;
 }
-.choice[data-option="monday"]:hover {
-	background-color: #F8CB50;
+.choice[data-option="monday"]:hover, .choice[data-option="monday"].focused {
+	background-color: #F4CD4C;
 }
-.choice[data-option="tom-morning"]:hover {
-	background-color: #97D0EE;
-}
-.choice[data-option="today-morning"]:hover{
+.choice[data-option="tom-morning"]:hover, .choice[data-option="tom-morning"].focused {
 	background-color: #538D49;
 }
-.choice[data-option="weekend"]:hover{
+.choice[data-option="today-morning"]:hover, .choice[data-option="today-morning"].focused {
+	background-color: #a0daff;
+}
+.choice[data-option="weekend"]:hover, .choice[data-option="weekend"].focused {
 	background-color: #E26991;
 }
-.choice[data-option="tom-evening"]:hover{
+.choice[data-option="tom-evening"]:hover, .choice[data-option="tom-evening"].focused {
 	background-color: #1E5896;
 }
-
-.choice[data-option="today-morning"]:hover,
-.choice[data-option="today-morning"]:hover .time, 
-.choice[data-option="today-morning"]:hover .date,
-.choice[data-option="tom-evening"]:hover,
-.choice[data-option="tom-evening"]:hover .time, 
-.choice[data-option="tom-evening"]:hover .date,
-.choice[data-option="weekend"]:hover,
-.choice[data-option="weekend"]:hover .time, 
-.choice[data-option="weekend"]:hover .date {
-	color: #fff;
+.choice[data-option="today-evening"]:hover, .choice[data-option="today-evening"].focused {
+	background-color: #E1AD7A;
+}
+.choice[data-option="month"]:hover, .choice[data-option="month"].focused {
+	background-color: #AA233A;
+}
+.choice[data-option="week"]:hover, .choice[data-option="week"].focused {
+	background-color: #4B9B62;
+}
+.custom-choice[data-option="custom"]:hover {
+	background-color: #f1f1f1;
+}
+.custom-choice[data-option="custom"].focused {
+	background-color: #3965C2;
+}
+.custom-choice[data-option="custom"].focused .submit-custom {
+	color: #3965C2;
 }
 
-.choice.disabled {
-	/*pointer-events: none;
+.choice.dark-on-hover:hover div div, .choice.dark-on-hover.focused div div,
+.custom-choice.dark-on-hover.focused, .custom-choice.dark-on-hover.focused input {
+	color: #fff !important;
+}
+
+.choice.disabled, .custom-choice.disabled {
+	pointer-events: none;
 	touch-actions: none;
 	opacity: .1;
-	cursor: unset;*/
-}
-.choice img {
-	max-height: 1.5em;
-	padding-right: .5em;
+	cursor: unset;
 }
 
-.choice > div:first-of-type {
+/* inside choice*/
+.choice img, .custom-choice img {
+	max-height: 2.5em;
+	padding-right: 1em;
+}
+
+.label {
+	font-weight: bold;
+	white-space: nowrap;
+}
+
+.choice > div:first-of-type, .custom-choice > div:first-of-type {
 	display: flex;
 	align-items: center;
 	pointer-events: none;
 }
+
+h3 {
+	text-transform: uppercase;
+	font-size: .75em;
+}
+
 .choice .time, .choice .date {
 	color: #999;
 	font-size: .75em;
@@ -115,8 +253,71 @@ img {
 	text-align: right;
 	transition: all .3s ease-in-out;
 }
+
 .choice div:last-of-type div:first-of-type {
 	font-size: 1em;
 	color: #777;
 	font-weight: bold;
+}
+
+.submit-custom {
+	cursor: pointer;
+	font-size: 3em;
+	color: #ccc;
+	transition: color .3s ease-in-out;
+}
+
+.submit-custom:hover {
+	color: #3965C2;
+}
+
+.dashboard-btn {
+	cursor: pointer;
+	font-size: 1.25em;
+	border-bottom: 1px solid black;
+}
+.upcoming:before {
+	content: 'Tabs reopening today - '
+}
+.upcoming {
+	font-size: .75em;
+	text-transform: uppercase;
+	color: #666;
+}
+.settings {
+	position: absolute;
+	top: 0;
+	left: 0;
+	margin: .25em;
+	cursor: pointer;
+	border: 1px solid white;
+}
+.settings img {
+	width: 1.5em;
+	padding: 0;
+	border: 1px solid white;
+	transition: background-color .3s ease-in-out;
+	-webkit-background-clip: padding-box;
+}
+.settings:after {
+	opacity: 0;
+	content: 'Settings';
+	position: absolute;
+	top: .125em;
+	left: 1.75em;
+	pointer-events: none;
+	touch-events: none;
+	transition: opacity .3s ease-in-out;
+}
+.settings:hover:after {
+	opacity: 1;
+}
+.settings img:hover {
+	background-color: black;
+	animation: spin 2.5s linear infinite;
+}
+
+@keyframes spin {
+	from {transform: rotate(0deg)}
+	to {transform: rotate(360deg)}
 }

@@ -1,9 +1,9 @@
 {
 	"name": "Tab Snoozer",
-	"description": "Declutter your workflow by snoozing tabs for later",
+	"description": "Declutter your windows by snoozing tabs for later",
 
 	"icons": {
-		"128": "pillow.png"
+		"128": "icons/ext-icon.png"
 	},
 
 	"browser_action": {
