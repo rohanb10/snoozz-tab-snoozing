@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Tab Snoozer | Settings</title>
+	<link rel="stylesheet" href="./settings.css" />
+</head>
+<body>
+	<div class="flex center">
+		<img src="../icons/popup-icon.png">
+		<div><h1>Tab Snoozer</h1></div>
+	</div>
+	<div class="settings-container">
+		<h2><span>Settings</span></h2><br>
+		<div class="input-container flex">
+			<div><h4>Morning hour</h4></div>
+			<span><input id="morning" type="number" value="9" step="1" min="1" max="11">am</span>
+		</div>
+		<div class="input-container flex">
+			<div><h4>Evening hour</h4></div>
+			<span><input id="evening" type="number" value="6" step="1" min="1" max="11">pm</span>
+		</div>
+		<div class="input-container flex">
+			<div>
+				<h4>Days of History</h4>
+				<p>All reopened tabs will be automatically deleted after this amount of time</p>
+			</div>
+			<span><input id="history" type="number" value="7" steps="1" min="0" max="180">days</span>
+		</div><br>
+		<div id="saved">All changes have been saved</div>
+	</div><br><br>
+	<div class="about-container">
+		<h2><span>About</span></h2>
+		<div>
+			<p>The battery on my laptop has degraded to the point that I can no longer just leave Chrome tabs open all willy nilly.</p>
+			<p>I decided to make this extension to use instead of using bookmarks, which feel like a much more serious commitment to me.</p>
+			<p>All the code for this extension is fully available on <a target="_blank" href="https://github.com/rohanb10/snooze">github</a>. All your data stays in your browser and is never uploaded anywhere.</p>
+			<p>I intend to migrate this extension to Firefox and Safari eventually.</p>
+			<p>Made by <a target='blank' href="https://rohan.xyz">rohan</a> in 2020.</p>
+		</div>
+	</div>
+	<div class="dashboard"><div>See your snoozed tabs</div></div>
+	<script type="text/javascript" src="./settings.js"></script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+* {
+	box-sizing: border-box;
+}
+
+body, html, h1, h3, h4, h4 + p {
+	margin: 0 auto;
+}
+body {
+	padding: 1em 0;
+}
+
+.flex {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+img {
+	max-width: 6em;
+	padding-right: 1em;
+}
+.settings-container, .about-container {
+	max-width: 35em;
+	margin: 1.5em auto 0;
+}
+h2 span {
+	padding: .25em;
+	border-bottom: 3px solid #E26991;
+}
+.about-container {
+	text-align: right;
+}
+.about-container h2 span {
+	border-color: #1E5896
+}
+.input-container {
+	font-size: 1.2em;
+	justify-content: space-between;
+	padding: 1em;
+	margin: .5em 0;
+	border-radius: .33em;
+}
+.input-container:nth-of-type(odd), .input-container:nth-of-type(odd) input[type="number"]{
+	background-color: #efefef;
+}
+.input-container div:first-of-type {
+	max-width: 70%;
+}
+#saved {
+	padding: 1em 0;
+	text-align: center;
+	opacity: 0;
+	transition: opacity .3s ease-in-out
+}
+#saved.animate {
+	opacity: 1;
+}
+a {
+	text-decoration: underline;
+	color: #000;
+}
+h4 + p {
+	font-size: .8em;
+}
+input[type="number"] {
+	width: 1.5em;
+	font-size: 1em;
+	margin-right: .5em;
+}
+input {
+	border: none;
+	outline: none;
+	border-bottom: 2px solid #000;
+	text-align: center;
+	-webkit-appearance: none;
+}
+input#history {
+	width: 2.5em;
+}
+input::-webkit-inner-spin-button, input::-webkit-outer-spin-button {
+	-webkit-appearance: none;	
+}
+.about-container p:first-of-type {
+	margin-top: 2.5em;
+}
+.dashboard {
+	position: fixed;
+	top: 0;
+	right: 0;
+	padding: .5em;
+	font-size: 1.25em;
+	cursor: pointer;
+}
+.dashboard div:hover {
+	border-bottom: 1px solid black;
+}
+.dashboard div:after {
+	content: '\027A4';
+	padding-left: .5em;
+}

@@ -7,7 +7,6 @@ body, html, h1, h3 {
 }
 body {
 	padding: 1em;
-	position: relative;
 }
 
 .flex {
@@ -28,6 +27,16 @@ img {
 	margin: 0 auto;
 	padding: 2em 0;
 }
+.collection-container p {
+	text-align: center;
+	font-size: 1.2em;
+	margin: 2.5em 0;
+	color: #666;
+}
+.collection-container p span {
+	text-decoration: underline;
+	cursor: pointer;
+}
 .none {
 	padding: 6em 0;
 	font-size: 1.5em;
@@ -37,15 +46,38 @@ img {
 	margin-bottom: 3em;
 }
 .collection[data-type="history"] {
-	margin-top: 5em;
 	opacity: .75;
 	color: #999;
 }
 .collection[data-type="history"] h2 {
-	color: black;
+	color: #444;
+	border-bottom: 
 }
 .collection h2 {
 	padding-left: 1em;
+}
+.collection h2 span {
+	padding: 0 .25em;
+	border-bottom: 3px solid #fff;
+}
+.collection[data-type="today"] h2 span {
+	border-color: #c22352;
+}
+.collection[data-type="tomorrow"] h2 span {
+	border-color: #F4CD4C;
+}
+.collection[data-type="this week"] h2 span {
+	border-color: #4B9B62;
+}
+.collection[data-type="later"] h2 span {
+	border-color: #3965C2;
+}
+.collection[data-type="history"] h2 span {
+	color: #444;
+	border-color: #444;
+}
+.tab input[type="checkbox"] {
+	opacity: 0;
 }
 .tab {
 	display: flex;
@@ -54,6 +86,9 @@ img {
 	border-radius: .33em;
 	margin: .5em 0;
 	background-color: #f7f7f7;
+}
+.tab:hover, .tab:hover .tab-snooze-until, .tab:hover .tab-actions{
+	background-color: #efefef;
 }
 .tab > div {
 	padding: 1.25em .25em;
@@ -104,6 +139,9 @@ img {
 	font-size: .75em;
 	color: #999;
 }
+.collection[data-type="history"] .tab-snooze-until .post:before {
+	content: 'Reopened on';
+}
 .tab-snooze-until .time {
 	font-weight: bold;
 	width: 15em;
@@ -125,11 +163,8 @@ img {
 	color: #222;
 }
 
-
-
-
 .settings {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	right: 0;
 	margin: .25em;

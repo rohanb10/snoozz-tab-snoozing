@@ -280,6 +280,7 @@ h3 {
 	content: 'Tabs reopening today - '
 }
 .upcoming {
+	opacity: 0;
 	font-size: .75em;
 	text-transform: uppercase;
 	color: #666;

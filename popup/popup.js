@@ -1,16 +1,15 @@
-const currentTime = new Date();
+const NOW = new Date();
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-// btn.addEventListener('click', );
+var EXT_OPTIONS = {morning: 9, evening: 18, history: 7};
 
 function initialize() {
 	getCurrentTab();
-	configureSnoozeOptions();
 
 	// custom snooze defaults + listeners
- 	document.querySelector('input[type="date"]').setAttribute('min', currentTime.toISOString().split("T")[0]);
- 	document.querySelector('input[type="time"]').value = currentTime.toTimeString().substring(0,5);
+ 	document.querySelector('input[type="date"]').setAttribute('min', NOW.toISOString().split("T")[0]);
+ 	document.querySelector('input[type="date"]').value = NOW.toISOString().split("T")[0];
+ 	document.querySelector('input[type="time"]').value = NOW.toTimeString().substring(0,5);
  	document.querySelectorAll('input').forEach(i => i.addEventListener('input', e => e.target.classList.remove('invalid')));
 
  	document.querySelector('.submit-custom').addEventListener('click', submitCustom);
@@ -18,6 +17,23 @@ function initialize() {
 
  	// button event listeners
  	document.querySelectorAll('.dashboard-btn, .settings').forEach(el => el.addEventListener('click', openLink));
+ 	chrome.storage.local.get(['snoozed', 'snoozedOptions'], s => {
+ 		var tabs = s.snoozed;
+ 		EXT_OPTIONS = Object.assign(EXT_OPTIONS, s.snoozedOptions);
+ 		if (Object.keys(s.snoozedOptions).length === 0) chrome.storage.local.set({snoozedOptions: EXT_OPTIONS});
+ 		if (!tabs || tabs.length === 0) return;
+ 		configureSnoozeOptions();
+
+ 		var todayCount = 0;
+ 		tabs.forEach(t => {
+ 			if (t.opened) return;
+ 			todayCount += sameDay(NOW, new Date(t.wakeUpTime)) ? 1 : 0 ;	
+ 		});
+ 		if (todayCount === 0) return;
+ 		var upc = document.querySelector('.upcoming');
+ 		upc.innerText = `${todayCount}`;
+ 		upc.style.opacity = "1"
+ 	});
 }
 
 function openLink(el) {
@@ -29,9 +45,26 @@ function getCurrentTab() {
 	chrome.tabs.query({active: true}, tabs => {
 		var tab = tabs.length > 0 && tabs[0] ? tabs[0] : false;
 		if (!tabs) return;
+
+		const validProtocols = ['http', 'https', 'file', 'ftp'];
+		var tabProto = tab.url.substring(0, tab.url.indexOf(':'))
+		if (!validProtocols.includes(tabProto)) {
+			tab.title = `Cannot snooze tabs starting with\n` + tabProto + '://';
+			tab.url = '';
+			document.querySelectorAll('.choice, .custom-choice').forEach(c => c.classList.add('disabled'));
+		}
+
 		document.getElementById('tab-title').innerText = tab.title;
 		document.getElementById('tab-favicon').src = tab.favIconUrl.length > 0 ? tab.favIconUrl : '../icons/unknown.png';
 	});
+
+}
+
+function sameDay(d1, d2)  {
+	if (d1.getFullYear() !== d2.getFullYear()) return false;
+	if (d1.getMonth() !== d2.getMonth()) return false;
+	if (d1.getDate() !== d2.getDate()) return false;
+	return true;
 }
 
 function configureSnoozeOptions() {
@@ -39,8 +72,8 @@ function configureSnoozeOptions() {
 
 	options.forEach(o => {
 		// disable invalid options
-		if (o.dataset.option === 'today-morning' && currentTime.getHours() >= 7) o.classList.add('disabled')
-		if (o.dataset.option === 'today-evening' && currentTime.getHours() >= 18) o.classList.add('disabled')
+		if (o.dataset.option === 'today-morning' && NOW.getHours() >= 7) o.classList.add('disabled')
+		if (o.dataset.option === 'today-evening' && NOW.getHours() >= 18) o.classList.add('disabled')
 
 		var config = getTimeForOption(o.dataset.option);
 
@@ -60,11 +93,8 @@ function getNextDay(dayNum) {
 }
 
 function getTimeForOption(option) {
-	const defaultMorningHour = 9;
-	const defaultEveningHour = 18;
-
 	// calculate date for option
-	var t = new Date(currentTime.getFullYear(), currentTime.getMonth(), currentTime.getDate());
+	var t = new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate());
 	if (option === 'tom-morning') {
 		t.setDate(t.getDate() + 1);
 	} else if (option === 'tom-evening') {
@@ -81,11 +111,11 @@ function getTimeForOption(option) {
 
 	// calculate time for option
 	if (option.indexOf('evening') > -1) {
-		t.setHours(defaultEveningHour);
+		t.setHours(EXT_OPTIONS.evening);
 	} else if (['week', 'month'].indexOf(option) > -1) {
-		t.setHours(currentTime.getHours())
+		t.setHours(NOW.getHours())
 	} else {
-		t.setHours(defaultMorningHour);
+		t.setHours(EXT_OPTIONS.morning);
 	}
 
 	var label = [];
@@ -120,7 +150,7 @@ function submitCustom() {
 		return;
 	}
 	var time = new Date(`${d.value} ${t.value}`);
-	if (time < currentTime) {
+	if (time < NOW) {
 		t.classList.add('invalid');
 		return;
 	}
@@ -128,7 +158,7 @@ function submitCustom() {
 }
 
 function snooze(snoozeTime, label) {
-	chrome.alarms.create('tabsAlarm', { periodInMinutes: 10 });
+	chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1})
 	chrome.storage.local.get(['snoozed'], function(storage) {
 		storage.snoozed = storage.snoozed || [];
 		chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
@@ -138,9 +168,8 @@ function snooze(snoozeTime, label) {
 				title: tab.title,
 				url: tab.url,
 				favicon: tab.favIconUrl,
-				snoozeUntil: snoozeTime.toISOString(),
-				timestamp: currentTime.toISOString(),
-				reopened: false,
+				wakeUpTime: snoozeTime.getTime(),
+				timeCreated: NOW.getTime(),
 			})
 			chrome.storage.local.set(
 				{snoozed: storage.snoozed},
@@ -177,4 +206,3 @@ function changeTabAfterSnooze(data) {
 }
 
 window.onload = initialize
-window.addEventListener('unload', function(){debugger})

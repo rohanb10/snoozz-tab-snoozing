@@ -10,14 +10,15 @@
 		"default_popup": "popup/popup.html"
 	},
 
+	"options_page": "settings/settings.html",
 	
 	"background": {
 		"scripts": ["background.js"],
 		"persistent": false
 	},
 
-	"permissions": ["alarms", "storage", "tabs"],
+	"permissions": ["alarms", "notifications", "storage", "tabs"],
 
 	"manifest_version": 2,
-	"version": "1.0"
+	"version": "1.0.1"
 }
