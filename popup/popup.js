@@ -15,17 +15,20 @@ function initialize() {
  	document.querySelectorAll('input').forEach(i => i.addEventListener('input', e => e.target.classList.remove('invalid')));
 
  	document.querySelector('.submit-custom').addEventListener('click', submitCustom);
- 	document.addEventListener('snoozed', changeTabAfterSnooze);
+ 	document.querySelector('.dashboard-btn').addEventListener('click', openLink);
+ 	document.querySelector('.settings').addEventListener('click', openLink);
 
- 	// button event listeners
- 	document.querySelectorAll('.dashboard-btn, .settings').forEach(el => el.addEventListener('click', openLink));
+ 	document.addEventListener('snoozeEvent', changeTabAfterSnooze);
+
  	chrome.storage.local.get(['snoozed', 'snoozedOptions'], s => {
  		EXT_OPTIONS = Object.assign(EXT_OPTIONS, s.snoozedOptions);
- 		if (Object.keys(s.snoozedOptions).length === 0) chrome.storage.local.set({snoozedOptions: EXT_OPTIONS});
- 		configureSnoozeOptions();
 
+ 		if (!s.snoozedOptions || Object.keys(s.snoozedOptions).length === 0) {
+ 			chrome.storage.local.set({snoozedOptions: EXT_OPTIONS});
+ 		}
+ 		configureSnoozeOptions();
  		
- 		if (Object.keys(s.snoozed).length === 0) return;
+ 		if (!s.snoozed || Object.keys(s.snoozed).length === 0) return;
  		var todayCount = (s.snoozed.filter(t => sameDay(NOW, new Date(t.wakeUpTime)) && !t.opened)).length;
  		if (todayCount === 0) return;
  		var upc = document.querySelector('.upcoming');
@@ -40,7 +43,7 @@ function openLink(el) {
 }
 
 function getCurrentTab() {
-	chrome.tabs.query({active: true}, tabs => {
+	chrome.tabs.query({active: true, currentWindow: true}, tabs => {
 		var tab = tabs.length > 0 && tabs[0] ? tabs[0] : false;
 		if (!tabs) return;
 
@@ -70,8 +73,8 @@ function configureSnoozeOptions() {
 
 	options.forEach(o => {
 		// disable invalid options
-		if (o.dataset.option === 'today-morning' && NOW.getHours() >= 7) o.classList.add('disabled')
-		if (o.dataset.option === 'today-evening' && NOW.getHours() >= 18) o.classList.add('disabled')
+		if (o.dataset.option === 'today-morning' && NOW.getHours() >= EXT_OPTIONS.morning) o.classList.add('disabled')
+		if (o.dataset.option === 'today-evening' && NOW.getHours() >= EXT_OPTIONS.evening) o.classList.add('disabled')
 
 		var config = getTimeForOption(o.dataset.option);
 
@@ -179,7 +182,7 @@ function snooze(snoozeTime, label) {
 				{snoozed: storage.snoozed},
 				function() {
 					updateBadge(Object.keys(storage.snoozed).length)
-					document.dispatchEvent(new CustomEvent('snoozed', {detail: {label: label}}));
+					document.dispatchEvent(new CustomEvent('snoozeEvent', {detail: {label: label}}));
 					setTimeout(function(){
 						chrome.tabs.remove(tab.id);
 					}, 2000);

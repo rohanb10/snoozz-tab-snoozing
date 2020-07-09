@@ -6,7 +6,7 @@ var OPTIONS = {morning: 9, evening: 18, history: 7};
 function initialize() {
 	chrome.storage.local.get(['snoozedOptions'], s => {
 		OPTIONS = Object.assign(OPTIONS, s.snoozedOptions);
-		if (Object.keys(s.snoozedOptions).length === 0) chrome.storage.local.set({snoozedOptions: EXT_OPTIONS});
+		if (!s.snoozedOptions ||Object.keys(s.snoozedOptions).length === 0) chrome.storage.local.set({snoozedOptions: EXT_OPTIONS});
 		document.querySelectorAll('input').forEach(i => {
 			i.value = OPTIONS[i.id] - (i.id === 'evening'? 12 : 0);
 			i.addEventListener('change', e => {

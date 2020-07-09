@@ -22,7 +22,8 @@ function loadTabs() {
 	chrome.storage.local.get(['snoozed','snoozedOptions'], s => {
 		SNOOZED_TABS = s.snoozed;
 		EXT_OPTIONS = Object.assign(EXT_OPTIONS, s.snoozedOptions);
-		if (Object.keys(s.snoozedOptions).length === 0) chrome.storage.local.set({snoozedOptions: EXT_OPTIONS});
+		if (!s.snoozedOptions || Object.keys(s.snoozedOptions).length === 0) chrome.storage.local.set({snoozedOptions: EXT_OPTIONS});
+		if (!s.snoozed || Object.keys(s.snoozed).length === 0) return;
 		sortTabsAndBuildCollections(s.snoozed)
 	});
 }
@@ -270,7 +271,10 @@ function removeTab(id) {
 			}
 		})
 	});
-	if (SNOOZED_TABS.length <= 0) document.querySelector('.none').style.display = 'block';
+	if (SNOOZED_TABS.length <= 0) {
+		document.querySelectorAll('.collection, .collection-container p').forEach(el => el.outerHTML = '');
+		document.querySelector('.none').style.display = 'block';
+	}
 }
 
 function updateBadge(num) {

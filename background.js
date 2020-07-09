@@ -7,7 +7,7 @@ function wakeUpTabs() {
 	chrome.storage.local.get(['snoozed', 'snoozedOptions'], s => {
 		var ST = s.snoozed
 		OPTIONS = Object.assign(OPTIONS, s.snoozedOptions);
-		if (Object.keys(ST).length === 0){
+		if (!ST || Object.keys(ST).length === 0){
 			chrome.alarms.clear('wakeUpTabs');
 			return;
 		}
@@ -32,10 +32,12 @@ function wakeUpTabs() {
 			}
 		});
 		chrome.storage.local.set({snoozed: ST});
-		chrome.alarms.create('wakeUpTabs', {when: earliest});
+		if (earliest <= NOW) {
+			chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1})
+		} else {
+			chrome.alarms.create('wakeUpTabs', {when: earliest});
+		}
 		updateBadge((ST.filter(t => !t.opened)).length);
-		console.log((ST.filter(t => !t.opened)).length + ' tabs in storage');
-		console.log(new Date());
 	});
 }
 

@@ -85,8 +85,8 @@ input::-webkit-inner-spin-button, input::-webkit-outer-spin-button {
 }
 .dashboard {
 	position: fixed;
-	top: 0;
-	right: 0;
+	top: .5em;
+	right: .5em;
 	padding: .5em;
 	font-size: 1.25em;
 	cursor: pointer;

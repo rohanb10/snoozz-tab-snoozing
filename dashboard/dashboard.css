@@ -165,8 +165,8 @@ img {
 
 .settings {
 	position: fixed;
-	top: 0;
-	right: 0;
+	top: 0.5em;
+	right: 0.5em;
 	margin: .25em;
 	cursor: pointer;
 	border: 1px solid white;
