@@ -9,10 +9,13 @@ var EXT_OPTIONS = {morning: 9, evening: 18, history: 7};
 function initialize() {
 	document.querySelector('.settings').addEventListener('click', _ => openURL('settings/settings.html', true), {once:true})
 	loadTabs();
-	chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1});
-	chrome.tabs.getCurrent(tab => {
-		chrome.tabs.update(tab.id, {url:url})
-	});
+	// refresh the alarm if the next one is more than 2 mins away;
+	chrome.alarms.get('wakeUpTabs', wut => {
+		if (!wut) return;
+		var nextRing = new Date(wut.scheduledTime);
+		if (nextRing.setMinutes(nextRing.getMinutes() + 2) > NOW) chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1});
+	})
+	
 }
 
 function loadTabs() {
@@ -52,7 +55,7 @@ function sortTabsAndBuildCollections(tabs) {
 	buildCollection('Tomorrow', tomorrow)
 	buildCollection('This Week', week)
 	buildCollection('Later', later)
-	if (tabs.length - history.length > 0) cc.innerHTML += '<p><i>Due to API restrictions, tabs may reopen upto 2 minutes after scheduled wake up time</i></p>'
+	if (tabs.length - history.length > 0) cc.innerHTML += '<p><i>Due to API restrictions, tabs may reopen upto 2 minutes late.</i></p>'
 	
 	buildCollection('History', history)
 
@@ -62,6 +65,7 @@ function sortTabsAndBuildCollections(tabs) {
 		cc.querySelector('p span').addEventListener('click', _ => {
 			if (!confirm('Are you sure you want to delete all your snoozed tabs? \nYou cannot undo this action.')) return;
 			chrome.storage.local.set({snoozed: []});
+			chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1});
 			updateBadge(0);
 			chrome.tabs.reload();
 		})
@@ -259,7 +263,12 @@ function removeTab(id) {
 		chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1})
 		getTabFromID(id).outerHTML = '';
 		updateBadge(Object.keys(SNOOZED_TABS).length);
-		document.querySelectorAll('.collection').forEach(c => {if (!c.querySelector('.tab')) c.outerHTML = ''})
+		document.querySelectorAll('.collection').forEach(c => {
+			if (!c.querySelector('.tab')){
+				if (c.getAttribute('data-type') === 'history') c.nextElementSibling.outerHTML = ''
+				c.outerHTML = '';
+			}
+		})
 	});
 	if (SNOOZED_TABS.length <= 0) document.querySelector('.none').style.display = 'block';
 }
