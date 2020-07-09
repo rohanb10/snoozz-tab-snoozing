@@ -1,21 +1,23 @@
+'use strict';
+
+var OPTIONS = {history: 7};
 function wakeUpTabs() {
 	const NOW = new Date();
 	// tab actions
-	chrome.storage.local.get(['snoozed'], s => {
+	chrome.storage.local.get(['snoozed', 'snoozedOptions'], s => {
 		var ST = s.snoozed
+		OPTIONS = Object.assign(OPTIONS, s.snoozedOptions);
 		if (Object.keys(ST).length === 0){
 			chrome.alarms.clear('wakeUpTabs');
 			return;
 		}
-		// remove tabs older than 7 days old
-		ST.filter(t => {
-			var wut = new Date(t.opened);
-			return NOW > (wut.setDate(wut.getDate() + 7))
-		});
+		// remove tabs in history if they are more than X days old. X is defined in options
+		ST.filter(t => !t.opened && NOW - new Date(t.opened) > parseInt(OPTIONS.history) * 8.64e7)
+		
 		var earliest = 9999999999999;
 		ST.forEach((t, i) => {
 			if (t.opened) return;
-			earliest = t.wakeUpTime < earliest ? t.wakeUpTime : earliest;
+			if (t.wakeUpTime < earliest) earliest = t.wakeUpTime
 			if (NOW > t.wakeUpTime) {
 				t.opened = NOW.getTime();
 				chrome.tabs.create({url: t.url, active: true}, _ => {
@@ -31,6 +33,9 @@ function wakeUpTabs() {
 		});
 		chrome.storage.local.set({snoozed: ST});
 		chrome.alarms.create('wakeUpTabs', {when: earliest});
+		updateBadge((ST.filter(t => !t.opened)).length);
+		console.log((ST.filter(t => !t.opened)).length + ' tabs in storage');
+		console.log(new Date());
 	});
 }
 
@@ -38,9 +43,9 @@ function formatDate(d) {
 	return d.toLocaleString('default', {month:'short'}) + ' ' + d.getDate();
 }
 
-function daysBetween(d1, d2) {
-	var db = Math.floor(Math.abs(d1.getTime() - d2.getTime())/8.64e7);
-	return db === 0 ? (d1.getDate() === d2.getDate() ? 0 : 1) : db;
+function updateBadge(num) {
+	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});
+	chrome.browserAction.setBadgeBackgroundColor({color: '#666'});
 }
 
 chrome.runtime.onStartup.addListener(_ => chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1}));

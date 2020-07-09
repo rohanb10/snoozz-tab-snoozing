@@ -1,3 +1,5 @@
+'use strict';
+
 var savedTimer;
 var OPTIONS = {morning: 9, evening: 18, history: 7};
 

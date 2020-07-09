@@ -1,3 +1,5 @@
+'use strict';
+
 const NOW = new Date();
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -18,17 +20,13 @@ function initialize() {
  	// button event listeners
  	document.querySelectorAll('.dashboard-btn, .settings').forEach(el => el.addEventListener('click', openLink));
  	chrome.storage.local.get(['snoozed', 'snoozedOptions'], s => {
- 		var tabs = s.snoozed;
  		EXT_OPTIONS = Object.assign(EXT_OPTIONS, s.snoozedOptions);
  		if (Object.keys(s.snoozedOptions).length === 0) chrome.storage.local.set({snoozedOptions: EXT_OPTIONS});
- 		if (!tabs || tabs.length === 0) return;
  		configureSnoozeOptions();
 
- 		var todayCount = 0;
- 		tabs.forEach(t => {
- 			if (t.opened) return;
- 			todayCount += sameDay(NOW, new Date(t.wakeUpTime)) ? 1 : 0 ;	
- 		});
+ 		
+ 		if (Object.keys(s.snoozed).length === 0) return;
+ 		var todayCount = (s.snoozed.filter(t => sameDay(NOW, new Date(t.wakeUpTime)) && !t.opened)).length;
  		if (todayCount === 0) return;
  		var upc = document.querySelector('.upcoming');
  		upc.innerText = `${todayCount}`;
@@ -81,9 +79,15 @@ function configureSnoozeOptions() {
 		o.addEventListener('click', e => snooze(config.time, e.target.dataset.option));
 
 		// display time + date correctly for each option
-		o.querySelector('.time').innerText = config.label[1];
-		o.querySelector('.date').outerHTML = config.label[0].length > 0 ? `<div class="date">${config.label[0]}</div>` : ``;
+		var time_date = o.querySelector('.time').parentElement;
+		time_date.querySelector('.time').innerText = config.label[1];
+		time_date.querySelector('.date').outerHTML = config.label[0].length > 0 ? `<div class="date">${config.label[0]}</div>` : ``;
+		time_date.title = formatFullTimeStamp(config.time);
 	})
+}
+
+function formatFullTimeStamp(d) {
+	return d.toLocaleTimeString('default', {hour: "numeric", minute: "numeric"})+ ' on' + d.toDateString().substring(d.toDateString().indexOf(' '));
 }
 
 function getNextDay(dayNum) {
@@ -122,10 +126,10 @@ function getTimeForOption(option) {
 	if (['today-morning', 'today-evening'].indexOf(option) > -1){
 		label.push('', formatHours(t.getHours()));
 	}
-	else if (['tom-morning', 'tom-evening'].indexOf(option) > -1){
+	else if (['tom-morning', 'tom-evening', 'weekend'].indexOf(option) > -1){
 		label.push(`${DAYS[t.getDay()]}`, formatHours(t.getHours()));
 	}
-	else if (['weekend', 'monday', 'week', 'month'].indexOf(option) > -1){
+	else if (['monday', 'week', 'month'].indexOf(option) > -1){
 		label.push(MONTHS[t.getMonth()] + ' ' + t.getDate(), formatHours(t.getHours()));
 	}
 
@@ -174,6 +178,7 @@ function snooze(snoozeTime, label) {
 			chrome.storage.local.set(
 				{snoozed: storage.snoozed},
 				function() {
+					updateBadge(Object.keys(storage.snoozed).length)
 					document.dispatchEvent(new CustomEvent('snoozed', {detail: {label: label}}));
 					setTimeout(function(){
 						chrome.tabs.remove(tab.id);
@@ -182,6 +187,11 @@ function snooze(snoozeTime, label) {
 			);
 		});
 	});
+}
+
+function updateBadge(num) {
+	chrome.browserAction.setBadgeText({text: num.toString()});
+	chrome.browserAction.setBadgeBackgroundColor({color: '#666'});
 }
 
 function changeTabAfterSnooze(data) {
