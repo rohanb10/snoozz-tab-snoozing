@@ -63,13 +63,18 @@ function customChoiceHandler() {
 		clearTimeout(closeTimeout)
 	}));
 	[formDate,formTime].forEach(f => f.addEventListener('change', _ => {
+		clearTimeout(closeTimeout)
 		var isEdited = formDate.value !== NOW.toISOString().split('T')[0] || formTime.value !== NOW.toTimeString().substring(0,5);
-		if (isEdited) submitBtn.classList.remove('disabled');
+		if (isEdited) {
+			submitBtn.classList.remove('disabled');
+		} else {
+			closeTimeout = setTimeout(_ => cc.classList.remove('active'), 3000);
+		}
 	}, {once:true}));
 	cc.addEventListener('mouseout', _=> {
 		if (dateEdited) return;
 		if (!submitBtn.classList.contains('disabled')) return;
-		closeTimeout = setInterval(_ => cc.classList.remove('active'), 4000);
+		closeTimeout = setTimeout(_ => cc.classList.remove('active'), 3000);
 	})
 
  	// submit button click

@@ -18,6 +18,10 @@ body {
 	justify-content: center;
 }
 
+h1 {
+	font-weight: 800;
+}
+
 img {
 	max-width: 6em;
 	padding-right: 1em;

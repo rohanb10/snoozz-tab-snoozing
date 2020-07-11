@@ -24,6 +24,9 @@ img {
 	max-width: 4.5em;
 	padding-right: 1em;
 }
+h1 {
+	font-weight: 800;
+}
 
 a {
 	color: #000;
@@ -70,7 +73,7 @@ h3 {
 }
 #tab-favicon {
 	max-height: 1.5em;
-	padding-right: .5em;
+	padding-right: 1em;
 }
 
 .section {
@@ -210,7 +213,7 @@ h3 {
 	background-color: #E1AD7A;
 }
 .choice[data-option="tom-morning"]:hover, .choice[data-option="tom-morning"].focused {
-	background-color: #d8ff8c;
+	background-color: #00b77d;
 }
 .choice[data-option="tom-evening"]:hover, .choice[data-option="tom-evening"].focused {
 	background-color: #87CCE2;
@@ -270,17 +273,18 @@ input::-webkit-datetime-edit-fields-wrapper {
 }
 
 input::-webkit-datetime-edit-month-field, input::-webkit-datetime-edit-day-field, input::-webkit-datetime-edit-year-field, input::-webkit-datetime-edit-hour-field, input::-webkit-datetime-edit-minute-field {
-	background: rgba(0,0,0,.05);
+	background-color: rgba(0,0,0,.05);
 	padding: .25em .5em;
 	border-radius: .33em;
 	cursor: pointer;
+	transition: background-color .3s ease-in-out;
 }
 input.invalid::-webkit-datetime-edit-month-field, input.invalid::-webkit-datetime-edit-day-field, input.invalid::-webkit-datetime-edit-year-field, input.invalid::-webkit-datetime-edit-hour-field, input.invalid::-webkit-datetime-edit-minute-field {
-	background: rgba(255,0,0,.25);
+	background-color: rgba(255,0,0,.25);
 }
 
 .custom-choice:hover input.invalid::-webkit-datetime-edit-month-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-day-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-year-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-hour-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-minute-field {
-	background: rgba(255,0,0,.65);	
+	background-color: rgba(255,0,0,.65);	
 }
 
 input::-webkit-calendar-picker-indicator {
@@ -301,7 +305,7 @@ input::-webkit-calendar-picker-indicator {
 	border-bottom: 1px solid black;
 }
 .upcoming:before {
-	content: 'Tabs reopening today - '
+	content: 'Tabs waking up today - '
 }
 .upcoming {
 	opacity: 0;
