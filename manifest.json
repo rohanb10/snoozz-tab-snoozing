@@ -3,8 +3,7 @@
 	"description": "Declutter your windows by snoozing tabs for later",
 
 	"icons": {
-		"128": "icons/ext-icon.png",
-		"48" : "icons/ext-icon-48.png"
+		"128": "icons/_ext-icon-128.png"
 	},
 
 	"browser_action": {

@@ -5,7 +5,7 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 const NOW = new Date();
 
 var SNOOZED_TABS;
-var EXT_OPTIONS = {morning: 9, evening: 18, history: 7};
+var EXT_OPTIONS = {history: 7};
 function initialize() {
 	document.querySelector('.settings').addEventListener('click', _ => openURL('settings/settings.html', true), {once:true})
 	loadTabs();
@@ -263,7 +263,8 @@ function removeTab(id) {
 	chrome.storage.local.set({snoozed: SNOOZED_TABS}, _ => {
 		chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1})
 		getTabFromID(id).outerHTML = '';
-		updateBadge(Object.keys(SNOOZED_TABS).length);
+		// .filter(t => !t.opened)
+		updateBadge(SNOOZED_TABS.filter(t => !t.opened).length);
 		document.querySelectorAll('.collection').forEach(c => {
 			if (!c.querySelector('.tab')){
 				if (c.getAttribute('data-type') === 'history') c.nextElementSibling.outerHTML = ''
@@ -279,7 +280,7 @@ function removeTab(id) {
 
 function updateBadge(num) {
 	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});
-	chrome.browserAction.setBadgeBackgroundColor({color: '#666'});
+	chrome.browserAction.setBadgeBackgroundColor({color: '#30443f'});
 }
 
 window.onload = initialize

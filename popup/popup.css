@@ -29,6 +29,11 @@ a {
 	color: #000;
 }
 
+h3 {
+	text-transform: uppercase;
+	font-size: .75em;
+}
+
 .title .flex {
 	padding: 0 .5em;
 	justify-content: center;
@@ -100,122 +105,6 @@ a {
 	justify-content: space-between;
 }
 
-.custom-choice {
-	cursor: unset;
-	height: 4.5em;
-	padding-top: 0px;
-	padding-bottom: 0px;
-	justify-content: unset;
-}
-
-.custom-choice div:first-of-type {
-	flex-basis: 52%;
-}
-
-.custom-choice .input{
-	flex-basis: 38%;
-	display: flex;
-	flex-direction: column;
-}
-
-input {
-	-webkit-appearance: none;
-	border: none;
-	width: 10em;
-	background: transparent;
-	position: relative;
-}
-
-input:focus,input:active {
-	outline: none;
-}
-
-input::-webkit-datetime-edit {
-	text-transform: uppercase;
-	font-family: 'Monaco';
-}
-
-input::-webkit-datetime-edit-fields-wrapper {
-	padding: .35em 0;
-}
-
-input::-webkit-datetime-edit-month-field,
-input::-webkit-datetime-edit-day-field,
-input::-webkit-datetime-edit-year-field,
-input::-webkit-datetime-edit-hour-field,
-input::-webkit-datetime-edit-minute-field {
-	background: rgba(0,0,0,.05);
-	padding: .25em .5em;
-	border-radius: .33em;
-	cursor: pointer;
-}
-input.invalid::-webkit-datetime-edit-month-field,
-input.invalid::-webkit-datetime-edit-day-field,
-input.invalid::-webkit-datetime-edit-year-field,
-input.invalid::-webkit-datetime-edit-hour-field,
-input.invalid::-webkit-datetime-edit-minute-field {
-	background: rgba(255,0,0,.15);
-}
-
-input::-webkit-calendar-picker-indicator {
-	position: absolute;
-	z-index: 2;
-	cursor: pointer;
-    top: 0;
-    right: 0;
-    width: 100%;
-    height: 100%;
-    color: transparent;
-    background: transparent;
-}
-
-.custom-choice div:last-of-type {
-	flex-basis: 10%;
-	text-align: right;
-}
-
-.choice:hover {
-	background-color: #dfdfdf;
-}
-.choice[data-option="monday"]:hover, .choice[data-option="monday"].focused {
-	background-color: #F4CD4C;
-}
-.choice[data-option="tom-morning"]:hover, .choice[data-option="tom-morning"].focused {
-	background-color: #538D49;
-}
-.choice[data-option="today-morning"]:hover, .choice[data-option="today-morning"].focused {
-	background-color: #a0daff;
-}
-.choice[data-option="weekend"]:hover, .choice[data-option="weekend"].focused {
-	background-color: #E26991;
-}
-.choice[data-option="tom-evening"]:hover, .choice[data-option="tom-evening"].focused {
-	background-color: #1E5896;
-}
-.choice[data-option="today-evening"]:hover, .choice[data-option="today-evening"].focused {
-	background-color: #E1AD7A;
-}
-.choice[data-option="month"]:hover, .choice[data-option="month"].focused {
-	background-color: #AA233A;
-}
-.choice[data-option="week"]:hover, .choice[data-option="week"].focused {
-	background-color: #4B9B62;
-}
-.custom-choice[data-option="custom"]:hover {
-	background-color: #f1f1f1;
-}
-.custom-choice[data-option="custom"].focused {
-	background-color: #3965C2;
-}
-.custom-choice[data-option="custom"].focused .submit-custom {
-	color: #3965C2;
-}
-
-.choice.dark-on-hover:hover div div, .choice.dark-on-hover.focused div div,
-.custom-choice.dark-on-hover.focused, .custom-choice.dark-on-hover.focused input {
-	color: #fff !important;
-}
-
 .choice.disabled, .custom-choice.disabled {
 	pointer-events: none;
 	touch-actions: none;
@@ -233,42 +122,174 @@ input::-webkit-calendar-picker-indicator {
 	font-weight: bold;
 	white-space: nowrap;
 }
+.choice div {
+	pointer-events: none;
+}
 
 .choice > div:first-of-type, .custom-choice > div:first-of-type {
 	display: flex;
 	align-items: center;
-	pointer-events: none;
+	/*pointer-events: none;*/
 }
 
-h3 {
-	text-transform: uppercase;
-	font-size: .75em;
-}
-
-.choice .time, .choice .date {
-	color: #999;
-	font-size: .75em;
-	text-transform: uppercase;
-	pointer-events: none;
-	text-align: right;
-	transition: all .3s ease-in-out;
-}
-
-.choice div:last-of-type div:first-of-type {
-	font-size: 1em;
+.choice > div:last-of-type div:first-of-type {
 	color: #777;
 	font-weight: bold;
 }
-
-.submit-custom {
-	cursor: pointer;
-	font-size: 3em;
-	color: #ccc;
+.choice > div:last-of-type div:nth-of-type(2) {
+	font-size: .75em;
+}
+.choice .date {
+	color: #999;
+	/*font-size: .75em;*/
+}
+.choice .date, .choice .time {
+	text-align: right;
+	text-transform: uppercase;
 	transition: color .3s ease-in-out;
 }
+.choice:hover .date, .choice:hover .time,  .choice:hover > div:last-of-type div:first-of-type,
+.choice.focused .date, .choice.focused .time, .choice.focused > div:last-of-type div:first-of-type {
+	color: #000;
+}
 
-.submit-custom:hover {
+.custom-choice {
+	cursor: default;
+	height: 4.5em;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	justify-content: unset;
+	max-width: 21.5em;
+	overflow-x: hidden;
+}
+
+.custom-choice div:first-of-type, .custom-choice-form {
+	flex-basis: 48.8%;
+}
+.custom-choice-form {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	transition: opacity .3s ease-in-out;
+	opacity: 0;
+}
+.custom-choice.active, .custom-choice.focused {
+	max-width: 45em;
+}
+.custom-choice.active .custom-choice-form, .custom-choice.focused .custom-choice-form {
+	opacity: 1
+}
+.custom-choice:hover, .custom-choice:hover input, .custom-choice:hover .submit-btn,
+.custom-choice.focused, .custom-choice.focused input, .custom-choice.focused .submit-btn {
+	color: #fff;
+}
+
+.custom-choice .input{
+	display: flex;
+	flex-direction: column;
+}
+
+.submit-btn {
+	cursor: pointer;
+	transition: color .3s ease-in-out;
+	text-transform: uppercase;
+}
+.submit-btn.disabled {
+	pointer-events: none;
+	touch-actions: none;
+	opacity: 0.2;
+}
+
+.choice[data-option="today-morning"]:hover, .choice[data-option="today-morning"].focused {
+	background-color: #F7D05C;
+}
+.choice[data-option="today-evening"]:hover, .choice[data-option="today-evening"].focused {
+	background-color: #E1AD7A;
+}
+.choice[data-option="tom-morning"]:hover, .choice[data-option="tom-morning"].focused {
+	background-color: #1E5896;
+}
+.choice[data-option="tom-evening"]:hover, .choice[data-option="tom-evening"].focused {
+	background-color: #87CCE2;
+}
+.choice[data-option="weekend"]:hover, .choice[data-option="weekend"].focused {
+	background-color: #F08974;
+}
+.choice[data-option="monday"]:hover, .choice[data-option="monday"].focused {
+	background-color: #488863;
+}
+.choice[data-option="week"]:hover, .choice[data-option="week"].focused {
+	background-color: #847AD0;
+}
+.choice[data-option="month"]:hover, .choice[data-option="month"].focused {
+	background-color: #F0C26C;
+}
+.custom-choice[data-option="custom"]:hover, .custom-choice[data-option="custom"].focused {
+	background-color: #4C72CA;
+}
+/*.custom-choice[data-option="custom"].focused .submit-custom {
 	color: #3965C2;
+}*/
+
+.dark-on-hover:hover .label, .dark-on-hover:hover .time, .dark-on-hover:hover .date, .dark-on-hover:hover > div:last-of-type div:first-of-type,
+.dark-on-hover.focused .label, .dark-on-hover.focused .time, .dark-on-hover.focused .date, .dark-on-hover.focused > div:last-of-type div:first-of-type {
+	color: #fff;
+}
+
+input::-webkit-datetime-edit-month-field:focus, input::-webkit-datetime-edit-day-field:focus, input::-webkit-datetime-edit-year-field:focus, input::-webkit-datetime-edit-hour-field:focus, input::-webkit-datetime-edit-minute-field:focus {
+	color: #fff;
+}
+
+/*.choice:hover, .choice:hover .time, .choice:hover .date, .choice:hover div:last-of-type div:first-of-type, .choice:hover div:last-of-type div:last-of-type{
+	color: #000;
+}*/
+
+input {
+	background-color: inherit;
+	-webkit-appearance: none;
+	border: none;
+	width: 10em;
+	position: relative;
+	transition: all .3s ease-in-out;
+}
+
+input:focus,input:active {
+	outline: none;
+}
+
+input::-webkit-datetime-edit {
+	text-transform: uppercase;
+	font-family: 'Monaco';
+}
+
+input::-webkit-datetime-edit-fields-wrapper {
+	padding: .35em 0;
+}
+
+input::-webkit-datetime-edit-month-field, input::-webkit-datetime-edit-day-field, input::-webkit-datetime-edit-year-field, input::-webkit-datetime-edit-hour-field, input::-webkit-datetime-edit-minute-field {
+	background: rgba(0,0,0,.05);
+	padding: .25em .5em;
+	border-radius: .33em;
+	cursor: pointer;
+}
+input.invalid::-webkit-datetime-edit-month-field, input.invalid::-webkit-datetime-edit-day-field, input.invalid::-webkit-datetime-edit-year-field, input.invalid::-webkit-datetime-edit-hour-field, input.invalid::-webkit-datetime-edit-minute-field {
+	background: rgba(255,0,0,.25);
+}
+
+.custom-choice:hover input.invalid::-webkit-datetime-edit-month-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-day-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-year-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-hour-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-minute-field {
+	background: rgba(255,0,0,.65);	
+}
+
+input::-webkit-calendar-picker-indicator {
+	position: absolute;
+	z-index: 2;
+	cursor: pointer;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    color: transparent;
+    background: transparent;
 }
 
 .dashboard-btn {
@@ -285,6 +306,7 @@ h3 {
 	text-transform: uppercase;
 	color: #666;
 }
+
 .settings {
 	position: absolute;
 	top: 0;

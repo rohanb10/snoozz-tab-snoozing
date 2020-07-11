@@ -3,38 +3,77 @@
 const NOW = new Date();
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-var EXT_OPTIONS = {morning: 9, evening: 18, history: 7};
+var EXT_OPTIONS = {morning: 9, evening: 18};
 
 function initialize() {
 	getCurrentTab();
 
 	// custom snooze defaults + listeners
- 	document.querySelector('input[type="date"]').setAttribute('min', NOW.toISOString().split("T")[0]);
- 	document.querySelector('input[type="date"]').value = NOW.toISOString().split("T")[0];
- 	document.querySelector('input[type="time"]').value = NOW.toTimeString().substring(0,5);
  	document.querySelectorAll('input').forEach(i => i.addEventListener('input', e => e.target.classList.remove('invalid')));
 
- 	document.querySelector('.submit-custom').addEventListener('click', submitCustom);
+ 	
  	document.querySelector('.dashboard-btn').addEventListener('click', openLink);
  	document.querySelector('.settings').addEventListener('click', openLink);
+
+ 	customChoiceHandler()
 
  	document.addEventListener('snoozeEvent', changeTabAfterSnooze);
 
  	chrome.storage.local.get(['snoozed', 'snoozedOptions'], s => {
  		EXT_OPTIONS = Object.assign(EXT_OPTIONS, s.snoozedOptions);
 
- 		if (!s.snoozedOptions || Object.keys(s.snoozedOptions).length === 0) {
- 			chrome.storage.local.set({snoozedOptions: EXT_OPTIONS});
- 		}
+ 		if (!s.snoozedOptions || Object.keys(s.snoozedOptions).length === 0) chrome.storage.local.set({snoozedOptions: EXT_OPTIONS});
  		configureSnoozeOptions();
  		
  		if (!s.snoozed || Object.keys(s.snoozed).length === 0) return;
+
  		var todayCount = (s.snoozed.filter(t => sameDay(NOW, new Date(t.wakeUpTime)) && !t.opened)).length;
  		if (todayCount === 0) return;
  		var upc = document.querySelector('.upcoming');
  		upc.innerText = `${todayCount}`;
  		upc.style.opacity = "1"
  	});
+}
+
+var closeTimeout, dateEdited = false;
+function customChoiceHandler() {
+	var cc = document.querySelector('.custom-choice');
+	var formDate = cc.querySelector('input[type="date"]');
+	var formTime = cc.querySelector('input[type="time"]');
+	var submitBtn = cc.querySelector('.submit-btn');
+	// default values for form
+	formDate.setAttribute('min', NOW.toISOString().split('T')[0]);
+	formDate.value = NOW.toISOString().split('T')[0];
+	formTime.value = NOW.toTimeString().substring(0,5);
+
+	cc.addEventListener('mouseover', _ => {
+		cc.classList.add('active');
+		clearTimeout(closeTimeout)
+	});
+	cc.addEventListener('mousemove', _ => {
+		cc.classList.add('active');
+		clearTimeout(closeTimeout)
+	});
+	[formDate,formTime].forEach(f => f.addEventListener('click', _ => {
+		cc.classList.add('focused');
+		clearTimeout(closeTimeout)
+	}));
+	[formDate,formTime].forEach(f => f.addEventListener('blur', _ => {
+		cc.classList.remove('focused');
+		clearTimeout(closeTimeout)
+	}));
+	[formDate,formTime].forEach(f => f.addEventListener('change', _ => {
+		var isEdited = formDate.value !== NOW.toISOString().split('T')[0] || formTime.value !== NOW.toTimeString().substring(0,5);
+		if (isEdited) submitBtn.classList.remove('disabled');
+	}, {once:true}));
+	cc.addEventListener('mouseout', _=> {
+		if (dateEdited) return;
+		if (!submitBtn.classList.contains('disabled')) return;
+		closeTimeout = setInterval(_ => cc.classList.remove('active'), 4000);
+	})
+
+ 	// submit button click
+	cc.querySelector('.submit-btn').addEventListener('click', submitCustom);
 }
 
 function openLink(el) {
@@ -146,8 +185,10 @@ function formatHours(num) {
 }
 
 function submitCustom() {
-	var d = document.getElementById('date-input')
-	var t = document.getElementById('time-input')
+	var d = document.getElementById('date-input');
+	var t = document.getElementById('time-input');
+	var btn = document.querySelector('.submit-btn');
+
 	if (d.value.length === 0 || !d.value.match(/^\d{4}-\d{2}-\d{2}$/)) {
 		d.classList.add('invalid');
 		return;
@@ -161,10 +202,14 @@ function submitCustom() {
 		t.classList.add('invalid');
 		return;
 	}
+	btn.classList.add('disabled');
+	d.setAttribute('disabled', true)
+	t.setAttribute('disabled', true)
 	snooze(time, 'custom');
 }
 
 function snooze(snoozeTime, label) {
+	if (snoozeTime < NOW) return;
 	chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1})
 	chrome.storage.local.get(['snoozed'], function(storage) {
 		storage.snoozed = storage.snoozed || [];
@@ -181,7 +226,7 @@ function snooze(snoozeTime, label) {
 			chrome.storage.local.set(
 				{snoozed: storage.snoozed},
 				function() {
-					updateBadge(Object.keys(storage.snoozed).length)
+					updateBadge(storage.snoozed.filter(t => !t.opened).length);
 					document.dispatchEvent(new CustomEvent('snoozeEvent', {detail: {label: label}}));
 					setTimeout(function(){
 						chrome.tabs.remove(tab.id);
@@ -206,6 +251,7 @@ function changeTabAfterSnooze(data) {
 
 	var selectedChoice = document.querySelector(`.choice[data-option="${option}"]`);
 	if (option === 'custom') selectedChoice = document.querySelector('.custom-choice')
+	if (option !=== 'custom') document.querySelector('.custom-choice').classList.remove('active', 'focused')
 	var tab = document.querySelector('.tab');
 	tab.classList.add('snoozed');
 	tab.innerHTML = '<span>Snoozed</span>'
