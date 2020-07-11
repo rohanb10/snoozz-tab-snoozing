@@ -226,11 +226,10 @@ function snooze(snoozeTime, label) {
 			chrome.storage.local.set(
 				{snoozed: storage.snoozed},
 				function() {
-					updateBadge(storage.snoozed.filter(t => !t.opened).length);
 					document.dispatchEvent(new CustomEvent('snoozeEvent', {detail: {label: label}}));
-					setTimeout(function(){
-						chrome.tabs.remove(tab.id);
-					}, 2000);
+					document.body.style.pointerEvents = 'none';
+					updateBadge(storage.snoozed.filter(t => !t.opened).length);
+					setTimeout(_ => chrome.tabs.remove(tab.id), 2000);
 				}
 			);
 		});
@@ -250,13 +249,14 @@ function changeTabAfterSnooze(data) {
 	});
 
 	var selectedChoice = document.querySelector(`.choice[data-option="${option}"]`);
+	otherChoices = document.querySelctorAll('.choice,').filter()
 	if (option === 'custom') selectedChoice = document.querySelector('.custom-choice')
-	if (option !=== 'custom') document.querySelector('.custom-choice').classList.remove('active', 'focused')
+	if (option !== 'custom') document.querySelector('.custom-choice').classList.remove('active', 'focused')
 	var tab = document.querySelector('.tab');
 	tab.classList.add('snoozed');
 	tab.innerHTML = '<span>Snoozed</span>'
 
-	setTimeout(function(){
+	setTimeout(_ => {
 		var bgColor = getComputedStyle(selectedChoice).backgroundColor;
 		tab.style.color = selectedChoice.classList.contains('dark-on-hover') ? '#fff' : '#000'
 		tab.style.backgroundImage = `linear-gradient(to right, ${bgColor} 50%, rgb(221, 221, 221) 0)`
