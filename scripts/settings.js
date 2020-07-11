@@ -19,7 +19,7 @@ function initialize() {
 			i.addEventListener('focus', _ => document.getElementById('saved').classList.remove('animate'));
 		})
 	});
-	document.querySelector('.dashboard div').addEventListener('click', _ => chrome.tabs.update({url: 'dashboard/dashboard.html'}));
+	document.querySelector('.dashboard div').addEventListener('click', _ => chrome.tabs.update({url: './dashboard.html'}));
 }
 
 function save() {

@@ -194,6 +194,9 @@ h3 {
 	transition: color .3s ease-in-out;
 	text-transform: uppercase;
 }
+.submit-btn:hover {
+	text-decoration: underline;
+}
 .submit-btn.disabled {
 	pointer-events: none;
 	touch-actions: none;
@@ -207,7 +210,7 @@ h3 {
 	background-color: #E1AD7A;
 }
 .choice[data-option="tom-morning"]:hover, .choice[data-option="tom-morning"].focused {
-	background-color: #1E5896;
+	background-color: #d8ff8c;
 }
 .choice[data-option="tom-evening"]:hover, .choice[data-option="tom-evening"].focused {
 	background-color: #87CCE2;

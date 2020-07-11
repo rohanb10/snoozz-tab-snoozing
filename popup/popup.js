@@ -78,7 +78,7 @@ function customChoiceHandler() {
 
 function openLink(el) {
 	var href = el.target.dataset.href;
-	chrome.tabs.create({'url': `../${href}/${href}.html`});
+	chrome.tabs.create({'url': `./${href}.html`});
 }
 
 function getCurrentTab() {
@@ -95,7 +95,7 @@ function getCurrentTab() {
 		}
 
 		document.getElementById('tab-title').innerText = tab.title;
-		document.getElementById('tab-favicon').src = tab.favIconUrl.length > 0 ? tab.favIconUrl : '../icons/unknown.png';
+		document.getElementById('tab-favicon').src = tab.favIconUrl && tab.favIconUrl.length > 0 ? tab.favIconUrl : '../icons/unknown.png';
 	});
 
 }
@@ -249,7 +249,6 @@ function changeTabAfterSnooze(data) {
 	});
 
 	var selectedChoice = document.querySelector(`.choice[data-option="${option}"]`);
-	otherChoices = document.querySelctorAll('.choice,').filter()
 	if (option === 'custom') selectedChoice = document.querySelector('.custom-choice')
 	if (option !== 'custom') document.querySelector('.custom-choice').classList.remove('active', 'focused')
 	var tab = document.querySelector('.tab');

@@ -7,7 +7,7 @@ const NOW = new Date();
 var SNOOZED_TABS;
 var EXT_OPTIONS = {history: 7};
 function initialize() {
-	document.querySelector('.settings').addEventListener('click', _ => openURL('settings/settings.html', true), {once:true})
+	document.querySelector('.settings').addEventListener('click', _ => openURL('settings.html', true), {once:true})
 	loadTabs();
 	// refresh the alarm if the next one is more than 2 mins away;
 	chrome.alarms.get('wakeUpTabs', wut => {
