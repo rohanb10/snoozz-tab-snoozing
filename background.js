@@ -1,11 +1,12 @@
 'use strict';
 
-var OPTIONS = {history: 7};
+var OPTIONS = {history: 7, morning: 9, evening: 18};
 function wakeUpTabs() {
 	const NOW = new Date();
 	// tab actions
 	chrome.storage.local.get(['snoozed', 'snoozedOptions'], s => {
 		var ST = s.snoozed
+		if (!ST) ST = [];
 		OPTIONS = Object.assign(OPTIONS, s.snoozedOptions);
 		if (!ST || Object.keys(ST).length === 0){
 			chrome.alarms.clear('wakeUpTabs');
@@ -50,5 +51,6 @@ function updateBadge(num) {
 	chrome.browserAction.setBadgeBackgroundColor({color: '#666'});
 }
 
+chrome.runtime.onInstalled.addListener(_ => chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1}));
 chrome.runtime.onStartup.addListener(_ => chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1}));
 chrome.alarms.onAlarm.addListener(a => { if (a.name === 'wakeUpTabs') wakeUpTabs()});

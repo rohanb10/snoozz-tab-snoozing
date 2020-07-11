@@ -262,9 +262,9 @@ function removeTab(id) {
 	SNOOZED_TABS = SNOOZED_TABS.filter(t => t.id !== id)
 	chrome.storage.local.set({snoozed: SNOOZED_TABS}, _ => {
 		chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1})
-		getTabFromID(id).outerHTML = '';
-		// .filter(t => !t.opened)
 		updateBadge(SNOOZED_TABS.filter(t => !t.opened).length);
+		var tab = getTabFromID(id);
+		if (tab) tab.outerHTML = '';
 		document.querySelectorAll('.collection').forEach(c => {
 			if (!c.querySelector('.tab')){
 				if (c.getAttribute('data-type') === 'history') c.nextElementSibling.outerHTML = ''
