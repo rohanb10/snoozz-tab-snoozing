@@ -21,5 +21,5 @@
 	"permissions": ["alarms", "notifications", "storage", "tabs"],
 
 	"manifest_version": 2,
-	"version": "1.1.0"
+	"version": "1.1.1"
 }

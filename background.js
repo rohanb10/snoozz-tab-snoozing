@@ -32,11 +32,13 @@ function wakeUpTabs() {
 				});
 			}
 		});
-		chrome.storage.local.set({snoozed: ST});
+		chrome.storage.local.set({snoozed: ST, snoozedOptions: OPTIONS});
 		if (earliest <= NOW) {
 			chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1})
-		} else {
+		} else if (earliest !== 9999999999999) {
 			chrome.alarms.create('wakeUpTabs', {when: earliest});
+		} else {
+			chrome.alarms.clear('wakeUpTabs');
 		}
 		updateBadge((ST.filter(t => !t.opened)).length);
 	});
@@ -51,6 +53,6 @@ function updateBadge(num) {
 	chrome.browserAction.setBadgeBackgroundColor({color: '#666'});
 }
 
-chrome.runtime.onInstalled.addListener(_ => chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1}));
-chrome.runtime.onStartup.addListener(_ => chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1}));
+chrome.runtime.onInstalled.addListener(_ => {wakeUpTabs()});
+chrome.runtime.onStartup.addListener(_ => {wakeUpTabs()});
 chrome.alarms.onAlarm.addListener(a => { if (a.name === 'wakeUpTabs') wakeUpTabs()});

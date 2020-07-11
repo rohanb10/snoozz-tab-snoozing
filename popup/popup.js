@@ -152,8 +152,10 @@ function getTimeForOption(option) {
 		t.setDate(t.getDate() + 1);
 	} else if (option === 'weekend') {
 		t = new Date(getNextDay(6));
+		t.setMinutes(0, 0);
 	} else if (option === 'monday') {
 		t = new Date(getNextDay(1));
+		t.setMinutes(0, 0);
 	} else if (option === 'week') {
 		t.setDate(t.getDate() + 7);
 	} else if (option === 'month') {
