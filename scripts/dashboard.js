@@ -7,7 +7,7 @@ const NOW = new Date();
 var SNOOZED_TABS;
 var EXT_OPTIONS = {history: 7};
 function initialize() {
-	document.querySelector('.settings').addEventListener('click', _ => openURL('settings.html', true), {once:true})
+	document.querySelector('.settings').addEventListener('click', _ => openURL('settings.html'), {once:true})
 	loadTabs();
 	// refresh the alarm if the next one is more than 2 mins away;
 	chrome.alarms.get('wakeUpTabs', wut => {
@@ -28,15 +28,11 @@ function loadTabs() {
 	});
 }
 
-function sortTabs(t) {
-
-}
-
 function sortTabsAndBuildCollections(tabs) {
 	if (tabs.length > 0) document.querySelector('.none').style.display = 'none';
 
 	var cc = document.querySelector('.collection-container');
-	var today = [], tomorrow = [], week = [], later = [], history = [];
+	var today = [], tomorrow = [], this_week = [], next_week = [], later = [], history = [];
 	for (var t = 0; t < tabs.length; t++) {
 		var tab_time = new Date(tabs[t].wakeUpTime);
 		if (tabs[t].opened) {
@@ -46,7 +42,9 @@ function sortTabsAndBuildCollections(tabs) {
 		} else if (sameYear(tab_time, NOW) && sameMonth(tab_time, NOW) && isNextDay(tab_time, NOW)) {
 			tomorrow.push(tabs[t]);
 		} else if (sameYear(tab_time, NOW) && sameMonth(tab_time, NOW) && isSameWeek(tab_time, NOW)) {
-			week.push(tabs[t]);
+			this_week.push(tabs[t]);
+		} else if (sameYear(tab_time, NOW) && sameMonth(tab_time, NOW) && isNextWeek(tab_time, NOW)) {
+			next_week.push(tabs[t]);
 		} else {
 			later.push(tabs[t]);
 		}
@@ -54,7 +52,8 @@ function sortTabsAndBuildCollections(tabs) {
 	
 	buildCollection('Today', today)
 	buildCollection('Tomorrow', tomorrow)
-	buildCollection('This Week', week)
+	buildCollection('This Week', this_week)
+	buildCollection('Next Week', next_week)
 	buildCollection('Later', later)
 	if (tabs.length - history.length > 0) cc.innerHTML += '<p><i>Due to API restrictions, tabs may reopen upto 2 minutes late.</i></p>'
 	
@@ -67,59 +66,16 @@ function sortTabsAndBuildCollections(tabs) {
 			if (!confirm('Are you sure you want to delete all your snoozed tabs? \nYou cannot undo this action.')) return;
 			chrome.storage.local.set({snoozed: []});
 			chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1});
-			updateBadge(0);
+			updateBadge([]);
 			chrome.tabs.reload();
 		})
 	}
 
 	// add click handlers
 	document.querySelectorAll('.tab').forEach(t => {
-		t.querySelector('.tab-title').addEventListener('click', tt => openURL(tt.target.title));
+		t.querySelector('.tab-title').addEventListener('click', tt => openURL(tt.target.title, true));
 		t.querySelector('.remove').addEventListener('click', _ => removeTab(t.getAttribute('data-tab-id')));
 	})
-}
-
-function sortArrayByDate(t1,t2) {
-	var d1 = new Date(t1.wakeUpTime);
-	var d2 = new Date(t2.wakeUpTime);
-	return (d1 < d2) ? -1 : ((d1 < d2) ? 1 : 0);
-}
-
-function isNextDay(d1, d2) {
-	if (d1 === d2) return false;
-	var d_earlier = d1 < d2 ? d1 : d2;
-	var d_later = d1 > d2 ? d1 : d2;
-	var tomorrow = new Date(d_earlier.getFullYear(), d_earlier.getMonth(), d_earlier.getDate() + 1);
-	var d_a_tomorrow = new Date(tomorrow);
-		d_a_tomorrow.setDate(tomorrow.getDate() + 1);
-	return tomorrow <= d_later && d_later < d_a_tomorrow;
-}
-
-function isSameWeek(d1, d2) {
-	if (d1 === d2) return true;
-	var d_earlier = d1 < d2 ? d1 : d2;
-	var d_later = d1 > d2 ? d1 : d2;
-	var sunday = new Date(d_earlier.getFullYear(), d_earlier.getMonth(), d_earlier.getDate() - d_earlier.getDay());
-	var next_sunday = new Date(sunday)
-		next_sunday.setDate(sunday.getDate() + 7);
-	return sunday <= d_later && d_later < next_sunday;
-}
-
-function sameYear(d1, d2) {
-	return d1.getFullYear() === d2.getFullYear()
-}
-
-function sameMonth(d1, d2) {
-	return d1.getMonth() === d2.getMonth()
-}
-
-function sameDate(d1, d2) {
-	return d1.getDate() === d2.getDate()
-}
-
-function daysBetween(d1, d2) {
-	var db = Math.floor(Math.abs(d1.getTime() - d2.getTime())/8.64e7);
-	return db === 0 ? (d1.getDate() === d2.getDate() ? 0 : 1) : db;
 }
 
 function buildCollection(heading, tabs) {
@@ -167,8 +123,7 @@ function buildTab(t, heading, tab_list) {
 
 	var favicon = Object.assign(document.createElement('img'), {
 		className: 'favicon',
-		src: t.favicon
-		// src: '../icons/unknown.png'
+		src: !t.favicon || t.favicon === '' ? '../icons/unknown.png' : t.favicon
 	});
 	tab_info.appendChild(favicon);
 
@@ -183,7 +138,7 @@ function buildTab(t, heading, tab_list) {
 
 	var tab_snoozed_on = Object.assign(document.createElement('div'), {
 		className: 'tab-snoozed-on',
-		innerText: formatSnoozedOn(t.timeCreated)
+		innerText: getPrettyDate(t.timeCreated)
 	});
 	div.appendChild(tab_snoozed_on);
 	tab_info.appendChild(div);
@@ -196,7 +151,7 @@ function buildTab(t, heading, tab_list) {
 	var time = Object.assign(document.createElement('div'), {
 		className: 'time',
 		innerText: formatSnoozedUntil(t.wakeUpTime, heading === 'History'),
-		title: formatFullTimeStamp(t.wakeUpTime)
+		title: getPrettyTimestamp(new Date(t.wakeUpTime))
 	});
 	var post = Object.assign(document.createElement('div'), {
 		className: 'post',
@@ -218,15 +173,6 @@ function buildTab(t, heading, tab_list) {
 	tab_list.appendChild(tab);
 }
 
-function formatSnoozedOn(ts) {
-	return new Date(ts).toDateString()
-}
-
-function formatFullTimeStamp(d) {
-	d = new Date(d);
-	return d.toLocaleTimeString('default', {hour: "numeric", minute: "numeric"})+ ' on' + d.toDateString().substring(d.toDateString().indexOf(' '));
-}
-
 function formatSnoozedUntil(ts, isHistory = false) {
 	var date = new Date(ts);
 	if (isHistory) return date.toDateString().substring(0, date.toDateString().lastIndexOf(' '));
@@ -241,19 +187,6 @@ function formatSnoozedUntil(ts, isHistory = false) {
 	}
 }
 
-function formatTime(date) {
-	var hour = date.getHours() % 12 === 0 ? 12 : date.getHours() % 12;
-	var minutes = date.getMinutes() === 0 ? '00' : (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
-	var suffix = date.getHours() > 11 ? 'pm' : 'am';
-	return hour + ':' + minutes + suffix;
-}
-
-function openURL(url, thisTab = false){
-	console.log(thisTab, url);
-	if (thisTab)  chrome.tabs.getCurrent(tab => chrome.tabs.update(tab.id, {url:url}));
-	if (!thisTab) chrome.tabs.create({url: url});
-}
-
 function getTabFromID(id) {
 	return document.querySelector(`.tab[data-tab-id="${id}"`)
 }
@@ -262,7 +195,7 @@ function removeTab(id) {
 	SNOOZED_TABS = SNOOZED_TABS.filter(t => t.id !== id)
 	chrome.storage.local.set({snoozed: SNOOZED_TABS}, _ => {
 		chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1})
-		updateBadge(SNOOZED_TABS.filter(t => !t.opened).length);
+		updateBadge(SNOOZED_TABS);
 		var tab = getTabFromID(id);
 		if (tab) tab.outerHTML = '';
 		document.querySelectorAll('.collection').forEach(c => {
@@ -276,11 +209,6 @@ function removeTab(id) {
 		document.querySelectorAll('.collection, .collection-container p').forEach(el => el.outerHTML = '');
 		document.querySelector('.none').style.display = 'block';
 	}
-}
-
-function updateBadge(num) {
-	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});
-	chrome.browserAction.setBadgeBackgroundColor({color: '#30443f'});
 }
 
 window.onload = initialize

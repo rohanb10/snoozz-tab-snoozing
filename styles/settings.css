@@ -24,7 +24,7 @@ img {
 	padding-right: 1em;
 }
 .settings-container, .about-container {
-	max-width: 35em;
+	max-width: 45em;
 	margin: 1.5em auto 0;
 }
 h2 span {
@@ -43,9 +43,10 @@ h2 span {
 	padding: 1em;
 	margin: .5em 0;
 	border-radius: .33em;
+	border: 1px dashed #fff;
 }
-.input-container:nth-of-type(odd), .input-container:nth-of-type(odd) input[type="number"]{
-	background-color: #efefef;
+.input-container:hover {
+	border-color: #ddd;
 }
 .input-container div:first-of-type {
 	max-width: 70%;
@@ -60,8 +61,13 @@ h2 span {
 	opacity: 1;
 }
 a {
-	text-decoration: underline;
+	display: inline-block;
+	border-bottom: 1px solid #ddd;
 	color: #000;
+	text-decoration: none;
+}
+a:hover {
+	border-color: #000;
 }
 h4 + p {
 	font-size: .8em;
@@ -71,21 +77,41 @@ input[type="number"] {
 	font-size: 1em;
 	margin-right: .5em;
 }
-input {
+input, select {
 	border: none;
 	outline: none;
-	border-bottom: 2px solid #000;
-	text-align: center;
+	border-bottom: 1px solid #000;
+	text-align: center;	
+	padding: .25em;
+}
+input {
 	-webkit-appearance: none;
 }
-input#history {
+option {
+	text-align: center;
+}
+select {
+	cursor: pointer;
+}
+input[type="number"] {
 	width: 2.5em;
+}
+input#history {
+	
+}
+input + span {
+	display: inline-block;
+	width: 2em;
 }
 input::-webkit-inner-spin-button, input::-webkit-outer-spin-button {
 	-webkit-appearance: none;	
 }
 .about-container p:first-of-type {
 	margin-top: 2.5em;
+}
+.about-container p {
+	max-width: 35em;
+	margin-left: auto;
 }
 .dashboard {
 	position: fixed;

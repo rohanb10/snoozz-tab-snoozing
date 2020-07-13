@@ -10,10 +10,9 @@ function initialize() {
 
 	// custom snooze defaults + listeners
  	document.querySelectorAll('input').forEach(i => i.addEventListener('input', e => e.target.classList.remove('invalid')));
-
  	
- 	document.querySelector('.dashboard-btn').addEventListener('click', openLink);
- 	document.querySelector('.settings').addEventListener('click', openLink);
+ 	document.querySelector('.dashboard-btn').addEventListener('click', _ => openURL(el.target.dataset.href, true));
+ 	document.querySelector('.settings').addEventListener('click', _ => openURL(el.target.dataset.href, true));
 
  	customChoiceHandler()
 
@@ -27,10 +26,10 @@ function initialize() {
  		
  		if (!s.snoozed || Object.keys(s.snoozed).length === 0) return;
 
- 		var todayCount = (s.snoozed.filter(t => sameDay(NOW, new Date(t.wakeUpTime)) && !t.opened)).length;
+ 		var todayCount = (s.snoozed.filter(t => isToday(new Date(t.wakeUpTime)) && !t.opened)).length;
  		if (todayCount === 0) return;
  		var upc = document.querySelector('.upcoming');
- 		upc.innerText = `${todayCount}`;
+ 		upc.innerText = todayCount;
  		upc.style.opacity = "1"
  	});
 }
@@ -81,11 +80,6 @@ function customChoiceHandler() {
 	cc.querySelector('.submit-btn').addEventListener('click', submitCustom);
 }
 
-function openLink(el) {
-	var href = el.target.dataset.href;
-	chrome.tabs.create({'url': `./${href}.html`});
-}
-
 function getCurrentTab() {
 	chrome.tabs.query({active: true, currentWindow: true}, tabs => {
 		var tab = tabs.length > 0 && tabs[0] ? tabs[0] : false;
@@ -105,13 +99,6 @@ function getCurrentTab() {
 
 }
 
-function sameDay(d1, d2)  {
-	if (d1.getFullYear() !== d2.getFullYear()) return false;
-	if (d1.getMonth() !== d2.getMonth()) return false;
-	if (d1.getDate() !== d2.getDate()) return false;
-	return true;
-}
-
 function configureSnoozeOptions() {
 	var options = document.querySelectorAll('.choice');
 
@@ -129,18 +116,8 @@ function configureSnoozeOptions() {
 		var time_date = o.querySelector('.time').parentElement;
 		time_date.querySelector('.time').innerText = config.label[1];
 		time_date.querySelector('.date').outerHTML = config.label[0].length > 0 ? `<div class="date">${config.label[0]}</div>` : ``;
-		time_date.title = formatFullTimeStamp(config.time);
+		time_date.title = getPrettyTimestamp(config.time);
 	})
-}
-
-function formatFullTimeStamp(d) {
-	return d.toLocaleTimeString('default', {hour: "numeric", minute: "numeric"})+ ' on' + d.toDateString().substring(d.toDateString().indexOf(' '));
-}
-
-function getNextDay(dayNum) {
-	// 0: sunday ... 6: saturday
-	var d = new Date();
-	return d.setDate(d.getDate() + ((7 + dayNum - d.getDay()) % 7 === 0 ? 7 : (7 + dayNum - d.getDay()) % 7));
 }
 
 function getTimeForOption(option) {
@@ -173,22 +150,16 @@ function getTimeForOption(option) {
 
 	var label = [];
 	if (['today-morning', 'today-evening'].indexOf(option) > -1){
-		label.push('', formatHours(t.getHours()));
+		label.push('', formatTime(t, false));
 	}
 	else if (['tom-morning', 'tom-evening', 'weekend'].indexOf(option) > -1){
-		label.push(`${DAYS[t.getDay()]}`, formatHours(t.getHours()));
+		label.push(`${DAYS[t.getDay()]}`, formatTime(t, false));
 	}
 	else if (['monday', 'week', 'month'].indexOf(option) > -1){
-		label.push(MONTHS[t.getMonth()] + ' ' + t.getDate(), formatHours(t.getHours()));
+		label.push(MONTHS[t.getMonth()] + ' ' + t.getDate(), formatTime(t, false));
 	}
 
 	return {time: t, label: label};
-}
-
-function formatHours(num) {
-	var hour = num % 12 === 0 ? 12 : num % 12;
-	var suffix = num > 11 ? 'pm' : 'am';
-	return hour + suffix;
 }
 
 function submitCustom() {
@@ -235,17 +206,12 @@ function snooze(snoozeTime, label) {
 				function() {
 					document.dispatchEvent(new CustomEvent('snoozeEvent', {detail: {label: label}}));
 					document.body.style.pointerEvents = 'none';
-					updateBadge(storage.snoozed.filter(t => !t.opened).length);
+					updateBadge(storage.snoozed);
 					setTimeout(_ => chrome.tabs.remove(tab.id), 2000);
 				}
 			);
 		});
 	});
-}
-
-function updateBadge(num) {
-	chrome.browserAction.setBadgeText({text: num.toString()});
-	chrome.browserAction.setBadgeBackgroundColor({color: '#666'});
 }
 
 function changeTabAfterSnooze(data) {

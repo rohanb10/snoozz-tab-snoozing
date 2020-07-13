@@ -73,8 +73,11 @@ img {
 .collection[data-type="this week"] h2 span {
 	border-color: #4B9B62;
 }
+.collection[data-type="next week"] h2 span {
+	border-color: #ff8f01;
+}
 .collection[data-type="later"] h2 span {
-	border-color: #3965C2;
+	border-color: #3989c2;
 }
 .collection[data-type="history"] h2 span {
 	color: #444;

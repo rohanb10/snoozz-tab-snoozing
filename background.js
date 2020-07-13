@@ -1,19 +1,19 @@
 'use strict';
 
-var OPTIONS = {history: 7, morning: 9, evening: 18};
+var EXT_OPTIONS = {history: 7, morning: 9, evening: 18, badge: 'today'};
 function wakeUpTabs() {
 	const NOW = new Date();
 	// tab actions
 	chrome.storage.local.get(['snoozed', 'snoozedOptions'], s => {
 		var ST = s.snoozed
 		if (!ST) ST = [];
-		OPTIONS = Object.assign(OPTIONS, s.snoozedOptions);
+		EXT_OPTIONS = Object.assign(EXT_OPTIONS, s.snoozedOptions);
 		if (!ST || Object.keys(ST).length === 0){
 			chrome.alarms.clear('wakeUpTabs');
 			return;
 		}
 		// remove tabs in history if they are more than X days old. X is defined in options
-		ST.filter(t => !t.opened && NOW - new Date(t.opened) > parseInt(OPTIONS.history) * 8.64e7)
+		ST.filter(t => !t.opened && NOW - new Date(t.opened) > parseInt(EXT_OPTIONS.history) * 8.64e7)
 		
 		var earliest = 9999999999999;
 		ST.forEach((t, i) => {
@@ -32,7 +32,7 @@ function wakeUpTabs() {
 				});
 			}
 		});
-		chrome.storage.local.set({snoozed: ST, snoozedOptions: OPTIONS});
+		chrome.storage.local.set({snoozed: ST, snoozedOptions: EXT_OPTIONS});
 		if (earliest <= NOW) {
 			chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1})
 		} else if (earliest !== 9999999999999) {
@@ -40,17 +40,26 @@ function wakeUpTabs() {
 		} else {
 			chrome.alarms.clear('wakeUpTabs');
 		}
-		updateBadge((ST.filter(t => !t.opened)).length);
+		updateBadge(ST);
 	});
 }
 
+// eg. Jul 18
 function formatDate(d) {
 	return d.toLocaleString('default', {month:'short'}) + ' ' + d.getDate();
 }
 
-function updateBadge(num) {
+function isToday(d) {
+	const NOW = new Date();
+	return (NOW.getFullYear() === d.getFullYear() && NOW.getMonth() === d.getMonth() && NOW.getDate() === d.getDate())
+}
+
+function updateBadge(tabs) {
+	var num = 0;
+	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'all') num = tabs.filter(t => !t.opened).length;
+	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'today') num = tabs.filter(t => !t.opened && isToday(new Date(t.wakeUpTime))).length;
 	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});
-	chrome.browserAction.setBadgeBackgroundColor({color: '#666'});
+	chrome.browserAction.setBadgeBackgroundColor({color: '#479BF5'});
 }
 
 chrome.runtime.onInstalled.addListener(_ => {wakeUpTabs()});

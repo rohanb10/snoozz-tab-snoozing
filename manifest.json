@@ -1,5 +1,6 @@
 {
-	"name": "Snoozz",
+	"name": "Snoozz - Tab Snoozing",
+	"short_name": "Snoozz",
 	"description": "Declutter your windows by snoozing tabs for later",
 
 	"icons": {
@@ -21,5 +22,5 @@
 	"permissions": ["alarms", "notifications", "storage", "tabs"],
 
 	"manifest_version": 2,
-	"version": "1.1.1"
+	"version": "1.1.2"
 }
