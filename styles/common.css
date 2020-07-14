@@ -1,0 +1,94 @@
+* {
+	box-sizing: border-box;
+}
+
+body, html, h1, h3, h4, h4+p {
+	margin: 0 auto;
+}
+body {
+	padding: 1em 0;
+}
+
+.flex {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.center {
+	text-align: center;
+	justify-content: center;
+}
+
+img {
+	max-width: 6em;
+	padding-right: 1em;
+}
+h1 {
+	font-weight: 800;
+	cursor: pointer;
+}
+h1:hover {
+	background: linear-gradient(90deg, #df4e76, #f3b845);
+	background-size: 400% 400%;
+	animation: flow 4s ease infinite;
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+body > div.scroll-logo {
+	position: fixed;
+	top: 0;
+	left: 0;
+	transition: top .3s ease-in-out;
+}
+body > div.scroll-logo.hidden {
+	top: -3em;
+}
+
+body > div.scroll-logo img {
+	margin: .5em;
+	max-height: 2.5em;
+	cursor: pointer;
+}
+
+.settings {
+	position: absolute;
+	top: 0;
+	left: 0;
+	margin: .25em;
+	cursor: pointer;
+	border: 1px solid white;
+}
+.settings img {
+	width: 1.5em;
+	padding: 0;
+	border: 1px solid white;
+	transition: background-color .3s ease-in-out;
+	-webkit-background-clip: padding-box;
+}
+.settings:after {
+	opacity: 0;
+	content: 'Settings';
+	position: absolute;
+	pointer-events: none;
+	touch-events: none;
+	transition: opacity .3s ease-in-out;
+}
+.settings:hover:after {
+	opacity: 1;
+}
+.settings img:hover {
+	background-color: black;
+	animation: spin 2.5s linear infinite;
+}
+
+@keyframes spin {
+	from {transform: rotate(0deg)}
+	to {transform: rotate(360deg)}
+}
+@keyframes flow {
+	0%{background-position: 0 50%}
+	50%{background-position: 100% 50%}
+	100%{background-position: 0 50%}
+}

@@ -14,7 +14,8 @@ function initialize() {
 		if (!wut) return;
 		var nextRing = new Date(wut.scheduledTime);
 		if (nextRing.setMinutes(nextRing.getMinutes() + 2) > NOW) chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1});
-	})
+	});
+	showIconOnScroll();
 	
 }
 
@@ -115,7 +116,6 @@ function buildTab(t, heading, tab_list) {
 	});
 	tab_select.appendChild(input);
 	tab.appendChild(tab_select);
-
 
 	var tab_info = Object.assign(document.createElement('div'), {
 		className: 'tab-info flex'

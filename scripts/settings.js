@@ -10,18 +10,25 @@ function initialize() {
 		if (!s.snoozedOptions ||Object.keys(s.snoozedOptions).length === 0) chrome.storage.local.set({snoozedOptions: EXT_OPTIONS});
 
 		document.querySelectorAll('input').forEach(i => {
+			// set values
 			i.value = EXT_OPTIONS[i.id] - (i.id === 'evening'? 12 : 0);
-			i.addEventListener('change', e => {
+			// wait for changed values
+			i.addEventListener('input', e => {
 				var val = parseInt(e.target.value);
-				if (parseInt(val) == NaN || e.target.min > val || e.target.max < val) {
-					e.preventDefault();
+				if (parseInt(val) == NaN || parseInt(e.target.min) > val || parseInt(e.target.max) < val) {
+					e.target.classList.add('error');
+					removeSavedMessage();
 					return;
 				}
+				e.target.classList.remove('error');
 				val += e.target.id === 'evening' ? 12 : 0;
 				EXT_OPTIONS[e.target.id] = parseInt(e.target.value) + (e.target.id === 'evening' ? 12 : 0);
 				save();
 			})
-			i.addEventListener('focus', _ => document.getElementById('saved').classList.remove('animate'));
+			// hide save onfocus
+			i.addEventListener('focus', removeSavedMessage);
+			// select text onclick
+			i.addEventListener('click', e => e.target.select());
 		});
 
 		document.querySelectorAll('option').forEach(o => {if (o.value === EXT_OPTIONS.badge) o.setAttribute('selected', 'true')})
@@ -31,10 +38,16 @@ function initialize() {
 			save();
 		});
 
-		document.querySelector('select').addEventListener('click', _ => document.getElementById('saved').classList.remove('animate'));
+		document.querySelector('select').addEventListener('click', removeSavedMessage);
 	});
 
+	showIconOnScroll();
+
 	document.querySelector('.dashboard div').addEventListener('click', _ => openURL('./dashboard.html'));
+}
+
+function removeSavedMessage() {
+	document.getElementById('saved').classList.remove('animate')
 }
 
 function save() {

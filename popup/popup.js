@@ -9,10 +9,14 @@ function initialize() {
 	getCurrentTab();
 
 	// custom snooze defaults + listeners
- 	document.querySelectorAll('input').forEach(i => i.addEventListener('input', e => e.target.classList.remove('invalid')));
+ 	document.querySelectorAll('input').forEach(i => i.addEventListener('input', el => el.target.classList.remove('invalid')));
  	
- 	document.querySelector('.dashboard-btn').addEventListener('click', _ => openURL(el.target.dataset.href, true));
- 	document.querySelector('.settings').addEventListener('click', _ => openURL(el.target.dataset.href, true));
+ 	document.querySelector('.dashboard-btn').addEventListener('click', el => {
+ 		openURL(el.target.dataset.href, false, _ => window.close());
+ 	});
+ 	document.querySelector('.settings').addEventListener('click', el => {
+ 		openURL(el.target.dataset.href, false, _ => window.close());	
+ 	});
 
  	customChoiceHandler()
 
@@ -201,11 +205,10 @@ function snooze(snoozeTime, label) {
 				wakeUpTime: snoozeTime.getTime(),
 				timeCreated: NOW.getTime(),
 			})
-			chrome.storage.local.set(
-				{snoozed: storage.snoozed},
-				function() {
+			chrome.storage.local.set({snoozed: storage.snoozed}, _ => {
 					document.dispatchEvent(new CustomEvent('snoozeEvent', {detail: {label: label}}));
 					document.body.style.pointerEvents = 'none';
+					refreshDashboardTabIfItExists();
 					updateBadge(storage.snoozed);
 					setTimeout(_ => chrome.tabs.remove(tab.id), 2000);
 				}

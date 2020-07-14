@@ -1,31 +1,3 @@
-* {
-	box-sizing: border-box;
-}
-
-body, html, h1, h3 {
-	margin: 0 auto;
-}
-body {
-	padding: 1em;
-}
-
-.flex {
-	display: flex;
-	align-items: center;
-}
-.center {
-	text-align: center;
-	justify-content: center;
-}
-
-h1 {
-	font-weight: 800;
-}
-
-img {
-	max-width: 6em;
-	padding-right: 1em;
-}
 .collection-container {
 	max-width: 70em;
 	margin: 0 auto;
@@ -65,19 +37,19 @@ img {
 	border-bottom: 3px solid #fff;
 }
 .collection[data-type="today"] h2 span {
-	border-color: #c22352;
+	border-color: #f5b84f;
 }
 .collection[data-type="tomorrow"] h2 span {
-	border-color: #F4CD4C;
+	border-color: #ef9f54;
 }
 .collection[data-type="this week"] h2 span {
-	border-color: #4B9B62;
+	border-color: #e9825a;
 }
 .collection[data-type="next week"] h2 span {
-	border-color: #ff8f01;
+	border-color: #e16561;
 }
 .collection[data-type="later"] h2 span {
-	border-color: #3989c2;
+	border-color: #e34d68;
 }
 .collection[data-type="history"] h2 span {
 	color: #444;
@@ -174,38 +146,15 @@ img {
 	position: fixed;
 	top: 0.5em;
 	right: 0.5em;
+	left: unset;
 	margin: .25em;
-	cursor: pointer;
-	border: 1px solid white;
 }
 .settings img {
 	width: 2.5em;
-	padding: 0;
 	background-size: 75% 75%;
-	border: 1px solid white;
-	transition: background-color .3s ease-in-out;
-	-webkit-background-clip: padding-box;
 }
-.settings:before {
-	opacity: 0;
-	content: 'Settings';
-	position: absolute;
+.settings:after {
 	top: .5em;
 	right: 2.5em;
 	font-size: 1.2em;
-	pointer-events: none;
-	touch-events: none;
-	transition: opacity .3s ease-in-out;
-}
-.settings:hover:before {
-	opacity: 1;
-}
-.settings img:hover {
-	background-color: black;
-	animation: spin 2.5s linear infinite;
-}
-
-@keyframes spin {
-	from {transform: rotate(0deg)}
-	to {transform: rotate(360deg)}
 }

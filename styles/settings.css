@@ -1,41 +1,16 @@
-* {
-	box-sizing: border-box;
-}
-
-body, html, h1, h3, h4, h4 + p {
-	margin: 0 auto;
-}
-body {
-	padding: 1em 0;
-}
-
-.flex {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-h1 {
-	font-weight: 800;
-}
-
-img {
-	max-width: 6em;
-	padding-right: 1em;
-}
 .settings-container, .about-container {
 	max-width: 45em;
 	margin: 1.5em auto 0;
 }
 h2 span {
 	padding: .25em;
-	border-bottom: 3px solid #E26991;
+	border-bottom: 3px solid #EAB35C;
 }
 .about-container {
 	text-align: right;
 }
 .about-container h2 span {
-	border-color: #1E5896
+	border-color: #D05E74;
 }
 .input-container {
 	font-size: 1.2em;
@@ -73,31 +48,25 @@ h4 + p {
 	font-size: .8em;
 }
 input[type="number"] {
-	width: 1.5em;
 	font-size: 1em;
 	margin-right: .5em;
 }
-input, select {
+input, select, option {
 	border: none;
 	outline: none;
-	border-bottom: 1px solid #000;
+	border-bottom: 2px solid #000;
 	text-align: center;	
 	padding: .25em;
+	cursor: pointer;
+}
+input.error {
+	border-color: #EF5350;
 }
 input {
 	-webkit-appearance: none;
 }
-option {
-	text-align: center;
-}
-select {
-	cursor: pointer;
-}
 input[type="number"] {
 	width: 2.5em;
-}
-input#history {
-	
 }
 input + span {
 	display: inline-block;

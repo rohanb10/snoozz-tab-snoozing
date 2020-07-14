@@ -15,17 +15,8 @@ body {
 	padding: 1em 0;
 }
 
-.flex {
-	display: flex;
-	align-items: center;
-}
-
 img {
 	max-width: 4.5em;
-	padding-right: 1em;
-}
-h1 {
-	font-weight: 800;
 }
 
 a {
@@ -127,12 +118,12 @@ h3 {
 }
 .choice div {
 	pointer-events: none;
+	touch-actions: none;
 }
 
 .choice > div:first-of-type, .custom-choice > div:first-of-type {
 	display: flex;
 	align-items: center;
-	/*pointer-events: none;*/
 }
 
 .choice > div:last-of-type div:first-of-type {
@@ -144,7 +135,6 @@ h3 {
 }
 .choice .date {
 	color: #999;
-	/*font-size: .75em;*/
 }
 .choice .date, .choice .time {
 	text-align: right;
@@ -182,12 +172,8 @@ h3 {
 .custom-choice.active .custom-choice-form, .custom-choice.focused .custom-choice-form {
 	opacity: 1
 }
-.custom-choice:hover, .custom-choice:hover input, .custom-choice:hover .submit-btn,
-.custom-choice.focused, .custom-choice.focused input, .custom-choice.focused .submit-btn {
-	color: #fff;
-}
 
-.custom-choice .input{
+.custom-choice .input {
 	display: flex;
 	flex-direction: column;
 }
@@ -233,22 +219,14 @@ h3 {
 .custom-choice[data-option="custom"]:hover, .custom-choice[data-option="custom"].focused {
 	background-color: #4C72CA;
 }
-/*.custom-choice[data-option="custom"].focused .submit-custom {
-	color: #3965C2;
-}*/
 
 .dark-on-hover:hover .label, .dark-on-hover:hover .time, .dark-on-hover:hover .date, .dark-on-hover:hover > div:last-of-type div:first-of-type,
-.dark-on-hover.focused .label, .dark-on-hover.focused .time, .dark-on-hover.focused .date, .dark-on-hover.focused > div:last-of-type div:first-of-type {
+.dark-on-hover.focused .label, .dark-on-hover.focused .time, .dark-on-hover.focused .date, .dark-on-hover.focused > div:last-of-type div:first-of-type,
+input::-webkit-datetime-edit-month-field:focus, input::-webkit-datetime-edit-day-field:focus, input::-webkit-datetime-edit-year-field:focus, input::-webkit-datetime-edit-hour-field:focus, input::-webkit-datetime-edit-minute-field:focus,
+.custom-choice:hover, .custom-choice:hover input, .custom-choice:hover .submit-btn,
+.custom-choice.focused, .custom-choice.focused input, .custom-choice.focused .submit-btn  {
 	color: #fff;
 }
-
-input::-webkit-datetime-edit-month-field:focus, input::-webkit-datetime-edit-day-field:focus, input::-webkit-datetime-edit-year-field:focus, input::-webkit-datetime-edit-hour-field:focus, input::-webkit-datetime-edit-minute-field:focus {
-	color: #fff;
-}
-
-/*.choice:hover, .choice:hover .time, .choice:hover .date, .choice:hover div:last-of-type div:first-of-type, .choice:hover div:last-of-type div:last-of-type{
-	color: #000;
-}*/
 
 input {
 	background-color: inherit;
@@ -350,4 +328,9 @@ input::-webkit-calendar-picker-indicator {
 @keyframes spin {
 	from {transform: rotate(0deg)}
 	to {transform: rotate(360deg)}
+}
+@keyframes flow {
+	0%{background-position: 0 50%}
+	50%{background-position: 100% 50%}
+	100%{background-position: 0 50%}
 }

@@ -24,11 +24,22 @@ function wakeUpTabs() {
 				chrome.tabs.create({url: t.url, active: true}, _ => {
 					chrome.notifications.create(t.id, {
 						type: 'basic',
-						iconUrl: chrome.extension.getURL("icons/popup-icon.png"),
+						iconUrl: chrome.extension.getURL("icons/main-icon.png"),
 						title: 'A tab woke up!',
 						message: `${t.title} -- snoozed on ${formatDate(new Date(t.timeCreated))}`,
 					});
-					chrome.notifications.onClicked.addListener(_ => chrome.tabs.create({url: 'dashboard/dashboard.html'}))
+					chrome.notifications.onClicked.addListener(_ => {
+						chrome.tabs.query({currentWindow: true, title: 'dashboard | snoozz'}, dashboardTabs => {
+							chrome.tabs.query({currentWindow: true, title: 'settings | snoozz'}, settingsTabs => {
+								var tabs = dashboardTabs.concat(settingsTabs);
+								if (tabs.length === 0) {chrome.tabs.create({url: url});return;}
+								var openTabID = tabs.findIndex(t => t.active === true);
+								var openTab = openTabID ? tabs.splice(openTabID, 1).pop() : tabs.shift();
+								if (tabs.length > 0) chrome.tabs.remove(tabs.map(t => t.id));
+								chrome.tabs.update(openTab.id, {url: , active: true});
+							});
+						});
+					});
 				});
 			}
 		});
@@ -59,7 +70,7 @@ function updateBadge(tabs) {
 	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'all') num = tabs.filter(t => !t.opened).length;
 	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'today') num = tabs.filter(t => !t.opened && isToday(new Date(t.wakeUpTime))).length;
 	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});
-	chrome.browserAction.setBadgeBackgroundColor({color: '#479BF5'});
+	chrome.browserAction.setBadgeBackgroundColor({color: '#CF5A77'});
 }
 
 chrome.runtime.onInstalled.addListener(_ => {wakeUpTabs()});

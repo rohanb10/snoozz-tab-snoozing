@@ -76,9 +76,37 @@ function getPrettyTimestamp(d) {
 	d.toLocaleTimeString('default', {hour: "numeric", minute: "numeric"})+ ' on' + d.toDateString().substring(d.toDateString().indexOf(' '));
 }
 
-function openURL(url, new_tab = false){
-	if (new_tab) chrome.tabs.create({url: url});
-	if (!new_tab)  chrome.tabs.getCurrent(tab => chrome.tabs.update(tab.id, {url:url}));
+function switchToTabIfItExists(url, callback) {
+	chrome.tabs.query({currentWindow: true, title: 'dashboard | snoozz'}, dashboardTabs => {
+		chrome.tabs.query({currentWindow: true, title: 'settings | snoozz'}, settingsTabs => {
+			var tabs = dashboardTabs.concat(settingsTabs);
+			if (tabs.length === 0) {chrome.tabs.create({url: url});return;}
+			var openTabID = tabs.findIndex(t => t.active === true);
+			var openTab = openTabID ? tabs.splice(openTabID, 1).pop() : tabs.shift();
+			if (tabs.length > 0) chrome.tabs.remove(tabs.map(t => t.id));
+			chrome.tabs.update(openTab.id, {url: url, active: true});
+			if (callback) callback();
+		});
+	});
+}
+
+function refreshDashboardTabIfItExists(url) {
+	chrome.tabs.query({currentWindow: true, title: 'dashboard | snoozz'}, dashboardTabs => {
+		if (dashboardTabs.length === 0) return;
+		var dt = dashboardTabs.shift();
+		if (dashboardTabs.length > 0) chrome.tabs.remove(tabs.map(t => t.id));
+		chrome.tabs.reload(dt.id)
+	});
+}
+
+function openURL(url, external = false, callback){
+	if (url === 'dashboard.html' || url === 'settings.html') {
+		switchToTabIfItExists(url, callback);	
+	} else if (!external) {
+		chrome.tabs.getCurrent(tab => chrome.tabs.update(tab.id, {url:url}));
+	} else if (external) {
+		chrome.tabs.create({url: url});
+	}
 }
 
 function updateBadge(tabs) {
@@ -86,5 +114,21 @@ function updateBadge(tabs) {
 	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'all') num = tabs.filter(t => !t.opened).length;
 	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'today') num = tabs.filter(t => !t.opened && isToday(new Date(t.wakeUpTime))).length;
 	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});
-	chrome.browserAction.setBadgeBackgroundColor({color: '#479BF5'});
+	chrome.browserAction.setBadgeBackgroundColor({color: '#CF5A77'});
+}
+
+function showIconOnScroll() {
+	var header = document.querySelector('body > div.flex.center')
+	var logo = document.querySelector('body > div.scroll-logo');
+	if (!header || !logo) return;
+
+	logo.addEventListener('click', _ => window.scrollTo({top: 0,behavior: 'smooth'}));
+	document.addEventListener('scroll', _ => {
+		if (logo.classList.contains('hidden') && window.pageYOffset > (header.offsetHeight + header.offsetTop)) {
+			logo.classList.remove('hidden')
+		} else if (!logo.classList.contains('hidden') && window.pageYOffset <= (header.offsetHeight + header.offsetTop)) {
+			logo.classList.add('hidden')
+		}
+	})
+	
 }
