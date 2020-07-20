@@ -36,7 +36,7 @@ function wakeUpTabs() {
 								var openTabID = tabs.findIndex(t => t.active === true);
 								var openTab = openTabID ? tabs.splice(openTabID, 1).pop() : tabs.shift();
 								if (tabs.length > 0) chrome.tabs.remove(tabs.map(t => t.id));
-								chrome.tabs.update(openTab.id, {url: , active: true});
+								chrome.tabs.update(openTab.id, {url: 'dashboard.html', active: true});
 							});
 						});
 					});
