@@ -56,19 +56,19 @@ function sortTabsAndBuildCollections(tabs) {
 	buildCollection('This Week', this_week)
 	buildCollection('Next Week', next_week)
 	buildCollection('Later', later)
-	if (tabs.length - history.length > 0) cc.innerHTML += '<p><i>Due to API restrictions, tabs may reopen upto 2 minutes late.</i></p>'
+	if (tabs.length - history.length > 0) cc.appendChild(Object.assign(document.createElement('p'),{innerText: 'Due to API restrictions, tabs may reopen upto 2 minutes late.'}));
 	
 	buildCollection('History', history)
 
-	if (history.length > 0) cc.innerHTML += `<p><i>Tabs in your history are removed ${EXT_OPTIONS.history} day${EXT_OPTIONS.history>1?'s':''} after they are opened.</i></p>`
+	if (history.length > 0) cc.appendChild(Object.assign(document.createElement('p'),{innerText: `Tabs in your history are removed ${EXT_OPTIONS.history} day${EXT_OPTIONS.history>1?'s':''} after they are opened.`}));
+
 	if (tabs.length > 4) {
-		cc.innerHTML += '<p>Click <span>here</span> to delete all your tabs</p>';
+		cc.appendChild(Object.assign(document.createElement('p'), {innerHTML: 'Click <span>here</span> to delete all your tabs'}));
 		cc.querySelector('p span').addEventListener('click', _ => {
 			if (!confirm('Are you sure you want to delete all your snoozed tabs? \nYou cannot undo this action.')) return;
-			chrome.storage.local.set({snoozed: []});
+			chrome.storage.local.set({snoozed: []}, _ => chrome.tabs.reload());
 			chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1});
 			updateBadge([]);
-			chrome.tabs.reload();
 		})
 	}
 
