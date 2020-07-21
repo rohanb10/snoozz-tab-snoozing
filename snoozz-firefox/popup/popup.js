@@ -11,21 +11,19 @@ function initialize() {
 	// custom snooze defaults + listeners
  	document.querySelectorAll('input').forEach(i => i.addEventListener('input', el => el.target.classList.remove('invalid')));
  	
- 	document.querySelector('.dashboard-btn').addEventListener('click', el => {
- 		openURL(el.target.dataset.href, false, _ => window.close());
- 	});
- 	document.querySelector('.settings').addEventListener('click', el => {
- 		openURL(el.target.dataset.href, false, _ => window.close());	
- 	});
+ 	document.querySelectorAll('.dashboard-btn, .settings').forEach(btn => btn.addEventListener('click', el => {
+ 		setTimeout(_ => window.close(), 100);
+ 		openURL(el.target.dataset.href, false);
+ 	}));
 
  	customChoiceHandler()
 
  	document.addEventListener('snoozeEvent', changeTabAfterSnooze);
 
- 	chrome.storage.local.get(['snoozed', 'snoozedOptions'], s => {
+ 	browser.storage.local.get(['snoozed', 'snoozedOptions'], s => {
  		EXT_OPTIONS = Object.assign(EXT_OPTIONS, s.snoozedOptions);
 
- 		if (!s.snoozedOptions || Object.keys(s.snoozedOptions).length === 0) chrome.storage.local.set({snoozedOptions: EXT_OPTIONS});
+ 		if (!s.snoozedOptions || Object.keys(s.snoozedOptions).length === 0) browser.storage.local.set({snoozedOptions: EXT_OPTIONS});
  		configureSnoozeOptions();
  		
  		if (!s.snoozed || Object.keys(s.snoozed).length === 0) return;
@@ -36,6 +34,7 @@ function initialize() {
  		upc.innerText = todayCount;
  		upc.style.opacity = "1"
  	});
+ 	browser.tabs.onActivated.addListener(getCurrentTab)
 }
 
 var closeTimeout, dateEdited = false;
@@ -45,7 +44,6 @@ function customChoiceHandler() {
 	var formTime = cc.querySelector('input[type="time"]');
 	var submitBtn = cc.querySelector('.submit-btn');
 	// default values for form
-	formDate.setAttribute('min', NOW.toISOString().split('T')[0]);
 	formDate.value = NOW.toISOString().split('T')[0];
 	formTime.value = NOW.toTimeString().substring(0,5);
 
@@ -85,7 +83,7 @@ function customChoiceHandler() {
 }
 
 function getCurrentTab() {
-	chrome.tabs.query({active: true, currentWindow: true}, tabs => {
+	browser.tabs.query({active: true, currentWindow: true}, tabs => {
 		var tab = tabs.length > 0 && tabs[0] ? tabs[0] : false;
 		if (!tabs) return;
 
@@ -171,18 +169,23 @@ function submitCustom() {
 	var d = document.getElementById('date-input');
 	var t = document.getElementById('time-input');
 	var btn = document.querySelector('.submit-btn');
-
+	var invalid = false;
 	if (d.value.length === 0 || !d.value.match(/^\d{4}-\d{2}-\d{2}$/)) {
 		d.classList.add('invalid');
-		return;
+		invalid = true;
 	}
 	if (t.value.length === 0 || !t.value.match(/^\d{2}:\d{2}$/)) {
 		t.classList.add('invalid');
-		return;
+		invalid = true;
 	}
+	if (invalid) return;
 	var time = new Date(`${d.value} ${t.value}`);
 	if (time < NOW) {
-		t.classList.add('invalid');
+		if (!(sameYear(NOW, time) && sameMonth(NOW, time) && sameDate(NOW, time))) {
+			d.classList.add('invalid');
+		} else {
+			t.classList.add('invalid');	
+		}
 		return;
 	}
 	btn.classList.add('disabled');
@@ -193,10 +196,10 @@ function submitCustom() {
 
 function snooze(snoozeTime, label) {
 	if (snoozeTime < NOW) return;
-	chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1})
-	chrome.storage.local.get(['snoozed'], function(storage) {
+	browser.alarms.create('wakeUpTabs', {periodInMinutes: 1})
+	browser.storage.local.get(['snoozed'], function(storage) {
 		storage.snoozed = storage.snoozed || [];
-		chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+		browser.tabs.query({ active: true, currentWindow: true }, function(tabs) {
 			var tab = tabs[0];
 			storage.snoozed.push({
 				id: Math.random().toString(36).slice(-6),
@@ -206,12 +209,15 @@ function snooze(snoozeTime, label) {
 				wakeUpTime: snoozeTime.getTime(),
 				timeCreated: NOW.getTime(),
 			})
-			chrome.storage.local.set({snoozed: storage.snoozed}, _ => {
+			browser.storage.local.set({snoozed: storage.snoozed}, _ => {
 					document.dispatchEvent(new CustomEvent('snoozeEvent', {detail: {label: label}}));
 					document.body.style.pointerEvents = 'none';
 					refreshDashboardTabIfItExists();
 					updateBadge(storage.snoozed);
-					setTimeout(_ => chrome.tabs.remove(tab.id), 2000);
+					setTimeout(_ => {
+						browser.tabs.remove(tab.id);
+						window.close();
+					}, 2100);
 				}
 			);
 		});

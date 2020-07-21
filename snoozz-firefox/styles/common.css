@@ -8,6 +8,7 @@ body, html, h1, h3, h4, h4+p {
 body {
 	padding: 1em 0;
 	font-family: 'Arial', sans-serif;
+	font-size: .75em;
 }
 
 .flex {

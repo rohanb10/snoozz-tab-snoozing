@@ -77,35 +77,36 @@ function getPrettyTimestamp(d) {
 }
 
 function switchToTabIfItExists(url, callback) {
-	chrome.tabs.query({currentWindow: true, title: 'dashboard | snoozz'}, dashboardTabs => {
-		chrome.tabs.query({currentWindow: true, title: 'settings | snoozz'}, settingsTabs => {
+	browser.tabs.query({currentWindow: true, title: 'dashboard | snoozz'}, dashboardTabs => {
+		browser.tabs.query({currentWindow: true, title: 'settings | snoozz'}, settingsTabs => {
 			var tabs = dashboardTabs.concat(settingsTabs);
-			if (tabs.length === 0) {chrome.tabs.create({url: url});return;}
+			console.log(tabs, tabs.length);
+			if (tabs.length === 0) {browser.tabs.create({url: url});return;}
 			var openTabID = tabs.findIndex(t => t.active === true);
 			var openTab = openTabID ? tabs.splice(openTabID, 1).pop() : tabs.shift();
-			if (tabs.length > 0) chrome.tabs.remove(tabs.map(t => t.id));
-			chrome.tabs.update(openTab.id, {url: url, active: true});
+			if (tabs.length > 0) browser.tabs.remove(tabs.map(t => t.id));
+			browser.tabs.update(openTab.id, {url: url, active: true});
 			if (callback) callback();
 		});
 	});
 }
 
 function refreshDashboardTabIfItExists() {
-	chrome.tabs.query({currentWindow: true, title: 'dashboard | snoozz'}, dashboardTabs => {
+	browser.tabs.query({currentWindow: true, title: 'dashboard | snoozz'}, dashboardTabs => {
 		if (dashboardTabs.length === 0) return;
 		var dt = dashboardTabs.shift();
-		if (dashboardTabs.length > 0) chrome.tabs.remove(dashboardTabs.map(t => t.id));
-		chrome.tabs.reload(dt.id)
+		if (dashboardTabs.length > 0) browser.tabs.remove(dashboardTabs.map(t => t.id));
+		browser.tabs.reload(dt.id)
 	});
 }
 
 function openURL(url, external = false, callback){
-	if (url === 'dashboard.html' || url === 'settings.html') {
+	if (url === 'dashboard.html' || url === 'settings.html' || url === '../dashboard.html' || url === '../settings.html') {
 		switchToTabIfItExists(url, callback);	
 	} else if (!external) {
-		chrome.tabs.query({currentWindow: true, active: true}, current => chrome.tabs.update(current[0].id, {url:url}));
+		browser.tabs.query({currentWindow: true, active: true}, current => browser.tabs.update(current[0].id, {url:url}));
 	} else if (external) {
-		chrome.tabs.create({url: url});
+		browser.tabs.create({url: url});
 	}
 }
 
@@ -113,8 +114,8 @@ function updateBadge(tabs) {
 	var num = 0;
 	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'all') num = tabs.filter(t => !t.opened).length;
 	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'today') num = tabs.filter(t => !t.opened && isToday(new Date(t.wakeUpTime))).length;
-	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});
-	chrome.browserAction.setBadgeBackgroundColor({color: '#CF5A77'});
+	browser.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});
+	browser.browserAction.setBadgeBackgroundColor({color: '#CF5A77'});
 }
 
 function showIconOnScroll() {

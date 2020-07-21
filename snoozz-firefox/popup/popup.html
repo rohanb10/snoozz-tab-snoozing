@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>snoozz</title>
+	<link rel="stylesheet" href="../styles/common.css" />
+	<link rel="stylesheet" href="./popup.css" />
+</head>
+<body>
+	<div class="section title">
+		<div class="flex">
+			<img src="../icons/main-icon.png">
+			<div><h1>snoozz</h1></div>
+		</div>
+		<div>
+			<h3 class="center current-tab">Current Tab</h3>
+			<div class="tab flex">
+				<img id="tab-favicon" src="../icons/unknown.png"><div id="tab-title">undefined</div>
+			</div>
+		</div>
+	</div>
+	<h3 class="center">Snooze until</h3>
+	<div class="section choices">
+		<div class="choice " data-option="today-morning">
+			<div><img src="../icons/egg.png"><div class="label">This Morning</div></div>
+			<div><div class="date">9am</div><div class="time">-</div></div>
+		</div>
+		<div class="choice" data-option="today-evening">
+			<div><img src="../icons/chai.png"><div class="label">This Evening</div></div>
+			<div><div class="date">-</div><div class="time">-</div></div>
+		</div>
+		<div class="choice" data-option="tom-morning">
+			<div><img src="../icons/yoga.png"><div class="label">Tomorrow Morning</div></div>
+			<div><div class="date">-</div><div class="time">-</div></div>
+		</div>
+		<div class="choice" data-option="tom-evening">
+			<div><img src="../icons/bathtub.png"><div class="label">Tomorrow Evening</div></div>
+			<div><div class="date">-</div><div class="time">-</div></div>
+		</div>
+		<div class="choice" data-option="weekend">
+			<div><img src="../icons/tent.png"><div class="label">Weekend</div></div>
+			<div><div class="date">-</div><div class="time">-</div></div>
+		</div>
+		<div class="choice dark-on-hover" data-option="monday">
+			<div><img src="../icons/coffee.png"><div class="label">Monday</div></div>
+			<div><div class="date">-</div><div class="time">-</div></div>
+		</div>
+		<div class="choice dark-on-hover" data-option="week">
+			<div><img src="../icons/cal-week.png"><div class="label">Next Week</div></div>
+			<div><div class="date">-</div><div class="time">-</div></div>
+		</div>
+		<div class="choice" data-option="month">
+			<div><img src="../icons/cal-month.png"><div class="label">Next Month</div></div>
+			<div><div class="date">-</div><div class="time">-</div></div>
+		</div>
+	</div>
+	<div class="custom-choice dark-on-hover" data-option="custom">
+		<div><img src="../icons/alarm.png"><div class="label">Choose your own time</div></div>
+		<div class="custom-choice-form">
+			<div class="input">
+				<input type="date" id="date-input" required>
+				<input type="time" id="time-input" required>
+			</div>
+			<div class="submit-btn disabled">snoozz</div>
+		</div>
+	</div>
+	<div class="section center">
+		<div>
+			<div><span class="dashboard-btn" data-href="../dashboard.html">See Snoozed Tabs</span></div>
+			<span class="upcoming"></span>
+		</div>
+	</div>
+	<div class="settings"><img data-href="../settings.html" src="../icons/settings.png"></div>
+	<script type="text/javascript" src="../scripts/utils.js"></script>
+	<script type="text/javascript" src="./popup.js"></script>
+</body>
+</html>

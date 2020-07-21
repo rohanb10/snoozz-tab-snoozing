@@ -1,0 +1,25 @@
+{
+	"name": "Snoozz - Tab Snoozing",
+	"short_name": "Snoozz",
+	"description": "Declutter your windows by snoozing tabs for later",
+
+	"icons": {
+		"128": "icons/ext-icon-128.png",
+		"48": "icons/ext-icon-48.png"
+	},
+
+	"browser_action": {
+		"default_popup": "popup/popup.html"
+	},
+
+	"options_page": "settings.html",
+	
+	"background": {
+		"scripts": ["background.js"]
+	},
+
+	"permissions": ["alarms", "notifications", "storage", "tabs"],
+
+	"manifest_version": 2,
+	"version": "1.1.4"
+}

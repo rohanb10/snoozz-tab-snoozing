@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>settings | snoozz</title>
+	<link rel="icon" type="image/png" sizes="48x48" href="./icons/ext-icon-48.png">
+	<link rel="stylesheet" href="./styles/common.css" />
+	<link rel="stylesheet" href="./styles/settings.css" />
+</head>
+<body>
+	<div class="scroll-logo hidden"><img src="./icons/main-icon.png"></div>
+	<div class="flex center">
+		<img src="./icons/main-icon.png">
+		<div><h1>snoozz</h1></div>
+	</div>
+	<div class="settings-container">
+		<h2><span>Settings</span></h2><br>
+		<div class="input-container flex">
+			<div><h4>Morning hour</h4></div>
+			<div><input id="morning" type="number" value="9" min="1" max="11"><span>am</span></div>
+		</div>
+		<div class="input-container flex">
+			<div><h4>Evening hour</h4></div>
+			<div><input id="evening" type="number" value="6" min="1" max="11"><span>pm</span></div>
+		</div>
+		<div class="input-container flex">
+			<div>
+				<h4>Days of History</h4>
+				<p>All reopened tabs will be automatically deleted after this amount of time.</p>
+			</div>
+			<div><input id="history" type="number" value="7" steps="1" min="0" max="180"><span>days</span></div>
+		</div>
+		<div class="input-container flex">
+			<div>
+				<h4>Number of snoozed tabs on the icon</h4>
+				<p>Choose what to show on top of the extension icon</p>
+			</div>
+			<div class="select-container">
+				<select id="badge">
+					<option value="disabled">Disabled</option>
+					<option value="today" selected>Waking Up Today</option>
+					<option value="all">All Snoozed Tabs</option>
+				</select>
+			</div>
+		</div>
+		<br>
+		<div id="saved">All changes have been saved</div>
+	</div><br><br>
+	<div class="about-container">
+		<h2><span>About</span></h2>
+		<div>
+			<p>All the code for this extension is fully available on <a target="_blank" href="https://github.com/rohanb10/snooze">github</a>. All your data stays in your browser and is never uploaded anywhere.</p>
+			<p>Found a bug or want to suggest a new feature? Get in touch over <a target="_blank" href="https://github.com/rohanb10/snooze/issues">here</a>.</p>
+			<p>Made by <a target='blank' href="https://rohan.xyz">rohan</a> in 2020.</p>
+		</div>
+	</div>
+	<div class="dashboard"><div>See your snoozed tabs</div></div>
+	<script type="text/javascript" src="./scripts/utils.js"></script>
+	<script type="text/javascript" src="./scripts/settings.js"></script>
+</body>
+</html>

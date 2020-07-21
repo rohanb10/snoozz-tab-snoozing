@@ -65,12 +65,31 @@ input.error {
 input {
 	-webkit-appearance: none;
 }
+select {
+	-moz-appearance: none;
+}
+.select-container {
+	position: relative;
+}
+.select-container:after {
+	position: absolute;
+	top: .65em;
+	right: -1em;
+	content: '\25BC';
+	font-size: .6em;
+	color: #666;
+	line-height: normal;
+}
 input[type="number"] {
 	width: 2.5em;
+	-moz-appearance:textfield;
 }
 input + span {
 	display: inline-block;
 	width: 2em;
+}
+input::-webkit-inner-spin-button, input::-webkit-outer-spin-button {
+	-webkit-appearance: none;
 }
 .about-container p:first-of-type {
 	margin-top: 2.5em;

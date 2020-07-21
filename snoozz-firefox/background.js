@@ -28,7 +28,7 @@ function wakeUpTabs() {
 						title: 'A tab woke up!',
 						message: `${t.title} -- snoozed on ${formatDate(new Date(t.timeCreated))}`,
 					});
-					refreshDashboardTabIfItExists()
+					refreshDashboardTabIfItExists();
 					chrome.notifications.onClicked.addListener(_ => {
 						chrome.tabs.query({currentWindow: true, title: 'dashboard | snoozz'}, dashboardTabs => {
 							chrome.tabs.query({currentWindow: true, title: 'settings | snoozz'}, settingsTabs => {
@@ -75,11 +75,11 @@ function updateBadge(tabs) {
 }
 
 function refreshDashboardTabIfItExists() {
-	chrome.tabs.query({title: 'dashboard | snoozz'}, dashboardTabs => {
+	browser.tabs.query({title: 'dashboard | snoozz'}, dashboardTabs => {
 		if (dashboardTabs.length === 0) return;
 		var dt = dashboardTabs.shift();
-		if (dashboardTabs.length > 0) chrome.tabs.remove(dashboardTabs.map(t => t.id));
-		chrome.tabs.reload(dt.id)
+		if (dashboardTabs.length > 0) browser.tabs.remove(dashboardTabs.map(t => t.id));
+		browser.tabs.reload(dt.id)
 	});
 }
 
