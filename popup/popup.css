@@ -308,29 +308,6 @@ input::-webkit-calendar-picker-indicator {
 	-webkit-background-clip: padding-box;
 }
 .settings:after {
-	opacity: 0;
-	content: 'Settings';
-	position: absolute;
 	top: .125em;
 	left: 1.75em;
-	pointer-events: none;
-	touch-events: none;
-	transition: opacity .3s ease-in-out;
-}
-.settings:hover:after {
-	opacity: 1;
-}
-.settings img:hover {
-	background-color: black;
-	animation: spin 2.5s linear infinite;
-}
-
-@keyframes spin {
-	from {transform: rotate(0deg)}
-	to {transform: rotate(360deg)}
-}
-@keyframes flow {
-	0%{background-position: 0 50%}
-	50%{background-position: 100% 50%}
-	100%{background-position: 0 50%}
 }

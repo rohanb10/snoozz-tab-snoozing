@@ -68,7 +68,7 @@ body > div.scroll-logo img {
 	transition: background-color .3s ease-in-out;
 	-webkit-background-clip: padding-box;
 }
-.settings:after {
+.settings:after, .dashboard:before {
 	opacity: 0;
 	content: 'Settings';
 	position: absolute;
@@ -76,7 +76,7 @@ body > div.scroll-logo img {
 	touch-events: none;
 	transition: opacity .3s ease-in-out;
 }
-.settings:hover:after {
+.settings:hover:after, .dashboard:hover:before {
 	opacity: 1;
 }
 .settings img:hover {

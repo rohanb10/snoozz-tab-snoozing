@@ -245,30 +245,6 @@ input:focus, input:active {
 input[type='date'] {
 	padding-bottom: 2px;
 }
-/*input::-webkit-datetime-edit {
-	text-transform: uppercase;
-	font-family: 'Monaco';
-}
-
-input::-webkit-datetime-edit-fields-wrapper {
-	padding: .35em 0;
-}
-
-input::-webkit-datetime-edit-month-field, input::-webkit-datetime-edit-day-field, input::-webkit-datetime-edit-year-field, input::-webkit-datetime-edit-hour-field, input::-webkit-datetime-edit-minute-field {
-	background-color: rgba(0,0,0,.05);
-	padding: .25em .5em;
-	border-radius: .33em;
-	cursor: pointer;
-	transition: background-color .3s ease-in-out;
-}
-input.invalid::-webkit-datetime-edit-month-field, input.invalid::-webkit-datetime-edit-day-field, input.invalid::-webkit-datetime-edit-year-field, input.invalid::-webkit-datetime-edit-hour-field, input.invalid::-webkit-datetime-edit-minute-field {
-	background-color: rgba(255,0,0,.25);
-}
-
-.custom-choice:hover input.invalid::-webkit-datetime-edit-month-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-day-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-year-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-hour-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-minute-field {
-	background-color: rgba(255,0,0,.65);	
-}*/
-
 .dashboard-btn {
 	cursor: pointer;
 	font-size: 1.25em;
@@ -297,32 +273,8 @@ input.invalid::-webkit-datetime-edit-month-field, input.invalid::-webkit-datetim
 	padding: 0;
 	border: 1px solid white;
 	transition: background-color .3s ease-in-out;
-	-webkit-background-clip: padding-box;
 }
 .settings:after {
-	opacity: 0;
-	content: 'Settings';
-	position: absolute;
 	top: .125em;
 	left: 1.75em;
-	pointer-events: none;
-	touch-events: none;
-	transition: opacity .3s ease-in-out;
-}
-.settings:hover:after {
-	opacity: 1;
-}
-.settings img:hover {
-	background-color: black;
-	animation: spin 2.5s linear infinite;
-}
-
-@keyframes spin {
-	from {transform: rotate(0deg)}
-	to {transform: rotate(360deg)}
-}
-@keyframes flow {
-	0%{background-position: 0 50%}
-	50%{background-position: 100% 50%}
-	100%{background-position: 0 50%}
 }

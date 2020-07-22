@@ -43,7 +43,7 @@ function initialize() {
 
 	showIconOnScroll();
 
-	document.querySelector('.dashboard div').addEventListener('click', _ => openURL('./dashboard.html'));
+	document.querySelector('.dashboard').addEventListener('click', _ => openURL('./dashboard.html'));
 }
 
 function removeSavedMessage() {
