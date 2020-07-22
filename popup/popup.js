@@ -27,10 +27,7 @@ function initialize() {
  		if (!s.snoozed || Object.keys(s.snoozed).length === 0) return;
 
  		var todayCount = (s.snoozed.filter(t => isToday(new Date(t.wakeUpTime)) && !t.opened)).length;
- 		if (todayCount === 0) return;
- 		var upc = document.querySelector('.upcoming');
- 		upc.innerText = todayCount;
- 		upc.style.opacity = "1"
+ 		if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount)
  	});
 }
 

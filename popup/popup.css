@@ -234,6 +234,7 @@ input {
 	background-color: inherit;
 	-webkit-appearance: none;
 	border: none;
+	position: relative;
 	width: 10em;
 	transition: all .3s ease-in-out;
 }
@@ -299,6 +300,12 @@ input::-webkit-calendar-picker-indicator {
 	font-size: .75em;
 	text-transform: uppercase;
 	color: #666;
+}
+.upcoming:not([data-today='']) {
+	opacity: 1;
+}
+.upcoming:after {
+	content: attr(data-today)
 }
 
 .settings {
