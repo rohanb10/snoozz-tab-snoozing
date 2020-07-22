@@ -1,6 +1,5 @@
 'use strict';
 
-var EXT_OPTIONS = {history: 7, morning: 9, evening: 18, badge: 'today'};
 function wakeUpTabs() {
 	const NOW = new Date();
 	// tab actions
@@ -8,7 +7,7 @@ function wakeUpTabs() {
 		var ST = s.snoozed
 		if (!ST) ST = [];
 		EXT_OPTIONS = Object.assign(EXT_OPTIONS, s.snoozedOptions);
-		if (!ST || Object.keys(ST).length === 0){
+		if (Object.keys(ST).length === 0){
 			chrome.alarms.clear('wakeUpTabs');
 			return;
 		}
@@ -28,19 +27,7 @@ function wakeUpTabs() {
 						title: 'A tab woke up!',
 						message: `${t.title} -- snoozed on ${formatDate(new Date(t.timeCreated))}`,
 					});
-					refreshDashboardTabIfItExists()
-					chrome.notifications.onClicked.addListener(_ => {
-						chrome.tabs.query({currentWindow: true, title: 'dashboard | snoozz'}, dashboardTabs => {
-							chrome.tabs.query({currentWindow: true, title: 'settings | snoozz'}, settingsTabs => {
-								var tabs = dashboardTabs.concat(settingsTabs);
-								if (tabs.length === 0) {chrome.tabs.create({url: 'dashboard.html'});return;}
-								var openTabID = tabs.findIndex(t => t.active === true);
-								var openTab = openTabID ? tabs.splice(openTabID, 1).pop() : tabs.shift();
-								if (tabs.length > 0) chrome.tabs.remove(tabs.map(t => t.id));
-								chrome.tabs.update(openTab.id, {url: 'dashboard.html', active: true});
-							});
-						});
-					});
+					chrome.notifications.onClicked.addListener(_ => openURL('dashboard.html'));
 				});
 			}
 		});
@@ -59,28 +46,6 @@ function wakeUpTabs() {
 // eg. Jul 18
 function formatDate(d) {
 	return d.toLocaleString('default', {month:'short'}) + ' ' + d.getDate();
-}
-
-function isToday(d) {
-	const NOW = new Date();
-	return (NOW.getFullYear() === d.getFullYear() && NOW.getMonth() === d.getMonth() && NOW.getDate() === d.getDate())
-}
-
-function updateBadge(tabs) {
-	var num = 0;
-	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'all') num = tabs.filter(t => !t.opened).length;
-	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'today') num = tabs.filter(t => !t.opened && isToday(new Date(t.wakeUpTime))).length;
-	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});
-	chrome.browserAction.setBadgeBackgroundColor({color: '#CF5A77'});
-}
-
-function refreshDashboardTabIfItExists() {
-	chrome.tabs.query({title: 'dashboard | snoozz'}, dashboardTabs => {
-		if (dashboardTabs.length === 0) return;
-		var dt = dashboardTabs.shift();
-		if (dashboardTabs.length > 0) chrome.tabs.remove(dashboardTabs.map(t => t.id));
-		chrome.tabs.reload(dt.id)
-	});
 }
 
 chrome.runtime.onInstalled.addListener(_ => {wakeUpTabs()});

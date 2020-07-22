@@ -9,6 +9,11 @@ body {
 	padding: 1em 0;
 	font-family: 'Arial', sans-serif;
 }
+@-moz-document url-prefix() {
+	body {
+		font-size: .75em;	
+	}
+}
 
 .flex {
 	display: flex;

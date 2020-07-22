@@ -1,5 +1,7 @@
 'use strict';
 
+
+var EXT_OPTIONS = {history: 7, morning: 9, evening: 18, badge: 'today'};
 function sortArrayByDate(t1,t2) {
 	var d1 = new Date(t1.wakeUpTime);
 	var d2 = new Date(t2.wakeUpTime);
@@ -90,17 +92,8 @@ function switchToTabIfItExists(url, callback) {
 	});
 }
 
-function refreshDashboardTabIfItExists() {
-	chrome.tabs.query({currentWindow: true, title: 'dashboard | snoozz'}, dashboardTabs => {
-		if (dashboardTabs.length === 0) return;
-		var dt = dashboardTabs.shift();
-		if (dashboardTabs.length > 0) chrome.tabs.remove(dashboardTabs.map(t => t.id));
-		chrome.tabs.reload(dt.id)
-	});
-}
-
 function openURL(url, external = false, callback){
-	if (url === 'dashboard.html' || url === 'settings.html') {
+	if (url === 'dashboard.html' || url === 'settings.html' || url === '../dashboard.html' || url === '../settings.html') {
 		switchToTabIfItExists(url, callback);	
 	} else if (!external) {
 		chrome.tabs.query({currentWindow: true, active: true}, current => chrome.tabs.update(current[0].id, {url:url}));

@@ -1,7 +1,6 @@
 'use strict';
 
 var savedTimer;
-var EXT_OPTIONS = {morning: 9, evening: 18, history: 7, badge: 'today'};
 
 function initialize() {
 	

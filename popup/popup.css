@@ -222,9 +222,11 @@ h3 {
 
 .dark-on-hover:hover .label, .dark-on-hover:hover .time, .dark-on-hover:hover .date, .dark-on-hover:hover > div:last-of-type div:first-of-type,
 .dark-on-hover.focused .label, .dark-on-hover.focused .time, .dark-on-hover.focused .date, .dark-on-hover.focused > div:last-of-type div:first-of-type,
-input::-webkit-datetime-edit-month-field:focus, input::-webkit-datetime-edit-day-field:focus, input::-webkit-datetime-edit-year-field:focus, input::-webkit-datetime-edit-hour-field:focus, input::-webkit-datetime-edit-minute-field:focus,
 .custom-choice:hover, .custom-choice:hover input, .custom-choice:hover .submit-btn,
 .custom-choice.focused, .custom-choice.focused input, .custom-choice.focused .submit-btn  {
+	color: #fff;
+}
+input::-webkit-datetime-edit-month-field:focus, input::-webkit-datetime-edit-day-field:focus, input::-webkit-datetime-edit-year-field:focus, input::-webkit-datetime-edit-hour-field:focus, input::-webkit-datetime-edit-minute-field:focus {
 	color: #fff;
 }
 
@@ -233,7 +235,6 @@ input {
 	-webkit-appearance: none;
 	border: none;
 	width: 10em;
-	position: relative;
 	transition: all .3s ease-in-out;
 }
 
@@ -244,7 +245,7 @@ input:focus,input:active {
 input::-webkit-datetime-edit {
 	text-transform: uppercase;
 	font-family: 'Monaco';
-}
+}pop
 
 input::-webkit-datetime-edit-fields-wrapper {
 	padding: .35em 0;
@@ -260,6 +261,14 @@ input::-webkit-datetime-edit-month-field, input::-webkit-datetime-edit-day-field
 input.invalid::-webkit-datetime-edit-month-field, input.invalid::-webkit-datetime-edit-day-field, input.invalid::-webkit-datetime-edit-year-field, input.invalid::-webkit-datetime-edit-hour-field, input.invalid::-webkit-datetime-edit-minute-field {
 	background-color: rgba(255,0,0,.25);
 }
+@-moz-document url-prefix() {
+	input {
+		border-bottom: 2px solid transparent;
+	}
+	input.invalid {
+		border-bottom: 2px solid rgba(255,0,0,.65);
+	}
+} 
 
 .custom-choice:hover input.invalid::-webkit-datetime-edit-month-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-day-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-year-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-hour-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-minute-field {
 	background-color: rgba(255,0,0,.65);	

@@ -3,7 +3,7 @@
 const NOW = new Date();
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-var EXT_OPTIONS = {morning: 9, evening: 18};
+const isFirefox = navigator.userAgent.indexOf('Firefox') !== -1;
 
 function initialize() {
 	getCurrentTab();
@@ -11,16 +11,12 @@ function initialize() {
 	// custom snooze defaults + listeners
  	document.querySelectorAll('input').forEach(i => i.addEventListener('input', el => el.target.classList.remove('invalid')));
  	
- 	document.querySelector('.dashboard-btn').addEventListener('click', el => {
- 		openURL(el.target.dataset.href, false, _ => window.close());
- 	});
- 	document.querySelector('.settings').addEventListener('click', el => {
- 		openURL(el.target.dataset.href, false, _ => window.close());	
- 	});
+ 	document.querySelectorAll('.dashboard-btn, .settings').forEach(btn => btn.addEventListener('click', el => {
+		if (isFirefox) setTimeout(_ => window.close(), 100);
+		openURL(el.target.dataset.href, false);
+	}));
 
  	customChoiceHandler()
-
- 	document.addEventListener('snoozeEvent', changeTabAfterSnooze);
 
  	chrome.storage.local.get(['snoozed', 'snoozedOptions'], s => {
  		EXT_OPTIONS = Object.assign(EXT_OPTIONS, s.snoozedOptions);
@@ -207,19 +203,20 @@ function snooze(snoozeTime, label) {
 				timeCreated: NOW.getTime(),
 			})
 			chrome.storage.local.set({snoozed: storage.snoozed}, _ => {
-					document.dispatchEvent(new CustomEvent('snoozeEvent', {detail: {label: label}}));
+					changeTabAfterSnooze(label)
 					document.body.style.pointerEvents = 'none';
-					refreshDashboardTabIfItExists();
 					updateBadge(storage.snoozed);
-					setTimeout(_ => chrome.tabs.remove(tab.id), 2000);
+					setTimeout(_ => {
+						chrome.tabs.remove(tab.id)
+						if (isFirefox) window.close()
+					}, 2100);
 				}
 			);
 		});
 	});
 }
 
-function changeTabAfterSnooze(data) {
-	var option = data.detail.label;
+function changeTabAfterSnooze(option) {
 	document.querySelectorAll('.choice, .custom-choice').forEach(function(el) {
 		if (!(el && el.dataset && el.dataset.option)) return;
 		el.classList.add(el.dataset.option === option ? 'focused' : 'disabled');

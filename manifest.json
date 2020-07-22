@@ -12,11 +12,13 @@
 		"default_popup": "popup/popup.html"
 	},
 
-	"options_page": "settings.html",
+	"options_ui": {
+		"page": "settings.html",
+		"open_in_tab": true
+	},
 	
 	"background": {
-		"scripts": ["background.js"],
-		"persistent": false
+		"scripts": ["scripts/utils.js", "background.js"]
 	},
 
 	"permissions": ["alarms", "notifications", "storage", "tabs"],

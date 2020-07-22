@@ -5,7 +5,6 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 const NOW = new Date();
 
 var SNOOZED_TABS;
-var EXT_OPTIONS = {history: 7};
 function initialize() {
 	document.querySelector('.settings').addEventListener('click', _ => openURL('settings.html'), {once:true})
 	loadTabs();
@@ -15,6 +14,16 @@ function initialize() {
 		var nextRing = new Date(wut.scheduledTime);
 		if (nextRing.setMinutes(nextRing.getMinutes() + 2) > NOW) chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1});
 	});
+	// refresh dashboard when storage changed if page is not in focus
+	chrome.storage.onChanged.addListener(_ => {
+		if (document.hasFocus()) return;
+		chrome.tabs.query({currentWindow: true, title: 'dashboard | snoozz'}, dashboardTabs => {
+			if (dashboardTabs.length === 0) return;
+			var dt = dashboardTabs.shift();
+			if (dashboardTabs.length > 0) chrome.tabs.remove(dashboardTabs.map(t => t.id));
+			chrome.tabs.reload(dt.id)
+		});
+	})
 	showIconOnScroll();
 	
 }
