@@ -43,9 +43,29 @@
 				</select>
 			</div>
 		</div>
-		<br>
-		<div id="saved">All changes have been saved</div>
-	</div><br><br>
+		<div class="input-container large">
+			<div class="flex">
+				<div>
+					<h4>Enable Snoozz in the context menu</h4>
+					<p>The option will only appear when you right click hyperlinks</p>
+					<p>You can select up to five choices</p>
+				</div>
+				<div class="checkbox-large-wrapper">
+					<input type="checkbox" id="contextMenu" checked>
+				</div>
+			</div>
+			<div class="choice-list">
+				<div class="choice"><input type="checkbox" id="today-morning"><label for="today-morning">This Morning</label></div>
+				<div class="choice"><input type="checkbox" checked id="today-evening"><label for="today-evening">This Evening</label></div>
+				<div class="choice"><input type="checkbox" checked id="tom-morning"><label for="tom-morning">Tomorrow Morning</label></div>
+				<div class="choice"><input type="checkbox" id="tom-evening"><label for="tom-evening">Tomorrow Evening</label></div>
+				<div class="choice"><input type="checkbox" id="weekend"><label for="weekend">Weekend</label></div>
+				<div class="choice"><input type="checkbox" checked id="monday"><label for="monday">Monday</label></div>
+				<div class="choice"><input type="checkbox" id="week"><label for="week">Next Week</label></div>
+				<div class="choice"><input type="checkbox" id="month"><label for="month">Next Month</label></div>
+			</div>
+		</div>
+	</div><br>
 	<div class="about-container">
 		<h2><span>About</span></h2>
 		<div>
@@ -59,6 +79,7 @@
 		<div class="rectangle"></div>
 		<div class="rectangle"></div>
 	</div>
+	<div id="saved">All settings have been saved</div>
 	<script type="text/javascript" src="./scripts/utils.js"></script>
 	<script type="text/javascript" src="./scripts/settings.js"></script>
 </body>

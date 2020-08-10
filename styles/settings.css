@@ -12,28 +12,37 @@ h2 span {
 .about-container h2 span {
 	border-color: #D05E74;
 }
+.input-container.flex, .input-container > .flex {
+	justify-content: space-between;
+}
 .input-container {
 	font-size: 1.2em;
-	justify-content: space-between;
 	padding: 1em;
 	margin: .5em 0;
 	border-radius: .33em;
 	border: 1px dashed #fff;
+	transition: border-color .25s ease-in-out;
 }
 .input-container:hover {
 	border-color: #ddd;
+	transition-duration: 0;
 }
-.input-container div:first-of-type {
-	max-width: 70%;
+.input-container {
+	max-width: 100%;
 }
 #saved {
-	padding: 1em 0;
+	position: fixed;
+	bottom: -5em;
+	right: 0;
+	padding: 1em;
+	margin: 1em;
+	border: 2px solid #000;
 	text-align: center;
-	opacity: 0;
-	transition: opacity .3s ease-in-out
+	font-size: 1.25em;
+	transition: bottom .3s ease-in-out
 }
 #saved.animate {
-	opacity: 1;
+	bottom: 0;
 }
 a {
 	display: inline-block;
@@ -44,14 +53,23 @@ a {
 a:hover {
 	border-color: #000;
 }
-h4 + p {
+h4 ~ p {
 	font-size: .8em;
+	margin: 0;
 }
-input[type="number"] {
+input[type=number] {
 	font-size: 1em;
 	margin-right: .5em;
 	width: 2.5em;
 	-moz-appearance:textfield;
+}
+.checkbox-large-wrapper {
+	transform: scale(1.5);
+	cursor: not-allowed;
+}
+#contextMenu {
+	pointer-events: none;
+	touch-actions: none;
 }
 input, select, option {
 	border: none;
@@ -64,7 +82,7 @@ input, select, option {
 input.error {
 	border-color: #EF5350;
 }
-input, input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
+input[type=input], input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
 	-webkit-appearance: none;
 }
 select {
@@ -73,6 +91,32 @@ select {
 input + span {
 	display: inline-block;
 	width: 2em;
+}
+.choice-list {
+	padding-top: 1em;
+}
+.choice-list.really-disabled {
+	opacity: .4;
+	pointer-events: none;
+	touch-actions: none;
+}
+.choice-list.disabled .choice input, .choice-list.disabled .choice input + label{
+	opacity: .4;
+	pointer-events: none;
+	touch-actions: none;
+}
+.choice-list.disabled .choice input:checked, .choice-list.disabled .choice input:checked + label {
+	opacity: 1;
+	pointer-events: unset;
+	touch-actions: unset;
+}
+.choice {
+	font-size: 1.1em;
+	margin: .3em;
+}
+input[type=checkbox] {
+	
+	margin-left: 1em;
 }
 .about-container p:first-of-type {
 	margin-top: 2.5em;

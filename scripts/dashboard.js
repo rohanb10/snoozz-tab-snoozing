@@ -1,9 +1,5 @@
 'use strict';
 
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-const NOW = new Date();
-
 var SNOOZED_TABS;
 function initialize() {
 	document.querySelector('.settings').addEventListener('click', _ => openURL('settings.html'), {once:true})
@@ -137,7 +133,7 @@ function buildTab(t, heading, tab_list) {
 	tab_info.appendChild(favicon);
 
 	var div = document.createElement('div');
-	var tab_title = Object.assign(document.createElement('div'), {
+	var tab_title = Object.assign(document.createElement('a'), {
 		className: 'tab-title',
 		innerText: t.title,
 		title: t.url,

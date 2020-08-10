@@ -1,7 +1,10 @@
 'use strict';
+const NOW = new Date();
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const isFirefox = (window.browser && browser.runtime) || navigator.userAgent.indexOf('Firefox') !== -1;
 
-
-var EXT_OPTIONS = {history: 7, morning: 9, evening: 18, badge: 'today'};
+var EXT_OPTIONS = {history: 7, morning: 9, evening: 18, badge: 'today', contextMenu: ['today-evening', 'tom-morning', 'monday']};
 function sortArrayByDate(t1,t2) {
 	var d1 = new Date(t1.wakeUpTime);
 	var d2 = new Date(t2.wakeUpTime);
@@ -78,6 +81,57 @@ function getPrettyTimestamp(d) {
 	return d.toLocaleTimeString('default', {hour: "numeric", minute: "numeric"})+ ' on' + d.toDateString().substring(d.toDateString().indexOf(' '));
 }
 
+function getTimeForOption(option) {
+	const NOW = new Date();
+	// calculate date for option
+	var t = new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate());
+	if (option === 'tom-morning') {
+		t.setDate(t.getDate() + 1);
+	} else if (option === 'tom-evening') {
+		t.setDate(t.getDate() + 1);
+	} else if (option === 'weekend') {
+		t = new Date(getNextDay(6));
+		t.setMinutes(0, 0);
+	} else if (option === 'monday') {
+		t = new Date(getNextDay(1));
+		t.setMinutes(0, 0);
+	} else if (option === 'week') {
+		t.setDate(t.getDate() + 7);
+	} else if (option === 'month') {
+		t.setMonth(t.getMonth() + 1);
+	}
+
+	// calculate time for option
+	if (option.indexOf('evening') > -1) {
+		t.setHours(EXT_OPTIONS.evening);
+	} else if (['week', 'month'].indexOf(option) > -1) {
+		t.setHours(NOW.getHours())
+	} else {
+		t.setHours(EXT_OPTIONS.morning);
+	}
+
+	var label = [];
+	if (['today-morning', 'today-evening'].indexOf(option) > -1){
+		label.push('', formatTime(t, false));
+	}
+	else if (['tom-morning', 'tom-evening', 'weekend'].indexOf(option) > -1){
+		label.push(`${DAYS[t.getDay()]}`, formatTime(t, false));
+	}
+	else if (['monday', 'week', 'month'].indexOf(option) > -1){
+		label.push(MONTHS[t.getMonth()] + ' ' + t.getDate(), formatTime(t, false));
+	}
+
+	return {time: t, label: label};
+}
+
+function getHostname(url) {
+	return Object.assign(document.createElement('a'), {href: url}).hostname;
+}
+function getBetterUrl(url) {
+	var a = Object.assign(document.createElement('a'), {href: url});
+	return a.hostname + a.pathname;
+}
+
 function switchToTabIfItExists(url, callback) {
 	chrome.tabs.query({currentWindow: true, title: 'dashboard | snoozz'}, dashboardTabs => {
 		chrome.tabs.query({currentWindow: true, title: 'settings | snoozz'}, settingsTabs => {
@@ -108,6 +162,21 @@ function updateBadge(tabs) {
 	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'today') num = tabs.filter(t => !t.opened && isToday(new Date(t.wakeUpTime))).length;
 	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});
 	chrome.browserAction.setBadgeBackgroundColor({color: '#CF5A77'});
+}
+
+function updateFaviconIfMissing() {
+	chrome.tabs.query({active: true}, tabs => {
+		if (tabs.length === 0) return;
+		chrome.storage.local.get(['snoozed'], s => {
+			if (!s.snoozed || s.snoozed.length === 0) return;
+			s.snoozed.forEach(t => {
+				if (t.favicon.length === 0 && getHostname(tabs[0].url) === getHostname(t.url)) {
+					t.favicon =  tabs[0].favIconUrl;	
+				}
+			});
+			chrome.storage.local.set({snoozed: s.snoozed});
+		})
+	})
 }
 
 function showIconOnScroll() {

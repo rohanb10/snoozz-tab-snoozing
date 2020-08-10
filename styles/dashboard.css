@@ -84,6 +84,7 @@
 	margin-right: 1em;
 }
 .tab-title {
+	display: block;
 	font-size: 1.2em;
 	width: 25em;
 	max-width: 100%;

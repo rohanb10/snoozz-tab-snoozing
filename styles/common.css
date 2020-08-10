@@ -37,7 +37,7 @@ h1 {
 h1:hover {
 	background: linear-gradient(90deg, #df4e76, #f3b845);
 	background-size: 400% 400%;
-	animation: flow 4s ease infinite;
+	animation: flow 4s ease infinite alternate-reverse;
 	-webkit-background-clip: text;
 	background-clip: text;
 	-webkit-text-fill-color: transparent;

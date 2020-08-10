@@ -1,10 +1,5 @@
 'use strict';
 
-const NOW = new Date();
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-const isFirefox = navigator.userAgent.indexOf('Firefox') !== -1;
-
 function initialize() {
 	getCurrentTab();
 
@@ -29,6 +24,7 @@ function initialize() {
  		var todayCount = (s.snoozed.filter(t => isToday(new Date(t.wakeUpTime)) && !t.opened)).length;
  		if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount)
  	});
+ 	updateFaviconIfMissing();
 }
 
 var closeTimeout, dateEdited = false;
@@ -82,7 +78,7 @@ function getCurrentTab() {
 		var tab = tabs.length > 0 && tabs[0] ? tabs[0] : false;
 		if (!tabs) return;
 
-		const validProtocols = ['http', 'https', 'file', 'ftp'];
+		const validProtocols = ['http', 'https', 'file'];
 		var tabProto = tab.url.substring(0, tab.url.indexOf(':'))
 		if (!validProtocols.includes(tabProto)) {
 			tab.title = `Cannot snooze tabs starting with\n` + tabProto + '://';
@@ -118,48 +114,6 @@ function configureSnoozeOptions() {
 	})
 }
 
-function getTimeForOption(option) {
-	// calculate date for option
-	var t = new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate());
-	if (option === 'tom-morning') {
-		t.setDate(t.getDate() + 1);
-	} else if (option === 'tom-evening') {
-		t.setDate(t.getDate() + 1);
-	} else if (option === 'weekend') {
-		t = new Date(getNextDay(6));
-		t.setMinutes(0, 0);
-	} else if (option === 'monday') {
-		t = new Date(getNextDay(1));
-		t.setMinutes(0, 0);
-	} else if (option === 'week') {
-		t.setDate(t.getDate() + 7);
-	} else if (option === 'month') {
-		t.setMonth(t.getMonth() + 1);
-	}
-
-	// calculate time for option
-	if (option.indexOf('evening') > -1) {
-		t.setHours(EXT_OPTIONS.evening);
-	} else if (['week', 'month'].indexOf(option) > -1) {
-		t.setHours(NOW.getHours())
-	} else {
-		t.setHours(EXT_OPTIONS.morning);
-	}
-
-	var label = [];
-	if (['today-morning', 'today-evening'].indexOf(option) > -1){
-		label.push('', formatTime(t, false));
-	}
-	else if (['tom-morning', 'tom-evening', 'weekend'].indexOf(option) > -1){
-		label.push(`${DAYS[t.getDay()]}`, formatTime(t, false));
-	}
-	else if (['monday', 'week', 'month'].indexOf(option) > -1){
-		label.push(MONTHS[t.getMonth()] + ' ' + t.getDate(), formatTime(t, false));
-	}
-
-	return {time: t, label: label};
-}
-
 function submitCustom() {
 	var d = document.getElementById('date-input');
 	var t = document.getElementById('time-input');
@@ -187,9 +141,9 @@ function submitCustom() {
 function snooze(snoozeTime, label) {
 	if (snoozeTime < NOW) return;
 	chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1})
-	chrome.storage.local.get(['snoozed'], function(storage) {
+	chrome.storage.local.get(['snoozed'], storage => {
 		storage.snoozed = storage.snoozed || [];
-		chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+		chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
 			var tab = tabs[0];
 			storage.snoozed.push({
 				id: Math.random().toString(36).slice(-6),
