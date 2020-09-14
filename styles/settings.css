@@ -57,21 +57,7 @@ h4 ~ p {
 	font-size: .8em;
 	margin: 0;
 }
-input[type=number] {
-	font-size: 1em;
-	margin-right: .5em;
-	width: 2.5em;
-	-moz-appearance:textfield;
-}
-.checkbox-large-wrapper {
-	transform: scale(1.5);
-	cursor: not-allowed;
-}
-#contextMenu {
-	pointer-events: none;
-	touch-actions: none;
-}
-input, select, option {
+select, option {
 	border: none;
 	outline: none;
 	border-bottom: 2px solid #000;
@@ -79,18 +65,8 @@ input, select, option {
 	padding: .25em;
 	cursor: pointer;
 }
-input.error {
-	border-color: #EF5350;
-}
-input[type=input], input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
-	-webkit-appearance: none;
-}
 select {
 	-moz-appearance: none;
-}
-input + span {
-	display: inline-block;
-	width: 2em;
 }
 .choice-list {
 	padding-top: 1em;
@@ -100,23 +76,22 @@ input + span {
 	pointer-events: none;
 	touch-actions: none;
 }
-.choice-list.disabled .choice input, .choice-list.disabled .choice input + label{
+.choice-list.disabled input, .choice-list.disabled input + label{
 	opacity: .4;
 	pointer-events: none;
 	touch-actions: none;
 }
-.choice-list.disabled .choice input:checked, .choice-list.disabled .choice input:checked + label {
+.choice-list.disabled input:checked, .choice-list.disabled input:checked + label {
 	opacity: 1;
 	pointer-events: unset;
 	touch-actions: unset;
 }
-.choice {
+.choice-list > div {
 	font-size: 1.1em;
-	margin: .3em;
+	margin: .5em;
 }
 input[type=checkbox] {
-	
-	margin-left: 1em;
+	margin: 0 1em;
 }
 .about-container p:first-of-type {
 	margin-top: 2.5em;
@@ -124,44 +99,4 @@ input[type=checkbox] {
 .about-container p {
 	max-width: 35em;
 	padding: 0 1.25em;
-}
-.dashboard {
-	position: fixed;
-	top: .5em;
-	right: .5em;
-	padding: .5em;
-	font-size: 1.25em;
-	cursor: pointer;
-}
-.dashboard:before {
-	content: 'See your snoozed tabs';
-	top: 2.75em;
-	right: 3.75em;
-	white-space: nowrap;
-}
-.dashboard .rectangle {
-	position: absolute;
-	top: 0.5em;
-	right: 0.5em;
-	width: 2.5em;
-	height: 1.75em;
-	border-radius: 2px;
-	background-color: #fff;
-	border: 2px solid black;
-	transition: transform .3s ease-in-out;
-}
-.dashboard .rectangle:nth-of-type(1) {
-	transform: scale(.65) translateY(-1em);
-}
-.dashboard .rectangle:nth-of-type(2) {
-	transform: scale(.8) translateY(-.5em);
-}
-.dashboard:hover .rectangle:nth-of-type(1) {
-	transform: scale(1);
-}
-.dashboard:hover .rectangle:nth-of-type(2) {
-	transform: scale(1) translateY(2em);
-}
-.dashboard:hover .rectangle:nth-of-type(3) {
-	transform: scale(1) translateY(4em);
 }

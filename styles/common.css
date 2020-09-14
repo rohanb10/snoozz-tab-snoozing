@@ -28,10 +28,10 @@ body {
 
 img {
 	max-width: 6em;
-	padding-right: 1em;
 }
 h1 {
 	font-weight: 800;
+	margin-left: 1rem;
 	cursor: pointer;
 }
 h1:hover {
@@ -46,10 +46,11 @@ body > div.scroll-logo {
 	position: fixed;
 	top: 0;
 	left: 0;
+	padding: .5em;
 	transition: top .3s ease-in-out;
 }
 body > div.scroll-logo.hidden {
-	top: -3em;
+	top: -4em;
 }
 
 body > div.scroll-logo img {
@@ -58,35 +59,44 @@ body > div.scroll-logo img {
 	cursor: pointer;
 }
 
-.settings {
-	position: absolute;
-	top: 0;
-	left: 0;
-	margin: .25em;
+.settings, .dashboard {
+	position: fixed;
+	top: 0.5em;
+	right: 0.5em;
 	cursor: pointer;
+	box-sizing: border-box;
 	border: 1px solid white;
 }
-.settings img {
-	width: 1.5em;
-	padding: 0;
-	border: 1px solid white;
+.settings img, .dashboard img {
+	width: 4em;
 	transition: background-color .3s ease-in-out;
+	-webkit-backface-visibility: hidden;
+	border: 1px solid white;
 	-webkit-background-clip: padding-box;
+	filter: grayscale(100%)
 }
-.settings:after, .dashboard:before {
-	opacity: 0;
-	content: 'Settings';
+.settings:before, .dashboard:before {
+	content: attr(data-hover);
 	position: absolute;
+	opacity: 0;
+	top: .75em;
+	font-size: 1.5em;
+	right: 125%;
 	pointer-events: none;
 	touch-events: none;
 	transition: opacity .3s ease-in-out;
+	white-space: nowrap;
 }
-.settings:hover:after, .dashboard:hover:before {
+.settings:hover:before, .dashboard:hover:before {
 	opacity: 1;
 }
 .settings img:hover {
-	background-color: black;
+	background-color: #000;
 	animation: spin 2.5s linear infinite;
+}
+
+.dashboard img:hover {
+	filter: grayscale(0);
 }
 
 @keyframes spin {

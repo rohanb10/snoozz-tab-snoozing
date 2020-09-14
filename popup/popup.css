@@ -1,7 +1,3 @@
-* {
-	box-sizing: border-box;
-}
-
 body, html, h1, h3 {
 	margin: 0 auto;
 }
@@ -11,12 +7,20 @@ body {
 	width: 45em;
 	padding: .5em;
 }
-.section:first-of-type, .section:last-of-type {
-	padding: 1em 0;
-}
-
 img {
 	max-width: 4.5em;
+}
+.header .center img {
+	max-width: 3em;
+	margin-top: .75rem;
+}
+.header > div {
+	margin-bottom: 1rem;
+	width: 45%;
+	max-width: 45%;
+}
+.header > div:nth-of-type(even) {
+	width: 10%;	
 }
 
 a {
@@ -26,21 +30,26 @@ a {
 h3 {
 	text-transform: uppercase;
 	font-size: .75em;
-}
-
-.title .flex {
-	padding: 0 .5em;
-	justify-content: center;
+	transition: opacity, .5s ease-in-out
 }
 
 .center {
 	text-align: center;
 	justify-content: center;
 }
-
-.tab {
-	margin: .5em .25em .5em 0;
+div[data-preview], div[data-preview].disabled .preview {
+	opacity: .3 !important;
+}
+div[data-preview].active {
+	opacity: 1 !important;
+}
+div[data-preview].active .preview {
+	border-color: #000;
+}
+.preview {
+	margin: .5em 0;
 	padding: .5em;
+	cursor: pointer;
 	align-items: center;
 	border-radius: .33em;
 	height: 3.5em;
@@ -48,23 +57,27 @@ h3 {
 	background-image: linear-gradient(to right, #ddd 50%, #ddd 0);
 	background-position: right;
 	background-size: 200% 200%;
-	transition: background-position 1.7s linear, color .4s ease-in-out .75s;
+	transition: background-position 1.7s linear, color .4s ease-in-out .75s, opacity .5s ease-in-out, border-color .5s ease-in-out;
+	border: 2px solid transparent;
 }
-.tab.snoozed {
+.preview.snoozed {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 }
-.tab.animate {
+.preview.animate {
 	background-position: left;
 }
-.tab.snoozed span {
-	font-size: 2em;
+.preview.snoozed span {
+	font-size: 1.5em;
 	font-weight: bolder;
 }
-#tab-favicon {
-	max-height: 1.5em;
-	padding-right: 1em;
+#tab-favicon, #window-favicon {
+	max-height: 1.75em;
+	margin-right: .75em;
+}
+#window-favicon {
+	max-height: 2em;
 }
 
 .section {
@@ -75,12 +88,12 @@ h3 {
 .section:first-of-type {
 	justify-content: space-between;
 }
-.section > div {
+.section.choices > div {
 	max-width: 48.8%;
 	flex-basis: 48.8%;
 }
 
-#tab-title {
+#tab-title, #window-title {
 	line-height: 1.5;
 	max-height: 3em;
 	overflow: scroll;
@@ -99,7 +112,7 @@ h3 {
 	justify-content: space-between;
 }
 
-.choice.disabled, .custom-choice.disabled {
+.choice.disabled, .custom-choice.disabled, h3.disabled,  div[data-preview].disabled .preview {
 	pointer-events: none;
 	touch-actions: none;
 	opacity: .1;
@@ -115,6 +128,7 @@ h3 {
 .label {
 	font-weight: bold;
 	white-space: nowrap;
+	transition: color .3s ease-in-out;
 }
 .choice div {
 	pointer-events: none;
@@ -126,23 +140,16 @@ h3 {
 	align-items: center;
 }
 
-.choice > div:last-of-type div:first-of-type {
-	color: #777;
-	font-weight: bold;
-}
-.choice > div:last-of-type div:nth-of-type(2) {
-	font-size: .75em;
-}
-.choice .date {
-	color: #999;
-}
 .choice .date, .choice .time {
 	text-align: right;
+	font-weight: bold;
 	text-transform: uppercase;
 	transition: color .3s ease-in-out;
 }
-.choice:hover .date, .choice:hover .time,  .choice:hover > div:last-of-type div:first-of-type,
-.choice.focused .date, .choice.focused .time, .choice.focused > div:last-of-type div:first-of-type {
+.choice .date {
+	color: #777;
+}
+.choice:hover *, .choice.focused * {
 	color: #000;
 }
 
@@ -192,42 +199,13 @@ h3 {
 	opacity: 0.2;
 }
 
-.choice[data-option="today-morning"]:hover, .choice[data-option="today-morning"].focused {
-	background-color: #F7D05C;
-}
-.choice[data-option="today-evening"]:hover, .choice[data-option="today-evening"].focused {
-	background-color: #E1AD7A;
-}
-.choice[data-option="tom-morning"]:hover, .choice[data-option="tom-morning"].focused {
-	background-color: #00b77d;
-}
-.choice[data-option="tom-evening"]:hover, .choice[data-option="tom-evening"].focused {
-	background-color: #87CCE2;
-}
-.choice[data-option="weekend"]:hover, .choice[data-option="weekend"].focused {
-	background-color: #F08974;
-}
-.choice[data-option="monday"]:hover, .choice[data-option="monday"].focused {
-	background-color: #488863;
-}
-.choice[data-option="week"]:hover, .choice[data-option="week"].focused {
-	background-color: #847AD0;
-}
-.choice[data-option="month"]:hover, .choice[data-option="month"].focused {
-	background-color: #F0C26C;
-}
-.custom-choice[data-option="custom"]:hover, .custom-choice[data-option="custom"].focused {
-	background-color: #4C72CA;
+.choice:hover, .choice.focused, .custom-choice:hover, .custom-choice.focused {
+	background-color: var(--bg);
 }
 
-.dark-on-hover:hover .label, .dark-on-hover:hover .time, .dark-on-hover:hover .date, .dark-on-hover:hover > div:last-of-type div:first-of-type,
-.dark-on-hover.focused .label, .dark-on-hover.focused .time, .dark-on-hover.focused .date, .dark-on-hover.focused > div:last-of-type div:first-of-type,
-.custom-choice:hover, .custom-choice:hover input, .custom-choice:hover .submit-btn,
-.custom-choice.focused, .custom-choice.focused input, .custom-choice.focused .submit-btn  {
-	color: #fff;
-}
+.dark-on-hover:hover *, .dark-on-hover.focused *, .custom-choice:hover *, .custom-choice.focused *,
 input::-webkit-datetime-edit-month-field:focus, input::-webkit-datetime-edit-day-field:focus, input::-webkit-datetime-edit-year-field:focus, input::-webkit-datetime-edit-hour-field:focus, input::-webkit-datetime-edit-minute-field:focus {
-	color: #fff;
+	color: #fff !important;
 }
 
 input {
@@ -246,7 +224,7 @@ input:focus,input:active {
 input::-webkit-datetime-edit {
 	text-transform: uppercase;
 	font-family: 'Monaco';
-}pop
+}
 
 input::-webkit-datetime-edit-fields-wrapper {
 	padding: .35em 0;
@@ -292,6 +270,9 @@ input::-webkit-calendar-picker-indicator {
 	font-size: 1.25em;
 	border-bottom: 1px solid black;
 }
+.dashboard-btn:hover {
+	text-decoration: underline;
+}
 .upcoming:before {
 	content: 'Tabs waking up today - '
 }
@@ -307,11 +288,28 @@ input::-webkit-calendar-picker-indicator {
 .upcoming:after {
 	content: attr(data-today)
 }
-
+.footer {
+	padding-top: 1rem;
+}
 .settings {
-	position: absolute;
-	top: 0;
-	left: 0;
+	top: unset;
+	bottom: .2em;
+	right: .25em;
+}
+.settings img {
+	width: 1.75em;
+}
+.settings:before {
+	top: .25rem;
+	font-size: unset;
+}
+
+/*.settings {
+	position: fixed;
+	top: unset;
+	left: unset;
+	bottom: 0;
+	right: 0;
 	margin: .25em;
 	cursor: pointer;
 	border: 1px solid white;
@@ -323,7 +321,7 @@ input::-webkit-calendar-picker-indicator {
 	transition: background-color .3s ease-in-out;
 	-webkit-background-clip: padding-box;
 }
-.settings:after {
-	top: .125em;
-	left: 1.75em;
-}
+.settings:before {
+	bottom: .125em;
+	right: 1.75em;
+}*/

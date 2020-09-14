@@ -81,6 +81,7 @@
 .tab-info .favicon {
 	height: 2em;
 	width: 3em;
+	padding-right: 1em;
 	margin-right: 1em;
 }
 .tab-title {
@@ -91,6 +92,8 @@
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	text-decoration: none;
+	color: #000;
 	font-weight: bold;
 	cursor: pointer;
 }
@@ -141,21 +144,4 @@
 }
 .tab-actions .remove:hover {
 	color: #222;
-}
-
-.settings {
-	position: fixed;
-	top: 0.5em;
-	right: 0.5em;
-	left: unset;
-	margin: .25em;
-}
-.settings img {
-	width: 2.5em;
-	background-size: 75% 75%;
-}
-.settings:after {
-	top: .5em;
-	right: 2.5em;
-	font-size: 1.2em;
 }

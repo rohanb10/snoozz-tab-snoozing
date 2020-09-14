@@ -17,52 +17,84 @@
 		<h2><span>Settings</span></h2><br>
 		<div class="input-container flex">
 			<div><h4>Morning hour</h4></div>
-			<div><input id="morning" type="number" value="9" min="1" max="11"><span>am</span></div>
+			<div><select id="morning">
+				<option value="0">12 AM</option>
+				<option value="1">1 AM</option>
+				<option value="2">2 AM</option>
+				<option value="3">3 AM</option>
+				<option value="4">4 AM</option>
+				<option value="5">5 AM</option>
+				<option value="6">6 AM</option>
+				<option value="7">7 AM</option>
+				<option value="8">8 AM</option>
+				<option value="9">9 AM</option>
+				<option value="10">10 AM</option>
+				<option value="11">11 AM</option>
+			</select></div>
 		</div>
 		<div class="input-container flex">
 			<div><h4>Evening hour</h4></div>
-			<div><input id="evening" type="number" value="6" min="1" max="11"><span>pm</span></div>
+			<div><select id="evening">
+				<option value="12">12 PM</option>
+				<option value="13">1 PM</option>
+				<option value="14">2 PM</option>
+				<option value="15">3 PM</option>
+				<option value="16">4 PM</option>
+				<option value="17">5 PM</option>
+				<option value="18">6 PM</option>
+				<option value="19">7 PM</option>
+				<option value="20">8 PM</option>
+				<option value="21">9 PM</option>
+				<option value="22">10 PM</option>
+				<option value="23">11 PM</option>
+			</select></div>
 		</div>
 		<div class="input-container flex">
 			<div>
-				<h4>Days of History</h4>
+				<h4>Automatically delete tabs after</h4>
 				<p>All reopened tabs will be automatically deleted after this amount of time.</p>
 			</div>
-			<div><input id="history" type="number" value="7" steps="1" min="0" max="180"><span>days</span></div>
+			<div><select id="history">
+				<option value="1">24 Hours</option>
+				<option value="2">48 Hours</option>
+				<option value="3">72 Hours</option>
+				<option disabled>&nbsp;</option>
+				<option value="7">7 Days</option>
+				<option value="14">14 Days</option>
+				<option disabled>&nbsp;</option>
+				<option value="30">1 Month</option>
+				<option value="90">3 Months</option>
+				<option value="182">6 Months</option>
+				<option disabled>&nbsp;</option>
+				<option value="365">1 Year</option>
+			</select></div>
 		</div>
 		<div class="input-container flex">
 			<div>
-				<h4>Number of snoozed tabs on the icon</h4>
-				<p>Choose what to show on top of the extension icon</p>
+				<h4>Display snoozed tabs on top of the icon</h4>
+				<p>Choose what you want to see on top of the extension icon</p>
 			</div>
-			<div>
-				<select id="badge">
-					<option value="disabled">Disabled</option>
-					<option value="today" selected>Waking Up Today</option>
-					<option value="all">All Snoozed Tabs</option>
-				</select>
-			</div>
+			<div><select id="badge">
+				<option value="disabled">None</option>
+				<option value="today" selected>Waking Up Today</option>
+				<option value="all">All Snoozed Tabs</option>
+			</select></div>
 		</div>
 		<div class="input-container large">
-			<div class="flex">
-				<div>
-					<h4>Enable Snoozz in the context menu</h4>
-					<p>The option will only appear when you right click hyperlinks</p>
-					<p>You can select up to five choices</p>
-				</div>
-				<div class="checkbox-large-wrapper">
-					<input type="checkbox" id="contextMenu" checked>
-				</div>
+			<div>
+				<h4>Enable Snoozz in the right-click (context) menu</h4>
+				<p>The menu will only appear when click on a valid link.</p>
+				<p>You can select up to five choices</p>
 			</div>
-			<div class="choice-list">
-				<div class="choice"><input type="checkbox" id="today-morning"><label for="today-morning">This Morning</label></div>
-				<div class="choice"><input type="checkbox" checked id="today-evening"><label for="today-evening">This Evening</label></div>
-				<div class="choice"><input type="checkbox" checked id="tom-morning"><label for="tom-morning">Tomorrow Morning</label></div>
-				<div class="choice"><input type="checkbox" id="tom-evening"><label for="tom-evening">Tomorrow Evening</label></div>
-				<div class="choice"><input type="checkbox" id="weekend"><label for="weekend">Weekend</label></div>
-				<div class="choice"><input type="checkbox" checked id="monday"><label for="monday">Monday</label></div>
-				<div class="choice"><input type="checkbox" id="week"><label for="week">Next Week</label></div>
-				<div class="choice"><input type="checkbox" id="month"><label for="month">Next Month</label></div>
+			<div id="contextMenu" class="choice-list">
+				<div><input type="checkbox" id="today-morning"><label for="today-morning">This Morning</label></div>
+				<div><input type="checkbox" id="today-evening"><label for="today-evening">This Evening</label></div>
+				<div><input type="checkbox" id="tom-morning"><label for="tom-morning">Tomorrow Morning</label></div>
+				<div><input type="checkbox" id="tom-evening"><label for="tom-evening">Tomorrow Evening</label></div>
+				<div><input type="checkbox" id="weekend"><label for="weekend">Weekend</label></div>
+				<div><input type="checkbox" id="monday"><label for="monday">Next Monday</label></div>
+				<div><input type="checkbox" id="week"><label for="week">Next Week</label></div>
+				<div><input type="checkbox" id="month"><label for="month">Next Month</label></div>
 			</div>
 		</div>
 	</div><br>
@@ -74,12 +106,12 @@
 			<p>Made by <a target='blank' href="https://rohan.xyz">rohan</a> in 2020.</p>
 		</div>
 	</div>
-	<div class="dashboard">
-		<div class="rectangle"></div>
-		<div class="rectangle"></div>
-		<div class="rectangle"></div>
+	<div class="dashboard" data-hover="See your sleeping tabs">
+		<img src="icons/sheep.png">
 	</div>
 	<div id="saved">All settings have been saved</div>
+	<script type="text/javascript" src="./scripts/dayjs.min.js"></script>
+	<script type="text/javascript" src="./scripts/async_utils.js"></script>
 	<script type="text/javascript" src="./scripts/utils.js"></script>
 	<script type="text/javascript" src="./scripts/settings.js"></script>
 </body>
