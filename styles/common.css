@@ -46,16 +46,15 @@ body > div.scroll-logo {
 	position: fixed;
 	top: 0;
 	left: 0;
-	padding: .5em;
+	margin: .5em;
 	transition: top .3s ease-in-out;
 }
 body > div.scroll-logo.hidden {
-	top: -4em;
+	top: -6em;
 }
 
 body > div.scroll-logo img {
-	margin: .5em;
-	max-height: 2.5em;
+	max-height: 4em;
 	cursor: pointer;
 }
 

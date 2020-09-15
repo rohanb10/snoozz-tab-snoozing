@@ -3,7 +3,7 @@
 var savedTimer;
 
 async function initialize() {
-	EXT_OPTIONS = await getStored('snoozedOptions');
+	await configureOptions();
 	updateValuesFromStorage(EXT_OPTIONS);
 	addListeners();
 	document.querySelector('.dashboard').addEventListener('click', _ => openExtTab('./dashboard.html'));

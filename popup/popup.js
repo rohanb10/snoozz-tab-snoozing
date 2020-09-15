@@ -2,6 +2,7 @@
 
 async function initialize() {
 	// wakeUpTabsFromBg();
+	await configureOptions();
 
 	buildChoices();
 	buildCustomChoice();
@@ -86,8 +87,8 @@ async function generatePreviews() {
 function toggleActivePreview(el) {
 	var windowPreview = document.querySelector('div[data-preview="window"]')
 	var tabPreview = document.querySelector('div[data-preview="tab"]')
-	windowPreview.classList.toggle('active', el === windowPreview)
-	tabPreview.classList.toggle('active', el === tabPreview)
+	windowPreview.classList.toggle('active', el.currentTarget === windowPreview)
+	tabPreview.classList.toggle('active', el.currentTarget === tabPreview)
 }
 
 var collapseTimeout, ccContainer;
@@ -156,12 +157,17 @@ function focusForm(shouldFocus = true) {
 	clearTimeout(collapseTimeout);	
 }
 
-async function snooze(snoozeTime, el) {
-	if (document.querySelector('div[data-preview].active').getAttribute('data-preview') === 'window') {
-		snoozeAll(snoozeTime, el);
-		return;
-	}
-	return;
+async function snooze(time, choice) {
+	var response, selectedPreview = document.querySelector('div[data-preview].active');
+	if (!selectedPreview || !['window', 'tab'].includes(selectedPreview.getAttribute('data-preview'))) return;
+	response = await (selectedPreview.getAttribute('data-preview') === 'window' ? snoozeWindow(time) : snoozeTab(time));
+	console.log(response);
+	if (!response.tabId && !response.windowId) return;
+	changePreviewAfterSnooze(selectedPreview, choice)
+	chrome.runtime.sendMessage(response);
+}
+
+async function snoozeTab(snoozeTime) {
 	var activeTab = await getTabs(true);
 	var sleepyTab = {
 		id: Math.random().toString(36).slice(-6),
@@ -171,16 +177,12 @@ async function snooze(snoozeTime, el) {
 		wakeUpTime: dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
 	}
-	document.body.style.pointerEvents = 'none';
 	await saveTab(sleepyTab);
 	var tabId = await getTabId(activeTab.url);
-	if (!tabId) return;
-	changeTabAfterSnooze(el, 'tab')
-	chrome.runtime.sendMessage({closeTabInBg: true, tabId: tabId});
-	
+	return {closeTabInBg: true, tabId: tabId}
 }
 
-async function snoozeAll(snoozeTime, el) {
+async function snoozeWindow(snoozeTime) {
 	var tabsInWindow = await getTabs();
 	var sleepyGroup = {
 		id: Math.random().toString(36).slice(-6),
@@ -188,40 +190,21 @@ async function snoozeAll(snoozeTime, el) {
 		timeCreated: dayjs().valueOf(),
 		tabs: tabsInWindow.map(t => {return {title: t.title, url: t.url, favicon: t.favIconUrl}})
 	}
-	document.body.style.pointerEvents = 'none';
 	await saveTabs(sleepyGroup);
-	var windowId = tabsInWindow.find(w => w.active).windowId;
-	if (!windowId) return;
-	changeTabAfterSnooze(el, 'window');
-	chrome.runtime.sendMessage({closeWindowInBg: true, windowId: windowId})
+	return {closeWindowInBg: true, windowId: tabsInWindow.find(w => w.active).windowId};
 }
 
-function changePreviewAfterSnooze(choice, previewName) {
-	var preview = document.querySelector(`div[data-preview="${previewName}"] .preview`);
+function changePreviewAfterSnooze(previewParent, choice) {
+	document.body.style.pointerEvents = 'none';
+	var preview = previewParent.querySelector(`.preview`);
 	preview.classList.add('snoozed');
 	preview.textContent = '';
-	preview.appendChild(Object.assign(document.createElement('span'), {textContent: `Snoozing ${previewName}`}));
+	preview.appendChild(Object.assign(document.createElement('span'), {textContent: `Snoozing ${previewParent.getAttribute('data-preview')}`}));
 	setTimeout(_ => {
 		preview.style.color = choice.classList.contains('dark-on-hover') ? '#fff' : '#000';
 		preview.style.backgroundImage = `linear-gradient(to right, ${getComputedStyle(choice).backgroundColor} 50%, rgb(221, 221, 221) 0)`
 		preview.classList.add('animate');
 	})
-}
-
-function changeTabAfterSnooze(el) {
-	document.querySelectorAll('.choice, .custom-choice').forEach(c => c.classList.add(c === el ? 'focused' : 'disabled'));
-
-	var tab = document.querySelector('.tab');
-	tab.classList.add('snoozed');
-	tab.textContent = '';
-	tab.appendChild(Object.assign(document.createElement('span'), {textContent: 'Snoozzed'}));
-
-	setTimeout(_ => {
-		var bgColor = getComputedStyle(el).backgroundColor;
-		tab.style.color = el.classList.contains('dark-on-hover') ? '#fff' : '#000'
-		tab.style.backgroundImage = `linear-gradient(to right, ${bgColor} 50%, rgb(221, 221, 221) 0)`
-		tab.classList.add('animate');
-	}, 301)
 }
 
 window.onload = initialize

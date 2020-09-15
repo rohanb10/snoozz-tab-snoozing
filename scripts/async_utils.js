@@ -39,6 +39,11 @@ function saveOptions(o) {
 	return new Promise(r => chrome.storage.local.set({'snoozedOptions': o}, r));	
 }
 
+async function configureOptions() {
+	var storageOptions = await getStored('snoozedOptions');
+	EXT_OPTIONS = Object.assign(EXT_OPTIONS, storageOptions)
+}
+
 // get tab id for url
 async function getTabId(url) {
 	var tabsInWindow = await getTabs();

@@ -43,7 +43,10 @@ div[data-preview], div[data-preview].disabled .preview {
 div[data-preview].active {
 	opacity: 1 !important;
 }
-div[data-preview].active .preview {
+div[data-preview]:not(.active):hover {
+	opacity: .5 !important;
+}
+div[data-preview].active .preview, div[data-preview]:not(.active):hover .preview {
 	border-color: #000;
 }
 .preview {
@@ -57,7 +60,7 @@ div[data-preview].active .preview {
 	background-image: linear-gradient(to right, #ddd 50%, #ddd 0);
 	background-position: right;
 	background-size: 200% 200%;
-	transition: background-position 1.7s linear, color .4s ease-in-out .75s, opacity .5s ease-in-out, border-color .5s ease-in-out;
+	transition: background-position 1.7s linear, color .4s ease-in-out .75s, opacity .5s ease-in-out;
 	border: 2px solid transparent;
 }
 .preview.snoozed {
@@ -303,25 +306,3 @@ input::-webkit-calendar-picker-indicator {
 	top: .25rem;
 	font-size: unset;
 }
-
-/*.settings {
-	position: fixed;
-	top: unset;
-	left: unset;
-	bottom: 0;
-	right: 0;
-	margin: .25em;
-	cursor: pointer;
-	border: 1px solid white;
-}
-.settings img {
-	width: 1.5em;
-	padding: 0;
-	border: 1px solid white;
-	transition: background-color .3s ease-in-out;
-	-webkit-background-clip: padding-box;
-}
-.settings:before {
-	bottom: .125em;
-	right: 1.75em;
-}*/

@@ -1,9 +1,5 @@
 const isFirefox = (window.browser && browser.runtime) || navigator.userAgent.indexOf('Firefox') !== -1;
 var EXT_OPTIONS = {history: 7, morning: 9, evening: 18, badge: 'today', contextMenu: ['today-evening', 'tom-morning', 'monday']}
-async function conifgureOptions() {
-	var storageOptions = await getStored('snoozedOptions');
-	EXT_OPTIONS = Object.assign(EXT_OPTIONS, storageOptions)
-}
 
 function getChoices() {
 	var NOW = dayjs();
@@ -85,7 +81,7 @@ function wakeUpTabsFromBg() {
 function updateBadge(tabs) {
 	var num = 0;
 	tabs = tabs.filter(t => !t.opened);
-	console.log(tabs);
+	console.log('updateBadge', tabs);
 	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'all') num = tabs.length;
 	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'today') num = tabs.filter(t => dayjs().dayOfYear(t.wakeUpTime) === dayjs().dayOfYear()).length;
 	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});

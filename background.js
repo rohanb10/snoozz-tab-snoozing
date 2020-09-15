@@ -34,7 +34,7 @@ async function wakeUpTabs() {
 	const NOW = new Date()
 	var tabs = await getStored('snoozed');
 	tabs.filter(t => !t.opened && t.wakeUpTime < NOW).forEach(t => {
-		t.opened = NOW.getTime()
+		t.opened = dayjs().valueOf()
 		openRegTab(t, true);
 	})
 	updateBadge(tabs);
