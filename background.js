@@ -12,8 +12,8 @@ const CHOICE_MAP = {
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, resp) => {
-	if (msg.closeTabInBg) setTimeout(_ => chrome.tabs.remove(msg.tabId), 2100);
-	if (msg.closeWindowInBg) setTimeout(_ => chrome.windows.remove(msg.windowId), 2100);
+	if (msg.closeTabInBg) setTimeout(_ => chrome.tabs.remove(msg.tabId), 2000);
+	if (msg.closeWindowInBg) setTimeout(_ => chrome.windows.remove(msg.windowId), 2000);
 })
 
 async function checkAlarms() {

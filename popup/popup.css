@@ -43,10 +43,10 @@ div[data-preview], div[data-preview].disabled .preview {
 div[data-preview].active {
 	opacity: 1 !important;
 }
-div[data-preview]:not(.active):hover {
+div[data-preview]:not(.active):not(.disabled):hover {
 	opacity: .5 !important;
 }
-div[data-preview].active .preview, div[data-preview]:not(.active):hover .preview {
+div[data-preview].active .preview, div[data-preview]:not(.active):not(.disabled):hover .preview {
 	border-color: #000;
 }
 .preview {

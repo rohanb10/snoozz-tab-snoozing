@@ -1,7 +1,4 @@
-'use strict';
-
 async function initialize() {
-	// wakeUpTabsFromBg();
 	await configureOptions();
 
 	buildChoices();
@@ -75,7 +72,6 @@ async function generatePreviews() {
 	} else {
 		windowPreview.classList.add('disabled');
 		windowPreview.classList.remove('active');
-		// toggleActivePreview({currentTarget: false});
 	}
 
 	// Disable choices if both tabs and windows are unsnoozable.
@@ -96,7 +92,6 @@ function buildCustomChoice() {
 	var NOW = new Date();
 	var submitButton = Object.assign(document.createElement('div'), {classList: 'submit-btn disabled', innerText: 'snooze'});
 	submitButton.addEventListener('click', e => {
-		// validate date and time
 		var dateTime = dayjs(`${date.value} ${time.value}`);
 
 		if (date.value.length === 0 || !date.value.match(/^\d{4}-\d{2}-\d{2}$/)) date.classList.add('invalid');
@@ -161,7 +156,7 @@ async function snooze(time, choice) {
 	var response, selectedPreview = document.querySelector('div[data-preview].active');
 	if (!selectedPreview || !['window', 'tab'].includes(selectedPreview.getAttribute('data-preview'))) return;
 	response = await (selectedPreview.getAttribute('data-preview') === 'window' ? snoozeWindow(time) : snoozeTab(time));
-	console.log(response);
+	
 	if (!response.tabId && !response.windowId) return;
 	changePreviewAfterSnooze(selectedPreview, choice)
 	chrome.runtime.sendMessage(response);

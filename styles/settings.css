@@ -41,9 +41,6 @@ h2 span {
 	font-size: 1.25em;
 	transition: bottom .3s ease-in-out
 }
-#saved.animate {
-	bottom: 0;
-}
 a {
 	display: inline-block;
 	border-bottom: 1px solid #ddd;
@@ -70,11 +67,6 @@ select {
 }
 .choice-list {
 	padding-top: 1em;
-}
-.choice-list.really-disabled {
-	opacity: .4;
-	pointer-events: none;
-	touch-actions: none;
 }
 .choice-list.disabled input, .choice-list.disabled input + label{
 	opacity: .4;

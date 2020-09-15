@@ -1,20 +1,17 @@
-.initial-state {
+#no-tabs {
 	padding: 6em 0;
 	font-size: 1.5em;
 	text-align: center;
 }
-
 #time-container {
 	max-width: 80em;
 	margin: 0 auto;
 	padding: 2em 0;	
 }
-
 h2 {
 	padding: 0 .25em;
 	border-bottom: 3px solid #fff;
 }
-
 #today h2 {
 	border-color: #f5b84f;
 }
@@ -33,7 +30,7 @@ h2 {
 #history h2 {
 	border-color: #444;
 }
-.time-group.hidden, .time-action.hidden {
+.time-group.hidden, .time-action.hidden, #no-tabs.hidden {
 	display: none;
 }
 .time-header {
@@ -54,6 +51,7 @@ h2 {
 	border-radius: .33em;
 	background-color: #f7f7f7;
 	margin: .5em 0;
+	box-sizing: border-box;
 }
 .tab > div {
 	padding: 1.25em;
@@ -91,23 +89,22 @@ h2 {
 	width: 20%;
 }
 .wakeup-button {
-	width: 13%;
+	width: 15%;
 }
 .wakeup-button:hover {
 	text-decoration: underline;
 }
 .remove-button {
 	width: 5%;
-	line-height: 1;
-	color: #aaa;
-	transform: scale(2);
+	text-align: right;
+	max-height: 1em;
+	opacity: .25;
 }
 .remove-button:hover {
-	color: #222;
+	opacity: 1;
 }
 .wakeup-button, .remove-button {
 	cursor: pointer;
-	text-align: right;
 }
 p {
 	text-align: center;

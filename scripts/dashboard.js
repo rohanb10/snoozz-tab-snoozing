@@ -1,5 +1,3 @@
-'use strict';
-
 const TIME_GROUPS = ['Today', 'Tomorrow', 'This Week', 'Next Week', 'Later', 'History'];
 async function initialize() {
 	await configureOptions();
@@ -17,14 +15,11 @@ async function initialize() {
 			chrome.tabs.reload(dt.id)
 		});
 	});
-
 	var tabs = await getStored('snoozed');
 	if (!tabs || tabs.length === 0) return;
-	// sortTabsAndBuildCollections(tabs)
 
 	buildTimeGroups();
 	fillTimeGroups(tabs);
-	updateTimeGroups();
 }
 
 function buildTimeGroups() {
@@ -36,17 +31,12 @@ function buildTimeGroups() {
 		var header = Object.assign(document.createElement('div'), {className: 'flex time-header'});
 		var name = Object.assign(document.createElement('h2'), {className: 'time-name', innerText: t});
 		var timeAction = Object.assign(document.createElement('div'), {
-			className: `time-action ${tID === 'history' ? 'history' : ''}`,
+			className: `time-action`,
 			innerText: tID === 'history' ? 'clear history' : 'wake up all'
 		});
 		timeAction.addEventListener('click', async _ => {
-			if (tID === 'history') {
-				await removeTabsFromHistory(Array.from(document.querySelectorAll('#history .tab')).map(t =>t.id))
-				updateTimeGroups()
-			} else {
-
-			}
-			// wake up all, then add to history
+			var ids = Array.from(document.querySelectorAll(`#${tID} .tab`)).map(t =>t.id);
+			await (tID === 'history' ? removeTabsFromHistory(ids) : wakeUpTabsAbruptly(ids));
 		}, {once: true})
 		header.append(name, timeAction);
 		timeGroup.append(header);
@@ -59,13 +49,13 @@ function updateTimeGroups() {
 		var tg = document.getElementById(name.replace(/ /g,"_").toLowerCase())
 		var tabCount = Array.from(tg.querySelectorAll('.tab')).length
 		tg.classList.toggle('hidden', tabCount === 0)
-		console.log(name, tabCount);
-		tg.querySelector('.time-action').classList.toggle('hidden', tabCount <= 2);
+		tg.querySelector('.time-action').classList.toggle('hidden', tabCount < 2);
 	})
+	document.getElementById('no-tabs').classList.toggle('hidden', document.querySelector('.tab'));
 }
 
-function fillTimeGroups(tabs) {
-	document.querySelectorAll('p, .tab').forEach(t => t.remove());
+async function fillTimeGroups(tabs) {
+	document.querySelectorAll('#time-container p,#time-container .tab').forEach(t => t.remove());
 	// regular
 	tabs.filter(t => !t.opened).sort((t1,t2) => t1.wakeUpTime - t2.wakeUpTime).forEach(f => document.getElementById(getTimeGroup(f)).append(buildTab(f)))
 	// history
@@ -73,6 +63,7 @@ function fillTimeGroups(tabs) {
 		tabs.filter(t => t.opened).sort((t1,t2) => t2.opened - t1.opened).forEach(h => document.getElementById(getTimeGroup(h)).append(buildTab(h)))	
 		document.getElementById('history').appendChild(Object.assign(document.createElement('p'),{innerText: `Tabs in your history are removed ${EXT_OPTIONS.history} day${EXT_OPTIONS.history>1?'s':''} after they are opened.`}));
 	}
+	updateTimeGroups();
 }
 
 function buildTab(t) {
@@ -103,13 +94,12 @@ function buildTab(t) {
 
 	var wakeUpBtn = Object.assign(document.createElement('div'), {className:'wakeup-button', innerText: !t.opened ? 'Wake up now' : ''});
 	wakeUpBtn.addEventListener('click', _ => {
-		// wake up tabs
+		wakeUpTabsAbruptly([t.id]);
 	});
-	var removeBtn = Object.assign(document.createElement('div'), {className:'remove-button', innerHTML: '&times;'});
-	removeBtn.addEventListener('click', _ => {
-		console.log('hi');
-		if (t.opened) removeTabsFromHistory([t.id]);
-		if (!t.opened) sendTabsToHistory([t.id]);
+	var removeBtn = Object.assign(document.createElement('img'), {className:'remove-button', src: '../icons/close.svg',title: 'Delete'});
+	removeBtn.addEventListener('click', async _ => {
+		if (t.opened) await removeTabsFromHistory([t.id]);
+		if (!t.opened) await sendTabsToHistory([t.id]);
 	});
 
 	var tab = Object.assign(document.createElement('div'), {className: 'tab', id: t.id});
@@ -117,124 +107,12 @@ function buildTab(t) {
 	return tab;
 }
 
-// function sortTabsAndBuildCollections(tabs) {
-// 	if (tabs.length > 0) document.querySelector('.initial-state').style.display = 'none';
-
-// 	var cc = document.querySelector('.collection-container');
-// 	var today = [], tomorrow = [], this_week = [], next_week = [], later = [], history = [];
-// 	for (var t = 0; t < tabs.length; t++) {
-// 		var wut = dayjs(tabs[t].wakeUpTime);
-// 		if (tabs[t].opened) { history.push(tabs[t]) }
-// 		else if (wut.dayOfYear() === dayjs().dayOfYear()) { today.push(tabs[t]) }
-// 		else if (wut.dayOfYear() === dayjs().add(1,'d').dayOfYear()) { tomorrow.push(tabs[t]) }
-// 		else if (wut.week() === dayjs().week()) { this_week.push(tabs[t]) }
-// 		else if (wut.week() === dayjs().add(1, 'week').week()) { next_week.push(tabs[t]) }
-// 		else { later.push(tabs[t]) }
-// 	}
-	
-// 	buildCollection('Today', today)
-// 	buildCollection('Tomorrow', tomorrow)
-// 	buildCollection('This Week', this_week)
-// 	buildCollection('Next Week', next_week)
-// 	buildCollection('Later', later)
-// 	if (tabs.length - history.length > 0) cc.appendChild(Object.assign(document.createElement('p'),{innerText: 'Due to API restrictions, tabs may reopen upto 5 minutes late.'}));
-	
-// 	buildCollection('History', history)
-
-// 	if (history.length > 0) cc.appendChild(Object.assign(document.createElement('p'),{innerText: `Tabs in your history are removed ${EXT_OPTIONS.history} day${EXT_OPTIONS.history>1?'s':''} after they are opened.`}));
-
-// 	if (tabs.length > 4) {
-// 		cc.appendChild(Object.assign(document.createElement('p'), {innerHTML: 'Click <span>here</span> to delete all your tabs'}));
-// 		cc.querySelector('p span').addEventListener('click', _ => {
-// 			if (!confirm('Are you sure you want to delete all your snoozed tabs? \nYou cannot undo this action.')) return;
-// 			chrome.storage.local.set({snoozed: []}, _ => chrome.tabs.reload());
-// 			chrome.alarms.create('wakeUpTabs', {periodInMinutes: 1});
-// 			updateBadge([]);
-// 		})
-// 	}
-// }
-
-// function buildCollection(heading, tabs) {
-// 	if (tabs.length === 0) return;
-// 	tabs = tabs.sort(sortArrayByDate);
-// 	// tabs = tabs.sort((t1,t2) => t1.wakeUpTime - t2.wakeUpTime);
-// 	if (heading === 'History') tabs.reverse();
-// 	var cc = document.querySelector('.collection-container');
-// 	var collection = Object.assign(document.createElement('div'), {
-// 		className: 'collection'
-// 	});
-// 	collection.setAttribute('data-type', heading.toLowerCase())
-
-// 	var h2 = document.createElement('h2');
-// 	var sp = Object.assign(document.createElement('span'), {innerText: heading});
-// 	h2.appendChild(sp);
-// 	collection.append(h2)
-
-// 	var tab_list = Object.assign(document.createElement('div'), {
-// 		className: 'tab-list'
-// 	});
-// 	tabs.forEach(t => buildTab(t, heading, tab_list))
-// 	collection.appendChild(tab_list);
-// 	cc.appendChild(collection);
-// }
-
-// function buildTab(t, heading, tab_list) {
-// 	var tab = Object.assign(document.createElement('div'), {className: 'tab'});
-// 	tab.setAttribute('data-tab-id', t.id);
-
-// 	var input = Object.assign(document.createElement('input'), {type: 'checkbox'});
-// 	var tab_select = Object.assign(document.createElement('div'), {className: 'tab-select'});
-// 	tab_select.appendChild(input);
-	
-
-// 	var favicon = Object.assign(document.createElement('img'), {className: 'favicon', src: !t.favicon || t.favicon === '' ? '../icons/unknown.png' : t.favicon});
-// 	var tab_info = Object.assign(document.createElement('div'), {className: 'tab-info flex'});
-// 	tab_info.appendChild(favicon);
-
-// 	var div = document.createElement('div');
-// 	var tab_title = Object.assign(document.createElement('a'), { className: 'tab-title', innerText: t.title, title: t.url, href: t.url, target: '_blank'});
-// 	div.appendChild(tab_title);
-
-// 	var tab_snoozed_on = Object.assign(document.createElement('div'), {
-// 		className: 'tab-snoozed-on',
-// 		innerText: dayjs(t.timeCreated).format('ddd, MMM D[ @ ]h:mm a'),
-// 		title: dayjs(t.timeCreated).format('h:mm a [on] ddd, D MMMM YYYY')
-// 	});
-// 	div.appendChild(tab_snoozed_on);
-// 	tab_info.appendChild(div);
-
-
-// 	var snoozed_until = Object.assign(document.createElement('div'), {className: 'tab-snooze-until'});
-// 	var time = Object.assign(document.createElement('div'), {
-// 		className: 'time',
-// 		innerText: formatSnoozedUntil(t.wakeUpTime, heading === 'History'),
-// 		title: dayjs(t.wakeUpTime).format('h:mm a [on] ddd D MMM YYYY')
-// 	});
-// 	var post = Object.assign(document.createElement('div'), {className: 'post'});
-// 	snoozed_until.append(post, time);
-
-// 	var tab_actions = Object.assign(document.createElement('div'), {className: 'tab-actions'});
-// 	var remove = Object.assign(document.createElement('span'), {className: 'remove', innerHTML: '&times;'});
-// 	remove.addEventListener('click', _ => removeTabs([t.id]))
-// 	tab_actions.appendChild(remove);
-
-// 	tab.append(tab_select, tab_info, snoozed_until, tab_actions)
-
-// 	tab_list.appendChild(tab);
-// }
-
-function formatSnoozedUntil(ts, isHistory = false) {
+function formatSnoozedUntil(ts) {
 	var date = dayjs(ts);
-	if (isHistory) return date.format('ddd, MMM D');
-	if (date.dayOfYear() === dayjs().dayOfYear()){
-		return (date.hour() > 17 ? 'Tonight' : 'Today') + ' @ ' + date.format('h:mm a');
-	} else if(date.dayOfYear() === dayjs().add(1,'d').dayOfYear()) {
-		return 'Tomorrow @ ' + date.format('h:mm a');
-	}else if (date.week() === dayjs().week()) {
-		return date.format('ddd[ @ ]h:mm a');
-	} else {
-		return date.format('ddd, MMM D[ @ ]h:mm a');
-	}
+	if (date.dayOfYear() === dayjs().dayOfYear()) return (date.hour() > 17 ? 'Tonight' : 'Today') + date.format(' [@] h:mm a');
+	if (date.dayOfYear() === dayjs().add(1,'d').dayOfYear()) return 'Tomorrow' + date.format(' [@] h:mm a');
+	if (date.week() === dayjs().week()) return date.format('ddd [@] h:mm a');
+	return date.format('ddd, MMM D [@] h:mm a');
 }
 
 function getTimeGroup(t) {
@@ -248,6 +126,17 @@ function getTimeGroup(t) {
 	return 'later';
 }
 
+async function wakeUpTabsAbruptly(ids) {
+	var tabs = await getStored('snoozed');
+	tabs.forEach(t => {
+		if (!ids.includes(t.id)) return;
+		t.opened = dayjs().valueOf();
+		chrome.tabs.create({url: t.url, active: false})
+	});
+	await saveTabs(tabs);
+	fillTimeGroups(tabs);
+}
+
 async function sendTabsToHistory(ids) {
 	var tabs = await getStored('snoozed');
 	tabs.forEach(t => {
@@ -255,30 +144,16 @@ async function sendTabsToHistory(ids) {
 		t.opened = dayjs().valueOf();
 		t.deleted = true;
 	});
+	await saveTabs(tabs);
 	fillTimeGroups(tabs);
-	updateTimeGroups();
-	// await saveTabs(tabs);
 }
 
 async function removeTabsFromHistory(ids) {
 	if (ids.length > 1 && !confirm('Are you sure you want to remove multiple tabs? \n You can\'t undo this.')) return;
 	var tabs = await getStored('snoozed');
-	// await saveTabs(tabs.filter(t => !ids.includes(t.id)));
-	
-	// tabs.filter(t => ids.includes(t.id)).map(t => t.id).forEach(id => {
-	// 	var tab = document.querySelector(`.tab[data-tab-id="${id}"`);
-	// 	if (tab) tab.outerHTML = '';	
-	// 	console.log(id);
-	// })
-
-	ids.forEach(id => {var tab = document.getElementById(id); if (tab) tab.remove()})
-
-	// document.querySelectorAll('.collection').forEach(c => {
-	// 	if (!c.querySelector('.tab')){
-	// 		if (c.getAttribute('data-type') === 'history') c.nextElementSibling.outerHTML = ''
-	// 		c.outerHTML = '';
-	// 	}
-	// });
+	tabs = tabs.filter(t => !ids.includes(t.id));
+	// await saveTabs(tabs);
+	fillTimeGroups(tabs)
 }
 
 window.onload = initialize
