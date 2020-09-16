@@ -79,3 +79,16 @@ async function cleanUpHistory() {
 	tabs.filter(t => !(t.opened && dayjs(t.opened).add(EXT_OPTIONS.history, 'd') > dayjs()))
 	saveTabs(tabs);
 }
+
+async function getFaviconFromStorage(url) {
+	var missingDomain = getHostname(url);
+
+	var tabs = await getStored('snoozed');
+	if (!tabs || tabs.length === 0) return '';
+	var foundDomain = tabs.filter(t => t.url).find(t => getHostname(t.url) === missingDomain);
+	if (foundDomain) return foundDomain.favicon;
+	return '';
+	// check windows for favicon
+	// foundDomain = tabs.filter(t => t.tabs).map
+
+}

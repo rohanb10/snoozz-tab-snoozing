@@ -43,12 +43,8 @@ async function wakeUpTabs() {
 	await checkAlarms();
 }
 
-function destroyContextMenus() {
-	chrome.contextMenus.removeAll();
-}
-
 async function setUpContextMenus2() {
-	destroyContextMenus();
+	chrome.contextMenus.removeAll();
 	var storage = await getStored('snoozedOptions');
 	console.log('setting up cmenus', storage.contextMenu);
 	if (storage.contextMenu.length === 0) return;
@@ -96,30 +92,24 @@ chrome.contextMenus.onClicked.addListener(contextMenuClickHandler)
 
 async function contextMenuClickHandler(item) {
 	var CHOICE_MAP = getChoices();
-	console.log(item, CHOICE_MAP[item.menuItemId]);
-	if (!CHOICE_MAP[item.menuItemId]) {
-		console.log('wtf');	
-	}
 	var snoozeTime = CHOICE_MAP[item.menuItemId].time;
 	if (CHOICE_MAP[item.menuItemId].disabled || dayjs().isAfter(snoozeTime)){
 		createNotification(null, `Can't snooze that link :(`, 'icons/unknown.png', 'The time you selected is in the past.');
 		return;
 	}
-	console.log('here',CHOICE_MAP[item.menuItemId], snoozeTime);
-	return;
 	var activeTab = await getTabs(true);
-	var maybeFavicon = getHostname(activeTab.url) === getHostname(item.linkUrl) ? activeTab.favIconUrl: '';
+	var maybeFavicon = getHostname(activeTab.url) === getHostname(item.linkUrl) ? activeTab.favIconUrl : await getFaviconFromStorage(item.linkUrl);
 	var snoozeTab = {
 		id: Math.random().toString(36).slice(-6),
 		title: getBetterUrl(item.linkUrl),
 		url: item.linkUrl,
-		wakeUpTime: snoozeTime,
+		wakeUpTime: snoozeTime.valueOf(),
 		favicon: maybeFavicon,
 		timeCreated: dayjs().valueOf(),
 	}
-	await saveTab(snoozeTime);
+	await saveTab(snoozeTab);
 	var msg = `${getHostname(item.linkUrl)} will wake up at ${snoozeTime.format('h:mm a [on] ddd, D MMM')}.`
-	sendNotification('A new tab is now napping :)', 'icons/main-icon.png', msg, 'dashboard.html');
+	createNotification(snoozeTab.id, 'A new tab is now napping :)', 'icons/main-icon.png', msg, 'dashboard.html');
 }
 
 function updateContextMenuItems() {

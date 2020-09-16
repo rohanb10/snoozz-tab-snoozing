@@ -41,52 +41,6 @@ function buildChoices() {
 	})
 }
 
-async function generatePreviews() {
-	var windowPreview = document.querySelector('div[data-preview="window"]')
-	var tabPreview = document.querySelector('div[data-preview="tab"]')
-	
-	var allTabs = await getTabs();
-	if (!allTabs || allTabs.length == 0) return;
-
-	var activeTab = allTabs.find(at => at.active)
-
-	// Disable tab preview if invalid link type
-	var activeTabProtocol = activeTab.url.substring(0, activeTab.url.indexOf(':'))
-	if (!['http', 'https', 'file'].includes(activeTabProtocol)) {
-		activeTab.title = `Cannot snooze tabs starting with\n` + activeTabProtocol + '://';
-		activeTab.favIconUrl = '';
-		tabPreview.classList.add('disabled');
-		toggleActivePreview({currentTarget: windowPreview});
-	} else {
-		tabPreview.addEventListener('click', _ => toggleActivePreview({currentTarget: tabPreview}))
-	}
-	tabPreview.querySelector('#tab-title').innerText = activeTab.title;
-	tabPreview.querySelector('#tab-favicon').src = activeTab.favIconUrl && activeTab.favIconUrl.length > 0 ? activeTab.favIconUrl : '../icons/unknown.png';
-	
-	// Remove New Tabs and show tab count.
-	allTabs = allTabs.filter(tab => tab.title !== 'New Tab')
-	var uniqSiteCount = allTabs.map(at => getHostname(at.url)).filter((v,i,s) => s.indexOf(v) === i).length;
-	windowPreview.querySelector('#window-title').innerText = `${allTabs.length > 1 ? allTabs.length + ' tabs' : '1 tab'} from ${uniqSiteCount} ${uniqSiteCount > 1 ? 'different websites' : 'website'}.`;
-	if (allTabs.length > 1) {
-		windowPreview.addEventListener('click', _ => toggleActivePreview({currentTarget: windowPreview}));
-	} else {
-		windowPreview.classList.add('disabled');
-		windowPreview.classList.remove('active');
-	}
-
-	// Disable choices if both tabs and windows are unsnoozable.
-	if (windowPreview.classList.contains('disabled') && tabPreview.classList.contains('disabled')) {
-		document.querySelectorAll('.choice, .custom-choice, h3').forEach(c => c.classList.add('disabled'));	
-	}
-}
-
-function toggleActivePreview(el) {
-	var windowPreview = document.querySelector('div[data-preview="window"]')
-	var tabPreview = document.querySelector('div[data-preview="tab"]')
-	windowPreview.classList.toggle('active', el.currentTarget === windowPreview)
-	tabPreview.classList.toggle('active', el.currentTarget === tabPreview)
-}
-
 var collapseTimeout, ccContainer;
 function buildCustomChoice() {
 	var NOW = new Date();
@@ -152,6 +106,48 @@ function focusForm(shouldFocus = true) {
 	clearTimeout(collapseTimeout);	
 }
 
+async function generatePreviews() {
+	var windowPreview = document.querySelector('div[data-preview="window"]')
+	var tabPreview = document.querySelector('div[data-preview="tab"]')
+	
+	var allTabs = await getTabs();
+	if (!allTabs || allTabs.length == 0) return;
+
+	// get active tab and filter out invalid tabs
+	var activeTab = allTabs.find(at => at.active);
+	allTabs = allTabs.filter(t => !['New Tab', 'dashboard | snoozz', 'settings | snoozz'].includes(t.title));
+
+	var isActiveTabValid = allTabs.includes(activeTab);
+
+	// tab preview handler
+	document.getElementById('tab-title').innerText = isActiveTabValid ? activeTab.title : `Can't snooze this tab`;
+	document.getElementById('tab-favicon').src = isActiveTabValid ? activeTab.favIconUrl : '../icons/unknown.png';
+	tabPreview.classList.toggle('disabled', !isActiveTabValid);
+	tabPreview.classList.toggle('active', isActiveTabValid);
+
+	// window preview handler
+	var siteCount = allTabs.map(vt => getHostname(vt.url)).filter((v,i,s) => s.indexOf(v) === i).length;
+	document.getElementById('window-title').innerText = `${allTabs.length} tab${allTabs.length > 1 ? 's' :''} from ${siteCount} ${siteCount > 1 ? 'different websites' : 'website'}`;
+	windowPreview.classList.toggle('disabled', isActiveTabValid && allTabs.length === 1)
+	windowPreview.classList.toggle('active', !isActiveTabValid && allTabs.length > 0);
+
+	// Disable tab preview if invalid link type
+	if (!tabPreview.classList.contains('disabled')) tabPreview.addEventListener('click', toggleActivePreview)
+	if (!windowPreview.classList.contains('disabled')) windowPreview.addEventListener('click', toggleActivePreview);
+
+	// Disable choices if both tabs and windows are unsnoozable.
+	if (windowPreview.classList.contains('disabled') && tabPreview.classList.contains('disabled')) {
+		document.querySelectorAll('.choice, .custom-choice, h3').forEach(c => c.classList.add('disabled'));	
+	}
+}
+
+function toggleActivePreview(el) {
+	var windowPreview = document.querySelector('div[data-preview="window"]')
+	var tabPreview = document.querySelector('div[data-preview="tab"]')
+	windowPreview.classList.toggle('active', el.currentTarget === windowPreview)
+	tabPreview.classList.toggle('active', el.currentTarget === tabPreview)
+}
+
 async function snooze(time, choice) {
 	var response, selectedPreview = document.querySelector('div[data-preview].active');
 	if (!selectedPreview || !['window', 'tab'].includes(selectedPreview.getAttribute('data-preview'))) return;
@@ -163,6 +159,7 @@ async function snooze(time, choice) {
 }
 
 async function snoozeTab(snoozeTime) {
+	console.log('snoozeTab');
 	var activeTab = await getTabs(true);
 	var sleepyTab = {
 		id: Math.random().toString(36).slice(-6),
@@ -172,19 +169,25 @@ async function snoozeTab(snoozeTime) {
 		wakeUpTime: dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
 	}
-	await saveTab(sleepyTab);
+	// await saveTab(sleepyTab);
 	var tabId = await getTabId(activeTab.url);
+	return {tabId: tabId}
 	return {closeTabInBg: true, tabId: tabId}
 }
 
 async function snoozeWindow(snoozeTime) {
+	console.log('snoozeWindow');
 	var tabsInWindow = await getTabs();
+	var validTabs = tabsInWindow.filter(t => !['New Tab', 'dashboard | snoozz', 'settings | snoozz'].includes(t.title));
+	if (validTabs.length === 1) return await snoozeTab(snoozeTime)
 	var sleepyGroup = {
 		id: Math.random().toString(36).slice(-6),
+		title: document.getElementById('window-title').innerText,
 		wakeUpTime: dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
 		tabs: tabsInWindow.map(t => {return {title: t.title, url: t.url, favicon: t.favIconUrl}})
 	}
+	return {windowId: tabsInWindow.find(w => w.active).windowId};
 	await saveTabs(sleepyGroup);
 	return {closeWindowInBg: true, windowId: tabsInWindow.find(w => w.active).windowId};
 }

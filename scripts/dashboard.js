@@ -71,7 +71,7 @@ function buildTab(t) {
 	var iconContainer = Object.assign(document.createElement('div'), {className: 'icon-container'});
 	iconContainer.append(icon);
 
-	var title = Object.assign(document.createElement('div'), {className: 'tab-name', innerText: t.title, title: t.url})
+	var title = Object.assign(document.createElement('div'), {className: 'tab-name', innerText: t.title, title: t.url ?? ''})
 	var startedNap = Object.assign(document.createElement('div'), {
 		className: 'nap-time',
 		innerText: `Started napping at ${dayjs(t.timeCreated).format('h:mm a [on] ddd D MMM YYYY')}`, 
@@ -152,7 +152,7 @@ async function removeTabsFromHistory(ids) {
 	if (ids.length > 1 && !confirm('Are you sure you want to remove multiple tabs? \n You can\'t undo this.')) return;
 	var tabs = await getStored('snoozed');
 	tabs = tabs.filter(t => !ids.includes(t.id));
-	// await saveTabs(tabs);
+	await saveTabs(tabs);
 	fillTimeGroups(tabs)
 }
 

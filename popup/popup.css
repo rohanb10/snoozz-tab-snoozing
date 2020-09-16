@@ -49,6 +49,11 @@ div[data-preview]:not(.active):not(.disabled):hover {
 div[data-preview].active .preview, div[data-preview]:not(.active):not(.disabled):hover .preview {
 	border-color: #000;
 }
+div[data-preview].disabled {
+	border-color: transparent !important;
+	pointer-events: none !important;
+	touch-action: none !important;
+}
 .preview {
 	margin: .5em 0;
 	padding: .5em;

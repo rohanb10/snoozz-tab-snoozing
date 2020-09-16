@@ -60,12 +60,6 @@ function getChoices() {
 	}
 }
 
-function sortArrayByDate(t1,t2) {
-	var d1 = new Date(t1.wakeUpTime);
-	var d2 = new Date(t2.wakeUpTime);
-	return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
-
 function getHostname(url) {
 	return Object.assign(document.createElement('a'), {href: url}).hostname;
 }
