@@ -1,28 +1,10 @@
-'use strict';
-
-const CHOICE_MAP = {
-	'today-morning': 'this morning',
-	'today-evening': 'this evening',
-	'tom-morning': 'tomorrow morning',
-	'tom-evening': 'tomorrow evening',
-	'weekend': 'this weekend',
-	'monday': 'next monday',
-	'week': 'next week',
-	'month': 'next month',
-}
-
 chrome.runtime.onMessage.addListener((msg, sender, resp) => {
 	if (msg.closeTabInBg) setTimeout(_ => chrome.tabs.remove(msg.tabId), 2000);
 	if (msg.closeWindowInBg) setTimeout(_ => chrome.windows.remove(msg.windowId), 2000);
 })
 
-function init() {
-	wakeUpTask();
-	setUpContextMenus();
-}
-
 async function wakeUpTask(cachedTabs) {
-	var tabs = cachedTabs || await getStored('snoozed');
+	var tabs = cachedTabs || await getSnoozedTabs();
 	if (!tabs || !tabs.length || tabs.length === 0 || sleeping(tabs).length === 0) {
 		console.log('No tabs are asleep');
 		chrome.alarms.clear('wakeUpTabs'); 
@@ -49,7 +31,7 @@ async function wakeMeUp(tabs) {
 	var tabsToWakeUp = t => !t.opened && (t.url || t.tabs) && t.wakeUpTime && t.wakeUpTime <= now;
 	if (tabs.filter(tabsToWakeUp).length === 0) return;
 	console.log('These tabs: ', tabs.filter(tabsToWakeUp));
-	for (var s of tabs.filter(tabsToWakeUp)) s.tabs ? await openRegWindow(s, true) : await openRegTab(s, true);
+	for (var s of tabs.filter(tabsToWakeUp)) s.tabs ? await openWindow(s, true) : await openTab(s, true);
 	tabs.filter(tabsToWakeUp).forEach(t => t.opened = now);
 	await saveTabs(tabs);
 	await wakeUpTask(tabs);
@@ -58,7 +40,7 @@ async function wakeMeUp(tabs) {
 async function setUpContextMenus() {
 	console.log('Setting up context menus', new Date().toLocaleString('en-IN'));
 	chrome.contextMenus.removeAll();
-	var storage = await getStored('snoozedOptions');
+	var storage = await getOptions();
 	if (!storage || !storage.contextMenu || !storage.contextMenu.length || storage.contextMenu.length === 0) return;
 	var CHOICE_MAP = getChoices();
 	storage.contextMenu.forEach(o => chrome.contextMenus.create({
@@ -82,16 +64,7 @@ async function contextMenuClickHandler(item) {
 		createNotification(null, `Can't snooze that link :(`, 'icons/main-icon.png', 'The link you are trying to snooze is invalid.');
 		return;
 	}
-	// fixme maybeFavicon to lookup storage after snooze+notification is complete
-	var snoozeTab = {
-		id: Math.random().toString(36).slice(-6),
-		title: getBetterUrl(item.linkUrl),
-		url: item.linkUrl,
-		wakeUpTime: snoozeTime.valueOf(),
-		favicon: getHostname(activeTab.url) === getHostname(item.linkUrl) ? activeTab.favIconUrl : '',
-		timeCreated: dayjs().valueOf(),
-	}
-	await saveTab(snoozeTab);
+	await snoozeTab(snoozeTime.valueOf(), Object.assign(item, {url: item.linkUrl}));
 	var msg = `${getHostname(item.linkUrl)} will wake up at ${snoozeTime.format('h:mm a [on] ddd, D MMM')}.`
 	createNotification(snoozeTab.id, 'A new tab is now napping :)', 'icons/main-icon.png', msg, 'dashboard.html');
 }
@@ -103,10 +76,16 @@ async function cleanUpHistory(tabs) {
 }
 
 async function setUpExtension() {
-	var store = await getStored();
-	if (!store.snoozed || !store.snoozed.length || store.snoozed.length === 0) await saveTabs([]);
-	if (!store.options) await saveOptions({history: 14, morning: 9, evening: 18, badge: 'today', contextMenu: ['today-evening', 'tom-morning', 'monday']});
+	var snoozed = await getSnoozedTabs();
+	if (!snoozed || !snoozed.length || snoozed.length === 0) await saveTabs([]);
+	var options = await getOptions();
+	if (!options) await saveOptions(EXT_OPTIONS);
 	init();
+}
+
+function init() {
+	wakeUpTask();
+	setUpContextMenus();
 }
 
 chrome.runtime.onInstalled.addListener(setUpExtension);

@@ -1,17 +1,17 @@
 const TIME_GROUPS = ['Today', 'Tomorrow', 'This Week', 'Next Week', 'Later', 'History'];
 async function init() {
-	document.querySelector('.settings').addEventListener('click', _ => openExtTab('settings.html'), {once:true})
+	document.querySelector('.settings').addEventListener('click', _ => openExtensionTab('settings.html'), {once:true})
 	showIconOnScroll();
 	await configureOptions();
 
 	// refresh dashboard when storage changed if page is not in focus
 	chrome.storage.onChanged.addListener(async _ => {
 		if (document.hasFocus()) return;
-		var tabs = await getTabs();
+		var tabs = await getTabsInWindow();
 		var extTab = tabs.find(t => t.title ==='dashboard | snoozz');
 		if (extTab) chrome.tabs.reload(extTab.id);
 	});
-	var tabs = await getStored('snoozed');
+	var tabs = await getSnoozedTabs();
 	if (!tabs || tabs.length === 0) return;
 
 	buildTimeGroups();
@@ -71,14 +71,14 @@ function buildTab(t) {
 		console.log('broken tab: ', t);
 		return;
 	}
-	var tab = wrapInDiv({className:`tab ${t.tabs ? 'window collapsed':''}`, id: t.id});
+	var tab = wrapInDiv({className:`tab${t.tabs ? ' window collapsed':''}`, id: t.id});
 
 	var icon = Object.assign(document.createElement('img'), {className: 'icon', src: getIconForTab(t)});
 	icon.onerror = () => icon.src = '../icons/unknown.png';
 	var iconContainer = wrapInDiv('icon-container', icon);
 
 	var title = wrapInDiv({className: 'tab-name', innerText: t.title, title: t.url ?? ''})
-	if (t.opened && !t.tabs) title.addEventListener('click', _ => openRegTab(t));
+	if (t.opened && !t.tabs) title.addEventListener('click', _ => openTab(t));
 	var startedNap = Object.assign(document.createElement('div'), {
 		className: 'nap-time',
 		innerText: `Started napping at ${dayjs(t.timeCreated).format('h:mm a [on] ddd D MMM YYYY')}`,
@@ -103,7 +103,7 @@ function buildTab(t) {
 			var littleIcon = Object.assign(document.createElement('img'), {className: 'little-icon', src: getIconForTab(lt)});
 			var littleTitle = wrapInDiv({className: 'tab-name', innerText: lt.title});
 			var littleTab = wrapInDiv('little-tab', littleIcon, littleTitle);
-			littleTab.addEventListener('click', _ => openRegTab(lt));
+			littleTab.addEventListener('click', _ => openTab(lt));
 			littleTabs.append(littleTab);
 		});
 
@@ -122,9 +122,7 @@ function buildTab(t) {
 	return tab;
 }
 
-function getIconForTab(t) {
-	return t.tabs && t.tabs.length ? '../icons/dropdown.svg': (t.favicon && t.favicon !== '' ? t.favicon : getFaviconUrl(t.url));
-}
+var getIconForTab = t => t.tabs && t.tabs.length ? '../icons/dropdown.svg': (t.favicon && t.favicon !== '' ? t.favicon : getFaviconUrl(t.url));
 
 function formatSnoozedUntil(ts) {
 	var date = dayjs(ts);
@@ -146,16 +144,16 @@ function getTimeGroup(t) {
 }
 
 async function wakeUpTabsAbruptly(ids) {
-	var tabs = await getStored('snoozed');
+	var tabs = await getSnoozedTabs();
 	tabs.forEach(t => ids.includes(t.id) ? t.opened = dayjs().valueOf() : '')
 	await saveTabs(tabs);
-	for (var t of tabs.filter(n => ids.includes(n.id))) t.tabs && t.tabs.length ? await openRegWindow(t) : await openRegTab(t);
+	for (var t of tabs.filter(n => ids.includes(n.id))) t.tabs && t.tabs.length ? await openWindow(t) : await openTab(t);
 	fillTimeGroups(tabs);
 	chrome.extension.getBackgroundPage().wakeUpTask();
 }
 
 async function sendTabsToHistory(ids) {
-	var tabs = await getStored('snoozed');
+	var tabs = await getSnoozedTabs();
 	tabs.forEach(t => {
 		if (!ids.includes(t.id)) return;
 		t.opened = dayjs().valueOf();
@@ -168,7 +166,7 @@ async function sendTabsToHistory(ids) {
 
 async function removeTabsFromHistory(ids) {
 	if (ids.length > 1 && !confirm('Are you sure you want to remove multiple tabs? \n You can\'t undo this.')) return;
-	var tabs = await getStored('snoozed');
+	var tabs = await getSnoozedTabs();
 	tabs = tabs.filter(t => !ids.includes(t.id));
 	await saveTabs(tabs);
 	fillTimeGroups(tabs)

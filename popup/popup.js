@@ -7,10 +7,10 @@ async function init() {
  	
  	document.querySelectorAll('.dashboard-btn, .settings').forEach(btn => btn.addEventListener('click', el => {
 		if (isFirefox) setTimeout(_ => window.close(), 100);
-		openExtTab(el.target.dataset.href);
+		openExtensionTab(el.target.dataset.href);
 	}));
 
- 	var tabs = await getStored('snoozed');
+ 	var tabs = await getSnoozedTabs();
  	if (!tabs || tabs.length === 0) return;
  	var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear()).length;
  	if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount)
@@ -110,7 +110,7 @@ async function generatePreviews() {
 	var windowPreview = document.querySelector('div[data-preview="window"]')
 	var tabPreview = document.querySelector('div[data-preview="tab"]')
 	
-	var allTabs = await getTabs();
+	var allTabs = await getTabsInWindow();
 	if (!allTabs || allTabs.length == 0) return;
 
 	var activeTab = allTabs.find(at => at.active);
@@ -124,8 +124,7 @@ async function generatePreviews() {
 	tabPreview.classList.toggle('active', isActiveTabValid);
 
 	// window preview handler
-	var siteCount = allTabs.map(vt => getHostname(vt.url)).filter((v,i,s) => s.indexOf(v) === i).length;
-	document.getElementById('window-title').innerText = `${allTabs.length} tab${allTabs.length > 1 ? 's' :''} from ${siteCount} ${siteCount > 1 ? 'different websites' : 'website'}`;
+	document.getElementById('window-title').innerText = `${getTabCountLabel(allTabs)} from ${getSiteCountLabel(allTabs)}`;
 	windowPreview.classList.toggle('disabled', allTabs.length === 1 && isActiveTabValid);
 	windowPreview.classList.toggle('active', !isActiveTabValid && allTabs.length > 0);
 
@@ -151,46 +150,10 @@ async function snooze(time, choice) {
 	if (!selectedPreview || !['window', 'tab'].includes(selectedPreview.getAttribute('data-preview'))) return;
 	response = await (selectedPreview.getAttribute('data-preview') === 'window' ? snoozeWindow(time) : snoozeTab(time));
 	
-	if (response && !response.tabId && !response.windowId) return;
+	if (response && !(response.tabId || response.windowId)) return;
 	changePreviewAfterSnooze(selectedPreview, choice)
-	chrome.runtime.sendMessage(response);
+	chrome.runtime.sendMessage(Object.assign(response, response.tabId ? {closeTabInBg: true} : {closeWindowInBg: true}));
 	chrome.extension.getBackgroundPage().wakeUpTask();
-}
-
-async function snoozeTab(snoozeTime, overrideTab) {
-	var activeTab = overrideTab || await getTabs(true);
-	if (!activeTab || !activeTab.url) return {};
-	var sleepyTab = {
-		id: Math.random().toString(36).slice(-6),
-		title: activeTab.title ?? getBetterUrl(activeTab.url),
-		url: activeTab.url,
-		favicon: activeTab.favIconUrl ?? '',
-		...activeTab.pinned ? {pinned: true} : {},
-		wakeUpTime: dayjs(snoozeTime).valueOf(),
-		timeCreated: dayjs().valueOf(),
-	}
-	var tabId = await getTabId(activeTab.url);
-	await saveTab(sleepyTab);
-	return {closeTabInBg: true, tabId: tabId}
-}
-
-async function snoozeWindow(snoozeTime) {
-	var tabsInWindow = await getTabs();
-	var validTabs = tabsInWindow.filter(t => !isDefault(t));
-	if (validTabs.length === 0) return {};
-	if (validTabs.length === 1) {
-		await snoozeTab(snoozeTime, validTabs[0])
-		return {closeWindowInBg: true, windowId: tabsInWindow.find(w => w.active).windowId};
-	}
-	var sleepyGroup = {
-		id: Math.random().toString(36).slice(-6),
-		title: document.getElementById('window-title').innerText,
-		wakeUpTime: dayjs(snoozeTime).valueOf(),
-		timeCreated: dayjs().valueOf(),
-		tabs: validTabs.map(t => {return {title: t.title, url: t.url, favicon: t.favIconUrl ?? '', ...t.pinned ? {pinned: true} : {},}})
-	}
-	await saveTab(sleepyGroup);
-	return {closeWindowInBg: true, windowId: tabsInWindow.find(w => w.active).windowId};
 }
 
 function changePreviewAfterSnooze(previewParent, choice) {

@@ -1,9 +1,8 @@
 async function init() {
-	document.querySelector('.dashboard').addEventListener('click', _ => openExtTab('./dashboard.html'), {once:true});
+	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('./dashboard.html'), {once:true});
 	showIconOnScroll();
 
 	var found = await fetchTabFromStorage();
-	if (!found) setTimeout(_ => window.close(), 1000);
 	populate(found);
 	mapTabs();
 	chrome.runtime.onMessage.addListener(async r => {
@@ -13,34 +12,30 @@ async function init() {
 }
 
 async function fetchTabFromStorage() {
+	var tabs = await getSnoozedTabs();
 	var query = window.location.hash.substring(1);
-	if (!query || query.length === 0) return;
-
-	var tabs = await getStored('snoozed');
-	if (!tabs || tabs.length === 0) return;
+	if (!query || query.length === 0 || !tabs || tabs.length === 0) return;
 
 	var found = tabs.find(t => t.id && t.id === query);
 	if (!found || !found.tabs || !found.tabs.length || found.tabs.length === 0) return;
-
 	return found;
 }
 function populate(found) {
+	if (!found) setTimeout(_ => window.close(), 1000);
 	document.getElementById('when').innerHTML = `This window was snoozed at <span>${dayjs(found.timeCreated).format('h:mma [</span>on<span>] dddd, DD MMM YYYY')}</span>.`
 	document.getElementById('till').innerHTML = `It was scheduled to wake up <span>${dayjs(found.timeCreated).to(dayjs(found.wakeUpTime),true)}</span> later.`
 	var tabList = document.querySelector('.tab-list');
 	found.tabs.forEach((t, i) => {
-		var iconImg = Object.assign(document.createElement('img'), {src: t.favicon === '' ? 'icons/unknown.png' : t.favicon});
-		var title = wrapInDiv({className: 'tab-title', innerText: t.title});
-		var tab = wrapInDiv('tab flex', wrapInDiv('icon', iconImg), title);
+		var iconImg = Object.assign(document.createElement('img'), {src: t.favicon && t.favicon !== '' ? t.favicon : getFaviconUrl(t.url)});
+		var tab = wrapInDiv('tab flex', wrapInDiv('icon', iconImg), wrapInDiv({className: 'tab-title', innerText: t.title}));
 		tab.setAttribute('data-url', t.url);
 		tabList.append(tab);
 	})
 }
 async function mapTabs() {
-	var tabsInWindow = await getTabs();
+	var tabsInWindow = await getTabsInWindow();
 	var thisTab = tabsInWindow.find(t => t.active);
-	var tabsOnPage = document.querySelectorAll('.tab')
-	tabsOnPage.forEach(top => {
+	document.querySelectorAll('.tab').forEach(top => {
 		var found = tabsInWindow.find(tiw => tiw.title === top.querySelector('.tab-title').innerText || tiw.url === top.getAttribute('data-url') || (top.querySelector('.icon img').src !== 'icons/unknown.png' && tiw.favIconUrl === top.querySelector('.icon img').src));
 		if (!found) return;
 		top.style.cursor = 'pointer';

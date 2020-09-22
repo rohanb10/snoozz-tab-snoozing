@@ -3,7 +3,7 @@
 var savedTimer;
 
 async function initialize() {
-	document.querySelector('.dashboard').addEventListener('click', _ => openExtTab('./dashboard.html'), {once:true});
+	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('./dashboard.html'), {once:true});
 	showIconOnScroll();
 	await configureOptions();
 	updateFormValues(EXT_OPTIONS);
@@ -34,7 +34,7 @@ async function save() {
 
 	await saveOptions(EXT_OPTIONS);
 
-	var tabs = await getStored('snoozed');
+	var tabs = await getSnoozedTabs();
 	updateBadge(sleeping(tabs));
 	chrome.extension.getBackgroundPage().setUpContextMenus();
 }

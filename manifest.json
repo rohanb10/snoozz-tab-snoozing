@@ -20,7 +20,7 @@
 	},
 	
 	"background": {
-		"scripts": ["scripts/async_utils.js", "scripts/utils.js", "scripts/dayjs.min.js", "background.js"]
+		"scripts": ["scripts/common.js", "scripts/dayjs.min.js", "background.js"]
 	},
 
 	"permissions": ["alarms", "contextMenus", "notifications", "storage", "tabs"],
