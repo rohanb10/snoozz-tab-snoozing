@@ -8,6 +8,7 @@ body, html, h1, h3, h4, h4+p {
 body {
 	padding: 1em 0;
 	font-family: 'Arial', sans-serif;
+	font-size: .8rem;
 }
 @-moz-document url-prefix() {
 	body {
@@ -56,6 +57,15 @@ body > div.scroll-logo.hidden {
 body > div.scroll-logo img {
 	max-height: 4em;
 	cursor: pointer;
+}
+
+a {
+	display: inline-block;
+	color: #000;
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
 }
 
 .settings, .dashboard {

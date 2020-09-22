@@ -16,6 +16,7 @@ roadmap
 - custom notifications (utils)
 <!-- - wake up buttons (dashboard) -->
 - fix wakeUp + alarms + bg initialize
+- history categories
 																		- permissions.md
 																		- pinned tabs support
 																		- tab groups (when chrome opens up API)

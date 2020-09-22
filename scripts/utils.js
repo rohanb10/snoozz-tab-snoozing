@@ -1,5 +1,6 @@
 const isFirefox = (window.browser && browser.runtime) || navigator.userAgent.indexOf('Firefox') !== -1;
-var EXT_OPTIONS = {history: 7, morning: 9, evening: 18, badge: 'today', contextMenu: ['today-evening', 'tom-morning', 'monday']}
+var EXT_OPTIONS = {history: 14, morning: 9, evening: 18, badge: 'today', contextMenu: ['today-evening', 'tom-morning', 'monday']}
+var CACHED_TABS;
 
 function getChoices() {
 	var NOW = dayjs();
@@ -68,14 +69,21 @@ function getBetterUrl(url) {
 	return a.hostname + a.pathname;
 }
 
-function wakeUpTabsFromBg() {
-	chrome.extension.getBackgroundPage().wakeUpTabs();
+function wrapInDiv(attr, ...nodes) {
+	var div = Object.assign(document.createElement('div'), typeof attr === 'string' ? {className: attr} : attr);
+	div.append(...nodes)
+	return div;
+}
+
+function sleeping(tabs) {
+	return tabs.filter(t => !t.opened);
+}
+function isDefault(t) {
+	return t.title && ['dashboard | snoozz', 'settings | snoozz', 'rise and shine | snoozz', 'New Tab'].includes(t.title);
 }
 
 function updateBadge(tabs) {
 	var num = 0;
-	tabs = tabs.filter(t => !t.opened);
-	console.log('updateBadge', tabs);
 	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'all') num = tabs.length;
 	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'today') num = tabs.filter(t => dayjs().dayOfYear(t.wakeUpTime) === dayjs().dayOfYear()).length;
 	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});

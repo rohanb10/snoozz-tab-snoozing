@@ -3,13 +3,14 @@
 var savedTimer;
 
 async function initialize() {
+	document.querySelector('.dashboard').addEventListener('click', _ => openExtTab('./dashboard.html'), {once:true});
+	showIconOnScroll();
 	await configureOptions();
-	updateValuesFromStorage(EXT_OPTIONS);
+	updateFormValues(EXT_OPTIONS);
 	addListeners();
-	document.querySelector('.dashboard').addEventListener('click', _ => openExtTab('./dashboard.html'));
 }
 
-function updateValuesFromStorage(storage) {
+function updateFormValues(storage) {
 	document.querySelector(`#morning option[value='${storage.morning}']`).setAttribute('selected', true)
 	document.querySelector(`#evening option[value='${storage.evening}']`).setAttribute('selected', true)
 	document.querySelector(`#history option[value='${storage.history}']`).setAttribute('selected', true)
@@ -20,7 +21,6 @@ function updateValuesFromStorage(storage) {
 
 function addListeners() {
 	document.querySelectorAll('select').forEach(s => s.addEventListener('change', save));
-	// document.querySelector('select').addEventListener('click', removeSavedMessage);
 	document.querySelectorAll('#contextMenu input').forEach(c => c.addEventListener('change', e => {
 		// disable if 5 options are selected;
 		document.querySelector('.choice-list').classList.toggle('disabled', document.querySelectorAll('#contextMenu input:checked').length > 4);
@@ -35,14 +35,8 @@ async function save() {
 	await saveOptions(EXT_OPTIONS);
 
 	var tabs = await getStored('snoozed');
-	console.log('reached here');
-	updateBadge(tabs);
-
-	console.log('saved', EXT_OPTIONS, tabs);
-	// set up context menus
-	// var bg = chrome.extension.getBackgroundPage();
-	// bg.setUpContextMenus();
-
+	updateBadge(sleeping(tabs));
+	chrome.extension.getBackgroundPage().setUpContextMenus();
 }
 
 window.onload = initialize

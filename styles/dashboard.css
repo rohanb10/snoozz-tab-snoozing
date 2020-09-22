@@ -47,13 +47,21 @@ h2 {
 .tab {
 	display: flex;
 	align-items: center;
-	border-radius: .33em;
+	border-radius: 1em;
 	background-color: #f7f7f7;
 	margin: .5em 0;
 	box-sizing: border-box;
+	flex-wrap: wrap;
 }
-.tab > div {
-	padding: 1.25em;
+.tab > div:nth-child(-n+5) {
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	height: 4.5em;
+}
+.tab > div:not(:nth-child(6)) {
+	padding: 0 1.25em;
 }
 .icon-container {
 	width: 10%;
@@ -75,6 +83,51 @@ h2 {
 	text-overflow: ellipsis;
 	font-weight: bold;
 }
+.tabs {
+	width: 100%;
+	overflow-y: hidden;
+	min-height: unset !important;
+	transition: opacity .5s ease-in-out, max-height .5s linear;
+	opacity: 1;
+	display: flex;
+	flex-wrap: wrap;
+	/*margin: 1rem 1em;*/
+	/*transform: scaleY(0);*/
+	max-height: 0;
+	margin: 0 1em;
+	opacity: 0;
+	overflow-y: scroll;
+}
+.window.collapsed .icon-container .icon {
+	transform: rotateX(0);
+}
+.window .icon-container .icon {
+	transform: rotateX(180deg);
+	transition: transform .5s ease-in-out;
+}
+.window > div:nth-child(-n+2) {
+	cursor: pointer;
+}
+.window:not(.collapsed) .tabs {
+	max-height: 33vh;
+	opacity: 1;
+}
+.little-tab {
+	display: flex;
+	padding: .75rem 1rem;
+	margin: .25rem;
+	width: calc(100% / 3 - .5rem);
+}
+.little-tab .little-icon {
+	max-height: 1rem;
+	padding-right: 1rem;
+	width: 2rem
+}
+.little-tab .tab-name {
+	font-size: .9rem;
+	font-weight: normal;
+	width: calc(100% - 2rem);
+}
 .wakeup-time {
 	font-size: 1em;
 }
@@ -84,27 +137,47 @@ h2 {
 	text-transform: uppercase;
 	color: #777;
 }
-.wakeup-container {
+.wakeup-time-container {
 	width: 20%;
 }
-.wakeup-button {
+.wakeup-btn-container {
 	width: 15%;
 }
-.wakeup-button:hover {
-	text-decoration: underline;
+.wakeup-button span {
+	font-size: .85em;
+	text-transform: uppercase;
+	background-color: #ccc;
+	padding: .15em .4em;
+	border: 2px solid transparent;
+	border-radius: .25em;
 }
-.remove-button {
+.wakeup-button span:hover {
+	border-color: #aaa;
+}
+.remove-btn-container {
 	width: 5%;
 	text-align: right;
-	max-height: 1em;
-	opacity: .25;
 }
-.remove-button:hover {
+.remove-btn-container img {
+	opacity: .25;
+	max-height: 1em;
+}
+.remove-btn-container img:hover {
 	opacity: 1;
 }
 .wakeup-button, .remove-button {
 	cursor: pointer;
 }
+#history .tab:not(.window) .tab-name:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}
+.tabs .little-tab:hover {
+	border-radius: .25em;
+	cursor: pointer;
+	background-color: #ddd;
+}
+
 p {
 	text-align: center;
 	font-size: 1.2em;
