@@ -82,15 +82,13 @@ async function contextMenuClickHandler(item) {
 		createNotification(null, `Can't snooze that link :(`, 'icons/main-icon.png', 'The link you are trying to snooze is invalid.');
 		return;
 	}
-	var activeTab = await getTabs(true);
-	var maybeFavicon = getHostname(activeTab.url) === getHostname(item.linkUrl) ? activeTab.favIconUrl : await findFaviconInStorage(item.linkUrl);
 	// fixme maybeFavicon to lookup storage after snooze+notification is complete
 	var snoozeTab = {
 		id: Math.random().toString(36).slice(-6),
 		title: getBetterUrl(item.linkUrl),
 		url: item.linkUrl,
 		wakeUpTime: snoozeTime.valueOf(),
-		favicon: maybeFavicon,
+		favicon: getHostname(activeTab.url) === getHostname(item.linkUrl) ? activeTab.favIconUrl : '',
 		timeCreated: dayjs().valueOf(),
 	}
 	await saveTab(snoozeTab);

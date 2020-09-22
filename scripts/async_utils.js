@@ -45,7 +45,7 @@ async function createWindow(tabId) {
 }
 
 async function saveOptions(o) {
-	return new Promise(r => chrome.storage.local.set({'snoozedOptions': o}, r));	
+	return new Promise(r => chrome.storage.local.set({'snoozedOptions': o}, r));
 }
 
 async function configureOptions() {
@@ -64,11 +64,12 @@ async function getTabId(url) {
 async function openRegWindow(t, automatic = false) {
 	var targetWindow = await createWindow(t.id);
 
+	// send message to map chrome tabs to tab-list in rise_and_shine.html
 	var loadingCount = 0;
 	chrome.tabs.onUpdated.addListener(async function cleanTabsAfterLoad(id, state, title) {
 		if (loadingCount > t.tabs.length) {
-			chrome.runtime.sendMessage({startMapping: true});		
-			chrome.tabs.onUpdated.removeListener(cleanTabsAfterLoad)	
+			chrome.runtime.sendMessage({startMapping: true});
+			chrome.tabs.onUpdated.removeListener(cleanTabsAfterLoad)
 		}
 		if (state.status === 'loading' && state.url) loadingCount ++;
 	});
@@ -106,14 +107,4 @@ async function openExtTab(url) {
 		if (activeTab && activeTab.title === 'New Tab') {chrome.tabs.update(activeTab.id, {url: url})}
 		else {chrome.tabs.create({url: url})}
 	}
-}
-
-async function findFaviconInStorage(url) {
-	var missingDomain = getHostname(url);
-
-	var tabs = await getStored('snoozed');
-	if (!tabs || tabs.length === 0) return '';
-	var match = tabs.find(t => (t.favicon && t.favicon !== '' && t.url && getHostname(t.url) === missingDomain) || (t.tabs && t.tabs.length && t.tabs.some(s => s.favicon && s.favicon !== '' && s.url && getHostname(s.url) === missingDomain)));
-	if (match && !match.favicon && match.tabs) match = match.tabs.find(m => m.url && getHostname(m.url) === missingDomain);
-	return match ? match.favicon : '';
 }

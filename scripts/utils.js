@@ -61,6 +61,10 @@ function getChoices() {
 	}
 }
 
+function getFaviconUrl(url) {
+	return `https://www.google.com/s2/favicons?sz=32&domain=${getHostname(url)}`
+}
+
 function getHostname(url) {
 	return Object.assign(document.createElement('a'), {href: url}).hostname;
 }

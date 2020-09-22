@@ -48,6 +48,7 @@ body > div.scroll-logo {
 	top: 0;
 	left: 0;
 	margin: .5em;
+	z-index: 9;
 	transition: top .3s ease-in-out;
 }
 body > div.scroll-logo.hidden {

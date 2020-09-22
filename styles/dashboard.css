@@ -45,8 +45,11 @@ h2 {
 	color: #444;
 }
 .tab {
+	position: relative;
+	z-index: 2;
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
 	border-radius: 1em;
 	background-color: #f7f7f7;
 	margin: .5em 0;
@@ -59,9 +62,6 @@ h2 {
 	justify-content: center;
 	flex-direction: column;
 	height: 4.5em;
-}
-.tab > div:not(:nth-child(6)) {
-	padding: 0 1.25em;
 }
 .icon-container {
 	width: 10%;
@@ -87,12 +87,11 @@ h2 {
 	width: 100%;
 	overflow-y: hidden;
 	min-height: unset !important;
-	transition: opacity .5s ease-in-out, max-height .5s linear;
+	transition: opacity .5s ease-in-out, max-height .5s linear, border-color .5s ease-in-out;
+	border-top: 1px solid transparent;
 	opacity: 1;
 	display: flex;
 	flex-wrap: wrap;
-	/*margin: 1rem 1em;*/
-	/*transform: scaleY(0);*/
 	max-height: 0;
 	margin: 0 1em;
 	opacity: 0;
@@ -111,6 +110,7 @@ h2 {
 .window:not(.collapsed) .tabs {
 	max-height: 33vh;
 	opacity: 1;
+	border-color: #ededed;
 }
 .little-tab {
 	display: flex;
@@ -137,11 +137,15 @@ h2 {
 	text-transform: uppercase;
 	color: #777;
 }
+.edit-container {
+
+}
 .wakeup-time-container {
-	width: 20%;
+	width: calc(25% - 5em);
+	margin-left: 5em;
 }
 .wakeup-btn-container {
-	width: 15%;
+	width: 10%;
 }
 .wakeup-button span {
 	font-size: .85em;
@@ -149,10 +153,12 @@ h2 {
 	background-color: #ccc;
 	padding: .15em .4em;
 	border: 2px solid transparent;
+	transition: all .25s ease-in-out;
 	border-radius: .25em;
 }
 .wakeup-button span:hover {
-	border-color: #aaa;
+	background-color: #888;
+	color: #fff;
 }
 .remove-btn-container {
 	width: 5%;
@@ -176,6 +182,31 @@ h2 {
 	border-radius: .25em;
 	cursor: pointer;
 	background-color: #ddd;
+}
+
+@media (max-width: 56em) {
+	.tabs {
+		order: 3;
+	}
+	.tab > div:nth-child(-n+5) {
+		height: 3.5em;
+	}
+	.icon-container {
+		width: 15%
+	}
+	.title-container {
+		width: 75%;
+	}
+	.remove-btn-container {
+		width: 10%;
+		order: 1;
+	}
+	.wakeup-btn-container, div.wakeup-time-container {
+		width: 50%;
+		margin: 0;
+		text-align: center;
+		order: 2;
+	}
 }
 
 p {

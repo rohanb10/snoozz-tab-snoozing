@@ -74,6 +74,7 @@ function buildTab(t) {
 	var tab = wrapInDiv({className:`tab ${t.tabs ? 'window collapsed':''}`, id: t.id});
 
 	var icon = Object.assign(document.createElement('img'), {className: 'icon', src: getIconForTab(t)});
+	icon.onerror = () => icon.src = '../icons/unknown.png';
 	var iconContainer = wrapInDiv('icon-container', icon);
 
 	var title = wrapInDiv({className: 'tab-name', innerText: t.title, title: t.url ?? ''})
@@ -122,7 +123,7 @@ function buildTab(t) {
 }
 
 function getIconForTab(t) {
-	return t.tabs && t.tabs.length ? '../icons/dropdown.svg': (t.favicon && t.favicon !== '' ? t.favicon : '../icons/unknown.png');
+	return t.tabs && t.tabs.length ? '../icons/dropdown.svg': (t.favicon && t.favicon !== '' ? t.favicon : getFaviconUrl(t.url));
 }
 
 function formatSnoozedUntil(ts) {

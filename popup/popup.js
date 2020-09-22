@@ -99,11 +99,11 @@ function buildCustomChoice() {
 
 function activateForm(shouldActivate = true) {
 	ccContainer.classList.toggle('active', shouldActivate);
-	clearTimeout(collapseTimeout);	
+	clearTimeout(collapseTimeout);
 }
 function focusForm(shouldFocus = true) {
 	ccContainer.classList.toggle('focused', shouldFocus);
-	clearTimeout(collapseTimeout);	
+	clearTimeout(collapseTimeout);
 }
 
 async function generatePreviews() {
@@ -135,7 +135,7 @@ async function generatePreviews() {
 
 	// Disable everything if both tabs and windows are unsnoozable.
 	if (windowPreview.classList.contains('disabled') && tabPreview.classList.contains('disabled')) {
-		document.querySelectorAll('.choice, .custom-choice, h3').forEach(c => c.classList.add('disabled'));	
+		document.querySelectorAll('.choice, .custom-choice, h3').forEach(c => c.classList.add('disabled'));
 	}
 }
 
