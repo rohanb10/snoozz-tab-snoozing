@@ -61,12 +61,10 @@ body > div.scroll-logo img {
 }
 
 a {
-	display: inline-block;
 	color: #000;
-	text-decoration: none;
 }
 a:hover {
-	text-decoration: underline;
+	border-bottom: 1px solid black;
 }
 
 .settings, .dashboard {

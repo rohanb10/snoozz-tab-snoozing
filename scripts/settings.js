@@ -36,7 +36,6 @@ async function save() {
 
 	var tabs = await getSnoozedTabs();
 	updateBadge(sleeping(tabs));
-	chrome.extension.getBackgroundPage().setUpContextMenus();
 }
 
 window.onload = initialize

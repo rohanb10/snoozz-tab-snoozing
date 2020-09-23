@@ -24,20 +24,22 @@ async function getTabId(url) {
 }
 /*	SAVE 	*/
 async function saveOptions(o) {
-	return new Promise(r => chrome.storage.local.set({'snoozedOptions': o}, r));
+	var p = new Promise(r => chrome.storage.local.set({'snoozedOptions': o}, r));
+	await p;
+	chrome.runtime.sendMessage({updateOptions: true});
 }
 async function saveTab(t) {
 	var tabs = await getSnoozedTabs();
 	tabs.push(t);
 	await saveTabs(tabs);
 }
-function saveTabs(tabs) {
+async function saveTabs(tabs) {
 	updateBadge(sleeping(tabs));
 	return new Promise(r => chrome.storage.local.set({'snoozed': tabs}, r));
 }
 /*	CREATE 	*/
 function createAlarm(name, time) {
-	console.log('Alarm set at  '+ new Date().toLocaleString('en-IN') + ', waking up at ' + new Date(time).toLocaleString('en-IN'));
+	console.log('Alarm created: '+ new Date().toLocaleString('en-IN') + ' | Waking up at: ' + new Date(time).toLocaleString('en-IN'));
 	chrome.alarms.create(name, {when: time});
 }
 function createNotification(id, title, imgUrl, msg, clickUrl) {
@@ -115,8 +117,8 @@ async function snoozeTab(snoozeTime, overrideTab) {
 		wakeUpTime: dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
 	}
-	var tabId = await getTabId(activeTab.url);
 	await saveTab(sleepyTab);
+	var tabId = activeTab.id || await getTabId(activeTab.url);
 	return {tabId: tabId}
 }
 
@@ -217,6 +219,8 @@ var getSiteCountLabel = tabs => {
 
 var sleeping = tabs => tabs.filter(t => !t.opened);
 
+var today = tabs => tabs.filter(t => t.wakeUpTime && dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear())
+
 var isDefault = tabs => tabs.title && ['dashboard | snoozz', 'settings | snoozz', 'rise and shine | snoozz', 'New Tab'].includes(tabs.title);
 
 var wrapInDiv = (attr, ...nodes) => {
@@ -228,7 +232,7 @@ var wrapInDiv = (attr, ...nodes) => {
 var updateBadge = tabs => {
 	var num = 0;
 	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'all') num = tabs.length;
-	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'today') num = tabs.filter(t => dayjs().dayOfYear(t.wakeUpTime) === dayjs().dayOfYear()).length;
+	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'today') num = today(tabs).length;
 	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});
 	chrome.browserAction.setBadgeBackgroundColor({color: '#CF5A77'});
 }

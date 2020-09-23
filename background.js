@@ -1,6 +1,7 @@
 chrome.runtime.onMessage.addListener((msg, sender, resp) => {
 	if (msg.closeTabInBg) setTimeout(_ => chrome.tabs.remove(msg.tabId), 2000);
 	if (msg.closeWindowInBg) setTimeout(_ => chrome.windows.remove(msg.windowId), 2000);
+	if (msg.updateOptions) {configureOptions();setUpContextMenus()}
 })
 
 async function wakeUpTask(cachedTabs) {
@@ -16,7 +17,7 @@ async function wakeUpTask(cachedTabs) {
 
 async function setNextAlarm(tabs) {
 	var earliest = sleeping(tabs).reduce((t1,t2) => t1.wakeUpTime < t2.wakeUpTime ? t1 : t2);
-	console.log('Next tab to wake up: ', new Date(earliest.wakeUpTime).toLocaleString('en-IN'), earliest);
+	console.log('Next tab waking up: ', new Date(earliest.wakeUpTime).toLocaleString('en-IN'), earliest);
 	if (earliest.wakeUpTime < dayjs().valueOf()) {
 		wakeMeUp(tabs);
 	} else {
@@ -26,11 +27,10 @@ async function setNextAlarm(tabs) {
 }
 
 async function wakeMeUp(tabs) {
-	console.log('Waking up tabs', new Date().toLocaleString('en-IN'));
 	var now = dayjs().valueOf();
 	var tabsToWakeUp = t => !t.opened && (t.url || t.tabs) && t.wakeUpTime && t.wakeUpTime <= now;
 	if (tabs.filter(tabsToWakeUp).length === 0) return;
-	console.log('These tabs: ', tabs.filter(tabsToWakeUp));
+	console.log('Waking up these tabs at ', new Date().toLocaleString('en-IN'), tabs.filter(tabsToWakeUp));
 	for (var s of tabs.filter(tabsToWakeUp)) s.tabs ? await openWindow(s, true) : await openTab(s, true);
 	tabs.filter(tabsToWakeUp).forEach(t => t.opened = now);
 	await saveTabs(tabs);
@@ -40,15 +40,13 @@ async function wakeMeUp(tabs) {
 async function setUpContextMenus() {
 	console.log('Setting up context menus', new Date().toLocaleString('en-IN'));
 	chrome.contextMenus.removeAll();
-	var storage = await getOptions();
-	if (!storage || !storage.contextMenu || !storage.contextMenu.length || storage.contextMenu.length === 0) return;
+	if (!EXT_OPTIONS || !EXT_OPTIONS.contextMenu || !EXT_OPTIONS.contextMenu.length || EXT_OPTIONS.contextMenu.length === 0) return;
 	var CHOICE_MAP = getChoices();
-	storage.contextMenu.forEach(o => chrome.contextMenus.create({
+	EXT_OPTIONS.contextMenu.forEach(o => chrome.contextMenus.create({
 		id: o,
 		contexts: ['link'],
 		title: `Snooze till ${CHOICE_MAP[o].label.toLowerCase()}`
 	}));
-	// updateContextMenuItems()
 }
 
 chrome.contextMenus.onClicked.addListener(contextMenuClickHandler)
@@ -70,9 +68,8 @@ async function contextMenuClickHandler(item) {
 }
 
 async function cleanUpHistory(tabs) {
-	console.log('deleting old tabs: ', tabs.filter(t => t.opened && dayjs(t.opened).add(EXT_OPTIONS.history, 'd').isBefore(dayjs())));
-	tabs.filter(t => !(t.opened && dayjs(t.opened).add(EXT_OPTIONS.history, 'd').isBefore(dayjs())));
-	saveTabs(tabs);
+	console.log('deleting old tabs: ', tabs.filter(t => t.opened && dayjs().isAfter(dayjs(t.opened).add(EXT_OPTIONS.history, 'd'))));
+	saveTabs(tabs.filter(t => !(t.opened && dayjs().isAfter(dayjs(t.opened).add(EXT_OPTIONS.history, 'd')))));
 }
 
 async function setUpExtension() {

@@ -114,9 +114,9 @@ async function generatePreviews() {
 	if (!allTabs || allTabs.length == 0) return;
 
 	var activeTab = allTabs.find(at => at.active);
-	allTabs = allTabs.filter(t => !isDefault(t));
+	var validTabs = allTabs.filter(t => !isDefault(t));
 
-	var isActiveTabValid = allTabs.includes(activeTab);
+	var isActiveTabValid = validTabs.includes(activeTab);
 	// tab preview handler
 	document.getElementById('tab-title').innerText = isActiveTabValid ? activeTab.title : `Can't snooze this tab`;
 	document.getElementById('tab-favicon').src = isActiveTabValid && activeTab.favIconUrl ? activeTab.favIconUrl : '../icons/unknown.png';
@@ -124,9 +124,9 @@ async function generatePreviews() {
 	tabPreview.classList.toggle('active', isActiveTabValid);
 
 	// window preview handler
-	document.getElementById('window-title').innerText = `${getTabCountLabel(allTabs)} from ${getSiteCountLabel(allTabs)}`;
-	windowPreview.classList.toggle('disabled', allTabs.length === 1 && isActiveTabValid);
-	windowPreview.classList.toggle('active', !isActiveTabValid && allTabs.length > 0);
+	document.getElementById('window-title').innerText = `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`;
+	windowPreview.classList.toggle('disabled', validTabs.length === 1 && isActiveTabValid);
+	windowPreview.classList.toggle('active', !isActiveTabValid && validTabs.length > 0);
 
 	// Disable tab preview if invalid link type
 	if (!tabPreview.classList.contains('disabled')) tabPreview.addEventListener('click', toggleActivePreview)

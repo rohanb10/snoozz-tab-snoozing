@@ -67,10 +67,6 @@ async function fillTimeGroups(tabs) {
 }
 
 function buildTab(t) {
-	if (!t || (!t.tabs && !t.url) || isNaN(t.wakeUpTime) || (t.opened && isNaN(t.opened)) || (t.tabs && !t.tabs.length)) {
-		console.log('broken tab: ', t);
-		return;
-	}
 	var tab = wrapInDiv({className:`tab${t.tabs ? ' window collapsed':''}`, id: t.id});
 
 	var icon = Object.assign(document.createElement('img'), {className: 'icon', src: getIconForTab(t)});

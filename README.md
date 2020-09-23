@@ -10,14 +10,14 @@ roadmap
 <!-- - fix removeTab (dashboard) -->
 - favicons to base64 (popup)
 <!-- - change removeTab to history (dashboard) -->
-- window ui (dashboard)
-- cleanUpHistory (bg)
+<!-- - window ui (dashboard) -->
+<!-- - cleanUpHistory (bg) -->
 <!-- - remove all history (dashboard) -->
 - custom notifications (utils)
 <!-- - wake up buttons (dashboard) -->
-- fix wakeUp + alarms + bg initialize
+<!-- - fix wakeUp + alarms + bg initialize -->
 - history categories
-																		- permissions.md
-																		- pinned tabs support
-																		- tab groups (when chrome opens up API)
-																		- contextmenu on tab bar
+- tab groups (when chrome opens up API)
+- contextmenu on tab bar
+- disable context menu items using next earliest alarm
+- verify tab integrity
