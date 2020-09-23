@@ -8,14 +8,15 @@ Nothing you have snoozed using this extension is recorded or shared in any way. 
 A single alarm is created (and reused) to wake up your tabs at the correct time. 
 If you have no tabs snoozed, this alarm is deleted. 
 
+
 **notifications**
 - Send you notifications when a tab is reopened. 
-- Not critical to the functioning of the extension, so if you have your notifications turned off that’s perfectly fine. 
+(Not critical to the functioning of the extension, so if you have your notifications turned off that’s perfectly fine.)
+
 
 **tabs**
-- Used to fetch all the metadata from your tabs(title, url, favicon). 
-- It’s a scary sounding permission for sure, but I don’t record or read any data from within the tab itself. You can see for yourself [here](https://github.com/rohanb10/snooze/blob/master/popup/popup.js#L161-L176). All your data is yours to own.
-- I really only need the url for the core functionality of this extension, but the title and favicon are also pulled to make the UI a bit more pretty. 
+- Used to fetch only the metadata from your tabs (title, url, favicon). 
+(You can review the code for this [here](https://github.com/rohanb10/snooze/blob/master/scripts/common.js#L108-L142) if you don't believe me)
 - This permission is also used to create new tabs/windows when they wake up, and to close them when you put them to sleep. 
 
 
@@ -33,4 +34,3 @@ If you have no tabs snoozed, this alarm is deleted.
 
 
 ### If you delete this extension, all your data and preferences are deleted with it. It cannot be recovered. I’ve tried.
-

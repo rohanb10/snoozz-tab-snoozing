@@ -10,13 +10,27 @@
 
 PRs and other ideas welcome.
 
-## Changes
+## Changes ##
+
+**September 2020**
+#### 2.0.0
+- Major rewrite of almost the entire codebase
+- Ability to snooze entire windows
+- Transition from native JS dates to the lightweight Day.js library.
+- Context menu snoozing
+- Support for pinned tabs
+- Make the choices in the popup modular so they can be used for editing UI in the future
+- More reliable history purging
+- Ability to manually wake up a tab at any time.
+- Convert all settings into select menus for better reliability
+
 
 **August 2020**
 #### 1.3.0
 - Add right click option for snoozing
 - Change unknown tab icon
 - Fix history not clearing on dashboard
+
 
 **July 2020**
 #### 1.2.1
