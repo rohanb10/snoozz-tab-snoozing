@@ -18,6 +18,5 @@ roadmap
 <!-- - fix wakeUp + alarms + bg initialize -->
 - history categories
 - tab groups (when chrome opens up API)
-- contextmenu on tab bar
 - disable context menu items using next earliest alarm
 - verify tab integrity

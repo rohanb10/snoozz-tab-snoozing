@@ -1,18 +1,22 @@
 ## Roadmap
 *In no particular order*
-- Snooze all tabs in a window at the same time (this one's coming I promise)
 - Sync between devices
-- Ensure compatibility with ff mobile
-- Edit snooze times in the dashboard
+- Edit snooze times
+- Search Dashboard
 - `a11y` best practices
 - See total storage used and add instructions to delete old tabs
-- Change layout of settings page
+- Tab groups (on chrome)
+- Dynamic context menu items
 
 PRs and other ideas welcome.
 
 ## Changes ##
 
 **September 2020**
+#### 2.1.0
+- Firefox Specific Changes
+- Make setting/getting options more secure and effecient
+
 #### 2.0.0
 - Major rewrite of almost the entire codebase
 - Ability to snooze entire windows
