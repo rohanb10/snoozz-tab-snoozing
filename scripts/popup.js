@@ -1,7 +1,5 @@
 async function init() {
-	await configureOptions();
-
-	buildChoices();
+	await buildChoices();
 	buildCustomChoice();
 	await generatePreviews();
  	
@@ -9,6 +7,10 @@ async function init() {
 		if (isFirefox) setTimeout(_ => window.close(), 100);
 		openExtensionTab(el.target.dataset.href);
 	}));
+	if (isFirefox) {
+		chrome.tabs.onActivated.addListener(_ => setTimeout(_ => window.close(), 50))
+		chrome.runtime.onMessage.addListener(msg => {if (msg.closePopup) setTimeout(_ => window.close(), 50)});
+	}
 
  	var tabs = await getSnoozedTabs();
  	if (!tabs || tabs.length === 0) return;
@@ -16,9 +18,10 @@ async function init() {
  	if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount)
 }
 
-function buildChoices() {
+async function buildChoices() {
 	var choiceContainer = document.querySelector('.section.choices');
-	Object.entries(getChoices()).forEach(([name, config]) => {
+	var choices = await getChoices();
+	Object.entries(choices).forEach(([name, config]) => {
 		var choice = Object.assign(document.createElement('div'), {
 			classList: `choice ${config.disabled ? 'disabled' : ''} ${config.isDark ? 'dark-on-hover' : ''}`,
 			style: `--bg:${config.color}`
@@ -114,7 +117,7 @@ async function generatePreviews() {
 	if (!allTabs || allTabs.length == 0) return;
 
 	var activeTab = allTabs.find(at => at.active);
-	var validTabs = allTabs.filter(t => !isDefault(t));
+	var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t));
 
 	var isActiveTabValid = validTabs.includes(activeTab);
 	// tab preview handler
@@ -125,7 +128,7 @@ async function generatePreviews() {
 
 	// window preview handler
 	document.getElementById('window-title').innerText = `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`;
-	windowPreview.classList.toggle('disabled', validTabs.length === 1 && isActiveTabValid);
+	windowPreview.classList.toggle('disabled', (validTabs.length === 1 && isActiveTabValid) || validTabs.length === 0);
 	windowPreview.classList.toggle('active', !isActiveTabValid && validTabs.length > 0);
 
 	// Disable tab preview if invalid link type
@@ -133,7 +136,7 @@ async function generatePreviews() {
 	if (!windowPreview.classList.contains('disabled')) windowPreview.addEventListener('click', toggleActivePreview);
 
 	// Disable everything if both tabs and windows are unsnoozable.
-	if (windowPreview.classList.contains('disabled') && tabPreview.classList.contains('disabled')) {
+	if (validTabs.length === 0 || (windowPreview.classList.contains('disabled') && tabPreview.classList.contains('disabled'))) {
 		document.querySelectorAll('.choice, .custom-choice, h3').forEach(c => c.classList.add('disabled'));
 	}
 }

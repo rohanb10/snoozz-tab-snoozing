@@ -24,7 +24,7 @@ h2 span {
 	transition: border-color .25s ease-in-out;
 }
 .input-container:hover {
-	border-color: #ddd;
+	border-color: #bbb;
 	transition-duration: 0;
 }
 .input-container {
@@ -40,6 +40,8 @@ select, option {
 	border-bottom: 2px solid #000;
 	text-align: center;	
 	padding: .25em;
+}
+select, option, label {
 	cursor: pointer;
 }
 select {
@@ -65,10 +67,11 @@ select {
 input[type=checkbox] {
 	margin: 0 1em;
 }
-.about-container p:first-of-type {
+.about-container .flex {
 	margin-top: 2.5em;
+	justify-content: flex-start;
 }
-.about-container p {
-	max-width: 35em;
-	padding: 0 1.25em;
+.about-container p, .about-container .flex span {
+	padding-left: 1.25em;
+	padding-right: .5em;
 }

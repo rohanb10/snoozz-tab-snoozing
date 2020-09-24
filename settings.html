@@ -52,7 +52,8 @@
 		<div class="input-container flex">
 			<div>
 				<h4>Automatically delete tabs after</h4>
-				<p>All reopened tabs will be automatically deleted after this amount of time.</p>
+				<p>All tabs in history will be deleted after this amount of time.</p>
+				<p>Changes to this setting may take upto an hour to apply.</p>
 			</div>
 			<div><select id="history">
 				<option value="1">24 Hours</option>
@@ -100,11 +101,13 @@
 	</div><br>
 	<div class="about-container">
 		<h2><span>About</span></h2>
-		<div>
-			<p>All the code for this extension is fully available on <a target="_blank" href="https://github.com/rohanb10/snooze">github</a>. All your data stays in your browser and is never uploaded anywhere.</p>
-			<p>Found a bug or want to suggest a new feature? Get in touch over <a target="_blank" href="https://github.com/rohanb10/snooze/issues">here</a>.</p>
-			<p>Made by <a target='blank' href="https://rohan.xyz">rohan</a> in 2020.</p>
+		<div class="flex">
+			<span><a target='_blank' href="https://github.com/rohanb10/snooze/">source code</a></span>
+			<span><a target='_blank' href="https://github.com/rohanb10/snooze/issues/new?assignees=rohanb10&labels=&template=bug-report.md&title=%5BBUG%5D">report a bug</a></span>
+			<span><a target='_blank' href="https://github.com/rohanb10/snooze/blob/master/PRIVACY.md">privacy</a></span>
+			<span><a target='_blank' href="https://github.com/rohanb10/snooze/blob/master/changelog.md">changelog</a></span>
 		</div>
+		<div><p>Made by <a target='blank' href="https://rohan.xyz">rohan</a> in 2020.</p></div>
 	</div>
 	<div class="dashboard" data-hover="See your sleeping tabs"><img src="icons/sheep.png"></div>
 	<script type="text/javascript" src="./scripts/dayjs.min.js"></script>

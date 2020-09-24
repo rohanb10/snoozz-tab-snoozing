@@ -5,8 +5,8 @@ var savedTimer;
 async function initialize() {
 	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('./dashboard.html'), {once:true});
 	showIconOnScroll();
-	await configureOptions();
-	updateFormValues(EXT_OPTIONS);
+	var options = await getOptions();
+	try {updateFormValues(options)} catch(e) {}
 	addListeners();
 }
 
@@ -29,10 +29,11 @@ function addListeners() {
 }
 
 async function save() {
-	document.querySelectorAll('select').forEach(s => EXT_OPTIONS[s.id] = isNaN(s.value) ? s.value : parseInt(s.value));
-	EXT_OPTIONS['contextMenu'] = Array.from(document.querySelectorAll('#contextMenu input:checked')).map(c => c.id);
+	var options = {}
+	document.querySelectorAll('select').forEach(s => options[s.id] = isNaN(s.value) ? s.value : parseInt(s.value));
+	options['contextMenu'] = Array.from(document.querySelectorAll('#contextMenu input:checked')).map(c => c.id);
 
-	await saveOptions(EXT_OPTIONS);
+	await saveOptions(options);
 
 	var tabs = await getSnoozedTabs();
 	updateBadge(sleeping(tabs));

@@ -81,7 +81,8 @@ div[data-preview].disabled {
 	font-weight: bolder;
 }
 #tab-favicon, #window-favicon {
-	max-height: 1.75em;
+	height: 1.75em;
+	width: 1.75em;
 	margin-right: .75em;
 }
 #window-favicon {

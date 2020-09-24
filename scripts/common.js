@@ -1,18 +1,24 @@
-window.browser = (_ => window.browser || window.chrome)()
-const isFirefox = (window.browser && browser.runtime) || navigator.userAgent.indexOf('Firefox') !== -1;
-var EXT_OPTIONS = {history: 14, morning: 9, evening: 18, badge: 'today', contextMenu: ['today-evening', 'tom-morning', 'monday']}
+window.browser = (_ => window.browser || window.browser)()
+const isFirefox = (window.browser && chrome.runtime) || navigator.userAgent.indexOf('Firefox') !== -1;
 /*	ASYNCHRONOUS FUNCTIONS	*/
 /*	GET 	*/
-async function getSnoozedTabs() {
+async function getSnoozedTabs(ids) {
 	var p = await new Promise(r => chrome.storage.local.get('snoozed', r));
-	return p.snoozed
+	if (!p.snoozed) return;
+	if (!ids || (ids.length && ids.length === 0)) return p.snoozed;
+	var found = p.snoozed.filter(s => s.id && (ids.length ? ids.includes(s.id) : ids === s.id));
+	return found.length === 1 ? found[0] : found;
 }
-async function getOptions() {
+async function getOptions(keys) {
 	var p = await new Promise(r => chrome.storage.local.get('snoozedOptions', r));
-	return p.snoozedOptions
+	if (!p.snoozedOptions) return;
+	if (!keys) return p.snoozedOptions;
+	if (typeof keys === 'string') return p.snoozedOptions[keys];
+	return Object.keys(p.snoozedOptions).filter(k => keys.includes(k)).reduce((o, k) => {o[k] = p.snoozedOptions[k];return o},{});
+	
 }
 async function getTabsInWindow(active) {
-	var p = new Promise(r => chrome.tabs.query({active: active}, r));
+	var p = new Promise(r => chrome.tabs.query({active: active, currentWindow: true}, r));
 	if (!active) return p;
 	var tabs = await p;
 	return tabs[0];
@@ -34,12 +40,13 @@ async function saveTab(t) {
 	await saveTabs(tabs);
 }
 async function saveTabs(tabs) {
-	updateBadge(sleeping(tabs));
-	return new Promise(r => chrome.storage.local.set({'snoozed': tabs}, r));
+	var p = new Promise(r => chrome.storage.local.set({'snoozed': tabs}, r));
+	await updateBadge(sleeping(tabs));
+	return p;
 }
 /*	CREATE 	*/
 function createAlarm(name, time) {
-	console.log('Alarm created: '+ new Date().toLocaleString('en-IN') + ' | Waking up at: ' + new Date(time).toLocaleString('en-IN'));
+	console.log(dayjs().format('D/M/YY'), '| Next Alarm: '+ dayjs(time).format('HH:mm:ss') + ' | Created at:', dayjs().format('HH:mm:ss'));
 	chrome.alarms.create(name, {when: time});
 }
 function createNotification(id, title, imgUrl, msg, clickUrl) {
@@ -47,14 +54,16 @@ function createNotification(id, title, imgUrl, msg, clickUrl) {
 	if (clickUrl) chrome.notifications.onClicked.addListener(_ => openExtensionTab(clickUrl));
 }
 async function createWindow(tabId) {
-	return new Promise(r => chrome.windows.create({url: `rise_and_shine.html#${tabId}`, focused: true}, r));
+	return new Promise(r => chrome.windows.create({url: `rise_and_shine.html#${tabId}`}, r));
 }
 
 /*	CONFIGURE	*/
-async function configureOptions() {
-	var storageOptions = await getOptions();
-	EXT_OPTIONS = Object.assign(EXT_OPTIONS, storageOptions)
-	return;
+async function updateBadge(tabs) {
+	var num = 0;
+	var badge = await getOptions('badge');
+	if (tabs.length > 0 && badge && ['all','today'].includes(badge)) num = badge === 'today' ? today(tabs).length : tabs.length;
+	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});
+	chrome.browserAction.setBadgeBackgroundColor({color: '#CF5A77'});
 }
 
 /*	OPEN 	*/
@@ -86,7 +95,7 @@ async function openTab(tab, automatic = false) {
 async function openWindow(t, automatic = false) {
 	var targetWindow = await createWindow(t.id);
 
-	// send message to map chrome tabs to tab-list in rise_and_shine.html
+	// send message to map browser tabs to tab-list in rise_and_shine.html
 	var loadingCount = 0;
 	chrome.tabs.onUpdated.addListener(async function cleanTabsAfterLoad(id, state, title) {
 		if (loadingCount > t.tabs.length) {
@@ -105,6 +114,7 @@ async function openWindow(t, automatic = false) {
 	return;
 }
 
+/*		SNOOZING 	*/
 async function snoozeTab(snoozeTime, overrideTab) {
 	var activeTab = overrideTab || await getTabsInWindow(true);
 	if (!activeTab || !activeTab.url) return {};
@@ -124,7 +134,7 @@ async function snoozeTab(snoozeTime, overrideTab) {
 
 async function snoozeWindow(snoozeTime) {
 	var tabsInWindow = await getTabsInWindow();
-	var validTabs = tabsInWindow.filter(t => !isDefault(t));
+	var validTabs = tabsInWindow.filter(t => !isDefault(t) && isValid(t));
 	if (validTabs.length === 0) return {};
 	if (validTabs.length === 1) {
 		await snoozeTab(snoozeTime, validTabs[0])
@@ -140,48 +150,48 @@ async function snoozeWindow(snoozeTime) {
 	await saveTab(sleepyGroup);
 	return {windowId: tabsInWindow.find(w => w.active).windowId};
 }
-/* END ASYNC FUNCTIONS */
 
-var getChoices = _ => {
+async function getChoices(which) {
 	var NOW = dayjs();
-	return {
+	var config = await getOptions(['morning', 'evening']);
+	var all = {
 		'today-morning': {
 			label: 'This Morning',
 			color: '#F7D05C',
-			time: NOW.startOf('d').add(EXT_OPTIONS.morning, 'h'),
+			time: NOW.startOf('d').add(config.morning, 'h'),
 			timeString: 'Today',
-			disabled: NOW.startOf('d').add(EXT_OPTIONS.morning, 'h').valueOf() < dayjs()
+			disabled: NOW.startOf('d').add(config.morning, 'h').valueOf() < dayjs()
 		},
 		'today-evening': {
 			label: 'This Evening',
 			color: '#E1AD7A',
-			time: NOW.startOf('d').add(EXT_OPTIONS.evening, 'h'),
+			time: NOW.startOf('d').add(config.evening, 'h'),
 			timeString: 'Today',
-			disabled: NOW.startOf('d').add(EXT_OPTIONS.evening, 'h').valueOf() < dayjs()
+			disabled: NOW.startOf('d').add(config.evening, 'h').valueOf() < dayjs()
 		},
 		'tom-morning': {
 			label: 'Tomorrow Morning',
 			color: '#00b77d',
-			time: NOW.startOf('d').add(1,'d').add(EXT_OPTIONS.morning, 'h'),
+			time: NOW.startOf('d').add(1,'d').add(config.morning, 'h'),
 			timeString: NOW.add(1,'d').format('ddd D')
 		},
 		'tom-evening': {
 			label: 'Tomorrow Evening',
 			color: '#87CCE2',
-			time: NOW.startOf('d').add(1,'d').add(EXT_OPTIONS.evening, 'h'),
+			time: NOW.startOf('d').add(1,'d').add(config.evening, 'h'),
 			timeString: NOW.add(1,'d').format('ddd D')
 		},
 		'weekend': {
 			label: 'Weekend',
 			color: '#F08974',
-			time: NOW.startOf('d').weekday(6).add(EXT_OPTIONS.morning, 'h'),
+			time: NOW.startOf('d').weekday(6).add(config.morning, 'h'),
 			timeString: NOW.weekday(6).format('ddd, D MMM'),
 			// disabled: NOW.weekday(6).dayOfYear() === NOW.add(1, 'd').dayOfYear() || NOW.weekday(6).dayOfYear() === NOW.dayOfYear()
 		},
 		'monday': {
 			label: 'Next Monday',
 			color: '#488863',
-			time: NOW.startOf('d').weekday(8).add(EXT_OPTIONS.morning, 'h'),
+			time: NOW.startOf('d').weekday(8).add(config.morning, 'h'),
 			timeString: NOW.weekday(8).format('ddd, D MMM'),
 			isDark: true,
 		},
@@ -199,7 +209,10 @@ var getChoices = _ => {
 			timeString: NOW.add(1, 'M').format('D MMM')
 		}
 	}
+	return which && all[which] ? all[which] : all;
 }
+
+/* END ASYNC FUNCTIONS */
 
 var getFaviconUrl = url => `https://www.google.com/s2/favicons?sz=32&domain=${getHostname(url)}`
 
@@ -223,19 +236,14 @@ var today = tabs => tabs.filter(t => t.wakeUpTime && dayjs(t.wakeUpTime).dayOfYe
 
 var isDefault = tabs => tabs.title && ['dashboard | snoozz', 'settings | snoozz', 'rise and shine | snoozz', 'New Tab'].includes(tabs.title);
 
+var isValid = tabs => tabs.url && ['http', 'https', 'file'].includes(tabs.url.substring(0, tabs.url.indexOf(':')))
+
 var wrapInDiv = (attr, ...nodes) => {
 	var div = Object.assign(document.createElement('div'), typeof attr === 'string' ? {className: attr} : attr);
 	div.append(...nodes)
 	return div;
 }
-
-var updateBadge = tabs => {
-	var num = 0;
-	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'all') num = tabs.length;
-	if (tabs.length > 0 && EXT_OPTIONS.badge && EXT_OPTIONS.badge === 'today') num = today(tabs).length;
-	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});
-	chrome.browserAction.setBadgeBackgroundColor({color: '#CF5A77'});
-}
+var prettyTab = tab => {var r = {};Object.entries(s).forEach(([k, v]) => r[k]= isNaN(v) ? v : new Date(v).toLocaleString('en-IN'));return r;}
 
 var showIconOnScroll = _ => {
 	var header = document.querySelector('body > div.flex.center')

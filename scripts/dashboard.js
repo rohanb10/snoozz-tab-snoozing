@@ -1,18 +1,20 @@
 const TIME_GROUPS = ['Today', 'Tomorrow', 'This Week', 'Next Week', 'Later', 'History'];
+var HISTORY = -1;
 async function init() {
 	document.querySelector('.settings').addEventListener('click', _ => openExtensionTab('settings.html'), {once:true})
 	showIconOnScroll();
-	await configureOptions();
 
 	// refresh dashboard when storage changed if page is not in focus
-	chrome.storage.onChanged.addListener(async _ => {
-		if (document.hasFocus()) return;
+	chrome.storage.onChanged.addListener(async changes => {
+		if (!changes.snoozed || document.hasFocus()) return;
 		var tabs = await getTabsInWindow();
 		var extTab = tabs.find(t => t.title ==='dashboard | snoozz');
 		if (extTab) chrome.tabs.reload(extTab.id);
 	});
 	var tabs = await getSnoozedTabs();
 	if (!tabs || tabs.length === 0) return;
+
+	HISTORY = await getOptions('history');
 
 	buildTimeGroups();
 	fillTimeGroups(tabs);
@@ -60,7 +62,7 @@ async function fillTimeGroups(tabs) {
 	if (a.length > 0) {
 		a.sort((t1,t2) => t2.opened - t1.opened).forEach(h => document.getElementById(getTimeGroup(h)).append(buildTab(h)))	
 		document.getElementById('history').appendChild(Object.assign(document.createElement('p'),{
-			innerText: `Tabs in your history are removed ${EXT_OPTIONS.history} day${EXT_OPTIONS.history>1?'s':''} after they are opened.`
+			innerText: `Tabs in your history are removed ${HISTORY} day${HISTORY>1?'s':''} after they are opened.`
 		}));
 	}
 	updateTimeGroups();
