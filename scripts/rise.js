@@ -22,8 +22,8 @@ async function fetchTabFromStorage() {
 }
 function populate(found) {
 	if (!found) setTimeout(_ => window.close(), 1000);
-	document.getElementById('when').innerHTML = `This window was snoozed at <span>${dayjs(found.timeCreated).format('h:mma [</span>on<span>] dddd, DD MMM YYYY')}</span>.`
-	document.getElementById('till').innerHTML = `It was scheduled to wake up <span>${dayjs(found.timeCreated).to(dayjs(found.wakeUpTime),true)}</span> later.`
+	document.querySelector('#when span').innerText = dayjs(found.timeCreated).format('h:mma [</span>on<span>] dddd, DD MMM YYYY')
+	document.querySelector('#till span').innerText = dayjs(found.timeCreated).to(dayjs(found.wakeUpTime),true)
 	var tabList = document.querySelector('.tab-list');
 	found.tabs.forEach((t, i) => {
 		var iconImg = Object.assign(document.createElement('img'), {src: t.favicon && t.favicon !== '' ? t.favicon : getFaviconUrl(t.url)});
