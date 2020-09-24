@@ -7,6 +7,7 @@
 - See total storage used and add instructions to delete old tabs
 - Tab groups (on chrome)
 - Dynamic context menu items
+- Favicon compression and offline storage
 
 PRs and other ideas welcome.
 
@@ -15,7 +16,7 @@ PRs and other ideas welcome.
 **September 2020**
 #### 2.1.0
 - Firefox Specific Changes
-- Make setting/getting options more secure and effecient
+- Make setting/getting options more secure and efficient
 
 #### 2.0.0
 - Major rewrite of almost the entire codebase
