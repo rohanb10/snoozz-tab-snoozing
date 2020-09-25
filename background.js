@@ -37,7 +37,7 @@ async function wakeMeUp(tabs) {
 	var now = dayjs().valueOf();
 	var wakingUp = t => !t.opened && (t.url || t.tabs) && t.wakeUpTime && t.wakeUpTime <= now;
 	if (tabs.filter(wakingUp).length === 0) return;
-	logIt(['Waking up tabs', tabs.filter(tabsToWakeUp).map(t => t.id).join(', ')], ['', 'green'], 'yellow');
+	logIt(['Waking up tabs', tabs.filter(wakingUp).map(t => t.id).join(', ')], ['', 'green'], 'yellow');
 	for (var s of tabs.filter(wakingUp)) s.tabs ? await openWindow(s, true) : await openTab(s, true);
 	tabs.filter(wakingUp).forEach(t => t.opened = now);
 	await saveTabs(tabs);
