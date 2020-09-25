@@ -142,8 +142,10 @@ function getTimeGroup(t) {
 }
 
 async function wakeUpTabsAbruptly(ids) {
+	if (!ids) return;
 	var tabs = await getSnoozedTabs();
 	tabs.forEach(t => ids.includes(t.id) ? t.opened = dayjs().valueOf() : '')
+	chrome.runtime.sendMessage({logOptions: ['manually', ids]});
 	await saveTabs(tabs);
 	for (var t of tabs.filter(n => ids.includes(n.id))) t.tabs && t.tabs.length ? await openWindow(t) : await openTab(t);
 	fillTimeGroups(tabs);
@@ -152,11 +154,11 @@ async function wakeUpTabsAbruptly(ids) {
 
 async function sendTabsToHistory(ids) {
 	var tabs = await getSnoozedTabs();
-	tabs.forEach(t => {
-		if (!ids.includes(t.id)) return;
+	tabs.filter(t => ids.includes(t.id)).forEach(t => {
 		t.opened = dayjs().valueOf();
 		t.deleted = true;
 	});
+	chrome.runtime.sendMessage({logOptions: ['history', ids]});
 	await saveTabs(tabs);
 	fillTimeGroups(tabs);
 	chrome.extension.getBackgroundPage().wakeUpTask();
@@ -166,6 +168,7 @@ async function removeTabsFromHistory(ids) {
 	if (ids.length > 1 && !confirm('Are you sure you want to remove multiple tabs? \n You can\'t undo this.')) return;
 	var tabs = await getSnoozedTabs();
 	tabs = tabs.filter(t => !ids.includes(t.id));
+	chrome.runtime.sendMessage({logOptions: ['delete', ids]});
 	await saveTabs(tabs);
 	fillTimeGroups(tabs)
 }

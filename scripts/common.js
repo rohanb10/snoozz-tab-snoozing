@@ -28,6 +28,14 @@ async function getTabId(url) {
 	var foundTab  = tabsInWindow.find(t => t.url === url);
 	return foundTab ? parseInt(foundTab.id) : false; 
 }
+async function getPrettyTab(tabId) {
+	var tab = await getSnoozedTabs([tabId])
+	Object.keys(tab).forEach(k => {
+		if (typeof tab[k] === 'string' && tab[k].length > 75) tab[k] = tab[k].substring(0,72) + '...';
+		if (!isNaN(tab[k])) tab[k] = new Date(tab[k]).toLocaleString('en-IN')
+	})
+	return tab;
+}
 /*	SAVE 	*/
 async function saveOptions(o) {
 	var p = new Promise(r => chrome.storage.local.set({'snoozedOptions': o}, r));
@@ -45,8 +53,8 @@ async function saveTabs(tabs) {
 	return p;
 }
 /*	CREATE 	*/
-function createAlarm(name, time) {
-	console.log(dayjs().format('D/M/YY'), '| Next Alarm: '+ dayjs(time).format('HH:mm:ss') + ' | Created at:', dayjs().format('HH:mm:ss'));
+function createAlarm(name, time, willWakeUpATab = false) {
+	logIt(['Next Alarm at',dayjs(time).format('HH:mm:ss D/M/YY')], ['', willWakeUpATab ? 'yellow':'white'])
 	chrome.alarms.create(name, {when: time});
 }
 function createNotification(id, title, imgUrl, msg, clickUrl) {
@@ -128,6 +136,7 @@ async function snoozeTab(snoozeTime, overrideTab) {
 		timeCreated: dayjs().valueOf(),
 	}
 	await saveTab(sleepyTab);
+	chrome.runtime.sendMessage({logOptions: ['newtab', sleepyTab, snoozeTime]});
 	var tabId = activeTab.id || await getTabId(activeTab.url);
 	return {tabId: tabId}
 }
@@ -148,6 +157,7 @@ async function snoozeWindow(snoozeTime) {
 		tabs: validTabs.map(t => {return {title: t.title, url: t.url, favicon: t.favIconUrl ?? '', ...t.pinned ? {pinned: true} : {},}})
 	}
 	await saveTab(sleepyGroup);
+	chrome.runtime.sendMessage({logOptions: ['newwindow', sleepyGroup, snoozeTime]});
 	return {windowId: tabsInWindow.find(w => w.active).windowId};
 }
 
@@ -243,7 +253,17 @@ var wrapInDiv = (attr, ...nodes) => {
 	div.append(...nodes)
 	return div;
 }
-var prettyTab = tab => {var r = {};Object.entries(s).forEach(([k, v]) => r[k]= isNaN(v) ? v : new Date(v).toLocaleString('en-IN'));return r;}
+
+var logIt = (logs, colors, tsColor = 'grey') => {
+	var timestamp = dayjs().format('[%c]D/M/YY HH:mm:ss[%c] | ')
+	logs = logs.map(l => '%c'+l+'%c').join(' ')
+	colors.unshift(tsColor);
+	colors = colors.flatMap((v,i,a)=>i !== a.length ? [v, ''] : v).map(c => {
+		var colors = {green:'limegreen', red:'crimson', blue:'dodgerblue', yellow:'gold', pink:'violet', grey:'slategrey', white: 'navajowhite'}
+		return 'color:' + (colors[c] ?? 'unset')
+	})
+	console.log(timestamp + logs, ...colors)
+}
 
 var showIconOnScroll = _ => {
 	var header = document.querySelector('body > div.flex.center')
