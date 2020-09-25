@@ -14,6 +14,9 @@ PRs and other ideas welcome.
 ## Changes ##
 
 **September 2020**
+#### 2.1.1
+- Fix trailing span on the rise and shine page
+
 #### 2.1.0
 - Firefox Specific Changes
 - Make setting/getting options more secure and efficient

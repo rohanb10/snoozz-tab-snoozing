@@ -87,11 +87,13 @@ async function setUpExtension() {
 	init();
 }
 function logMe([which, p1, p2]) {
-	if (which === 'newtab') logIt(['Snoozing a new tab', p1.id, 'till', dayjs(p2).format('HH:mm:ss D/M/YY')],['', 'green', '', 'yellow'],'green')
-	if (which === 'newwindow') logIt(['Snoozing a new window', p1.id, 'till', dayjs(p2).format('HH:mm:ss D/M/YY')],['', 'green', '', 'yellow'],'green');
-	if (which === 'history') logIt(['Sending tabs to history:', p1.join(', ')], ['', 'green'], 'blue');
-	if (which === 'manually') logIt(['Waking up tabs manually:', p1.join(', ')], ['', 'green'], 'blue');
-	if (which === 'delete') logIt(['Deleting tabs manually:', p1.join(', ')], ['', 'red'], 'red');
+	try {
+		if (which === 'newtab') logIt(['Snoozing a new tab', p1.id, 'till', dayjs(p2.wakeUpTime).format('HH:mm:ss D/M/YY')],['', 'green', '', 'yellow'],'green')
+		if (which === 'newwindow') logIt(['Snoozing a new window', p1.id, 'till', dayjs(p2.wakeUpTime).format('HH:mm:ss D/M/YY')],['', 'green', '', 'yellow'],'green');
+		if (which === 'history') logIt(['Sending tabs to history:', p1.join(', ')], ['', 'green'], 'blue');
+		if (which === 'manually') logIt(['Waking up tabs manually:', p1.join(', ')], ['', 'green'], 'blue');
+		if (which === 'delete') logIt(['Deleting tabs manually:', p1.join(', ')], ['', 'red'], 'red');
+	} catch (e) {console.log('logError', e, which, p1, p2)}
 }
 
 function init() {

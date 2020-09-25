@@ -102,7 +102,11 @@ h2 {
 }
 .window .icon-container .icon {
 	transform: rotateX(180deg);
+	opacity: .35;
 	transition: transform .5s ease-in-out;
+}
+.window .icon-container .icon:hover {
+	opacity: 1;
 }
 .window > div:nth-child(-n+2) {
 	cursor: pointer;
