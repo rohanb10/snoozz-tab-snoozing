@@ -23,6 +23,9 @@ async function getTabsInWindow(active) {
 	var tabs = await p;
 	return tabs[0];
 }
+async function getAllWindows() {
+	return new Promise(r => chrome.windows.getAll({windowTypes: ['normal']}, r));
+}
 async function getTabId(url) {
 	var tabsInWindow = await getTabsInWindow();
 	var foundTab  = tabsInWindow.find(t => t.url === url);
@@ -38,8 +41,7 @@ async function getPrettyTab(tabId) {
 }
 /*	SAVE 	*/
 async function saveOptions(o) {
-	var p = new Promise(r => chrome.storage.local.set({'snoozedOptions': o}, r));
-	await p;
+	var p = await new Promise(r => chrome.storage.local.set({'snoozedOptions': o}, r));
 	chrome.runtime.sendMessage({updateOptions: true});
 }
 async function saveTab(t) {
@@ -54,7 +56,7 @@ async function saveTabs(tabs) {
 }
 /*	CREATE 	*/
 function createAlarm(name, time, willWakeUpATab = false) {
-	logIt(['Next Alarm at',dayjs(time).format('HH:mm:ss D/M/YY')], ['', willWakeUpATab ? 'yellow':'white'])
+	bgLog(['Next Alarm at',dayjs(time).format('HH:mm:ss D/M/YY')], ['', willWakeUpATab ? 'yellow':'white'])
 	chrome.alarms.create(name, {when: time});
 }
 function createNotification(id, title, imgUrl, msg, clickUrl) {
@@ -94,7 +96,12 @@ async function openExtensionTab(url) {
 }
 
 async function openTab(tab, automatic = false) {
-	await new Promise(r => chrome.tabs.create({url: tab.url, active: false, pinned: tab.pinned, windowId: tab.forceWindow}, r));
+	var windows = await getAllWindows();
+	if (!windows || !windows.length || windows.length === 0) {
+		await new Promise(r => chrome.windows.create({url: tab.url}, r));
+	} else {
+		await new Promise(r => chrome.tabs.create({url: tab.url, active: false, pinned: tab.pinned, windowId: tab.forceWindow}, r));	
+	}
 	if (!automatic) return;
 	var msg = `${tab.title} -- snoozed ${dayjs(tab.timeCreated).fromNow()}`;
 	createNotification(tab.id, 'A tab woke up!', 'icons/main-icon.png', msg, 'dashboard.html');
@@ -254,7 +261,7 @@ var wrapInDiv = (attr, ...nodes) => {
 	return div;
 }
 
-var logIt = (logs, colors, tsColor = 'grey') => {
+var bgLog = (logs, colors, tsColor = 'grey') => {
 	var timestamp = dayjs().format('[%c]D/M/YY HH:mm:ss[%c] | ')
 	logs = logs.map(l => '%c'+l+'%c').join(' ')
 	colors.unshift(tsColor);

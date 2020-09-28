@@ -8,14 +8,14 @@ chrome.runtime.onMessage.addListener(msg => {
 		chrome.runtime.sendMessage({closePopup: true});
 	}, 2000);
 	if (msg.updateOptions) {setUpContextMenus();}
-	if (msg.logOptions){logMe(msg.logOptions)}
+	if (msg.logOptions){sendToLogs(msg.logOptions)}
 })
 
 async function wakeUpTask(cachedTabs) {
 	var tabs = cachedTabs || await getSnoozedTabs();
 	cleanUpHistory(tabs);
 	if (!tabs || !tabs.length || tabs.length === 0 || sleeping(tabs).length === 0) {
-		logIt(['No tabs are asleep'],['pink'], 'pink')
+		bgLog(['No tabs are asleep'],['pink'], 'pink')
 		createAlarm('wakeUpTabs', dayjs().add(1,'d').subtract(1,'m').valueOf());
 		return;
 	}
@@ -28,7 +28,7 @@ async function setNextAlarm(tabs) {
 		wakeMeUp(tabs);
 	} else {
 		var oneHour = dayjs().add(1, 'hour').valueOf();
-		logIt(['Next tab waking up:', next.id, 'at', dayjs(next.wakeUpTime).format('HH:mm:ss D/M/YY')],['','green','','yellow'])
+		bgLog(['Next tab waking up:', next.id, 'at', dayjs(next.wakeUpTime).format('HH:mm:ss D/M/YY')],['','green','','yellow'])
 		await createAlarm('wakeUpTabs', next.wakeUpTime < oneHour ? next.wakeUpTime : oneHour, next.wakeUpTime < oneHour);
 	}
 }
@@ -37,7 +37,7 @@ async function wakeMeUp(tabs) {
 	var now = dayjs().valueOf();
 	var wakingUp = t => !t.opened && (t.url || t.tabs) && t.wakeUpTime && t.wakeUpTime <= now;
 	if (tabs.filter(wakingUp).length === 0) return;
-	logIt(['Waking up tabs', tabs.filter(wakingUp).map(t => t.id).join(', ')], ['', 'green'], 'yellow');
+	bgLog(['Waking up tabs', tabs.filter(wakingUp).map(t => t.id).join(', ')], ['', 'green'], 'yellow');
 	for (var s of tabs.filter(wakingUp)) s.tabs ? await openWindow(s, true) : await openTab(s, true);
 	tabs.filter(wakingUp).forEach(t => t.opened = now);
 	await saveTabs(tabs);
@@ -75,7 +75,7 @@ async function cleanUpHistory(tabs) {
 	var h = await getOptions('history');
 	var tabsToDelete = tabs.filter(t => h && t.opened && dayjs().isAfter(dayjs(t.opened).add(h, 'd')));
 	if (tabsToDelete.length === 0) return;
-	logIt(['Deleting old tabs automatically:',tabsToDelete.map(t => t.id)],['','red'], 'red')
+	bgLog(['Deleting old tabs automatically:',tabsToDelete.map(t => t.id)],['','red'], 'red')
 	saveTabs(tabs.filter(t => !tabsToDelete.includes(t)));
 }
 
@@ -86,13 +86,13 @@ async function setUpExtension() {
 	if (!options) await saveOptions({history: 14, morning: 9, evening: 18, badge: 'today', contextMenu: ['today-evening', 'tom-morning', 'monday']});
 	init();
 }
-function logMe([which, p1, p2]) {
+function sendToLogs([which, p1, p2]) {
 	try {
-		if (which === 'newtab') logIt(['Snoozing a new tab', p1.id, 'till', dayjs(p2.wakeUpTime).format('HH:mm:ss D/M/YY')],['', 'green', '', 'yellow'],'green')
-		if (which === 'newwindow') logIt(['Snoozing a new window', p1.id, 'till', dayjs(p2.wakeUpTime).format('HH:mm:ss D/M/YY')],['', 'green', '', 'yellow'],'green');
-		if (which === 'history') logIt(['Sending tabs to history:', p1.join(', ')], ['', 'green'], 'blue');
-		if (which === 'manually') logIt(['Waking up tabs manually:', p1.join(', ')], ['', 'green'], 'blue');
-		if (which === 'delete') logIt(['Deleting tabs manually:', p1.join(', ')], ['', 'red'], 'red');
+		if (which === 'newtab') bgLog(['Snoozing a new tab', p1.id, 'till', dayjs(p2.wakeUpTime).format('HH:mm:ss D/M/YY')],['', 'green', '', 'yellow'],'green')
+		if (which === 'newwindow') bgLog(['Snoozing a new window', p1.id, 'till', dayjs(p2.wakeUpTime).format('HH:mm:ss D/M/YY')],['', 'green', '', 'yellow'],'green');
+		if (which === 'history') bgLog(['Sending tabs to history:', p1.join(', ')], ['', 'green'], 'blue');
+		if (which === 'manually') bgLog(['Waking up tabs manually:', p1.join(', ')], ['', 'green'], 'blue');
+		if (which === 'delete') bgLog(['Deleting tabs manually:', p1.join(', ')], ['', 'red'], 'red');
 	} catch (e) {console.log('logError', e, which, p1, p2)}
 }
 
