@@ -24,18 +24,10 @@ Built by [rohan bhansali](https://rohan.xyz) in 2020
 Snoozz is licensed under the [GNU GPLv3](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/LICENSE) license.
 
 ## Icons
-Some features and colours of icons have been altered to be compatible with smaller size
+Some features and colours of icons have been altered to be compatible with smaller size. All 3rd party icons used in this repo are listed below.
 
-Extension Icon - self
-
-Alarm - [Freepik](https://www.flaticon.com/authors/freepik) (modified)
-Bathtub - [Freepik](https://www.flaticon.com/authors/freepik)
-Calendar - [Freepik](https://www.flaticon.com/authors/freepik)
-Chai - [Justicon](https://dribbble.com/Justicon) (modified)
-Coffee - [Freepik](https://www.flaticon.com/authors/freepik) (modified)
-Egg - [Freepik](https://www.flaticon.com/authors/freepik)
-Gear - [Icon Box](https://www.flaticon.com/authors/icon-box)
-Octopus - [Freepik](https://www.flaticon.com/authors/freepik) (modified)
-Sheep - [Smashicons](https://smashicons.com/) (modified)
-Tent - [Freepik](https://www.flaticon.com/authors/freepik) (modified)
-Yoga - [dDara](https://www.flaticon.com/authors/ddara)
+[Freepik](https://www.flaticon.com/authors/freepik) - Alarm, Bathtub, Calendar(s), Coffee, Egg, Octopus
+[Justicon](https://dribbble.com/Justicon) - Chai
+[Icon Box](https://www.flaticon.com/authors/icon-box) - Gear
+[Smashicons](https://smashicons.com/) - Sheep
+[dDara](https://www.flaticon.com/authors/ddara) - Yoga
