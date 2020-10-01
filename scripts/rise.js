@@ -1,5 +1,5 @@
 async function init() {
-	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('./dashboard.html'), {once:true});
+	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('html/dashboard.html'), {once:true});
 	showIconOnScroll();
 
 	var found = await fetchTabFromStorage();

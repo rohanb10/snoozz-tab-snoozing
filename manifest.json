@@ -11,16 +11,16 @@
 	},
 
 	"browser_action": {
-		"default_popup": "popup.html"
+		"default_popup": "html/popup.html"
 	},
 
 	"options_ui": {
-		"page": "settings.html",
+		"page": "html/settings.html",
 		"open_in_tab": true
 	},
 	
 	"background": {
-		"scripts": ["scripts/common.js", "scripts/dayjs.min.js", "background.js"]
+		"scripts": ["scripts/dayjs.min.js", "scripts/common.js", "scripts/background.js"]
 	},
 
 	"permissions": ["alarms", "contextMenus", "notifications", "storage", "tabs"],

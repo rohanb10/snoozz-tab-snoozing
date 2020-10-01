@@ -67,7 +67,7 @@ async function contextMenuClickHandler(item) {
 	}
 	await snoozeTab(snoozeTime.valueOf(), Object.assign(item, {url: item.linkUrl}));
 	var msg = `${getHostname(item.linkUrl)} will wake up at ${snoozeTime.format('h:mm a [on] ddd, D MMM')}.`
-	createNotification(snoozeTab.id, 'A new tab is now napping :)', 'icons/main-icon.png', msg, 'dashboard.html');
+	createNotification(snoozeTab.id, 'A new tab is now napping :)', 'icons/main-icon.png', msg, 'html/dashboard.html');
 	chrome.extension.getBackgroundPage().wakeUpTask();
 }
 

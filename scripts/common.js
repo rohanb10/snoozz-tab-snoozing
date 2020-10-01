@@ -64,7 +64,7 @@ function createNotification(id, title, imgUrl, msg, clickUrl) {
 	if (clickUrl) chrome.notifications.onClicked.addListener(_ => openExtensionTab(clickUrl));
 }
 async function createWindow(tabId) {
-	return new Promise(r => chrome.windows.create({url: `rise_and_shine.html#${tabId}`}, r));
+	return new Promise(r => chrome.windows.create({url: `html/rise_and_shine.html#${tabId}`}, r));
 }
 
 /*	CONFIGURE	*/
@@ -104,7 +104,7 @@ async function openTab(tab, windowId, automatic = false) {
 	}
 	if (!automatic) return;
 	var msg = `${tab.title} -- snoozed ${dayjs(tab.timeCreated).fromNow()}`;
-	createNotification(tab.id, 'A tab woke up!', 'icons/main-icon.png', msg, 'dashboard.html');
+	createNotification(tab.id, 'A tab woke up!', 'icons/main-icon.png', msg, './html/dashboard.html');
 }
 
 async function openWindow(t, automatic = false) {
@@ -125,7 +125,7 @@ async function openWindow(t, automatic = false) {
 	
 	if (!automatic) return;
 	var msg = `This window was put to sleep ${dayjs(t.timeCreated).fromNow()}`;
-	createNotification(t.id, 'A window woke up!', 'icons/main-icon.png', msg, 'dashboard.html');
+	createNotification(t.id, 'A window woke up!', 'icons/main-icon.png', msg, './html/dashboard.html');
 	return;
 }
 
