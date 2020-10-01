@@ -16,7 +16,7 @@ If you have no tabs snoozed, this alarm is deleted.
 
 **tabs**
 - Used to fetch only the metadata from your tabs (title, url, favicon). 
-(You can review the code for this [here](https://github.com/rohanb10/snooze/blob/master/scripts/common.js#L108-L142) if you don't believe me)
+(You can review the code for this [here](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/scripts/common.js#L108-L142) if you don't believe me)
 - This permission is also used to create new tabs/windows when they wake up, and to close them when you put them to sleep. 
 
 
