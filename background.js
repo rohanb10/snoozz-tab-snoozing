@@ -38,7 +38,7 @@ async function wakeMeUp(tabs) {
 	var wakingUp = t => !t.opened && (t.url || t.tabs) && t.wakeUpTime && t.wakeUpTime <= now;
 	if (tabs.filter(wakingUp).length === 0) return;
 	bgLog(['Waking up tabs', tabs.filter(wakingUp).map(t => t.id).join(', ')], ['', 'green'], 'yellow');
-	for (var s of tabs.filter(wakingUp)) s.tabs ? await openWindow(s, true) : await openTab(s, true);
+	for (var s of tabs.filter(wakingUp)) s.tabs ? await openWindow(s, true) : await openTab(s, null, true);
 	tabs.filter(wakingUp).forEach(t => t.opened = now);
 	await saveTabs(tabs);
 	await wakeUpTask(tabs);

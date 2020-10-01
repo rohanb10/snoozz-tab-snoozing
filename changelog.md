@@ -1,12 +1,13 @@
 ## Roadmap
 *In no particular order*
-- Sync between devices
+- Cloud sync
 - Edit snooze times
-- Search Dashboard
-- `a11y` best practices
-- See total storage used and add instructions to delete old tabs
-- Tab groups (on chrome)
-- Dynamic context menu items
+- Search dashboard
+- Make accessibile
+- See storage used and add instructions to delete old tabs
+- Tab groups (Chrome only) (if API ever opens up)
+- Right click on tab bar (FF only)
+- Dynamic context menu options and support for icons
 - Favicon compression and offline storage
 
 PRs and other ideas welcome.

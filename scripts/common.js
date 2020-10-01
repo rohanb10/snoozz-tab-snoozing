@@ -95,12 +95,12 @@ async function openExtensionTab(url) {
 	}
 }
 
-async function openTab(tab, automatic = false) {
+async function openTab(tab, windowId, automatic = false) {
 	var windows = await getAllWindows();
 	if (!windows || !windows.length || windows.length === 0) {
 		await new Promise(r => chrome.windows.create({url: tab.url}, r));
 	} else {
-		await new Promise(r => chrome.tabs.create({url: tab.url, active: false, pinned: tab.pinned, windowId: tab.forceWindow}, r));	
+		await new Promise(r => chrome.tabs.create({url: tab.url, active: false, pinned: tab.pinned, windowId: windowId}, r));	
 	}
 	if (!automatic) return;
 	var msg = `${tab.title} -- snoozed ${dayjs(tab.timeCreated).fromNow()}`;
@@ -120,7 +120,7 @@ async function openWindow(t, automatic = false) {
 		if (state.status === 'loading' && state.url) loadingCount ++;
 	});
 
-	for (var s of t.tabs) await openTab(Object.assign(s, {forceWindow: targetWindow.id}));
+	for (var s of t.tabs) await openTab(s, targetWindow.id);
 	chrome.windows.update(targetWindow.id, {focused: true});
 	
 	if (!automatic) return;
@@ -134,7 +134,7 @@ async function snoozeTab(snoozeTime, overrideTab) {
 	var activeTab = overrideTab || await getTabsInWindow(true);
 	if (!activeTab || !activeTab.url) return {};
 	var sleepyTab = {
-		id: Math.random().toString(36).slice(-6),
+		id: Math.random().toString(36).slice(-10),
 		title: activeTab.title ?? getBetterUrl(activeTab.url),
 		url: activeTab.url,
 		favicon: activeTab.favIconUrl ?? '',
@@ -157,7 +157,7 @@ async function snoozeWindow(snoozeTime) {
 		return {windowId: tabsInWindow.find(w => w.active).windowId};
 	}
 	var sleepyGroup = {
-		id: Math.random().toString(36).slice(-6),
+		id: Math.random().toString(36).slice(-10),
 		title: `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`,
 		wakeUpTime: dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
