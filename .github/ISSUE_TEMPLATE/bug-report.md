@@ -1,28 +1,30 @@
 ---
 name: Bug Report
-about: Bug bounty - ₹3
+about: Found something that doesnt seem quite right?
 title: "[BUG]"
-labels: ''
+labels: bug
 assignees: rohanb10
 
 ---
 
-**Device (please complete the following information):**
- - OS: [Windows, Mac OS, Linux]
- - Browser: [chrome / firefox]
- - Version: [e.g. 85]
+## Description
+<!--- Provide a more detailed introduction to the issue itself, and why you consider it to be a bug -->
 
-**Which Page**
-Where did you find the bug:  [Popup / Dashboard / Settings]
+## Expected Behavior
+<!--- Tell us what should happen -->
 
+## Actual Behavior
+<!--- Tell us what happens instead -->
 
-**What went wrong**
+## How to Reproduce (if applicable)
+<!--- reproduce this bug. Include code to reproduce, if relevant -->
 
+## Your Device
+* Browser and version:
+* OS:
+* Device Resolution (UI related bugs only)
 
+## Which Page
+Where did you find the bug:  [Popup / Dashboard / Settings / All]
 
-**Screenshots**
-If you can, add screenshots to help explain your problem.
-
-
-
-**If you know how, can you open up your browser console and copy+paste any errors/warnings here**
+## Screenshots / Videos / Logs
