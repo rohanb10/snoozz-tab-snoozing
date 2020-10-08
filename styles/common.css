@@ -27,21 +27,12 @@ body {
 	justify-content: center;
 }
 
-img {
-	max-width: 6em;
+.snoozz-logo {
+	max-width: 5em;
 }
-h1 {
-	font-weight: 800;
-	margin-left: 1rem;
-	cursor: pointer;
-}
-h1:hover {
-	background: linear-gradient(90deg, #df4e76, #f3b845);
-	background-size: 400% 400%;
-	animation: flow 4s ease infinite alternate-reverse;
-	-webkit-background-clip: text;
-	background-clip: text;
-	-webkit-text-fill-color: transparent;
+.snoozz-text {
+	margin-left: 1.5em;
+	max-height: 2.5em;
 }
 body > div.scroll-logo {
 	position: fixed;
@@ -76,7 +67,7 @@ a:hover {
 	border: 1px solid white;
 }
 .settings img, .dashboard img {
-	width: 4em;
+	width: 3em;
 	transition: background-color .3s ease-in-out;
 	-webkit-backface-visibility: hidden;
 	border: 1px solid white;
@@ -88,7 +79,7 @@ a:hover {
 	position: absolute;
 	opacity: 0;
 	top: .75em;
-	font-size: 1.5em;
+	font-size: 1.25em;
 	right: 125%;
 	pointer-events: none;
 	touch-events: none;

@@ -146,6 +146,7 @@ function toggleActivePreview(el) {
 	var tabPreview = document.querySelector('div[data-preview="tab"]')
 	windowPreview.classList.toggle('active', el.currentTarget === windowPreview)
 	tabPreview.classList.toggle('active', el.currentTarget === tabPreview)
+	document.getElementById('icon').classList.toggle('flipped')
 }
 
 async function snooze(time, choice) {

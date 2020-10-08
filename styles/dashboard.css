@@ -52,7 +52,7 @@ h2 {
 	justify-content: space-between;
 	border-radius: 1em;
 	background-color: #f7f7f7;
-	margin: .5em 0;
+	margin: .5em 1em;
 	box-sizing: border-box;
 	flex-wrap: wrap;
 }

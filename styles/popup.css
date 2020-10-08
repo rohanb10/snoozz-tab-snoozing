@@ -37,6 +37,12 @@ h3 {
 	text-align: center;
 	justify-content: center;
 }
+#icon {
+	transition: transform .3s ease-in-out;
+}
+#icon.flipped {
+	transform: rotate(180deg);
+}
 div[data-preview], div[data-preview].disabled .preview {
 	opacity: .3 !important;
 }
@@ -57,7 +63,6 @@ div[data-preview].disabled {
 .preview {
 	margin: .5em 0;
 	padding: .5em;
-	cursor: pointer;
 	align-items: center;
 	border-radius: .33em;
 	height: 3.5em;
@@ -67,6 +72,8 @@ div[data-preview].disabled {
 	background-size: 200% 200%;
 	transition: background-position 1.7s linear, color .4s ease-in-out .75s, opacity .5s ease-in-out;
 	border: 2px solid transparent;
+	scrollbar-width: none;
+	cursor: pointer;
 }
 .preview.snoozed {
 	display: flex;
@@ -115,10 +122,10 @@ div[data-preview].disabled {
 	padding: .25em .5em;
 	border-radius: .33em;
 	background-color: #f7f7f7;
-	cursor: pointer;
 	height: 4.5em;
 	transition: all .3s ease-in-out;
 	justify-content: space-between;
+	cursor: pointer;
 }
 
 .choice.disabled, .custom-choice.disabled, h3.disabled,  div[data-preview].disabled .preview {
