@@ -1,23 +1,31 @@
-# snooze
-![file size](https://img.shields.io/badge/crx%20size-50.8kb-brightgreen) ![Mozilla Add-on](https://img.shields.io/amo/v/snoozz?color=orange&logo=firefox-browser&label=firefox%20add-on) ![Chrome Web Store](https://img.shields.io/chrome-web-store/v/lklendgldejcnkkaldoggoapclkepgfb?logo=google-chrome&color=yellow&logoColor=white) ![License](https://img.shields.io/github/license/rohanb10/snoozz-tab-snoozing?color=lightgrey)
+
+# snoozz
+
+<p align="center">
+  <img src="https://i.imgur.com/RfUuNja.gif" alt="Snoozz logo"/>
+</p>
+
+<div align="center">
+	<img src="https://img.shields.io/badge/crx%20size-50.8kb-brightgreen" alt="Total file size">
+	<img src="https://img.shields.io/amo/v/snoozz?color=orange&logo=firefox-browser&label=firefox%20add-on" alt="Mozilla Add-on">
+	<img src="https://img.shields.io/chrome-web-store/v/lklendgldejcnkkaldoggoapclkepgfb?logo=google-chrome&color=yellow&logoColor=white" alt="Chrome Web Store">
+	<img src="https://img.shields.io/github/license/rohanb10/snoozz-tab-snoozing?color=lightgrey" alt="License">
+</div>
 
 A Web Extension to *snoozz* tabs and windows now and have them reopen automatically later. 
 
 Available in the [Chrome Web Store](https://chrome.google.com/webstore/detail/snoozz-tab-snoozing/lklendgldejcnkkaldoggoapclkepgfb) & [Firefox Add-On Store](https://addons.mozilla.org/en-US/firefox/addon/snoozz/)
 
-
-
-**Base Colours**
-
-Orange: *#f3b845*
-
-Pink: *#df4e76*
-
---------------------------
+-------------
 
 [Privacy](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/PRIVACY.md) | [Changelog](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/changelog.md)
 
 Built by [rohan bhansali](https://rohan.xyz) in 2020
+
+
+## Colours
+
+Orange: `#F3B845` | Pink: `#DF4E76*`
 
 ## License
 
