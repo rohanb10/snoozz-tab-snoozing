@@ -1,7 +1,7 @@
 const TIME_GROUPS = ['Today', 'Tomorrow', 'This Week', 'Next Week', 'Later', 'History'];
 var HISTORY = -1;
 async function init() {
-	document.querySelector('.settings').addEventListener('click', _ => openExtensionTab('html/settings.html'), {once:true})
+	document.querySelector('.settings').addEventListener('click', _ => openExtensionTab('/html/settings.html'), {once:true})
 	showIconOnScroll();
 
 	// refresh dashboard when storage changed if page is not in focus

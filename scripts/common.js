@@ -64,7 +64,7 @@ function createNotification(id, title, imgUrl, msg, clickUrl) {
 	if (clickUrl) chrome.notifications.onClicked.addListener(_ => openExtensionTab(clickUrl));
 }
 async function createWindow(tabId) {
-	return new Promise(r => chrome.windows.create({url: `html/rise_and_shine.html#${tabId}`}, r));
+	return new Promise(r => chrome.windows.create({url: `/html/rise_and_shine.html#${tabId}`}, r));
 }
 
 /*	CONFIGURE	*/

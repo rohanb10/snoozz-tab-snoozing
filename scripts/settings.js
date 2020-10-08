@@ -3,7 +3,7 @@
 var savedTimer;
 
 async function initialize() {
-	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('html/dashboard.html'), {once:true});
+	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('/html/dashboard.html'), {once:true});
 	showIconOnScroll();
 	var options = await getOptions();
 	try {updateFormValues(options)} catch(e) {}
