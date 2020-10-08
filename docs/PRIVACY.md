@@ -1,6 +1,6 @@
 # Privacy
 
-Nothing you have snoozed using this extension is recorded or shared in any way. Poke around the files if you don't believe me.
+No data is collected, aggregated or analysed in any way. All your tab and window data stays on your machine without any remote access. This extension is designed to work completely offline. There is no 3rd party or remote code being executed.
 
 ## Extension Permissions
 
