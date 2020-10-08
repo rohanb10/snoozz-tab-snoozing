@@ -49,26 +49,60 @@ async function setUpContextMenus() {
 	var cm = await getOptions('contextMenu');
 	if (!cm || !cm.length || cm.length === 0) return;
 	var choices = await getChoices();
-	cm.forEach(o => chrome.contextMenus.create({id: o, contexts: ['link'], title: `Snooze till ${choices[o].label.toLowerCase()}`}));
+	var contexts = isFirefox ? ['link', 'tab'] : ['link'];
+	if (cm.length === 1) {
+		chrome.contextMenus.create({
+			id: cm[0], 
+			contexts: contexts, 
+			title: `Snoozz until ${choices[cm[0]].label.toLowerCase()}`, 
+			documentUrlPatterns: ['<all_urls>'],
+			...isFirefox ? {icons: {32: `../icons/${cm[0]}.png`}} : {}
+		})
+	} else {
+		chrome.contextMenus.create({id: 'snoozz', contexts: contexts, title: 'Snoozz until', documentUrlPatterns: ['<all_urls>']})
+		cm.forEach(o => chrome.contextMenus.create({
+			parentId: 'snoozz',
+			id: o, contexts: contexts,
+			title: choices[o].label.toLowerCase(),
+			...isFirefox ? {icons: {32: `../icons/${o}.png`}} : {}
+		}));
+	}
+	chrome.contextMenus.onClicked.addListener(contextMenuClickHandler)
+	if (isFirefox) chrome.contextMenus.onShown.addListener(contextMenuUpdater)
 }
 
-chrome.contextMenus.onClicked.addListener(contextMenuClickHandler)
-
-async function contextMenuClickHandler(item) {
+async function contextMenuClickHandler(item, tab) {
 	var c = await getChoices(item.menuItemId);
 	var snoozeTime = c && c.time;
 	if (!snoozeTime || c.disabled || dayjs().isAfter(dayjs(snoozeTime))) {
 		createNotification(null, `Can't snooze that link :(`, 'icons/main-icon.png', 'The time you selected is invalid.');
 		return;
 	}
-	if (!item.linkUrl || !item.linkUrl.length || item.linkUrl.length === 0) {
+	var url, title, icon;
+	if (item.linkUrl && item.linkUrl.length && item.linkUrl.length > 0) {
+		url = item.linkUrl;
+	} else {
+		url = item.pageUrl;
+		title = tab.title;
+		icon = tab.favIconUrl;
+	}
+	if(!isValid({url : url})) {
 		createNotification(null, `Can't snooze that link :(`, 'icons/main-icon.png', 'The link you are trying to snooze is invalid.');
 		return;
 	}
-	await snoozeTab(snoozeTime.valueOf(), Object.assign(item, {url: item.linkUrl}));
-	var msg = `${getHostname(item.linkUrl)} will wake up at ${snoozeTime.format('h:mm a [on] ddd, D MMM')}.`
+	await snoozeTab(snoozeTime.valueOf(), Object.assign(item, {url: url, title: title, favIconUrl: icon}));
+	var msg = `${getHostname(url)} will wake up at ${snoozeTime.format('h:mm a [on] ddd, D MMM')}.`
 	createNotification(snoozeTab.id, 'A new tab is now napping :)', 'icons/main-icon.png', msg, 'html/dashboard.html');
 	chrome.extension.getBackgroundPage().wakeUpTask();
+	chrome.runtime.sendMessage({updateDash: true});
+}
+
+async function contextMenuUpdater(menu) {
+	var choices = await getChoices();
+	for (c of menu.menuIds) {
+		if (choices[c]) await chrome.contextMenus.update(c, {enabled: !choices[c].disabled});
+	}
+	chrome.contextMenus.refresh();
 }
 
 async function cleanUpHistory(tabs) {

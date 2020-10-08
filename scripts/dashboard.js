@@ -11,6 +11,15 @@ async function init() {
 		var extTab = tabs.find(t => t.title ==='dashboard | snoozz');
 		if (extTab) chrome.tabs.reload(extTab.id);
 	});
+
+	chrome.runtime.onMessage.addListener(async msg => {
+		if (msg.updateDash) {
+			var tabs = await getSnoozedTabs();
+			fillTimeGroups(tabs);
+		}
+	});
+
+
 	var tabs = await getSnoozedTabs();
 	if (!tabs || tabs.length === 0) return;
 
