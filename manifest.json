@@ -1,7 +1,7 @@
 {
-	"name": "Snoozz - Tab Snoozing",
+	"name": "Snoozz - Snooze Tabs & Windows for later",
 	"short_name": "Snoozz",
-	"description": "Declutter your windows by snoozing tabs for later",
+	"description": "Declutter your browser by snoozing tabs and windows for later, and have them automatically wake up when you actually need them.",
 
 	"icons": {
 		"128": "icons/ext-icon-128.png",
@@ -26,5 +26,5 @@
 	"permissions": ["alarms", "contextMenus", "notifications", "storage", "tabs"],
 
 	"manifest_version": 2,
-	"version": "2.1.1"
+	"version": "2.1.2"
 }

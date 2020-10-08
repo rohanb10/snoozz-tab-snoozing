@@ -28,7 +28,7 @@ Some features and colours of icons have been altered to be compatible with small
 
 | Author | Icons |
 |--|--|
-| [Freepik](https://www.flaticon.com/authors/freepik) | Alarm, Bathtub, Calendar, Coffee, Egg, Octopus
+| [Freepik](https://www.flaticon.com/authors/freepik) | Alarm, Bathtub, Calendar, Coffee, Egg, Octopus, Sheep
 | [Justicon](https://dribbble.com/Justicon) | Chai
 | [Icon Box](https://www.flaticon.com/authors/icon-box) | Gear
 | [Smashicons](https://smashicons.com/) | Sheep
