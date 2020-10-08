@@ -221,6 +221,7 @@ p {
 }
 .settings img {
 	max-width: 2.5em;
+	margin: .25em;
 }
 .settings:before {
 	top: .5rem;
