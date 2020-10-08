@@ -161,6 +161,7 @@ async function snooze(time, choice) {
 
 function changePreviewAfterSnooze(previewParent, choice) {
 	document.body.style.pointerEvents = 'none';
+	choice.classList.add('focused');
 	var preview = previewParent.querySelector(`.preview`);
 	preview.classList.add('snoozed');
 	preview.textContent = '';
