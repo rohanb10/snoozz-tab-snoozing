@@ -12,6 +12,8 @@
 	<img src="https://img.shields.io/github/license/rohanb10/snoozz-tab-snoozing?color=lightgrey" alt="License">
 </div>
 
+
+
 A Web Extension to *snoozz* tabs and windows now and have them reopen automatically later. 
 
 Available in the [Chrome Web Store](https://chrome.google.com/webstore/detail/snoozz-tab-snoozing/lklendgldejcnkkaldoggoapclkepgfb) & [Firefox Add-On Store](https://addons.mozilla.org/en-US/firefox/addon/snoozz/)

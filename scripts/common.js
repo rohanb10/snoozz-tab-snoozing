@@ -203,7 +203,7 @@ async function getChoices(which) {
 			color: '#F08974',
 			time: NOW.startOf('d').weekday(6).add(config.morning, 'h'),
 			timeString: NOW.weekday(6).format('ddd, D MMM'),
-			// disabled: NOW.weekday(6).dayOfYear() === NOW.add(1, 'd').dayOfYear() || NOW.weekday(6).dayOfYear() === NOW.dayOfYear()
+			disabled: NOW.weekday(6).dayOfYear() === NOW.add(1, 'd').dayOfYear() || NOW.weekday(6).dayOfYear() === NOW.dayOfYear()
 		},
 		'monday': {
 			label: 'Next Monday',
