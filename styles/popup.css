@@ -70,7 +70,7 @@ div[data-preview].disabled {
 	background-image: linear-gradient(to right, #ddd 50%, #ddd 0);
 	background-position: right;
 	background-size: 200% 200%;
-	transition: background-position 1.7s linear, color .4s ease-in-out .75s, opacity .5s ease-in-out;
+	transition: background-position 1.9s linear, color .4s ease-in-out .75s;
 	border: 2px solid transparent;
 	scrollbar-width: none;
 	cursor: pointer;

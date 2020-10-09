@@ -67,6 +67,9 @@ select {
 input[type=checkbox] {
 	margin: 0 1em;
 }
+#reset {
+	opacity: .75;
+}
 .about-container .flex {
 	margin-top: 2.5em;
 	justify-content: flex-start;

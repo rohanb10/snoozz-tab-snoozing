@@ -16,7 +16,10 @@
 	<div class="settings-container">
 		<h2><span>Settings</span></h2><br>
 		<div class="input-container flex">
-			<div><h4>Morning hour</h4></div>
+			<div>
+				<h4>Morning hour</h4>
+				<p>Choose the default hour to display for the morning.</p>
+			</div>
 			<div><select id="morning">
 				<option value="0">12 AM</option>
 				<option value="1">1 AM</option>
@@ -33,7 +36,10 @@
 			</select></div>
 		</div>
 		<div class="input-container flex">
-			<div><h4>Evening hour</h4></div>
+			<div>
+				<h4>Evening hour</h4>
+				<p>Choose the default hour to display for the evening.</p>
+			</div>
 			<div><select id="evening">
 				<option value="12">12 PM</option>
 				<option value="13">1 PM</option>
@@ -72,13 +78,25 @@
 		</div>
 		<div class="input-container flex">
 			<div>
-				<h4>Display snoozed tabs on top of the icon</h4>
-				<p>Choose what you want to see on top of the extension icon</p>
+				<h4>Display number of snoozzed tabs on top of the icon</h4>
+				<p>Choose what you want to see on top of the extension icon.</p>
 			</div>
 			<div><select id="badge">
 				<option value="disabled">None</option>
 				<option value="today" selected>Waking Up Today</option>
 				<option value="all">All Snoozed Tabs</option>
+			</select></div>
+		</div>
+		<div class="input-container flex">
+			<div>
+				<h4>Close popup delay animation</h4>
+				<p>Choose to see a delay animation before closing the Snoozz popup.</p>
+				<p>You may close the popup at any time. Changes will always be saved.</p>
+			</div>
+			<div><select id="closeDelay">
+				<option value="1">No delay</option>
+				<option value="1000">Short delay</option>
+				<option value="2000">Normal delay</option>
 			</select></div>
 		</div>
 		<div class="input-container large">
@@ -97,6 +115,9 @@
 				<div><input type="checkbox" id="week"><label for="week">Next Week</label></div>
 				<div><input type="checkbox" id="month"><label for="month">Next Month</label></div>
 			</div>
+		</div>
+		<div class="input-containe center">
+			<span><a id="reset" href="#">reset settings</a></span>
 		</div>
 	</div><br>
 	<div class="about-container">

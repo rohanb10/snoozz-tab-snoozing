@@ -174,7 +174,7 @@ async function sendTabsToHistory(ids) {
 }
 
 async function removeTabsFromHistory(ids) {
-	if (ids.length > 1 && !confirm('Are you sure you want to remove multiple tabs? \n You can\'t undo this.')) return;
+	if (ids.length > 1 && !confirm('Are you sure you want to remove multiple tabs? \nYou can\'t undo this.')) return;
 	var tabs = await getSnoozedTabs();
 	tabs = tabs.filter(t => !ids.includes(t.id));
 	chrome.runtime.sendMessage({logOptions: ['delete', ids]});

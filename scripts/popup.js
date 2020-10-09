@@ -1,3 +1,4 @@
+var closeDelay;
 async function init() {
 	await buildChoices();
 	buildCustomChoice();
@@ -9,13 +10,15 @@ async function init() {
 	}));
 	if (isFirefox) {
 		chrome.tabs.onActivated.addListener(_ => setTimeout(_ => window.close(), 50))
-		chrome.runtime.onMessage.addListener(msg => {if (msg.closePopup) setTimeout(_ => window.close(), 50)});
+		chrome.runtime.onMessage.addListener(msg => {if (msg.closePopup) window.close()});
 	}
 
  	var tabs = await getSnoozedTabs();
  	if (!tabs || tabs.length === 0) return;
  	var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear()).length;
- 	if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount)
+ 	if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount);
+
+ 	closeDelay = await getOptions('closeDelay');
 }
 
 async function buildChoices() {
@@ -152,11 +155,13 @@ function toggleActivePreview(el) {
 async function snooze(time, choice) {
 	var response, selectedPreview = document.querySelector('div[data-preview].active');
 	if (!selectedPreview || !['window', 'tab'].includes(selectedPreview.getAttribute('data-preview'))) return;
+
 	response = await (selectedPreview.getAttribute('data-preview') === 'window' ? snoozeWindow(time) : snoozeTab(time));
-	
 	if (response && !(response.tabId || response.windowId)) return;
+
+	await chrome.runtime.sendMessage(Object.assign(response, {close: true, delay: closeDelay}));
 	changePreviewAfterSnooze(selectedPreview, choice)
-	chrome.runtime.sendMessage(Object.assign(response, response.tabId ? {closeTabInBg: true} : {closeWindowInBg: true}));
+
 	chrome.extension.getBackgroundPage().wakeUpTask();
 }
 
@@ -167,6 +172,7 @@ function changePreviewAfterSnooze(previewParent, choice) {
 	preview.classList.add('snoozed');
 	preview.textContent = '';
 	preview.appendChild(Object.assign(document.createElement('span'), {textContent: `Snoozing ${previewParent.getAttribute('data-preview')}`}));
+	preview.style.transition = `background-position ${closeDelay - 100}ms linear, color 400ms ease-in-out ${(closeDelay/2) - 250}ms`;
 	setTimeout(_ => {
 		preview.style.color = choice.classList.contains('dark-on-hover') ? '#fff' : '#000';
 		preview.style.backgroundImage = `linear-gradient(to right, ${getComputedStyle(choice).backgroundColor} 50%, rgb(221, 221, 221) 0)`

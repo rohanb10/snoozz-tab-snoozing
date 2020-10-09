@@ -1,14 +1,11 @@
 chrome.runtime.onMessage.addListener(msg => {
-	if (msg.closeTabInBg) setTimeout(_ => {
-		chrome.tabs.remove(msg.tabId);
+	if (msg.updateOptions) setUpContextMenus()
+	if (msg.logOptions) sendToLogs(msg.logOptions)
+	if (msg.close) setTimeout(_ => {
+		if (msg.tabId) chrome.tabs.remove(msg.tabId);
+		if (msg.windowId) chrome.windows.remove(msg.windowId);
 		chrome.runtime.sendMessage({closePopup: true});
-	}, 2000);
-	if (msg.closeWindowInBg) setTimeout(_ => {
-		chrome.windows.remove(msg.windowId);
-		chrome.runtime.sendMessage({closePopup: true});
-	}, 2000);
-	if (msg.updateOptions) {setUpContextMenus();}
-	if (msg.logOptions){sendToLogs(msg.logOptions)}
+	}, msg.delay || 2000);
 })
 
 async function wakeUpTask(cachedTabs) {
@@ -117,7 +114,7 @@ async function setUpExtension() {
 	var snoozed = await getSnoozedTabs();
 	if (!snoozed || !snoozed.length || snoozed.length === 0) await saveTabs([]);
 	var options = await getOptions();
-	if (!options) await saveOptions({history: 14, morning: 9, evening: 18, badge: 'today', contextMenu: ['today-evening', 'tom-morning', 'monday']});
+	if (!options) await saveOptions({history: 14, morning: 9, evening: 18, badge: 'today', closeDelay: 2000, contextMenu: ['today-evening', 'tom-morning', 'monday']});
 	init();
 }
 function sendToLogs([which, p1, p2]) {

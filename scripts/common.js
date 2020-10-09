@@ -50,9 +50,7 @@ async function saveTab(t) {
 	await saveTabs(tabs);
 }
 async function saveTabs(tabs) {
-	var p = new Promise(r => chrome.storage.local.set({'snoozed': tabs}, r));
-	await updateBadge(sleeping(tabs));
-	return p;
+	return new Promise(r => chrome.storage.local.set({'snoozed': tabs}, r));
 }
 /*	CREATE 	*/
 function createAlarm(name, time, willWakeUpATab = false) {
@@ -75,6 +73,12 @@ async function updateBadge(tabs) {
 	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});
 	chrome.browserAction.setBadgeBackgroundColor({color: '#CF5A77'});
 }
+
+chrome.storage.onChanged.addListener(async changes => {
+	if (!changes.snoozed) return;
+	var tabs = await getSnoozedTabs();
+	updateBadge(sleeping(tabs));
+});
 
 /*	OPEN 	*/
 
