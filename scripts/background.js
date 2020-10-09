@@ -117,14 +117,14 @@ async function setUpExtension() {
 	if (!options) await saveOptions({history: 14, morning: 9, evening: 18, badge: 'today', closeDelay: 2000, contextMenu: ['today-evening', 'tom-morning', 'monday']});
 	init();
 }
-function sendToLogs([which, p1, p2]) {
+function sendToLogs([which, p1]) {
 	try {
-		if (which === 'newtab') bgLog(['Snoozing a new tab', p1.id, 'till', dayjs(p2.wakeUpTime).format('HH:mm:ss D/M/YY')],['', 'green', '', 'yellow'],'green')
-		if (which === 'newwindow') bgLog(['Snoozing a new window', p1.id, 'till', dayjs(p2.wakeUpTime).format('HH:mm:ss D/M/YY')],['', 'green', '', 'yellow'],'green');
+		if (which === 'newtab') bgLog(['Snoozing a new tab', p1.id, 'till', dayjs(p1.wakeUpTime).format('HH:mm:ss D/M/YY')],['', 'green', '', 'yellow'],'green')
+		if (which === 'newwindow') bgLog(['Snoozing a new window', p1.id, 'till', dayjs(p1.wakeUpTime).format('HH:mm:ss D/M/YY')],['', 'green', '', 'yellow'],'green');
 		if (which === 'history') bgLog(['Sending tabs to history:', p1.join(', ')], ['', 'green'], 'blue');
 		if (which === 'manually') bgLog(['Waking up tabs manually:', p1.join(', ')], ['', 'green'], 'blue');
 		if (which === 'delete') bgLog(['Deleting tabs manually:', p1.join(', ')], ['', 'red'], 'red');
-	} catch (e) {console.log('logError', e, which, p1, p2)}
+	} catch (e) {console.log('logError', e, which, p1)}
 }
 
 function init() {
@@ -135,3 +135,4 @@ function init() {
 chrome.runtime.onInstalled.addListener(setUpExtension);
 chrome.runtime.onStartup.addListener(init);
 chrome.alarms.onAlarm.addListener(a => { if (a.name === 'wakeUpTabs') wakeUpTask()});
+chrome.idle.onStateChanged.addListener(s => { if (s === 'active') wakeUpTask()});

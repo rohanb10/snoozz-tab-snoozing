@@ -6,13 +6,19 @@
 - Make accessibile
 - See storage used and add instructions to delete old tabs
 - Tab groups (Chrome only) (if API ever opens up)
-- Right click on tab bar (FF only)
-- Dynamic context menu options and support for icons
 - Favicon compression and offline storage
 
 PRs and other ideas welcome.
 
 ## Changes ##
+
+**October 2020**
+#### 2.1.2
+- Make use of the Idle API for more reliable waking up of tabs and windows
+- Allow UI animation when closing a popup to be customised in the settings menu
+- Show snoozz contextmenu when clicking on a tab in the tab bar (FF only)
+- Show icons in contextmenu and disable icons that are invalid (FF only)
+- Restructure files in repository
 
 **September 2020**
 #### 2.1.1

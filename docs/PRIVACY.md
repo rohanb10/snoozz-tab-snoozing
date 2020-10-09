@@ -5,9 +5,8 @@ No data is collected, aggregated or analysed in any way. All your tab and window
 ## Extension Permissions
 
 **alarms**
-A single alarm is created (and reused) to wake up your tabs at the correct time. 
-If you have no tabs snoozed, this alarm is deleted. 
-
+- A single alarm is created (and reused) to wake up your tabs at the correct time.
+- If not tabs are waking up in the next hour, the alarm is set to be triggered again in an hour.
 
 **notifications**
 - Send you notifications when a tab is reopened. 
@@ -32,5 +31,7 @@ If you have no tabs snoozed, this alarm is deleted.
 - Only appears when you right click on a link with a valid href attribute. 
 - This can be turned off on your settings page. 
 
+**idle**
+- Changes in idle state to `active` will force the alarm to trigger so it may open any tabs or recalculate the alarm time.
 
 ### If you delete this extension, all your data and preferences are deleted with it. It cannot be recovered. I’ve tried.
