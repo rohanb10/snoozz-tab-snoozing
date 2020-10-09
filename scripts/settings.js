@@ -34,11 +34,7 @@ async function save() {
 	var options = {}
 	document.querySelectorAll('select').forEach(s => options[s.id] = isNaN(s.value) ? s.value : parseInt(s.value));
 	options.contextMenu = Array.from(document.querySelectorAll('#contextMenu input:checked')).map(c => c.id);
-
-	await saveOptions(options);
-
-	var tabs = await getSnoozedTabs();
-	updateBadge(sleeping(tabs));
+	saveOptions(options);
 }
 
 async function resetSettings(e) {

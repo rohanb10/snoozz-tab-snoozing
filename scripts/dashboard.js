@@ -158,7 +158,6 @@ async function wakeUpTabsAbruptly(ids) {
 	await saveTabs(tabs);
 	for (var t of tabs.filter(n => ids.includes(n.id))) t.tabs && t.tabs.length ? await openWindow(t) : await openTab(t);
 	fillTimeGroups(tabs);
-	chrome.extension.getBackgroundPage().wakeUpTask();
 }
 
 async function sendTabsToHistory(ids) {
@@ -170,7 +169,6 @@ async function sendTabsToHistory(ids) {
 	chrome.runtime.sendMessage({logOptions: ['history', ids]});
 	await saveTabs(tabs);
 	fillTimeGroups(tabs);
-	chrome.extension.getBackgroundPage().wakeUpTask();
 }
 
 async function removeTabsFromHistory(ids) {

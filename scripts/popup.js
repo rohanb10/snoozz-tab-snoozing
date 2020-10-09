@@ -49,7 +49,7 @@ async function buildChoices() {
 
 var collapseTimeout, ccContainer;
 function buildCustomChoice() {
-	var NOW = new Date();
+	var NOW = dayjs();
 	var submitButton = Object.assign(document.createElement('div'), {classList: 'submit-btn disabled', innerText: 'snooze'});
 	submitButton.addEventListener('click', e => {
 		var dateTime = dayjs(`${date.value} ${time.value}`);
@@ -66,14 +66,14 @@ function buildCustomChoice() {
 		snooze(dateTime, ccContainer)
 	});
 
-	var date = Object.assign(document.createElement('input'), {type: 'date', required: true, value: NOW.toISOString().split('T')[0]});
-	var time = Object.assign(document.createElement('input'), {type: 'time', required: true, value: NOW.toTimeString().substring(0,5)});
+	var date = Object.assign(document.createElement('input'), {type: 'date', required: true, value: NOW.format('YYYY-MM-DD')});
+	var time = Object.assign(document.createElement('input'), {type: 'time', required: true, value: NOW.format('HH:mm')});
 
 	[date,time].forEach(dt => dt.addEventListener('click', focusForm));
 	[date,time].forEach(dt => dt.addEventListener('blur', _ => focusForm(false)));
 	[date,time].forEach(dt => dt.addEventListener('change', _=> {
 		clearTimeout(collapseTimeout)
-		var formEdited = date.value !== NOW.toISOString().split('T')[0] || time.value !== NOW.toTimeString().substring(0,5);
+		var formEdited = date.value !== NOW.format('YYYY-MM-DD') || time.value !== NOW.format('HH:mm');
 		if (formEdited) submitButton.classList.remove('disabled');
 		if (!formEdited) collapseTimeout = setTimeout(_ => cc.classList.remove('active'), 3000);
 	}));
@@ -156,13 +156,11 @@ async function snooze(time, choice) {
 	var response, selectedPreview = document.querySelector('div[data-preview].active');
 	if (!selectedPreview || !['window', 'tab'].includes(selectedPreview.getAttribute('data-preview'))) return;
 
-	response = await (selectedPreview.getAttribute('data-preview') === 'window' ? snoozeWindow(time) : snoozeTab(time));
+	response = selectedPreview.getAttribute('data-preview') === 'window' ? await snoozeWindow(time) : await snoozeTab(time);
 	if (response && !(response.tabId || response.windowId)) return;
 
 	await chrome.runtime.sendMessage(Object.assign(response, {close: true, delay: closeDelay}));
 	changePreviewAfterSnooze(selectedPreview, choice)
-
-	chrome.extension.getBackgroundPage().wakeUpTask();
 }
 
 function changePreviewAfterSnooze(previewParent, choice) {

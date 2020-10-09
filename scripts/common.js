@@ -35,14 +35,13 @@ async function getPrettyTab(tabId) {
 	var tab = await getSnoozedTabs([tabId])
 	Object.keys(tab).forEach(k => {
 		if (typeof tab[k] === 'string' && tab[k].length > 75) tab[k] = tab[k].substring(0,72) + '...';
-		if (!isNaN(tab[k])) tab[k] = new Date(tab[k]).toLocaleString('en-IN')
+		if (!isNaN(tab[k])) tab[k] = dayjs(tab[k]).format('HH:mm:ss D/M/YY');
 	})
 	return tab;
 }
 /*	SAVE 	*/
 async function saveOptions(o) {
-	var p = await new Promise(r => chrome.storage.local.set({'snoozedOptions': o}, r));
-	chrome.runtime.sendMessage({updateOptions: true});
+	return new Promise(r => chrome.storage.local.set({'snoozedOptions': o}, r));
 }
 async function saveTab(t) {
 	var tabs = await getSnoozedTabs();
@@ -66,19 +65,15 @@ async function createWindow(tabId) {
 }
 
 /*	CONFIGURE	*/
-async function updateBadge(tabs) {
+async function updateBadge(cachedTabs, cachedBadge) {
 	var num = 0;
-	var badge = await getOptions('badge');
+	var badge = cachedBadge || await getOptions('badge');
+	var tabs = cachedTabs || await getSnoozedTabs();
+	tabs = sleeping(tabs);
 	if (tabs.length > 0 && badge && ['all','today'].includes(badge)) num = badge === 'today' ? today(tabs).length : tabs.length;
 	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});
 	chrome.browserAction.setBadgeBackgroundColor({color: '#CF5A77'});
 }
-
-chrome.storage.onChanged.addListener(async changes => {
-	if (!changes.snoozed) return;
-	var tabs = await getSnoozedTabs();
-	updateBadge(sleeping(tabs));
-});
 
 /*	OPEN 	*/
 

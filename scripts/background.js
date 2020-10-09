@@ -1,20 +1,28 @@
 chrome.runtime.onMessage.addListener(msg => {
-	if (msg.updateOptions) setUpContextMenus()
 	if (msg.logOptions) sendToLogs(msg.logOptions)
 	if (msg.close) setTimeout(_ => {
 		if (msg.tabId) chrome.tabs.remove(msg.tabId);
 		if (msg.windowId) chrome.windows.remove(msg.windowId);
 		chrome.runtime.sendMessage({closePopup: true});
 	}, msg.delay || 2000);
-})
+});
+chrome.storage.onChanged.addListener(async changes => {
+	if (changes.snoozedOptions) {
+		setUpContextMenus(changes.snoozedOptions.newValue.contextMenu);
+		updateBadge(null, changes.snoozedOptions.newValue.badge);
+	}
+	if (changes.snoozed) {
+		updateBadge(changes.snoozed.newValue);
+		wakeUpTask(changes.snoozed.newValue);
+	}
+});
 
 async function wakeUpTask(cachedTabs) {
 	var tabs = cachedTabs || await getSnoozedTabs();
 	cleanUpHistory(tabs);
 	if (!tabs || !tabs.length || tabs.length === 0 || sleeping(tabs).length === 0) {
-		bgLog(['No tabs are asleep'],['pink'], 'pink')
-		createAlarm('wakeUpTabs', dayjs().add(1,'d').subtract(1,'m').valueOf());
-		return;
+		bgLog(['No tabs are asleep'],['pink'], 'pink');
+		return chrome.alarms.clear('wakeUpTabs');
 	}
 	setNextAlarm(tabs);
 }
@@ -24,7 +32,7 @@ async function setNextAlarm(tabs) {
 	if (next.wakeUpTime < dayjs().valueOf()) {
 		wakeMeUp(tabs);
 	} else {
-		var oneHour = dayjs().add(1, 'hour').valueOf();
+		var oneHour = dayjs().add(1, 'h').valueOf();
 		bgLog(['Next tab waking up:', next.id, 'at', dayjs(next.wakeUpTime).format('HH:mm:ss D/M/YY')],['','green','','yellow'])
 		await createAlarm('wakeUpTabs', next.wakeUpTime < oneHour ? next.wakeUpTime : oneHour, next.wakeUpTime < oneHour);
 	}
@@ -38,12 +46,11 @@ async function wakeMeUp(tabs) {
 	for (var s of tabs.filter(wakingUp)) s.tabs ? await openWindow(s, true) : await openTab(s, null, true);
 	tabs.filter(wakingUp).forEach(t => t.opened = now);
 	await saveTabs(tabs);
-	await wakeUpTask(tabs);
 }
 
-async function setUpContextMenus() {
+async function setUpContextMenus(cachedMenus) {
 	chrome.contextMenus.removeAll();
-	var cm = await getOptions('contextMenu');
+	var cm = cachedMenus || await getOptions('contextMenu');
 	if (!cm || !cm.length || cm.length === 0) return;
 	var choices = await getChoices();
 	var contexts = isFirefox ? ['link', 'tab'] : ['link'];
@@ -130,6 +137,7 @@ function sendToLogs([which, p1]) {
 function init() {
 	wakeUpTask();
 	setUpContextMenus();
+	chrome.idle.setDetectionInterval(600);
 }
 
 chrome.runtime.onInstalled.addListener(setUpExtension);
