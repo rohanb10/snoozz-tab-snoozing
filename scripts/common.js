@@ -1,4 +1,3 @@
-window.browser = (_ => window.browser || window.browser)()
 const isFirefox = (window.browser && chrome.runtime) || navigator.userAgent.indexOf('Firefox') !== -1;
 /*	ASYNCHRONOUS FUNCTIONS	*/
 /*	GET 	*/

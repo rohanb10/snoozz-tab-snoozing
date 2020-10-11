@@ -219,8 +219,10 @@ div[data-preview].disabled {
 	background-color: var(--bg);
 }
 
-.dark-on-hover:hover *, .dark-on-hover.focused *, .custom-choice:hover *, .custom-choice.focused *,
 input::-webkit-datetime-edit-month-field:focus, input::-webkit-datetime-edit-day-field:focus, input::-webkit-datetime-edit-year-field:focus, input::-webkit-datetime-edit-hour-field:focus, input::-webkit-datetime-edit-minute-field:focus {
+	color: #fff !important;
+}
+.dark-on-hover:hover *, .dark-on-hover.focused *, .custom-choice:hover *, .custom-choice.focused * {
 	color: #fff !important;
 }
 

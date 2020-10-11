@@ -1,3 +1,4 @@
+var SAVED_OPTIONS;
 chrome.runtime.onMessage.addListener(msg => {
 	if (msg.logOptions) sendToLogs(msg.logOptions)
 	if (msg.close) setTimeout(_ => {
@@ -10,6 +11,7 @@ chrome.storage.onChanged.addListener(async changes => {
 	if (changes.snoozedOptions) {
 		setUpContextMenus(changes.snoozedOptions.newValue.contextMenu);
 		updateBadge(null, changes.snoozedOptions.newValue.badge);
+		SAVED_OPTIONS = changes.snoozedOptions.newValue;
 	}
 	if (changes.snoozed) {
 		updateBadge(changes.snoozed.newValue);
@@ -110,7 +112,7 @@ async function contextMenuUpdater(menu) {
 }
 
 async function cleanUpHistory(tabs) {
-	var h = await getOptions('history');
+	var h = SAVED_OPTIONS && SAVED_OPTIONS.history ? SAVED_OPTIONS.history : await getOptions('history');
 	var tabsToDelete = tabs.filter(t => h && t.opened && dayjs().isAfter(dayjs(t.opened).add(h, 'd')));
 	if (tabsToDelete.length === 0) return;
 	bgLog(['Deleting old tabs automatically:',tabsToDelete.map(t => t.id)],['','red'], 'red')
@@ -137,10 +139,9 @@ function sendToLogs([which, p1]) {
 function init() {
 	wakeUpTask();
 	setUpContextMenus();
-	chrome.idle.setDetectionInterval(600);
 }
 
 chrome.runtime.onInstalled.addListener(setUpExtension);
 chrome.runtime.onStartup.addListener(init);
 chrome.alarms.onAlarm.addListener(a => { if (a.name === 'wakeUpTabs') wakeUpTask()});
-chrome.idle.onStateChanged.addListener(s => { if (s === 'active') wakeUpTask()});
+chrome.idle.onStateChanged.addListener(s => {if (s === 'active' || isFirefox) wakeUpTask()});
