@@ -168,7 +168,8 @@ async function snoozeWindow(snoozeTime) {
 
 async function getChoices(which) {
 	var NOW = dayjs();
-	var config = await getOptions(['morning', 'evening']);
+	var config = await getOptions(['morning', 'evening', 'timeOfDay']);
+	config.timeOfDay = config.timeOfDay === 'evening' ? config.evening : config.morning;
 	var all = {
 		'today-morning': {
 			label: 'This Morning',
@@ -199,29 +200,29 @@ async function getChoices(which) {
 		'weekend': {
 			label: 'Weekend',
 			color: '#F08974',
-			time: NOW.startOf('d').weekday(6).add(config.morning, 'h'),
+			time: NOW.startOf('d').weekday(6).add(config.timeOfDay, 'h'),
 			timeString: NOW.weekday(6).format('ddd, D MMM'),
 			disabled: NOW.day() === 6
 		},
 		'monday': {
 			label: 'Next Monday',
 			color: '#488863',
-			time: NOW.startOf('d').weekday(8).add(config.morning, 'h'),
+			time: NOW.startOf('d').weekday(8).add(config.timeOfDay, 'h'),
 			timeString: NOW.weekday(8).format('ddd, D MMM'),
 			isDark: true,
 		},
 		'week': {
 			label: 'Next Week',
 			color: '#847AD0',
-			time: NOW.add(1, 'week'),
-			timeString: NOW.add(1, 'week').format('D MMM'),
+			time: NOW.startOf('d').add(1, 'week').add(config.timeOfDay, 'h'),
+			timeString: NOW.startOf('d').add(1, 'week').add(config.timeOfDay, 'h').format('D MMM'),
 			isDark: true,
 		},
 		'month': {
 			label: 'Next Month',
 			color: '#F0C26C',
-			time: NOW.add(1, 'M'),
-			timeString: NOW.add(1, 'M').format('D MMM')
+			time: NOW.startOf('d').add(1, 'M').add(config.timeOfDay, 'h'),
+			timeString: NOW.startOf('d').add(1, 'M').add(config.timeOfDay, 'h').format('D MMM')
 		}
 	}
 	return which && all[which] ? all[which] : all;

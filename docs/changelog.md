@@ -13,7 +13,12 @@ PRs and other ideas welcome.
 ## Changes ##
 
 **October 2020**
+#### 2.1.3
+- Add setting to change default time for [monday, weekend, next-week, next-month] from morning to evening
+- Bug fixes
+
 #### 2.1.2
+- Change the Snoozz logo font (Slightly modified version of Bungee by [David Jonathan Ross](https://djr.com/))
 - Make use of the Idle API for more reliable waking up of tabs and windows
 - Allow UI animation when closing a popup to be customised in the settings menu
 - Show snoozz contextmenu when clicking on a tab in the tab bar (FF only)

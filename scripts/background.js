@@ -84,22 +84,18 @@ async function contextMenuClickHandler(item, tab) {
 		createNotification(null, `Can't snooze that link :(`, 'icons/main-icon.png', 'The time you selected is invalid.');
 		return;
 	}
-	var url, title, icon;
-	if (item.linkUrl && item.linkUrl.length && item.linkUrl.length > 0) {
-		url = item.linkUrl;
-	} else {
-		url = item.pageUrl;
-		title = tab.title;
-		icon = tab.favIconUrl;
-	}
-	if(!isValid({url : url})) {
-		createNotification(null, `Can't snooze that link :(`, 'icons/main-icon.png', 'The link you are trying to snooze is invalid.');
-		return;
-	}
-	await snoozeTab(snoozeTime.valueOf(), Object.assign(item, {url: url, title: title, favIconUrl: icon}));
+	var isHref = item.linkUrl && item.linkUrl.length && item.linkUrl.length > 0;
+	var url = isHref ? item.linkUrl : item.pageUrl;
+
+	if(!isValid({url : url})) return createNotification(null, `Can't snooze that link :(`, 'icons/main-icon.png', 'The link you are trying to snooze is invalid.');
+
+	var title = !isHref ? tab.title : item.linkText;
+	var icon = !isHref ? tab.favIconUrl : undefined;
+	var isPinned = !isHref && tab.pinned ? tab.pinned : undefined;
+	await snoozeTab(snoozeTime.valueOf(), Object.assign(item, {url: url, title: title, favIconUrl: icon, pinned: isPinned}));
 	var msg = `${getHostname(url)} will wake up at ${snoozeTime.format('h:mm a [on] ddd, D MMM')}.`
 	createNotification(snoozeTab.id, 'A new tab is now napping :)', 'icons/main-icon.png', msg, 'html/dashboard.html');
-	chrome.extension.getBackgroundPage().wakeUpTask();
+	if (!isHref) chrome.tabs.remove(tab.id);
 	chrome.runtime.sendMessage({updateDash: true});
 }
 
@@ -123,7 +119,7 @@ async function setUpExtension() {
 	var snoozed = await getSnoozedTabs();
 	if (!snoozed || !snoozed.length || snoozed.length === 0) await saveTabs([]);
 	var options = await getOptions();
-	if (!options) await saveOptions({history: 14, morning: 9, evening: 18, badge: 'today', closeDelay: 2000, contextMenu: ['today-evening', 'tom-morning', 'monday']});
+	if (!options) await saveOptions({history: 14, morning: 9, evening: 18, timeOfDay:'morning', badge: 'today', closeDelay: 2000, contextMenu: ['today-evening', 'tom-morning', 'monday']});
 	init();
 }
 function sendToLogs([which, p1]) {

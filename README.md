@@ -6,7 +6,7 @@
 </p>
 
 <div align="center">
-	<img src="https://img.shields.io/badge/crx%20size-50.8kb-brightgreen" alt="Total file size">
+	<img src="https://img.shields.io/badge/crx%20size-55.6kb-brightgreen" alt="Total file size">
 	<img src="https://img.shields.io/amo/v/snoozz?color=orange&logo=firefox-browser&label=firefox%20add-on" alt="Mozilla Add-on">
 	<img src="https://img.shields.io/chrome-web-store/v/lklendgldejcnkkaldoggoapclkepgfb?logo=google-chrome&color=yellow&logoColor=white" alt="Chrome Web Store">
 	<img src="https://img.shields.io/github/license/rohanb10/snoozz-tab-snoozing?color=lightgrey" alt="License">

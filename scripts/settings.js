@@ -14,6 +14,7 @@ async function initialize() {
 function updateFormValues(storage) {
 	document.querySelector(`#morning option[value='${storage.morning}']`).setAttribute('selected', true)
 	document.querySelector(`#evening option[value='${storage.evening}']`).setAttribute('selected', true)
+	document.querySelector(`#timeOfDay option[value=${storage.timeOfDay}]`).setAttribute('selected', true)
 	document.querySelector(`#history option[value='${storage.history}']`).setAttribute('selected', true)
 	document.querySelector(`#badge option[value=${storage.badge}]`).setAttribute('selected', true)
 	document.querySelector(`#closeDelay option[value='${storage.closeDelay}']`).setAttribute('selected', true)
@@ -44,6 +45,7 @@ async function resetSettings(e) {
 	var defaultOptions = {
 		morning: 9,
 		evening: 18,
+		timeOfDay: 'morning',
 		history: 14,
 		badge: 'today',
 		closeDelay: 2000,

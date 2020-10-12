@@ -26,5 +26,5 @@
 	"permissions": ["alarms", "contextMenus", "notifications", "storage", "tabs", "idle"],
 
 	"manifest_version": 2,
-	"version": "2.1.2"
+	"version": "2.1.3"
 }
