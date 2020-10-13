@@ -34,7 +34,7 @@ body {
 	margin-left: 1.5em;
 	max-height: 2.5em;
 }
-body > div.scroll-logo {
+.scroll-logo {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -42,15 +42,19 @@ body > div.scroll-logo {
 	z-index: 9;
 	transition: top .3s ease-in-out;
 }
-body > div.scroll-logo.hidden {
-	top: -6em;
+.scroll-logo.hidden {
+	top: -5em;
 }
 
-body > div.scroll-logo img {
-	max-height: 4em;
+.scroll-logo img {
+	max-height: 3em;
 	cursor: pointer;
 }
 
+@keyframes spin {from {transform: rotate(0)} to {transform: rotate(360deg)}}
+.scroll-logo img:hover {
+	animation: spin 5s infinite linear;
+}
 a {
 	color: #000;
 }

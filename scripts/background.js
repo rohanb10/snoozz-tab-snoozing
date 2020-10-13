@@ -76,6 +76,9 @@ async function setUpContextMenus(cachedMenus) {
 	chrome.contextMenus.onClicked.addListener(contextMenuClickHandler)
 	if (isFirefox) chrome.contextMenus.onShown.addListener(contextMenuUpdater)
 }
+chrome.commands.onCommand.addListener((command, tab) => {
+	contextMenuClickHandler({menuItemId: command, pageUrl: tab.url},tab)
+})
 
 async function contextMenuClickHandler(item, tab) {
 	var c = await getChoices(item.menuItemId);

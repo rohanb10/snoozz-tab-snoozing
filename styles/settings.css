@@ -1,5 +1,5 @@
 .settings-container, .about-container {
-	max-width: 45em;
+	max-width: 50em;
 	margin: 1.5em auto 0;
 }
 h2 {
@@ -37,15 +37,26 @@ h4 ~ p {
 select, option {
 	border: none;
 	outline: none;
-	border-bottom: 2px solid #000;
 	text-align: center;	
 	padding: .25em;
 }
 select, option, label {
 	cursor: pointer;
+	position: relative;
+}
+.select-wrapper {
+	padding-bottom: 2px;
+	background: linear-gradient(#000 0%, #000 100%);
 }
 select {
+	appearance: none;
 	-moz-appearance: none;
+	-webkit-appearance: none;
+	background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+	background-repeat: no-repeat;
+	background-position-x: 100%;
+	background-position-y: center;
+	padding-right: 20px;
 }
 .choice-list {
 	padding-top: 1em;
@@ -63,6 +74,75 @@ select {
 .choice-list > div {
 	font-size: 1.1em;
 	margin: .5em;
+}
+.btn {
+	padding: 2px;
+	background: linear-gradient(#000 0%, #000 100%);
+	cursor: pointer;
+}
+.btn div {
+	background-color: #fff;
+	padding: .5em .25em;
+	font-size: .75em;
+	font-weight: bold;
+	text-transform: uppercase;
+}
+.btn div:before {
+	content: 'show';
+}
+.btn .show:before {
+	content: 'hide';
+}
+.btn:hover, .select-wrapper:hover {
+	background: linear-gradient(-90deg, rgba(223,78,118,1) 0%, rgba(243,184,69,1) 100%);
+}
+.shortcut {
+	flex-wrap: wrap;
+}
+.ff-info, .chrome-info, .shortcuts {
+	width: 100%;
+	max-height: 0;
+	transition: max-height .3s ease-in-out;
+	overflow-y: hidden;
+}
+div > strong {
+	display: block;
+	margin-top: 1em;
+}
+.bindings .flex {
+	justify-content: unset;
+}
+.bindings .flex div {
+	padding: .25em 0;
+	width: 15em;
+}
+kbd {
+	background-color: #eee;
+    border-radius: .25em;
+    border: 1px solid #222;
+    display: inline-block;
+    padding: .1em .2em;
+    margin: 0 .25em;
+}
+code {
+	cursor: pointer;
+	font-size: 1.2em;
+	background-color: #ddd;
+	border-radius: .25em;
+	padding: .1em .2em;
+}
+.copied {
+	position: fixed;
+	right: 1em;
+	font-size: 1.5em;
+	bottom: -2em;
+	border: 1px dashed #000;
+	padding: .25em .5em;
+	background-color: #fff;
+	transition: bottom .3s ease-in-out;
+}
+.copied.toast {
+	bottom: 1em;
 }
 input[type=checkbox] {
 	margin: 0 1em;

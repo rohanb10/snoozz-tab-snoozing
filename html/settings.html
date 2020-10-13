@@ -20,7 +20,7 @@
 				<h4>Morning hour</h4>
 				<p>Choose the default hour to display for the morning.</p>
 			</div>
-			<div><select id="morning">
+			<div class="select-wrapper"><select id="morning">
 				<option value="0">12 AM</option>
 				<option value="1">1 AM</option>
 				<option value="2">2 AM</option>
@@ -40,7 +40,7 @@
 				<h4>Evening hour</h4>
 				<p>Choose the default hour to display for the evening.</p>
 			</div>
-			<div><select id="evening">
+			<div class="select-wrapper"><select id="evening">
 				<option value="12">12 PM</option>
 				<option value="13">1 PM</option>
 				<option value="14">2 PM</option>
@@ -60,7 +60,7 @@
 				<h4>Default Time of Day</h4>
 				<p>Choose to snooze tabs in the morning or evening by default.</p>
 			</div>
-			<div><select id="timeOfDay">
+			<div class="select-wrapper"><select id="timeOfDay">
 				<option value="morning">Morning</option>
 				<option value="evening">Evening</option>
 			</select></div>
@@ -71,7 +71,7 @@
 				<p>All tabs in history will be deleted after this amount of time.</p>
 				<p>Changes to this setting may take upto an hour to apply.</p>
 			</div>
-			<div><select id="history">
+			<div class="select-wrapper"><select id="history">
 				<option value="1">24 Hours</option>
 				<option value="2">48 Hours</option>
 				<option value="3">72 Hours</option>
@@ -91,7 +91,7 @@
 				<h4>Display number of snoozzed tabs on top of the icon</h4>
 				<p>Choose what you want to see on top of the extension icon.</p>
 			</div>
-			<div><select id="badge">
+			<div class="select-wrapper"><select id="badge">
 				<option value="disabled">None</option>
 				<option value="today" selected>Waking Up Today</option>
 				<option value="all">All Snoozed Tabs</option>
@@ -103,11 +103,36 @@
 				<p>Choose to see a delay animation before closing the Snoozz popup.</p>
 				<p>You may close the popup at any time. Changes will always be saved.</p>
 			</div>
-			<div><select id="closeDelay">
+			<div class="select-wrapper"><select id="closeDelay">
 				<option value="1">No delay</option>
 				<option value="1000">Short delay</option>
 				<option value="2000">Normal delay</option>
 			</select></div>
+		</div>
+		<div class="input-container flex shortcut">
+			<div>
+				<h4>Keyboard Shortcuts</h4>
+				<p>Set up shortcuts to snooze a tab without any clicks.</p>
+			</div>
+			<div>
+				<div id="shortcut-btn" class="btn"><div></div></div>
+			</div>
+			<div class="ff-info">
+				<ol>
+					<strong>Instructions</strong>
+					<li>Open the Firefox Add-Ons page in a new tab: <code>about:addons</code></li>
+					<li>Click on the <a target="_blank" href="https://bug1303384.bmoattachments.org/attachment.cgi?id=9051647">gear icon</a> in the top right and select <strong>Manage Extension Shortcuts</strong>.</li> 
+					<li>Configure snooze time shortcuts using your own key bindings.</li>
+				</ol>
+			</div>
+			<div class="chrome-info">
+				<strong>Instructions</strong>
+				<div>Configure snooze time shortcuts on the <a href="#" data-href="chrome://extensions/shortcuts">Chrome Extension Shortcuts</a> page</div>
+			</div>
+			<div class="shortcuts">
+				<strong>Currently active shortcuts</strong>
+				<div class="bindings"></div>
+			</div>
 		</div>
 		<div class="input-container large">
 			<div>
@@ -142,6 +167,7 @@
 		</div>
 		<div><p>Built by <a target='blank' href="https://rohan.xyz">rohan</a> in 2020.</p></div>
 	</div>
+	<div class="copied">Copied to clipboard</div>
 	<div class="dashboard" data-hover="See your sleeping tabs"><img src="../icons/sheep.png"></div>
 	<script type="text/javascript" src="../scripts/dayjs.min.js"></script>
 	<script type="text/javascript" src="../scripts/common.js"></script>

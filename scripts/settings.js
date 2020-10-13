@@ -1,7 +1,3 @@
-'use strict';
-
-var savedTimer;
-
 async function initialize() {
 	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('/html/dashboard.html'), {once:true});
 	showIconOnScroll();
@@ -9,6 +5,50 @@ async function initialize() {
 	try {updateFormValues(options)} catch(e) {}
 	addListeners();
 	document.getElementById('reset').addEventListener('click', resetSettings)
+	document.getElementById('shortcut-btn').addEventListener('click', async e => {
+		e.target.classList.toggle('show');
+		if (!e.target.classList.contains('show')) return document.querySelectorAll(`.chrome-info, .ff-info, .shortcuts`).forEach(c => c.style.maxHeight = '0');
+
+		populateShortcuts();
+
+		var browserInfo = document.querySelector(`.${isFirefox ? 'ff':'chrome'}-info`);
+		if (!isFirefox) browserInfo.querySelector('a[data-href]').addEventListener('click', e => {
+			e.preventDefault();
+			chrome.tabs.create({url: e.target.getAttribute('data-href'), active: true})
+		});
+		browserInfo.style.maxHeight = browserInfo.scrollHeight + 'px';
+	});
+	document.addEventListener('visibilitychange', populateShortcuts);
+	document.querySelector('code').addEventListener('click', e => {
+		var i = Object.assign(document.createElement('textarea'), {innerText: 'about:addons'});
+		document.body.append(i);
+		i.select();
+		document.execCommand('copy');
+		i.remove();
+		var c = document.querySelector('body > .copied');
+		c.classList.add('toast');
+		setTimeout(_ => c.classList.remove('toast'), 4000)
+	})
+}
+
+async function populateShortcuts() {
+	var commands = await getKeyBindings();
+	commands = commands.filter(c => c.shortcut && c.shortcut !== '');
+	if (commands.length === 0) return document.querySelector('.shortcuts').style.maxHeight = '0px';
+	var choices = await getChoices();
+
+	var bindings = document.querySelector('.bindings');
+	bindings.innerText = '';
+
+	var splitShortcut = s => s.split(s.indexOf('+') > -1 ? '+' : '');
+
+	commands.forEach(c => {
+		var keys = wrapInDiv('', ...splitShortcut(c.shortcut).map(s => Object.assign(document.createElement('kbd'),{innerText: s})));
+		bindings.append(wrapInDiv('flex', wrapInDiv({innerText: choices[c.name].label}), keys));
+	});
+	if (document.querySelector('#shortcut-btn div').classList.contains('show')) {
+		document.querySelector('.shortcuts').style.maxHeight = document.querySelector('.shortcuts').scrollHeight + 'px';	
+	} 
 }
 
 function updateFormValues(storage) {

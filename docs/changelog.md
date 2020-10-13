@@ -14,6 +14,7 @@ PRs and other ideas welcome.
 
 **October 2020**
 #### 2.1.3
+- Keyboard Shortcuts
 - Add setting to change default time for [monday, weekend, next-week, next-month] from morning to evening
 - Bug fixes
 

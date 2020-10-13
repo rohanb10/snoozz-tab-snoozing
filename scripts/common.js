@@ -30,6 +30,10 @@ async function getTabId(url) {
 	var foundTab  = tabsInWindow.find(t => t.url === url);
 	return foundTab ? parseInt(foundTab.id) : false; 
 }
+async function getKeyBindings() {
+	return new Promise(r => chrome.commands.getAll(r));
+}
+
 async function getPrettyTab(tabId) {
 	var tab = await getSnoozedTabs([tabId])
 	Object.keys(tab).forEach(k => {

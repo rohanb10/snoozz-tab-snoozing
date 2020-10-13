@@ -2,13 +2,15 @@
 	"name": "Snoozz - Snooze Tabs & Windows for later",
 	"short_name": "Snoozz",
 	"description": "Declutter your browser by snoozing tabs and windows for later, and have them automatically wake up when you actually need them.",
-
+	"version": "2.1.3",
+	
 	"icons": {
 		"128": "icons/ext-icon-128.png",
 		"48": "icons/ext-icon-48.png",
 		"32": "icons/ext-icon-32.png",
 		"16": "icons/ext-icon-16.png"
 	},
+	"manifest_version": 2,
 
 	"browser_action": {
 		"default_popup": "html/popup.html"
@@ -23,8 +25,32 @@
 		"scripts": ["scripts/dayjs.min.js", "scripts/common.js", "scripts/background.js"]
 	},
 
-	"permissions": ["alarms", "contextMenus", "notifications", "storage", "tabs", "idle"],
+	"permissions": ["alarms", "contextMenus", "idle", "notifications", "storage", "tabs"],
 
-	"manifest_version": 2,
-	"version": "2.1.3"
+	"commands": {
+		"today-morning": {
+			"description": "Snooze till today morning"
+		},
+		"today-evening": {
+			"description": "Snooze till today evening"
+		},
+		"tom-morning": {
+			"description": "Snooze till tomorrow morning"
+		},
+		"tom-evening": {
+			"description": "Snooze till tomorrow evening"
+		},
+		"weekend": {
+			"description": "Snooze till this Saturday"
+		},
+		"monday": {
+			"description": "Snooze till next Monday"
+		},
+		"next-week": {
+			"description": "Snooze till one week from now"
+		},
+		"next-month": {
+			"description": "Snooze till one month from now"
+		}
+	}
 }
