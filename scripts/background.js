@@ -9,13 +9,13 @@ chrome.runtime.onMessage.addListener(msg => {
 });
 chrome.storage.onChanged.addListener(async changes => {
 	if (changes.snoozedOptions) {
-		setUpContextMenus(changes.snoozedOptions.newValue.contextMenu);
-		updateBadge(null, changes.snoozedOptions.newValue.badge);
+		await setUpContextMenus(changes.snoozedOptions.newValue.contextMenu);
+		await updateBadge(null, changes.snoozedOptions.newValue.badge);
 		SAVED_OPTIONS = changes.snoozedOptions.newValue;
 	}
 	if (changes.snoozed) {
-		updateBadge(changes.snoozed.newValue);
-		wakeUpTask(changes.snoozed.newValue);
+		await updateBadge(changes.snoozed.newValue);
+		await wakeUpTask(changes.snoozed.newValue);
 	}
 });
 
@@ -26,13 +26,13 @@ async function wakeUpTask(cachedTabs) {
 		bgLog(['No tabs are asleep'],['pink'], 'pink');
 		return chrome.alarms.clear('wakeUpTabs');
 	}
-	setNextAlarm(tabs);
+	await setNextAlarm(tabs);
 }
 
 async function setNextAlarm(tabs) {
 	var next = sleeping(tabs).reduce((t1,t2) => t1.wakeUpTime < t2.wakeUpTime ? t1 : t2);
 	if (next.wakeUpTime < dayjs().valueOf()) {
-		wakeMeUp(tabs);
+		await wakeMeUp(tabs);
 	} else {
 		var oneHour = dayjs().add(1, 'h').valueOf();
 		bgLog(['Next tab waking up:', next.id, 'at', dayjs(next.wakeUpTime).format('HH:mm:ss D/M/YY')],['','green','','yellow'])
@@ -119,7 +119,7 @@ async function cleanUpHistory(tabs) {
 	var tabsToDelete = tabs.filter(t => h && t.opened && dayjs().isAfter(dayjs(t.opened).add(h, 'd')));
 	if (tabsToDelete.length === 0) return;
 	bgLog(['Deleting old tabs automatically:',tabsToDelete.map(t => t.id)],['','red'], 'red')
-	saveTabs(tabs.filter(t => !tabsToDelete.includes(t)));
+	await saveTabs(tabs.filter(t => !tabsToDelete.includes(t)));
 }
 
 async function setUpExtension() {
