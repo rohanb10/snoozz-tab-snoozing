@@ -63,7 +63,9 @@ a {
 	color: #000;
 }
 a:hover {
-	border-bottom: 1px solid black;
+	background: linear-gradient(0deg, rgba(223,78,118,1) 0%, rgba(243,184,69,1) 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
 }
 
 .settings, .dashboard {
@@ -98,7 +100,8 @@ a:hover {
 	opacity: 1;
 }
 .settings img:hover {
-	background-color: #000;
+	filter: grayscale(0);
+	background: linear-gradient(-90deg, rgba(223,78,118,1) 0%, rgba(243,184,69,1) 100%);
 	animation: spin 2.5s linear infinite;
 }
 

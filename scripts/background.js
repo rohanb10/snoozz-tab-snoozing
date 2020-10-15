@@ -93,14 +93,14 @@ async function snoozeInBackground(item, tab) {
 
 	var snoozeTime = c && c.time;
 	if (!snoozeTime || c.disabled || dayjs().isAfter(dayjs(snoozeTime))) {
-		return createNotification(null, `Can't snoozz that :(`, 'icons/main-icon.png', 'The time you selected is invalid.');
+		return createNotification(null, `Can't snoozz that :(`, 'icons/main-icon.png', 'The time you have selected is invalid.');
 	}
 
 	var title = !isHref ? tab.title : item.linkText;
 	var icon = !isHref ? tab.favIconUrl : undefined;
 	var isPinned = !isHref && tab.pinned ? tab.pinned : undefined;
 	await snoozeTab(snoozeTime.valueOf(), Object.assign(item, {url: url, title: title, favIconUrl: icon, pinned: isPinned}));
-	var msg = `${getHostname(url)} will wake up at ${snoozeTime.format('h:mm a [on] ddd, D MMM')}.`
+	var msg = `${!isHref ? tab.title : getHostname(url)} will wake up at ${snoozeTime.format('h:mm a [on] ddd, D MMM')}.`
 	createNotification(snoozeTab.id, 'A new tab is now napping :)', 'icons/main-icon.png', msg, 'html/dashboard.html');
 	if (!isHref) chrome.tabs.remove(tab.id);
 	chrome.runtime.sendMessage({updateDash: true});

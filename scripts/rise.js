@@ -41,7 +41,7 @@ async function mapTabs() {
 		top.style.cursor = 'pointer';
 		top.addEventListener('click', _ => {
 			chrome.tabs.update(found.id, {active: true});
-			if (thisTab.id) chrome.runtime.sendMessage({closeTabInBg:true, tabId: thisTab.id});
+			if (thisTab.id) chrome.runtime.sendMessage({close: true, tabId: thisTab.id});
 		}, {once: true});
 	});
 }

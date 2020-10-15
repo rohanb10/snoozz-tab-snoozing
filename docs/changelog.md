@@ -13,10 +13,10 @@ PRs and other ideas welcome.
 ## Changes ##
 
 **October 2020**
-#### 2.1.3
+#### 2.2.0
 - Keyboard Shortcuts
 - Add setting to change default time for [monday, weekend, next-week, next-month] from morning to evening
-- Bug fixes
+- Bug fixes, minor UI adjustments
 
 #### 2.1.2
 - Change the Snoozz logo font (Slightly modified version of Bungee by [David Jonathan Ross](https://djr.com/))

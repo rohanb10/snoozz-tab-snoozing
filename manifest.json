@@ -2,7 +2,7 @@
 	"name": "Snoozz - Snooze Tabs & Windows for later",
 	"short_name": "Snoozz",
 	"description": "Declutter your browser by snoozing tabs and windows for later, and have them automatically wake up when you actually need them.",
-	"version": "2.1.3",
+	"version": "2.2.0",
 	
 	"icons": {
 		"128": "icons/ext-icon-128.png",
@@ -46,10 +46,10 @@
 		"monday": {
 			"description": "Snooze till next Monday"
 		},
-		"next-week": {
+		"week": {
 			"description": "Snooze till one week from now"
 		},
-		"next-month": {
+		"month": {
 			"description": "Snooze till one month from now"
 		}
 	}
