@@ -73,25 +73,28 @@ async function setUpContextMenus(cachedMenus) {
 			...isFirefox ? {icons: {32: `../icons/${o}.png`}} : {}
 		}));
 	}
-	chrome.contextMenus.onClicked.addListener(contextMenuClickHandler)
+	chrome.contextMenus.onClicked.addListener(snoozeInBackground)
 	if (isFirefox) chrome.contextMenus.onShown.addListener(contextMenuUpdater)
 }
 chrome.commands.onCommand.addListener(async (command, tab) => {
 	tab = tab || await getTabsInWindow(true);
-	contextMenuClickHandler({menuItemId: command, pageUrl: tab.url}, tab)
+	snoozeInBackground({menuItemId: command, pageUrl: tab.url}, tab)
 })
 
-async function contextMenuClickHandler(item, tab) {
+async function snoozeInBackground(item, tab) {
 	var c = await getChoices(item.menuItemId);
-	var snoozeTime = c && c.time;
-	if (!snoozeTime || c.disabled || dayjs().isAfter(dayjs(snoozeTime))) {
-		createNotification(null, `Can't snooze that link :(`, 'icons/main-icon.png', 'The time you selected is invalid.');
-		return;
-	}
+	
 	var isHref = item.linkUrl && item.linkUrl.length && item.linkUrl.length > 0;
 	var url = isHref ? item.linkUrl : item.pageUrl;
 
-	if(!isValid({url : url})) return createNotification(null, `Can't snooze that link :(`, 'icons/main-icon.png', 'The link you are trying to snooze is invalid.');
+	if(!isValid({url : url})) {
+		return createNotification(null, `Can't snoozz that :(`, 'icons/main-icon.png', 'The link you are trying to snooze is invalid.');
+	}
+
+	var snoozeTime = c && c.time;
+	if (!snoozeTime || c.disabled || dayjs().isAfter(dayjs(snoozeTime))) {
+		return createNotification(null, `Can't snoozz that :(`, 'icons/main-icon.png', 'The time you selected is invalid.');
+	}
 
 	var title = !isHref ? tab.title : item.linkText;
 	var icon = !isHref ? tab.favIconUrl : undefined;

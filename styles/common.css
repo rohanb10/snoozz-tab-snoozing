@@ -1,5 +1,9 @@
 * {
 	box-sizing: border-box;
+	scrollbar-width: none;
+}
+*::-webkit-scrollbar {
+	display: none;
 }
 
 body, html, h1, h3, h4, h4+p {
@@ -12,7 +16,7 @@ body {
 }
 @-moz-document url-prefix() {
 	body {
-		font-size: .75em;	
+		font-size: .75em;
 	}
 }
 

@@ -75,7 +75,7 @@ async function updateBadge(cachedTabs, cachedBadge) {
 	tabs = sleeping(tabs);
 	if (tabs.length > 0 && badge && ['all','today'].includes(badge)) num = badge === 'today' ? today(tabs).length : tabs.length;
 	chrome.browserAction.setBadgeText({text: num > 0 ? num.toString() : ''});
-	chrome.browserAction.setBadgeBackgroundColor({color: '#CF5A77'});
+	chrome.browserAction.setBadgeBackgroundColor({color: '#0072BC'});
 }
 
 /*	OPEN 	*/
