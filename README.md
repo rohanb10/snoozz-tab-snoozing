@@ -6,10 +6,10 @@
 
 <div align="center">
 	<img src="https://img.shields.io/badge/crx%20size-52.7kb-brightgreen" alt="Total file size">
-	<a href="https://addons.mozilla.org/en-US/firefox/addon/snoozz/">
+	<a target="_blank" href="https://addons.mozilla.org/en-US/firefox/addon/snoozz/">
 		<img src="https://img.shields.io/amo/v/snoozz?color=orange&logo=firefox-browser&label=firefox%20add-on" alt="Mozilla Add-on">
 		</a>
-	<a href="https://chrome.google.com/webstore/detail/snoozz-snooze-tabs-window/lklendgldejcnkkaldoggoapclkepgfb">
+	<a target="_blank" href="https://chrome.google.com/webstore/detail/snoozz-snooze-tabs-window/lklendgldejcnkkaldoggoapclkepgfb">
 		<img src="https://img.shields.io/chrome-web-store/v/lklendgldejcnkkaldoggoapclkepgfb?logo=google-chrome&color=yellow&logoColor=white" alt="Chrome Web Store">
 	</a>
 	<a href="https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/LICENSE">
@@ -28,33 +28,34 @@
 
 A Web Extension to *snoozz* tabs and windows now and have them reopen automatically later. 
 
-Available in the [Chrome Web Store](https://chrome.google.com/webstore/detail/snoozz-snooze-tabs-window/lklendgldejcnkkaldoggoapclkepgfb) & [Firefox Add-On Store](https://addons.mozilla.org/en-US/firefox/addon/snoozz/)
+Available in the [Chrome Web Store](https://chrome.google.com/webstore/detail/snoozz-snooze-tabs-window/lklendgldejcnkkaldoggoapclkepgfb), [Firefox Add-On Store](https://addons.mozilla.org/en-US/firefox/addon/snoozz/), and as a [release](https://github.com/rohanb10/snoozz-tab-snoozing/releases/latest/) on Github 
 
 -------------
 
-[Privacy](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/PRIVACY.md) | [Changelog](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/changelog.md)
+[Privacy](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/PRIVACY.md) | [Changelog](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/changelog.md)
 
 
 
 ## Colours
 
-Orange: `#F3B845` | Pink: `#DF4E76*`
+Orange: `#F3B845` | Pink: `#DF4E76`
 
 ## License
 
 Snoozz is licensed under the [GNU GPLv3](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/LICENSE) license.
 
-## Icons
+## Attribution
 Some features and colours of icons have been altered to be compatible with smaller size. All 3rd party icons used in this repo are listed below.
 
 | Author | Icons |
 |--|--|
-| [Freepik](https://www.flaticon.com/authors/freepik) | Alarm, Bathtub, Calendar, Coffee, Egg, Octopus, Sheep
+| [Freepik](https://www.flaticon.com/authors/freepik) | Alarm, Bathtub, Calendar, Coffee, Egg, Magnifying Glass, Octopus, Sheep
 | [Justicon](https://dribbble.com/Justicon) | Chai
-| [Icon Box](https://www.flaticon.com/authors/icon-box) | Settings / Gear
+| [Icon Box](https://www.flaticon.com/authors/icon-box) | Gear
 | [Smashicons](https://smashicons.com/) | Sheep
-| [dDara](https://www.flaticon.com/authors/ddara) | Yoga / Wii Fit Trainer
+| [dDara](https://www.flaticon.com/authors/ddara) | Wii Fit Trainer
 
+Also would like to credit [Joni Trythall](https://jonitrythall.com/) for the CSS alarm clock used in the dashboard - [codepen](https://codepen.io/jonitrythall/pen/slvmi). I wrote my own JS to set the clock to the current time.
 
 
 ------

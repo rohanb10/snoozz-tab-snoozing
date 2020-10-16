@@ -264,10 +264,10 @@ var wrapInDiv = (attr, ...nodes) => {
 	return div;
 }
 
-var bgLog = (logs, colors, tsColor = 'grey') => {
+var bgLog = (logs, colors, timestampColor = 'grey') => {
 	var timestamp = dayjs().format('[%c]D/M/YY HH:mm:ss[%c] | ')
 	logs = logs.map(l => '%c'+l+'%c').join(' ')
-	colors.unshift(tsColor);
+	colors.unshift(timestampColor);
 	colors = colors.flatMap((v,i,a)=>i !== a.length ? [v, ''] : v).map(c => {
 		var colors = {green:'limegreen', red:'crimson', blue:'dodgerblue', yellow:'gold', pink:'violet', grey:'slategrey', white: 'navajowhite'}
 		return 'color:' + (colors[c] ?? 'unset')

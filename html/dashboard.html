@@ -6,6 +6,7 @@
 	<title>dashboard | snoozz</title>
 	<link rel="stylesheet" href="../styles/common.css" />
 	<link rel="stylesheet" href="../styles/dashboard.css" />
+	<link rel="stylesheet" href="../styles/clock.css" />
 </head>
 <body>
 	<div class="scroll-logo hidden"><img src="../icons/main-icon.png"></div>
@@ -13,9 +14,37 @@
 		<img class="snoozz-logo" src="../icons/main-icon.png">
 		<img class="snoozz-text" src="../icons/snoozz.png">
 	</div>
+	<div class="search-container center">
+		<div class="input-wrapper"><input id="search" type="search" placeholder="Search (min 3 characters)"></div>
+	</div>
 	<div id="time-container"></div>
-	<div id="no-tabs">You have no snoozzed tabs :(</div>
-	<p>Like most people, tabs may take 5 minutes to get out of bed. Mainly due to API restrictions, but also, laziness.</p>
+	<div id="no-tabs" class="hidden">
+		<span>No tabs found :(</span>
+		<div class="contain-clock">
+			<div class="face-1">
+				<div class="hour"></div>
+				<div class="minute"></div>
+				<div class="second"></div>
+				<div class="middle"></div>
+			</div> 
+
+			<div class="face-2">
+				<div class="line"></div>
+				<div class="line line-2"></div>
+				<div class="line line-3"></div>
+				<div class="line line-4"></div>   
+				<div class="line line-5"></div>
+				<div class="line line-6"></div>
+			</div>
+
+			<div class="arm"></div>
+			<div class="arm arm-2"></div>
+
+			<div class="bell"></div>
+			<div class="bell bell-2"></div>
+		</div>
+	</div>
+	<p id="api-message" class="hidden">Like most people, tabs may take 10 minutes to get out of bed. Mainly due to API restrictions, but also, laziness.</p>
 	<div data-hover="Settings" class="settings"><img src="../icons/settings.png"></div>
 	<script type="text/javascript" src="../scripts/dayjs.min.js"></script>
 	<script type="text/javascript" src="../scripts/common.js"></script>

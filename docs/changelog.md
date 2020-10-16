@@ -13,6 +13,12 @@ PRs and other ideas welcome.
 ## Changes ##
 
 **October 2020**
+#### 2.3.0
+- Add Search to the Dashboard.
+- Add live clock css/js animation to the Dashboard when no tabs are found.
+- Search for tabs/windows in the dashboard using urls, titles, snooze date, wake up date, day of week, month, opened, dashboard category.
+- Tabs opening twice bug fixed
+
 #### 2.2.0
 - Keyboard Shortcuts
 - Add setting to change default time for [monday, weekend, next-week, next-month] from morning to evening

@@ -33,6 +33,10 @@ h2 span {
 h4 ~ p {
 	font-size: .8em;
 	margin: 0;
+	opacity: .15;
+}
+.input-container:hover p {
+	opacity: 1;
 }
 select, option {
 	border: none;
@@ -94,7 +98,7 @@ select {
 	content: 'hide';
 }
 .btn:hover, .select-wrapper:hover {
-	background: linear-gradient(-90deg, rgba(223,78,118,1) 0%, rgba(243,184,69,1) 100%);
+	background: linear-gradient(-90deg, #DF4E76 0%, #F3B845 100%);
 }
 .shortcut {
 	flex-wrap: wrap;

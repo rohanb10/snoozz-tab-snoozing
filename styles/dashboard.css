@@ -1,7 +1,18 @@
 #no-tabs {
-	padding: 6em 0;
+	position: fixed;
+	margin: 10em auto;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
 	font-size: 1.5em;
 	text-align: center;
+	pointer-events: none;
+	touch-actions: none;
+	transition: opacity .3s ease-in-out;
+}
+#no-tabs.hidden {
+	opacity: 0;
 }
 #time-container {
 	max-width: 80em;
@@ -9,35 +20,38 @@
 }
 h2 {
 	padding: 0 .25em;
-	border-bottom: 3px solid #fff;
+	border-bottom: 3px solid #FFF;
 }
 #today h2 {
-	border-color: #f5b84f;
+	border-color: #F5b84F;
 }
 #tomorrow h2 {
-	border-color: #ef9f54;
+	border-color: #EF9F54;
 }
 #this_week h2 {
-	border-color: #e9825a;
+	border-color: #E9825A;
 }
 #next_week h2 {
-	border-color: #e16561;
+	border-color: #E16561;
 }
 #later h2 {
-	border-color: #e34d68;
+	border-color: #E34D68;
 }
 #history h2 {
 	border-color: #444;
 }
-.time-group.hidden, .time-action.hidden, #no-tabs.hidden {
+.time-group.hidden, .time-action.hidden, #api-message.hidden {
 	display: none;
 }
 .time-header {
 	justify-content: space-between;
 	margin: 2rem 1.5em 0;
 }
+.time-group:not(.hidden):first-of-type .time-header {
+	margin-top: 0;
+}
 .time-action {
-	color: #aaa;
+	color: #AAA;
 }
 .time-action:hover {
 	cursor: pointer;
@@ -51,7 +65,7 @@ h2 {
 	align-items: center;
 	justify-content: space-between;
 	border-radius: 1em;
-	background-color: #f7f7f7;
+	background-color: #F7F7F7;
 	margin: .5em 1em;
 	box-sizing: border-box;
 	flex-wrap: wrap;
@@ -114,7 +128,7 @@ h2 {
 .window:not(.collapsed) .tabs {
 	max-height: 33vh;
 	opacity: 1;
-	border-color: #ededed;
+	border-color: #EDEDED;
 }
 .little-tab {
 	display: flex;
@@ -154,7 +168,7 @@ h2 {
 .wakeup-button span {
 	font-size: .85em;
 	text-transform: uppercase;
-	background-color: #ccc;
+	background-color: #CCC;
 	padding: .15em .4em;
 	border: 2px solid transparent;
 	transition: all .25s ease-in-out;
@@ -162,7 +176,7 @@ h2 {
 }
 .wakeup-button span:hover {
 	background-color: #888;
-	color: #fff;
+	color: #FFF;
 }
 .remove-btn-container {
 	width: 5%;
@@ -185,7 +199,7 @@ h2 {
 .tabs .little-tab:hover {
 	border-radius: .25em;
 	cursor: pointer;
-	background-color: #ddd;
+	background-color: #DDD;
 }
 
 @media (max-width: 56em) {
@@ -225,4 +239,45 @@ p {
 }
 .settings:before {
 	font-size: 1.25em;
+}
+.search-container {
+	margin: 2em 0;
+	opacity: .5;
+}
+.search-icon {
+	max-height: 1.25em;
+	margin-right: .75em;
+}
+#search {
+	border: none;
+	height: 2em;
+	width: 17.5em;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+}
+#search:focus {
+	outline: none;
+}
+.input-wrapper {
+	position: relative;
+	display: inline-block;
+	padding-bottom: 3px;
+	transition: background .3s ease-in-out;
+	background: #AAA;
+}
+.input-wrapper:after {
+	content: '';
+	position: absolute;
+	left: calc(100% - 1.5em);
+	top: .3rem;
+	height: 1.25em;
+	width: 1.25em;
+	transition: left .3s ease-in-out;
+	background: #FFF url('../icons/search.svg') no-repeat 98% center;
+}
+.input-wrapper.searching {
+	background: linear-gradient(-90deg, #DF4E76 0%, #F3B845 100%);
+}
+.input-wrapper.searching:after {
+	left: 105%;
 }

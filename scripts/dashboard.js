@@ -1,8 +1,9 @@
 const TIME_GROUPS = ['Today', 'Tomorrow', 'This Week', 'Next Week', 'Later', 'History'];
-var HISTORY = -1;
+var HISTORY = -1, CACHED_TABS;
 async function init() {
 	document.querySelector('.settings').addEventListener('click', _ => openExtensionTab('/html/settings.html'), {once:true})
 	showIconOnScroll();
+	setupClock();
 
 	// refresh dashboard when storage changed if page is not in focus
 	chrome.storage.onChanged.addListener(async changes => {
@@ -15,18 +16,46 @@ async function init() {
 	chrome.runtime.onMessage.addListener(async msg => {
 		if (msg.updateDash) {
 			var tabs = await getSnoozedTabs();
-			fillTimeGroups(tabs);
+			CACHED_TABS = tabs;
+			fillTimeGroups();
 		}
 	});
+	var search = document.getElementById('search');
+	search.addEventListener('input', _ => {
+		search.parentElement.classList.toggle('searching', search.value && search.value.length && search.value.length > 0);
+		fillTimeGroups(search.value.toLowerCase());
+	})
 
-
-	var tabs = await getSnoozedTabs();
-	if (!tabs || tabs.length === 0) return;
-
+	CACHED_TABS = await getSnoozedTabs();
 	HISTORY = await getOptions('history');
 
 	buildTimeGroups();
-	fillTimeGroups(tabs);
+	fillTimeGroups();
+}
+
+function setupClock() {
+	var clockStyle = Object.assign(document.createElement('style'), {type: 'text/css'});
+	var NOW = dayjs();
+	var currentMin = parseInt(NOW.minute());
+	var secAngle = parseInt(NOW.second()) * 6;
+
+	var rotate = num => `transform: rotate(${num}deg)`;
+
+	var secKeyframe = document.createTextNode(`@keyframes tick-tock { from { ${rotate(secAngle)}} to { ${rotate(secAngle + 360)}} }`);
+
+	setTimeout(function moveMinuteHand() {
+		currentMin++;
+		document.querySelector('.minute').style.transform = `rotate(${(currentMin * 6)}deg)`
+		setTimeout(moveMinuteHand, 60000)
+	}, (60 - NOW.second()) * 1000);
+
+	var hourRule = document.createTextNode(`.hour { ${rotate(180 + ((NOW.hour() % 12) * 30))} }`);
+	var minRule = document.createTextNode(`.minute { ${rotate((NOW.minute()) * 6)} }`);
+	var secRule = document.createTextNode('.second { animation-name: tick-tock }');
+
+	clockStyle.append(secKeyframe, hourRule, minRule, secRule);
+	document.body.append(clockStyle);
+
 }
 
 function buildTimeGroups() {
@@ -61,9 +90,24 @@ function updateTimeGroups() {
 	document.getElementById('no-tabs').classList.toggle('hidden', document.querySelector('.tab'));
 }
 
-async function fillTimeGroups(tabs) {
-	document.querySelectorAll('#time-container p,#time-container .tab').forEach(t => t.remove());
+function matchQuery(t, query) {
+	if (t.url && t.url.toLowerCase().indexOf(query) > -1) return true;
+	if (t.title && t.title.toLowerCase().indexOf(query) > -1) return true;
+	if (t.opened && dayjs(t.opened).format('dddd DD MMMM A').toLowerCase().indexOf(query) > -1) return true;
+	if (!t.opened && t.wakeUpTime && dayjs(t.wakeUpTime).format('dddd DD MMMM A').toLowerCase().indexOf(query) > -1) return true;
+	if (t.timeCreated && dayjs(t.timeCreated).format('dddd DD MMMM A').toLowerCase().indexOf(query) > -1) return true;
+	if (getTimeGroup(t).toLowerCase().indexOf(query) > -1) return true;
+	if (t.opened && ('deleted removed opened awake').indexOf(query) > -1) return true;
+	return false;
+}
 
+function fillTimeGroups(searchQuery) {
+	var tabs = CACHED_TABS;
+	document.querySelectorAll('#time-container p, #time-container .tab').forEach(el => el.remove());
+	// search
+	if (searchQuery && searchQuery.length && searchQuery.length > 2) tabs = tabs.filter(t => {
+		return matchQuery(t, searchQuery) || (t.tabs && t.tabs.some(tt => matchQuery(tt, searchQuery)));
+	})
 	var s = sleeping(tabs);
 	if (s.length > 0) s.sort((t1,t2) => t1.wakeUpTime - t2.wakeUpTime).forEach(f => document.getElementById(getTimeGroup(f)).append(buildTab(f)))
 
@@ -74,6 +118,7 @@ async function fillTimeGroups(tabs) {
 			innerText: `Tabs in your history are removed ${HISTORY} day${HISTORY>1?'s':''} after they are opened.`
 		}));
 	}
+	document.getElementById('api-message').classList.toggle('hidden', s.length === 0 && a.length === 0)
 	updateTimeGroups();
 }
 
@@ -152,32 +197,37 @@ function getTimeGroup(t) {
 
 async function wakeUpTabsAbruptly(ids) {
 	if (!ids) return;
-	var tabs = await getSnoozedTabs();
-	tabs.forEach(t => ids.includes(t.id) ? t.opened = dayjs().valueOf() : '')
+	var tabs = CACHED_TABS;
+	tabs.filter(t => ids.includes(t.id)).forEach(t => t.opened = dayjs().valueOf())
 	chrome.runtime.sendMessage({logOptions: ['manually', ids]});
 	await saveTabs(tabs);
 	for (var t of tabs.filter(n => ids.includes(n.id))) t.tabs && t.tabs.length ? await openWindow(t) : await openTab(t);
-	fillTimeGroups(tabs);
+	CACHED_TABS = tabs;
+	fillTimeGroups();
 }
 
 async function sendTabsToHistory(ids) {
-	var tabs = await getSnoozedTabs();
+	if (!ids) return;
+	var tabs = CACHED_TABS;
 	tabs.filter(t => ids.includes(t.id)).forEach(t => {
 		t.opened = dayjs().valueOf();
 		t.deleted = true;
 	});
 	chrome.runtime.sendMessage({logOptions: ['history', ids]});
 	await saveTabs(tabs);
-	fillTimeGroups(tabs);
+	CACHED_TABS = tabs;
+	fillTimeGroups();
 }
 
 async function removeTabsFromHistory(ids) {
+	if (!ids) return;
 	if (ids.length > 1 && !confirm('Are you sure you want to remove multiple tabs? \nYou can\'t undo this.')) return;
-	var tabs = await getSnoozedTabs();
+	var tabs = CACHED_TABS;
 	tabs = tabs.filter(t => !ids.includes(t.id));
 	chrome.runtime.sendMessage({logOptions: ['delete', ids]});
 	await saveTabs(tabs);
-	fillTimeGroups(tabs)
+	CACHED_TABS = tabs;
+	fillTimeGroups()
 }
 
 window.onload = init

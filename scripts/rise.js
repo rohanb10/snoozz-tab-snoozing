@@ -23,7 +23,9 @@ async function fetchTabFromStorage() {
 function populate(found) {
 	if (!found) setTimeout(_ => window.close(), 1000);
 	document.querySelector('#when span').innerText = dayjs(found.timeCreated).format('h:mma on dddd, DD MMM YYYY')
-	document.querySelector('#till span').innerText = dayjs(found.timeCreated).to(dayjs(found.wakeUpTime),true)
+	var till = document.querySelector('#till span');
+	till.innerText = dayjs(found.timeCreated).to(dayjs(found.wakeUpTime),true)
+	till.setAttribute('title', dayjs(found.wakeUpTime).format('h:mma on dddd, DD MMM YYYY'))
 	var tabList = document.querySelector('.tab-list');
 	found.tabs.forEach((t, i) => {
 		var iconImg = Object.assign(document.createElement('img'), {src: t.favicon && t.favicon !== '' ? t.favicon : getFaviconUrl(t.url)});
@@ -33,17 +35,13 @@ function populate(found) {
 	})
 }
 async function mapTabs() {
-	var tabsInWindow = await getTabsInWindow();
-	var thisTab = tabsInWindow.find(t => t.active);
-	document.querySelectorAll('.tab').forEach(top => {
+	document.querySelectorAll('.tab').forEach(top => top.addEventListener('click', async _ => {
+		var tabsInWindow = await getTabsInWindow();
 		var found = tabsInWindow.find(tiw => tiw.title === top.querySelector('.tab-title').innerText || tiw.url === top.getAttribute('data-url') || (top.querySelector('.icon img').src !== 'icons/unknown.png' && tiw.favIconUrl === top.querySelector('.icon img').src));
 		if (!found) return;
-		top.style.cursor = 'pointer';
-		top.addEventListener('click', _ => {
-			chrome.tabs.update(found.id, {active: true});
-			if (thisTab.id) chrome.runtime.sendMessage({close: true, tabId: thisTab.id});
-		}, {once: true});
-	});
+		chrome.tabs.update(found.id, {active: true});
+		if (tabsInWindow.find(t => t.active)) chrome.runtime.sendMessage({close: true, tabId: tabsInWindow.find(t => t.active).id});
+	}, {once: true}));
 }
 
 window.onload = init
