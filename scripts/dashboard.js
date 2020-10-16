@@ -20,6 +20,7 @@ async function init() {
 			fillTimeGroups();
 		}
 	});
+	document.addEventListener('visibilitychange', setupClock);
 	var search = document.getElementById('search');
 	search.addEventListener('input', _ => {
 		search.parentElement.classList.toggle('searching', search.value && search.value.length && search.value.length > 0);
@@ -34,28 +35,22 @@ async function init() {
 }
 
 function setupClock() {
-	var clockStyle = Object.assign(document.createElement('style'), {type: 'text/css'});
 	var NOW = dayjs();
+	var currentSecond = parseInt(NOW.second());
 	var currentMin = parseInt(NOW.minute());
-	var secAngle = parseInt(NOW.second()) * 6;
+	var currentHour = parseInt(NOW.hour());
+	var rotate = num => `rotate(${num}deg)`;
 
-	var rotate = num => `transform: rotate(${num}deg)`;
+	document.querySelector('.second').style.transform = rotate(currentSecond * 6);
+	document.querySelector('.minute').style.transform = rotate(currentMin * 6);
+	document.querySelector('.hour').style.transform = rotate(180 + ((currentHour % 12) * 30));
 
-	var secKeyframe = document.createTextNode(`@keyframes tick-tock { from { ${rotate(secAngle)}} to { ${rotate(secAngle + 360)}} }`);
-
-	setTimeout(function moveMinuteHand() {
-		currentMin++;
-		document.querySelector('.minute').style.transform = `rotate(${(currentMin * 6)}deg)`
-		setTimeout(moveMinuteHand, 60000)
-	}, (60 - NOW.second()) * 1000);
-
-	var hourRule = document.createTextNode(`.hour { ${rotate(180 + ((NOW.hour() % 12) * 30))} }`);
-	var minRule = document.createTextNode(`.minute { ${rotate((NOW.minute()) * 6)} }`);
-	var secRule = document.createTextNode('.second { animation-name: tick-tock }');
-
-	clockStyle.append(secKeyframe, hourRule, minRule, secRule);
-	document.body.append(clockStyle);
-
+	setTimeout(function moveSecondHand() {
+		document.querySelector('.second').style.transform = rotate(++currentSecond * 6);
+		if (currentSecond % 60 === 0) document.querySelector('.minute').style.transform = rotate(++currentMin * 6);
+		if (currentMin % 60 === 0) document.querySelector('.hour').style.transform = rotate(180 + ((++currentHour % 12) * 30));
+		setTimeout(moveSecondHand, 1000)
+	}, 1000)
 }
 
 function buildTimeGroups() {
