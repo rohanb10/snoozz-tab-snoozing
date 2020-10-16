@@ -1,142 +1,23 @@
-.contain-clock * {
-	box-sizing: unset;
-}
-
-.contain-clock, .face-2 {
-	position: relative;
-}
-.face-1, .line, .hour, .minute, .second, .middle, .arm, .bell, .hammer {
-	position: absolute;
-}
-.face-1, .face-2, .middle {
-	background: white;
-	border-radius: 50%;
-}
-.hour, .minute, .second, .arm {
-	border-radius: 50px;
-}
-.contain-clock {
-	margin: -75px auto;
-	width: 155px;
-	height: 200px;
-}
-.bell, .middle {
-	background: #E16561;
-}
-
-.face-1 {
-	top: 23px;
-	left: 23px;
-	z-index: 3;
-	width: 109px;
-	height: 109px;
-}
-
-.face-2 {
-	margin: 10em auto;
-	z-index: 2;
-	border: 15px solid #E16561;
-	width: 125px;
-	height: 125px;
-}
-
-.line {
-	left: 50%;
-	margin-left: -3px;
-	background: gray;
-	width: 6px;
-	height: 126px;
-}
-
-.line-2 {
-	left: 63px;
-	transform: rotate(90deg);
-}
-.line-3, .line-4, .line-5, .line-6, .second {
-	margin-left: -1px;
-	width: 2px;
-}
-
-.line-4 {
-	transform: rotate(-30deg);
-}
-
-.line-5 {
-	transform: rotate(60deg);
-}
-
-.line-6 {
-	transform: rotate(-60deg);
-}
-
-.hour {
-	top: 50%;
-	left: 50%;
-	z-index: 5;
-	margin-left: -4px;
-	background: #EAB35C;
-	transform-origin: top;
-	width: 8px;
-	height: 35px;
-}
-
-.minute {
-	top: 5px;
-	left: 55px;
-	z-index: 3;
-	margin-left: -4px;
-	background: #EAB35C;
-	transform-origin: bottom;
-	width: 8px;
-	height: 50px;
-}
-
-.second {
-	top: 5px;
-	left: 56px;
-	z-index: 5;
-	margin-left: -2px;
-	background: #333;
-	transform-origin: bottom;
-	height: 50px;
-	animation-duration: 60s;
-	animation-timing-function: steps(60, end);
-	animation-iteration-count: infinite;
-}
-
-.middle {
-	top: 62px;
-	z-index: 20;
-	margin-top: -15px;
-	left: 55px;
-	margin-left: -8px;
-	width: 16px;
-	height: 16px;
-}
-
-.arm {
-	top: -50px;
-	left: 73px;
-	z-index: 1;
-	background: gray;
-	transform: rotate(-30deg);
-	width: 10px;
-	height: 230px;
-}
-
-.bell {
-	top: -30px;
-	z-index: 2;
-	border-radius: 50% 50% 10% 10%;
-	transform: rotate(-30deg);
-	width: 65px;
-	height: 35px;
-}
-
-.bell-2 {
-	left: 90px;
-}
-
-.arm-2, .line-3, .bell-2 {
-	transform: rotate(30deg);
-}
+.contain-clock *{box-sizing:unset}
+.contain-clock,.face-2{position:relative}
+.face-1,.line,.hour,.minute,.second,.middle,.arm,.bell,.hammer{position:absolute}
+.face-1,.face-2,.middle{background:#fff;border-radius:50%}
+.hour,.minute,.second,.arm{border-radius:50px}
+.contain-clock{margin:-75px auto;width:155px;height:200px}
+.bell,.middle{background:#E16561}
+.face-1{top:23px;left:23px;z-index:3;width:109px;height:109px}
+.face-2{margin:10em auto;z-index:2;border:15px solid #E16561;width:125px;height:125px}
+.line{left:50%;margin-left:-3px;background:gray;width:6px;height:126px}
+.line-2{left:63px;transform:rotate(90deg)}
+.line-3,.line-4,.line-5,.line-6,.second{margin-left:-1px;width:2px}
+.line-4{transform:rotate(-30deg)}
+.line-5{transform:rotate(60deg)}
+.line-6{transform:rotate(-60deg)}
+.hour{top:50%;left:50%;z-index:5;margin-left:-4px;background:#EAB35C;transform-origin:top;width:8px;height:35px}
+.minute{top:5px;left:55px;z-index:3;margin-left:-4px;background:#EAB35C;transform-origin:bottom;width:8px;height:50px}
+.second{top:5px;left:56px;z-index:5;margin-left:-2px;background:#333;transform-origin:bottom;height:50px;animation-duration:60s;animation-timing-function:steps(60,end);animation-iteration-count:infinite}
+.middle{top:62px;z-index:20;margin-top:-15px;left:55px;margin-left:-8px;width:16px;height:16px}
+.arm{top:-50px;left:73px;z-index:1;background:gray;transform:rotate(-30deg);width:10px;height:230px}
+.bell{top:-30px;z-index:2;border-radius:50% 50% 10% 10%;transform:rotate(-30deg);width:65px;height:35px}
+.bell-2{left:90px}
+.arm-2,.line-3,.bell-2{transform:rotate(30deg)}
