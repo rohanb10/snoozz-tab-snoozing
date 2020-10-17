@@ -16,8 +16,9 @@ PRs and other ideas welcome.
 #### 2.3.0
 - Add Search to the Dashboard.
 - Add live clock css/js animation to the Dashboard when no tabs are found.
-- Search for tabs/windows in the dashboard using urls, titles, snooze date, wake up date, day of week, month, opened, dashboard category.
-- Tabs opening twice bug fixed
+- Search in the Dashboard using urls | titles | snooze date | wake up date | day of week | month | relative time | snoozz state
+- Onboarding instructions UI on the Dashboard(shown when there are no tabs in storage)
+- Tabs opening twice bug fixed.
 
 #### 2.2.0
 - Keyboard Shortcuts

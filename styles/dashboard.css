@@ -11,7 +11,7 @@
 	touch-actions: none;
 	transition: opacity .3s ease-in-out;
 }
-#no-tabs.hidden {
+#no-tabs.hidden, .search-container.hidden, .instructions.hidden {
 	opacity: 0;
 }
 #time-container {
@@ -242,7 +242,6 @@ p {
 }
 .search-container {
 	margin: 2em 0;
-	opacity: .5;
 }
 .search-icon {
 	max-height: 1.25em;
@@ -258,12 +257,15 @@ p {
 #search:focus {
 	outline: none;
 }
+::placeholder {
+	color: #BBB;
+}
 .input-wrapper {
 	position: relative;
 	display: inline-block;
 	padding-bottom: 3px;
 	transition: background .3s ease-in-out;
-	background: #AAA;
+	background: #DDD;
 }
 .input-wrapper:after {
 	content: '';
@@ -280,4 +282,32 @@ p {
 }
 .input-wrapper.searching:after {
 	left: 105%;
+}
+.instructions {
+	position: fixed;
+	width: 20em;
+	text-align: right;
+	top: 1rem;
+	right: 4rem;
+}
+.up-arrow {
+	width: 4em;
+	margin-right: 1rem;
+}
+.instructions div {
+	text-align: left;
+	font-size: 1.2em;
+	border: 2px dashed black;
+	padding: .5rem .75rem;
+	margin: .4em 0 0;
+}
+@media all and (-webkit-min-device-pixel-ratio:0) and (min-resolution: .001dpcm) {
+	.instructions span:after {
+		content: 'Extensions';
+	}	
+}
+@media screen and (min--moz-device-pixel-ratio:0) {
+	.instructions span:after {
+		content: 'More Tools';
+	}
 }

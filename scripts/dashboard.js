@@ -1,5 +1,5 @@
 const TIME_GROUPS = ['Today', 'Tomorrow', 'This Week', 'Next Week', 'Later', 'History'];
-var HISTORY = -1, CACHED_TABS;
+var HISTORY = -1, CACHED_TABS, ticktock;
 async function init() {
 	document.querySelector('.settings').addEventListener('click', _ => openExtensionTab('/html/settings.html'), {once:true})
 	showIconOnScroll();
@@ -35,6 +35,7 @@ async function init() {
 }
 
 function setupClock() {
+	if (ticktock) clearTimeout(ticktock);
 	var NOW = dayjs();
 	var currentSecond = parseInt(NOW.second());
 	var currentMin = parseInt(NOW.minute());
@@ -45,19 +46,21 @@ function setupClock() {
 	document.querySelector('.minute').style.transform = rotate(currentMin * 6);
 	document.querySelector('.hour').style.transform = rotate(180 + ((currentHour % 12) * 30));
 
-	setTimeout(function moveSecondHand() {
-		document.querySelector('.second').style.transform = rotate(++currentSecond * 6);
-		if (currentSecond % 60 === 0) document.querySelector('.minute').style.transform = rotate(++currentMin * 6);
-		if (currentMin % 60 === 0) document.querySelector('.hour').style.transform = rotate(180 + ((++currentHour % 12) * 30));
-		setTimeout(moveSecondHand, 1000)
-	}, 1000)
+	moveSecondHand = _ => {
+		clearTimeout(ticktock);
+		document.querySelector('.second').style.transform = rotate((++currentSecond) * 6);
+		if (currentSecond % 60 === 0) document.querySelector('.minute').style.transform = rotate((++currentMin) * 6);
+		if (currentMin % 60 === 0 && currentSecond % 60 === 0) document.querySelector('.hour').style.transform = rotate(180 + (((++currentHour) % 12) * 30));
+		ticktock = setTimeout(moveSecondHand, 1000)
+	}
+	ticktock = setTimeout(moveSecondHand, 1000);
 }
 
 function buildTimeGroups() {
 	var container = document.getElementById('time-container');
 	
 	TIME_GROUPS.forEach(t => {
-		var tID = t.replace(/ /g,"_").toLowerCase();
+		var tID = t.replace(/ /g,'_').toLowerCase();
 		var timeGroup = Object.assign(document.createElement('div'), {className: 'time-group', id: tID});
 		var header = Object.assign(document.createElement('div'), {className: 'flex time-header'});
 		var name = Object.assign(document.createElement('h2'), {className: 'time-name', innerText: t});
@@ -85,26 +88,43 @@ function updateTimeGroups() {
 	document.getElementById('no-tabs').classList.toggle('hidden', document.querySelector('.tab'));
 }
 
-function matchQuery(t, query) {
+function matchQuery(query, against) {
+	var array = typeof against === 'string' ? against.toLowerCase().trim().split(' ') : against;
+	for (word of query.trim().split(" ")) {
+		if (!array.some(a => a.indexOf(word.toLowerCase()) > -1)) return false;
+	}
+	return true;
+}
+
+function search(t, query) {
+	// tab props
 	if (t.url && t.url.toLowerCase().indexOf(query) > -1) return true;
 	if (t.title && t.title.toLowerCase().indexOf(query) > -1) return true;
-	if (t.opened && dayjs(t.opened).format('dddd DD MMMM A').toLowerCase().indexOf(query) > -1) return true;
-	if (!t.opened && t.wakeUpTime && dayjs(t.wakeUpTime).format('dddd DD MMMM A').toLowerCase().indexOf(query) > -1) return true;
-	if (t.timeCreated && dayjs(t.timeCreated).format('dddd DD MMMM A').toLowerCase().indexOf(query) > -1) return true;
-	if (getTimeGroup(t).toLowerCase().indexOf(query) > -1) return true;
-	if (t.opened && ('deleted removed opened awake').indexOf(query) > -1) return true;
+	// relative time
+	if (!t.opened && ('snoozed sleeping asleep napping snoozzed snoozing snoozzing').indexOf(query) > -1) return true;
+	if (t.opened && ('manually deleted removed reopened awake history').indexOf(query) > -1) return true;
+	if (matchQuery(query, getTimeGroup(t, true).map(tg => tg.replace(/_/g, ' ')))) return true;
+	// absolute time
+	if ( t.opened && matchQuery(query, dayjs(t.opened).format('dddd DD MMMM A'))) return true;
+	if (!t.opened && t.wakeUpTime && matchQuery(query, dayjs(t.wakeUpTime).format('dddd DD MMMM A'))) return true;
+	if ( t.timeCreated && matchQuery(query, dayjs(t.timeCreated).format('dddd DD MMMM A'))) return true;
 	return false;
 }
 
 function fillTimeGroups(searchQuery) {
-	var tabs = CACHED_TABS;
+	var tabs = CACHED_TABS || [];
 	document.querySelectorAll('#time-container p, #time-container .tab').forEach(el => el.remove());
+	document.querySelector('.search-container').classList.toggle('hidden', tabs.length === 0);
+	document.querySelector('.instructions').classList.toggle('hidden', tabs.length > 0);
 	// search
 	if (searchQuery && searchQuery.length && searchQuery.length > 2) tabs = tabs.filter(t => {
-		return matchQuery(t, searchQuery) || (t.tabs && t.tabs.some(tt => matchQuery(tt, searchQuery)));
+		return search(t, searchQuery) || (t.tabs && t.tabs.some(tt => search(tt, searchQuery)));
 	})
 	var s = sleeping(tabs);
-	if (s.length > 0) s.sort((t1,t2) => t1.wakeUpTime - t2.wakeUpTime).forEach(f => document.getElementById(getTimeGroup(f)).append(buildTab(f)))
+	if (s.length > 0) s.sort((t1,t2) => t1.wakeUpTime - t2.wakeUpTime).forEach(f => {
+		var timeGroup = document.getElementById(getTimeGroup(f));
+		if (timeGroup) timeGroup.append(buildTab(f));
+	})
 
 	var a = tabs.filter(t => t.opened);
 	if (a.length > 0) {
@@ -179,15 +199,20 @@ function formatSnoozedUntil(ts) {
 	return date.format('ddd, MMM D [@] h:mm a');
 }
 
-function getTimeGroup(t) {
-	if (t.opened) return 'history';
-	var time = dayjs(t.wakeUpTime);
-	var now = dayjs()
-	if (time.dayOfYear() === now.dayOfYear()) 				return 'today';
-	if (time.dayOfYear() === now.add(1, 'd').dayOfYear()) 	return 'tomorrow';
-	if (time.week() === now.week()) 						return 'this_week';
-	if (time.week() === now.add(1, 'week').week()) 			return 'next_week';
-	return 'later';
+function getTimeGroup(t, searchQuery = false) {
+	if (!searchQuery && t.opened) return 'history';
+
+	var group = [];
+	if (!t.opened && !t.wakeUpTime) return group;
+	var now = dayjs(), time = searchQuery && t.opened ? dayjs(t.opened) : dayjs(t.wakeUpTime);
+	if (time.week() === now.subtract(1, 'week').week()) 		group.push('last_week');
+	if (time.dayOfYear() === now.subtract(1, 'd').dayOfYear()) 	group.push('yesterday');
+	if (time.dayOfYear() === now.dayOfYear()) 					group.push('today');
+	if (time.dayOfYear() === now.add(1, 'd').dayOfYear()) 		group.push('tomorrow');
+	if (time.week() === now.week()) 							group.push('this_week');
+	if (time.week() === now.add(1, 'week').week()) 				group.push('next_week');
+	if (time.valueOf() > now.add(1, 'week').valueOf())			group.push('later');
+	return searchQuery ? group : group[0];
 }
 
 async function wakeUpTabsAbruptly(ids) {
@@ -213,6 +238,8 @@ async function sendTabsToHistory(ids) {
 	CACHED_TABS = tabs;
 	fillTimeGroups();
 }
+
+debugMode = pretty => document.querySelectorAll('.tab').forEach(t => t.onclick = async _ => console.log(pretty ? await getPrettyTab(t.id) : await getSnoozedTabs([t.id])));
 
 async function removeTabsFromHistory(ids) {
 	if (!ids) return;

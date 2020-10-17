@@ -9,7 +9,7 @@ chrome.runtime.onMessage.addListener(msg => {
 });
 chrome.storage.onChanged.addListener(async changes => {
 	if (changes.snoozedOptions) {
-		setUpContextMenus(changes.snoozedOptions.newValue.contextMenu);
+		await setUpContextMenus(changes.snoozedOptions.newValue.contextMenu);
 		updateBadge(null, changes.snoozedOptions.newValue.badge);
 		SAVED_OPTIONS = changes.snoozedOptions.newValue;
 	}
@@ -42,7 +42,7 @@ async function setNextAlarm(tabs) {
 
 async function wakeMeUp(tabs) {
 	var now = dayjs().valueOf();
-	var wakingUp = t => !t.opened && (t.url || (t.tabs && t.tabs.length && t.tabs.length > 0) && t.wakeUpTime && t.wakeUpTime <= now;
+	var wakingUp = t => !t.opened && (t.url || (t.tabs && t.tabs.length && t.tabs.length > 0)) && t.wakeUpTime && t.wakeUpTime <= now;
 	if (tabs.filter(wakingUp).length === 0) return;
 	bgLog(['Waking up tabs', tabs.filter(wakingUp).map(t => t.id).join(', ')], ['', 'green'], 'yellow');
 	for (var s of tabs.filter(wakingUp)) s.tabs ? await openWindow(s, true) : await openTab(s, null, true);
@@ -51,7 +51,7 @@ async function wakeMeUp(tabs) {
 }
 
 async function setUpContextMenus(cachedMenus) {
-	chrome.contextMenus.removeAll();
+	await chrome.contextMenus.removeAll();
 	var cm = cachedMenus || await getOptions('contextMenu');
 	if (!cm || !cm.length || cm.length === 0) return;
 	var choices = await getChoices();
@@ -126,7 +126,15 @@ async function setUpExtension() {
 	var snoozed = await getSnoozedTabs();
 	if (!snoozed || !snoozed.length || snoozed.length === 0) await saveTabs([]);
 	var options = await getOptions();
-	if (!options) await saveOptions({history: 14, morning: 9, evening: 18, timeOfDay:'morning', badge: 'today', closeDelay: 2000, contextMenu: ['today-evening', 'tom-morning', 'monday']});
+	await saveOptions(Object.assign({
+		history: 14,
+		morning: 9,
+		evening: 18,
+		timeOfDay:'morning',
+		badge: 'today',
+		closeDelay: 2000,
+		contextMenu: ['today-evening', 'tom-morning', 'monday']
+	}, options));
 	init();
 }
 function sendToLogs([which, p1]) {

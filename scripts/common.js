@@ -44,14 +44,17 @@ async function getPrettyTab(tabId) {
 }
 /*	SAVE 	*/
 async function saveOptions(o) {
+	if (!o) return;
 	return new Promise(r => chrome.storage.local.set({'snoozedOptions': o}, r));
 }
 async function saveTab(t) {
+	if (!t) return;
 	var tabs = await getSnoozedTabs();
 	tabs.push(t);
 	await saveTabs(tabs);
 }
 async function saveTabs(tabs) {
+	if (!tabs) return;
 	return new Promise(r => chrome.storage.local.set({'snoozed': tabs}, r));
 }
 /*	CREATE 	*/

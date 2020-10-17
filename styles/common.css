@@ -95,6 +95,7 @@ a:hover {
 	touch-events: none;
 	transition: opacity .3s ease-in-out;
 	white-space: nowrap;
+	background-color: #fff;
 }
 .settings:hover:before, .dashboard:hover:before {
 	opacity: 1;
