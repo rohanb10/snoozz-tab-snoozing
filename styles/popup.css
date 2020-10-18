@@ -260,15 +260,21 @@ input.invalid::-webkit-datetime-edit-month-field, input.invalid::-webkit-datetim
 }
 @-moz-document url-prefix() {
 	input {
-		border-bottom: 2px solid transparent;
+		font-family: Arial, sans-serif;
+		display: inline-block;
+		text-align: center;
+		margin: 1px 0;
+		padding-top: 2px;
+		clip-path: inset(0 25px 0 8px);
+		background-color: rgba(0,0,0,.25);
 	}
 	input.invalid {
-		border-bottom: 2px solid rgba(255,0,0,.65);
+		background-color: rgba(255,0,0,.65);
 	}
 } 
 
 .custom-choice:hover input.invalid::-webkit-datetime-edit-month-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-day-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-year-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-hour-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-minute-field {
-	background-color: rgba(255,0,0,.65);	
+	background-color: rgba(255,0,0,.5);	
 }
 
 input::-webkit-calendar-picker-indicator {

@@ -292,7 +292,7 @@ p {
 }
 .up-arrow {
 	width: 4em;
-	margin-right: 1rem;
+	margin-right: 3rem;
 }
 .instructions div {
 	text-align: left;
@@ -304,10 +304,13 @@ p {
 @media all and (-webkit-min-device-pixel-ratio:0) and (min-resolution: .001dpcm) {
 	.instructions span:after {
 		content: 'Extensions';
-	}	
+	}
 }
 @media screen and (min--moz-device-pixel-ratio:0) {
 	.instructions span:after {
 		content: 'More Tools';
+	}
+	.instructions div:last-of-type {
+		display: none;
 	}
 }

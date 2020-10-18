@@ -25,7 +25,6 @@ h2 span {
 }
 .input-container:hover {
 	border-color: #bbb;
-	transition-duration: 0;
 }
 .input-container {
 	max-width: 100%;
@@ -33,7 +32,11 @@ h2 span {
 h4 ~ p {
 	font-size: .8em;
 	margin: 0;
-	opacity: .15;
+	opacity: .25;
+	transition: opacity .25s ease-in-out
+}
+h4, p {
+	cursor: default;
 }
 .input-container:hover p {
 	opacity: 1;
@@ -41,7 +44,8 @@ h4 ~ p {
 select, option {
 	border: none;
 	outline: none;
-	text-align: center;	
+	text-align: center;
+	text-align-last: center;
 	padding: .25em;
 }
 select, option, label {
@@ -152,7 +156,12 @@ code {
 input[type=checkbox] {
 	margin: 0 1em;
 }
+.reset-container {
+	text-align: right;
+}
 #reset {
+	cursor: pointer;
+	text-decoration: underline;
 	opacity: .75;
 }
 .about-container .flex {
@@ -162,4 +171,9 @@ input[type=checkbox] {
 .about-container p, .about-container .flex span {
 	padding-left: 1.25em;
 	padding-right: .5em;
+}
+@media screen and (min--moz-device-pixel-ratio:0) {
+	.right-click span:after {
+		content: ' / tab';
+	}
 }

@@ -2,7 +2,6 @@
 *In no particular order*
 - Cloud sync
 - Edit snooze times
-- Search dashboard
 - Make accessibile
 - See storage used and add instructions to delete old tabs
 - Tab groups (Chrome only) (if API ever opens up)
@@ -14,11 +13,12 @@ PRs and other ideas welcome.
 
 **October 2020**
 #### 2.3.0
-- Add Search to the Dashboard.
+- Add Search to the Dashboard -> `urls | titles | snooze date | wake up date | day of week | month | relative time | snoozz state`
 - Add live clock css/js animation to the Dashboard when no tabs are found.
-- Search in the Dashboard using urls | titles | snooze date | wake up date | day of week | month | relative time | snoozz state
-- Onboarding instructions UI on the Dashboard(shown when there are no tabs in storage)
+- Onboarding instructions UI on the Dashboard(shown when there are no tabs in storage).
+- Change copy on settings page to make easier to comprehend.
 - Tabs opening twice bug fixed.
+- Firefox popup "choose your own time" style changes.
 
 #### 2.2.0
 - Keyboard Shortcuts

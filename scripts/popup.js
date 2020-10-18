@@ -50,15 +50,13 @@ async function buildChoices() {
 var collapseTimeout, ccContainer;
 function buildCustomChoice() {
 	var NOW = dayjs();
-	var submitButton = Object.assign(document.createElement('div'), {classList: 'submit-btn disabled', innerText: 'snooze'});
+	var submitButton = Object.assign(document.createElement('div'), {classList: 'submit-btn disabled', innerText: 'snoozz'});
 	submitButton.addEventListener('click', e => {
-		var dateTime = dayjs(`${date.value} ${time.value}`);
+		var dv = date.value, tv = time.value;
+		var dateTime = dayjs(`${dv} ${tv}`);
 
-		if (date.value.length === 0 || !date.value.match(/^\d{4}-\d{2}-\d{2}$/)) date.classList.add('invalid');
-		if (time.value.length === 0 || !time.value.match(/^\d{2}:\d{2}$/)) time.classList.add('invalid');
-		if (dateTime < dayjs()) [date,time].forEach(dt => dt.classList.add('invalid'));
-
-		if ([date,time].some(dt => dt.classList.contains('invalid'))) return
+		if (dv.length === 0 || !dv.match(/^\d{4}-\d{2}-\d{2}$/) || dayjs(dv).dayOfYear() < dayjs().dayOfYear()) return date.classList.add('invalid');
+		if (tv.length === 0 || !tv.match(/^\d{2}:\d{2}$/) || dateTime <= dayjs()) return time.classList.add('invalid');
 		
 		// success
 		e.target.classList.add('disabled');

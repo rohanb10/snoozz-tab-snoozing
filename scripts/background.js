@@ -127,13 +127,13 @@ async function setUpExtension() {
 	if (!snoozed || !snoozed.length || snoozed.length === 0) await saveTabs([]);
 	var options = await getOptions();
 	await saveOptions(Object.assign({
-		history: 14,
 		morning: 9,
 		evening: 18,
-		timeOfDay:'morning',
+		timeOfDay: 'morning',
+		history: 14,
 		badge: 'today',
-		closeDelay: 2000,
-		contextMenu: ['today-evening', 'tom-morning', 'monday']
+		closeDelay: 1000,
+		contextMenu: ['today-evening', 'tom-morning', 'tom-evening', 'weekend', 'monday']
 	}, options));
 	init();
 }

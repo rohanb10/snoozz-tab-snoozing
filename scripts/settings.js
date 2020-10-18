@@ -78,8 +78,7 @@ async function save() {
 	saveOptions(options);
 }
 
-async function resetSettings(e) {
-	e.preventDefault();
+async function resetSettings() {
 	if (!confirm('Are you sure you want to reset all settings? \nYou can\'t undo this.')) return;
 
 	var defaultOptions = {
@@ -88,8 +87,8 @@ async function resetSettings(e) {
 		timeOfDay: 'morning',
 		history: 14,
 		badge: 'today',
-		closeDelay: 2000,
-		contextMenu: ['today-evening', 'tom-morning', 'monday']
+		closeDelay: 1000,
+		contextMenu: ['today-evening', 'tom-morning', 'tom-evening', 'weekend', 'monday']
 	}
 	await saveOptions(defaultOptions);
 	updateFormValues(defaultOptions);
