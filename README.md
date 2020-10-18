@@ -5,7 +5,7 @@
 </p>
 
 <div align="center">
-	<img src="https://img.shields.io/badge/crx%20size-52.7kb-brightgreen" alt="Total file size">
+	<img src="https://img.shields.io/badge/crx%20size-56.4kb-brightgreen" alt="Total file size">
 	<a target="_blank" href="https://addons.mozilla.org/en-US/firefox/addon/snoozz/">
 		<img src="https://img.shields.io/amo/v/snoozz?color=orange&logo=firefox-browser&label=firefox%20add-on" alt="Mozilla Add-on">
 		</a>
@@ -25,12 +25,12 @@
 </div>
 
 
+-------------
+
 
 A Web Extension to *snoozz* tabs and windows now and have them reopen automatically later. 
 
-Available in the [Chrome Web Store](https://chrome.google.com/webstore/detail/snoozz-snooze-tabs-window/lklendgldejcnkkaldoggoapclkepgfb), [Firefox Add-On Store](https://addons.mozilla.org/en-US/firefox/addon/snoozz/), and as a [release](https://github.com/rohanb10/snoozz-tab-snoozing/releases/latest/) on Github 
-
--------------
+Available in the Chrome [Web Store](https://chrome.google.com/webstore/detail/snoozz-snooze-tabs-window/lklendgldejcnkkaldoggoapclkepgfb), Firefox [Add-On Store](https://addons.mozilla.org/en-US/firefox/addon/snoozz/), and as a [release](https://github.com/rohanb10/snoozz-tab-snoozing/releases/latest/) on Github.
 
 [Privacy](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/PRIVACY.md) | [Changelog](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/changelog.md)
 

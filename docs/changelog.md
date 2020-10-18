@@ -1,7 +1,8 @@
 ## Roadmap
 *In no particular order*
 - Cloud sync
-- Edit snooze times
+- Firefox date + time picker for popup
+- Edit snooze times (maybe a snoozz again / recurring feature?)
 - Make accessibile
 - See storage used and add instructions to delete old tabs
 - Tab groups (Chrome only) (if API ever opens up)
