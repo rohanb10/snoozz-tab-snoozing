@@ -58,11 +58,12 @@
 		<div class="input-container flex">
 			<div>
 				<h4>Default time of day</h4>
-				<p>Choose to snooze tabs in the morning or evening for <br>weekend, monday, next week, next month.</p>
+				<p>Choose the default time to snooze tabs for these choices:<br>weekend, monday, next week, next month.</p>
 			</div>
 			<div class="select-wrapper"><select id="timeOfDay">
 				<option value="morning" selected>Morning</option>
 				<option value="evening">Evening</option>
+				<option value="now">Current Time</option>
 			</select></div>
 		</div>
 		<div class="input-container flex">
@@ -109,31 +110,6 @@
 				<option value="2000">2 seconds</option>
 			</select></div>
 		</div>
-		<div class="input-container flex shortcut">
-			<div>
-				<h4>Keyboard shortcuts</h4>
-				<p>Set up shortcuts to snooze a tab without any clicks.</p>
-			</div>
-			<div>
-				<div id="shortcut-btn" class="btn"><div></div></div>
-			</div>
-			<div class="ff-info">
-				<ol>
-					<strong>Instructions</strong>
-					<li>Open the Firefox Add-Ons page in a new tab: <code>about:addons</code></li>
-					<li>Click on the <a target="_blank" href="https://bug1303384.bmoattachments.org/attachment.cgi?id=9051647">gear icon</a> in the top right and select <strong>Manage Extension Shortcuts</strong>.</li> 
-					<li>Configure snooze time shortcuts using your own key bindings.</li>
-				</ol>
-			</div>
-			<div class="chrome-info">
-				<strong>Instructions</strong>
-				<div>Configure snooze time shortcuts on the <a href="#" data-href="chrome://extensions/shortcuts">Chrome Extension Shortcuts</a> page</div>
-			</div>
-			<div class="shortcuts">
-				<strong>Currently active shortcuts</strong>
-				<div class="bindings"></div>
-			</div>
-		</div>
 		<div class="input-container large right-click">
 			<div>
 				<h4>Snoozz tabs using the right-click (context) menu</h4>
@@ -151,18 +127,52 @@
 				<div><input type="checkbox" id="month"><label for="month">Next Month</label></div>
 			</div>
 		</div>
+		<div class="input-container flex" id="shortcut">
+			<div>
+				<h4>Keyboard shortcuts</h4>
+				<p>Set up shortcuts to snooze a tab without any clicks.</p>
+			</div>
+			<div class="btn"><div></div></div>
+			<div class="ff-info">
+				<ol>
+					<strong>Instructions</strong>
+					<li>Open the Firefox Add-Ons page in a new tab: <code>about:addons</code></li>
+					<li>Click on the <a target="_blank" href="https://bug1303384.bmoattachments.org/attachment.cgi?id=9051647">gear icon</a> in the top right and select <strong>Manage Extension Shortcuts</strong>.</li> 
+					<li>Configure snooze time shortcuts using your own key bindings.</li>
+				</ol>
+			</div>
+			<div class="chrome-info">
+				<strong>Instructions</strong>
+				<div>Configure snooze time shortcuts on the <a data-href="chrome://extensions/shortcuts">Chrome Extension Shortcuts</a> page</div>
+			</div>
+			<div class="shortcuts">
+				<strong>Currently active shortcuts</strong>
+				<div class="bindings"></div>
+			</div>
+		</div>
+		<div class="input-container storage">
+			<h4>Storage</h4>
+			<p>Choose to save data in this browser only or across.</p>
+			<p>This shows you how much storage is used and available.</p>
+			<div class="storage-available">
+				<div class="storage-used"></div>
+			</div>
+			<p class="storage-text">-</p>
+			<p class="storage-low hidden">Your storage is almost filled up. Consider changing your <a>history</a> settings to free up some space.</p>
+		</div>
 		<div class="reset-container center">
-			<span id="reset">reset settings</span>
+			<a id="reset">reset settings</a>
 		</div>
 	</div><br>
 	<div class="about-container">
 		<h2><span>About</span></h2>
+		<p id="version"></p>
 		<div class="flex">
 			<span><a target='_blank' href="https://github.com/rohanb10/snoozz-tab-snoozing/">source code</a></span>
+			<span><a target='_blank' href="https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/changelog.md">changelog</a></span>
 			<span><a target='_blank' href="https://github.com/rohanb10/snoozz-tab-snoozing/issues/new/choose">report a bug</a></span>
 			<span><a target='_blank' href="https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/LICENSE">license</a></span>
 			<span><a target='_blank' href="https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/PRIVACY.md">privacy</a></span>
-			<span><a target='_blank' href="https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/changelog.md">changelog</a></span>
 			<span><a target='_blank' href="https://github.com/rohanb10/snoozz-tab-snoozing#attribution">attribution</a></span>
 		</div>
 		<div><p>Built by <a target='blank' href="https://rohan.xyz">rohan</a> in 2020.</p></div>

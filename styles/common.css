@@ -61,9 +61,11 @@ body {
 }
 a {
 	color: #000;
+	cursor: pointer;
+	text-decoration: underline;
 }
 a:hover {
-	background: linear-gradient(0deg, rgba(223,78,118,1) 0%, rgba(243,184,69,1) 100%);
+	background: linear-gradient(0deg, #df4e76 0%, #f3b845 100%);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }

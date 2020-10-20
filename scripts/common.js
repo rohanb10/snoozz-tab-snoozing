@@ -33,6 +33,12 @@ async function getTabId(url) {
 async function getKeyBindings() {
 	return new Promise(r => chrome.commands.getAll(r));
 }
+async function getStorageSize(isFirefox) {
+	if (!isFirefox) return new Promise(r => chrome.storage.local.getBytesInUse(r));
+	var tabs = await getSnoozedTabs();
+	var options = await getOptions();
+	return calcObjectSize(tabs) + calcObjectSize(options);
+}
 
 async function getPrettyTab(tabId) {
 	var tab = await getSnoozedTabs([tabId])
@@ -176,7 +182,7 @@ async function snoozeWindow(snoozeTime) {
 async function getChoices(which) {
 	var NOW = dayjs();
 	var config = await getOptions(['morning', 'evening', 'timeOfDay']);
-	config.timeOfDay = config.timeOfDay === 'evening' ? config.evening : config.morning;
+	config.timeOfDay = config.timeOfDay === 'evening' ? config.evening : (config.timeOfDay === 'morning' ? config.morning : NOW.hour() + (NOW.minute() / 60))
 	var all = {
 		'today-morning': {
 			label: 'This Morning',
@@ -265,6 +271,22 @@ var wrapInDiv = (attr, ...nodes) => {
 	var div = Object.assign(document.createElement('div'), typeof attr === 'string' ? {className: attr} : attr);
 	div.append(...nodes)
 	return div;
+}
+
+var SIZES = {
+	undefined: _ => 0,
+	boolean: _ => 4,
+	number: _ => 8,
+	string: s => (new TextEncoder().encode(s)).length,
+	object: o => !o ? 0 : Object.keys(o).reduce((total, key) => calcObjectSize(key) + calcObjectSize(o[key]) + total, 0)
+}
+
+var calcObjectSize = obj => SIZES[typeof obj](obj);
+
+var clipboard = text => {
+	var el = Object.assign(document.createElement('textarea'), {innerText: text});
+	document.body.append(el); el.select();
+	document.execCommand('copy'); el.remove();
 }
 
 var bgLog = (logs, colors, timestampColor = 'grey') => {

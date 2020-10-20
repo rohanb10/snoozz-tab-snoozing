@@ -38,7 +38,7 @@ h4 ~ p {
 h4, p {
 	cursor: default;
 }
-.input-container:hover p {
+.input-container:hover p, .input-container:hover .storage-available {
 	opacity: 1;
 }
 select, option {
@@ -95,17 +95,20 @@ select {
 	font-weight: bold;
 	text-transform: uppercase;
 }
-.btn div:before {
+#shortcut .btn div:before {
 	content: 'show';
 }
-.btn .show:before {
+#shortcut.show .btn div:before {
 	content: 'hide';
 }
 .btn:hover, .select-wrapper:hover {
 	background: linear-gradient(-90deg, #DF4E76 0%, #F3B845 100%);
 }
-.shortcut {
+#shortcut {
 	flex-wrap: wrap;
+}
+#shortcut:not(.show) .ff-info, #shortcut:not(.show) .chrome-info, #shortcut:not(.show) .shortcuts {
+	max-height: 0;
 }
 .ff-info, .chrome-info, .shortcuts {
 	width: 100%;
@@ -156,6 +159,28 @@ code {
 input[type=checkbox] {
 	margin: 0 1em;
 }
+
+.storage-available {
+	margin: 2.5em auto .5em;
+	width: 50%;
+	border: 2px solid black;
+	padding: 3px;
+	opacity: .25;
+	transition: opacity .25s ease-in-out
+}
+
+.storage-used {
+	height: 8px;
+	background: linear-gradient(90deg, #df4e76 0%, #f3b845 100%);
+	clip-path: inset(0 0 0 0);
+	transition: clip-path .5s ease-in-out
+}
+.storage-text, .storage-low {
+	text-align: center;
+}
+.storage-low.hidden {
+	display: none;
+}
 .reset-container {
 	text-align: right;
 }
@@ -165,8 +190,10 @@ input[type=checkbox] {
 	opacity: .75;
 }
 .about-container .flex {
-	margin-top: 2.5em;
 	justify-content: flex-start;
+}
+#version {
+	margin-top: 2.5em;
 }
 .about-container p, .about-container .flex span {
 	padding-left: 1.25em;

@@ -2,23 +2,28 @@
 *In no particular order*
 - Cloud sync
 - Firefox date + time picker for popup
+- Make contextMenu permission optional
+- Custom notifications on dashboard instead of native ?
 - Edit snooze times (maybe a snoozz again / recurring feature?)
 - Make accessibile
-- See storage used and add instructions to delete old tabs
 - Tab groups (Chrome only) (if API ever opens up)
-- Favicon compression and offline storage
+- Favicon compression
 
 PRs and other ideas welcome.
 
 ## Changes ##
 
 **October 2020**
+#### 2.3.1
+- Visualise available storage on the settings page
+- Add option to select time as "now" for [monday, weekend, next-week, next-month]
+
 #### 2.3.0
 - Add Search to the Dashboard -> `urls | titles | snooze date | wake up date | day of week | month | relative time | snoozz state`
 - Add live clock css/js animation to the Dashboard when no tabs are found.
-- Onboarding instructions UI on the Dashboard(shown when there are no tabs in storage).
+- Onboarding instructions UI on the Dashboard (shown when no tabs in storage).
 - Change copy on settings page to make easier to comprehend.
-- Tabs opening twice bug fixed.
+- Tabs opening twice and other misc bug fixes.
 - Firefox popup "choose your own time" style changes.
 
 #### 2.2.0

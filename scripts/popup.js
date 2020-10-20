@@ -36,7 +36,7 @@ async function buildChoices() {
 		div.append(icon, label);
 
 		var date = Object.assign(document.createElement('div'), {classList: 'date', innerText: config.timeString});
-		var time = Object.assign(document.createElement('div'), {classList: 'time', innerText: dayjs(config.time).format('hA')});
+		var time = Object.assign(document.createElement('div'), {classList: 'time', innerText: dayjs(config.time).format(`h${dayjs(config.time).minute() !== 0 ? ':mm ':''}A`)});
 		var div2 = document.createElement('div');
 		div2.append(date, time);
 

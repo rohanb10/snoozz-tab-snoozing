@@ -1,54 +1,35 @@
 async function initialize() {
 	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('/html/dashboard.html'), {once:true});
 	showIconOnScroll();
+
 	var options = await getOptions();
 	try {updateFormValues(options)} catch(e) {}
 	addListeners();
-	document.getElementById('reset').addEventListener('click', resetSettings)
-	document.getElementById('shortcut-btn').addEventListener('click', async e => {
-		e.target.classList.toggle('show');
-		if (!e.target.classList.contains('show')) return document.querySelectorAll(`.chrome-info, .ff-info, .shortcuts`).forEach(c => c.style.maxHeight = '0');
 
-		populateShortcuts();
+	document.querySelector('#shortcut .btn').addEventListener('click', toggleShortcuts);
+	document.addEventListener('visibilitychange', updateKeyBindings);
 
-		var browserInfo = document.querySelector(`.${isFirefox ? 'ff':'chrome'}-info`);
-		if (!isFirefox) browserInfo.querySelector('a[data-href]').addEventListener('click', e => {
-			e.preventDefault();
-			chrome.tabs.create({url: e.target.getAttribute('data-href'), active: true})
-		});
-		browserInfo.style.maxHeight = browserInfo.scrollHeight + 'px';
+	calculateStorage();
+	chrome.storage.onChanged.addListener(calculateStorage);
+
+	document.getElementById('reset').addEventListener('click', resetSettings);
+	document.getElementById('version').innerText = `Snoozz v${chrome.runtime.getManifest().version}`;
+
+	if (isFirefox) document.querySelector('code').addEventListener('click', _ => {
+		clipboard('about:addons')
+		document.querySelector('body > .copied').classList.add('toast');
+		setTimeout(_ => document.querySelector('body > .copied').remove('toast'), 4000)
 	});
-	document.addEventListener('visibilitychange', populateShortcuts);
-	document.querySelector('code').addEventListener('click', e => {
-		var i = Object.assign(document.createElement('textarea'), {innerText: 'about:addons'});
-		document.body.append(i);
-		i.select();
-		document.execCommand('copy');
-		i.remove();
-		var c = document.querySelector('body > .copied');
-		c.classList.add('toast');
-		setTimeout(_ => c.classList.remove('toast'), 4000)
-	})
 }
 
-async function populateShortcuts() {
-	var commands = await getKeyBindings();
-	commands = commands.filter(c => c.shortcut && c.shortcut !== '');
-	if (commands.length === 0) return document.querySelector('.shortcuts').style.maxHeight = '0px';
-	var choices = await getChoices();
-
-	var bindings = document.querySelector('.bindings');
-	bindings.innerText = '';
-
-	var splitShortcut = s => s.split(s.indexOf('+') > -1 ? '+' : '');
-
-	commands.forEach(c => {
-		var keys = wrapInDiv('', ...splitShortcut(c.shortcut).map(s => Object.assign(document.createElement('kbd'),{innerText: s})));
-		bindings.append(wrapInDiv('flex', wrapInDiv({innerText: choices[c.name].label}), keys));
-	});
-	if (document.querySelector('#shortcut-btn div').classList.contains('show')) {
-		document.querySelector('.shortcuts').style.maxHeight = document.querySelector('.shortcuts').scrollHeight + 'px';	
-	} 
+async function calculateStorage() {
+	var s = document.querySelector('.settings-container > .storage')
+	var available = ((chrome.storage.sync.QUOTA_BYTES || 5242880) / 1000).toFixed(1);
+	var used = (await getStorageSize(isFirefox) / 1000).toFixed(1);
+	var sizeAndSuffix = num => num < 1000 ? num + 'KB' : (num/1000).toFixed(2) + 'MB'
+	s.querySelector('.storage-used').style.clipPath = `inset(0 ${100 - (used * 100 / available)}% 0 0)`;
+	s.querySelector('.storage-text').innerText = `${sizeAndSuffix(used)} of ${sizeAndSuffix(available)} used.`
+	s.querySelector('.storage-low').classList.toggle('hidden', used / available < .75);
 }
 
 function updateFormValues(storage) {
@@ -71,11 +52,43 @@ function addListeners() {
 	}))
 }
 
-async function save() {
+async function save(e) {
 	var options = {}
 	document.querySelectorAll('select').forEach(s => options[s.id] = isNaN(s.value) ? s.value : parseInt(s.value));
 	options.contextMenu = Array.from(document.querySelectorAll('#contextMenu input:checked')).map(c => c.id);
 	saveOptions(options);
+}
+
+function toggleShortcuts(e) {
+	var s = e.currentTarget.parentElement;
+	s.classList.toggle('show');
+	s.querySelectorAll('.ff-info, .chrome-info, .shortcuts').forEach(el => el.style.maxHeight = '0');
+	updateKeyBindings();
+
+	var browserInfo = s.querySelector(`.${isFirefox ? 'ff':'chrome'}-info`);
+	browserInfo.querySelector('a[data-href]').addEventListener('click', e => chrome.tabs.create({url: e.target.getAttribute('data-href'), active: true}));
+	if (s.classList.contains('show')) browserInfo.style.maxHeight = browserInfo.scrollHeight + 'px';
+
+}
+
+async function updateKeyBindings() {
+	var commands = await getKeyBindings();
+	commands = commands.filter(c => c.shortcut && c.shortcut !== '');
+	if (commands.length === 0) return document.querySelector('.shortcuts').style.maxHeight = '0px';
+	var choices = await getChoices();
+
+	var bindings = document.querySelector('.bindings');
+	bindings.innerText = '';
+
+	var splitShortcut = s => s.split(s.indexOf('+') > -1 ? '+' : '');
+
+	commands.forEach(c => {
+		var keys = wrapInDiv('', ...splitShortcut(c.shortcut).map(s => Object.assign(document.createElement('kbd'),{innerText: s})));
+		bindings.append(wrapInDiv('flex', wrapInDiv({innerText: choices[c.name].label}), keys));
+	});
+	if (document.getElementById('shortcut').classList.contains('show')) {
+		document.querySelector('.shortcuts').style.maxHeight = document.querySelector('.shortcuts').scrollHeight + 'px';	
+	} 
 }
 
 async function resetSettings() {
