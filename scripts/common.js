@@ -148,7 +148,7 @@ async function snoozeTab(snoozeTime, overrideTab) {
 		id: Math.random().toString(36).slice(-10),
 		title: activeTab.title ?? getBetterUrl(activeTab.url),
 		url: activeTab.url,
-		favicon: activeTab.favIconUrl ?? '',
+		favicon: activeTab.favIconUrl && activeTab.favIconUrl.length < 150 ? activeTab.favIconUrl : '',
 		...activeTab.pinned ? {pinned: true} : {},
 		wakeUpTime: dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
@@ -172,7 +172,12 @@ async function snoozeWindow(snoozeTime) {
 		title: `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`,
 		wakeUpTime: dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
-		tabs: validTabs.map(t => {return {title: t.title, url: t.url, favicon: t.favIconUrl ?? '', ...t.pinned ? {pinned: true} : {},}})
+		tabs: validTabs.map(t => ({
+			title: t.title,
+			url: t.url,
+			favicon: t.favIconUrl && t.favIconUrl.length < 150 ? t.favIconUrl : '',
+			...t.pinned ? {pinned: true} : {}
+		}))
 	}
 	await saveTab(sleepyGroup);
 	chrome.runtime.sendMessage({logOptions: ['newwindow', sleepyGroup, snoozeTime]});

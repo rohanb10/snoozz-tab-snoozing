@@ -171,7 +171,7 @@ input[type=checkbox] {
 
 .storage-used {
 	height: 8px;
-	background: linear-gradient(90deg, #df4e76 0%, #f3b845 100%);
+	background: linear-gradient(90deg, #f3b845 0%, #df4e76 100%);
 	clip-path: inset(0 0 0 0);
 	transition: clip-path .5s ease-in-out
 }

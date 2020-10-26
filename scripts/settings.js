@@ -24,7 +24,7 @@ async function initialize() {
 
 async function calculateStorage() {
 	var s = document.querySelector('.settings-container > .storage')
-	var available = ((chrome.storage.sync.QUOTA_BYTES || 5242880) / 1000).toFixed(1);
+	var available = ((chrome.storage.local.QUOTA_BYTES || 5242880) / 1000).toFixed(1);
 	var used = (await getStorageSize(isFirefox) / 1000).toFixed(1);
 	var sizeAndSuffix = num => num < 1000 ? num + 'KB' : (num/1000).toFixed(2) + 'MB'
 	s.querySelector('.storage-used').style.clipPath = `inset(0 ${100 - (used * 100 / available)}% 0 0)`;

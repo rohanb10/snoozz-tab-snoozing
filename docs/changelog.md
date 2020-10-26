@@ -19,6 +19,7 @@ PRs and other ideas welcome.
 - Add option to select time as "now" for [monday, weekend, next-week, next-month]
 
 #### 2.3.0
+- First release on Microsoft Edge 🎉
 - Add Search to the Dashboard -> `urls | titles | snooze date | wake up date | day of week | month | relative time | snoozz state`
 - Add live clock css/js animation to the Dashboard when no tabs are found.
 - Onboarding instructions UI on the Dashboard (shown when no tabs in storage).
