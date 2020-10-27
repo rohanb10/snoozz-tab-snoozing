@@ -7,10 +7,9 @@ async function init() {
 
 	// refresh dashboard when storage changed if page is not in focus
 	chrome.storage.onChanged.addListener(async changes => {
-		if (!changes.snoozed || document.hasFocus()) return;
-		var tabs = await getTabsInWindow();
-		var extTab = tabs.find(t => t.title ==='dashboard | snoozz');
-		if (extTab) chrome.tabs.reload(extTab.id);
+		if (!changes.snoozed || document.hasFocus() || !document.hidden ) return;
+		CACHED_TABS = changes.snoozed.newValue;
+		fillTimeGroups()
 	});
 
 	chrome.runtime.onMessage.addListener(async msg => {
@@ -20,7 +19,7 @@ async function init() {
 			fillTimeGroups();
 		}
 	});
-	document.addEventListener('visibilitychange', setupClock);
+	document.addEventListener('visibilitychange', _ => {setupClock();fillTimeGroups()});
 	var search = document.getElementById('search');
 	search.addEventListener('input', _ => {
 		search.parentElement.classList.toggle('searching', search.value && search.value.length && search.value.length > 0);
@@ -70,7 +69,7 @@ function buildTimeGroups() {
 		});
 		timeAction.addEventListener('click', async _ => {
 			var ids = Array.from(document.querySelectorAll(`#${tID} .tab`)).map(t =>t.id);
-			await (tID === 'history' ? removeTabsFromHistory(ids) : wakeUpTabsAbruptly(ids));
+			tID === 'history' ? await removeTabsFromHistory(ids) : await wakeUpTabsAbruptly(ids);
 		}, {once: true})
 		header.append(name, timeAction);
 		timeGroup.append(header);

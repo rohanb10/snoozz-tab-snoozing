@@ -3,7 +3,8 @@ async function initialize() {
 	showIconOnScroll();
 
 	if (window.location.hash) {
-		try { document.getElementById(window.location.hash.slice(1)).focus() } catch {}
+		var section = document.querySelector(window.location.hash);
+		if (section) section.focus();
 		window.location.hash = '';
 		window.history.replaceState(null, null, window.location.pathname);
 	}
@@ -29,13 +30,13 @@ async function initialize() {
 }
 
 async function calculateStorage() {
-	var s = document.querySelector('.settings-container > .storage')
 	var available = ((chrome.storage.local.QUOTA_BYTES || 5242880) / 1000).toFixed(1);
 	var used = (await getStorageSize(isFirefox) / 1000).toFixed(1);
 	var sizeAndSuffix = num => num < 1000 ? num + 'KB' : (num/1000).toFixed(2) + 'MB'
-	s.querySelector('.storage-used').style.clipPath = `inset(0 ${100 - (used * 100 / available)}% 0 0)`;
-	s.querySelector('.storage-text').innerText = `${sizeAndSuffix(used)} of ${sizeAndSuffix(available)} used.`
-	s.querySelector('.storage-low').classList.toggle('hidden', used / available < .75);
+	document.querySelector('.storage-used').style.clipPath = `inset(0 ${99 - (used * 100 / available)}% 0 0)`;
+	document.querySelector('.storage-text').innerText = `${sizeAndSuffix(used)} of ${sizeAndSuffix(available)} used.`
+	document.querySelector('.storage-low').classList.toggle('hidden', used / available < .75 || used / available >= 1);
+	document.querySelector('.storage-full').classList.toggle('hidden', used / available < 1);
 }
 
 function updateFormValues(storage) {
@@ -72,7 +73,9 @@ function toggleShortcuts(e) {
 	updateKeyBindings();
 
 	var browserInfo = s.querySelector(`.${isFirefox ? 'ff':'chrome'}-info`);
-	browserInfo.querySelector('a[data-href]').addEventListener('click', e => chrome.tabs.create({url: e.target.getAttribute('data-href'), active: true}));
+	if (browserInfo === 'chrome-info') browserInfo.querySelector('a[data-href]').addEventListener('click', e => {
+		chrome.tabs.create({url: e.target.getAttribute('data-href'), active: true})
+	});
 	if (s.classList.contains('show')) browserInfo.style.maxHeight = browserInfo.scrollHeight + 'px';
 
 }

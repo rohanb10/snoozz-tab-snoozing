@@ -1,4 +1,5 @@
 const isFirefox = (window.browser && chrome.runtime) || navigator.userAgent.indexOf('Firefox') !== -1;
+const isSafari = navigator.userAgent.indexOf('Safari') !== -1;
 /*	ASYNCHRONOUS FUNCTIONS	*/
 /*	GET 	*/
 async function getSnoozedTabs(ids) {
@@ -17,7 +18,8 @@ async function getOptions(keys) {
 	
 }
 async function getTabsInWindow(active) {
-	var p = new Promise(r => chrome.tabs.query({active: active, currentWindow: true}, r));
+	if (isSafari) active = true;
+	var p = new Promise(r => chrome.tabs.query({active: active, currentWindow: true }, r));
 	if (!active) return p;
 	var tabs = await p;
 	return tabs[0];
@@ -69,6 +71,7 @@ function createAlarm(name, time, willWakeUpATab = false) {
 	chrome.alarms.create(name, {when: time});
 }
 function createNotification(id, title, imgUrl, msg, clickUrl) {
+	if (!chrome.notifications) return;
 	chrome.notifications.create(id, {type: 'basic', iconUrl: chrome.extension.getURL(imgUrl), title: title, message: msg});
 	if (clickUrl) chrome.notifications.onClicked.addListener(_ => openExtensionTab(clickUrl));
 }
@@ -91,6 +94,7 @@ async function updateBadge(cachedTabs, cachedBadge) {
 
 // open tab for an extension page
 async function openExtensionTab(url) {
+	if (isSafari) url = chrome.runtime.getURL(url);
 	var tabs = await getTabsInWindow();
 	var extTabs = tabs.filter(t => isDefault(t));
 
@@ -268,7 +272,7 @@ var sleeping = tabs => tabs.filter(t => !t.opened);
 
 var today = tabs => tabs.filter(t => t.wakeUpTime && dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear())
 
-var isDefault = tabs => tabs.title && ['dashboard | snoozz', 'settings | snoozz', 'rise and shine | snoozz', 'New Tab'].includes(tabs.title);
+var isDefault = tabs => tabs.title && ['dashboard | snoozz', 'settings | snoozz', 'rise and shine | snoozz', 'New Tab', 'Start Page'].includes(tabs.title);
 
 var isValid = tabs => tabs.url && ['http', 'https', 'ftp'].includes(tabs.url.substring(0, tabs.url.indexOf(':')))
 

@@ -17,6 +17,7 @@ PRs and other ideas welcome.
 #### 2.3.1
 - Visualise available storage on the settings page
 - Add option to select time as "now" for [monday, weekend, next-week, next-month]
+- Safari specific changes. No release planned on app store, but able to build for personal use -> [See how](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/safari.md)
 
 #### 2.3.0
 - First release on Microsoft Edge 🎉

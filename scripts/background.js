@@ -155,4 +155,4 @@ function init() {
 chrome.runtime.onInstalled.addListener(setUpExtension);
 chrome.runtime.onStartup.addListener(init);
 chrome.alarms.onAlarm.addListener(a => { if (a.name === 'wakeUpTabs') wakeUpTask()});
-chrome.idle.onStateChanged.addListener(s => {if (s === 'active' || isFirefox) wakeUpTask()});
+if (chrome.idle) chrome.idle.onStateChanged.addListener(s => {if (s === 'active' || isFirefox) wakeUpTask()});

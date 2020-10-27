@@ -10,6 +10,7 @@ body, html, h1, h3, h4, h4+p {
 	margin: 0 auto;
 }
 body {
+	background-color: #FFF;
 	padding: 1em 0;
 	font-family: 'Arial', sans-serif;
 	font-size: .8rem;

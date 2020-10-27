@@ -5,8 +5,8 @@ async function init() {
 	await generatePreviews();
  	
  	document.querySelectorAll('.dashboard-btn, .settings').forEach(btn => btn.addEventListener('click', el => {
-		if (isFirefox) setTimeout(_ => window.close(), 100);
 		openExtensionTab(el.target.dataset.href);
+		setTimeout(_ => window.close(), 100);
 	}));
 	if (isFirefox) {
 		chrome.tabs.onActivated.addListener(_ => setTimeout(_ => window.close(), 50))
@@ -117,19 +117,19 @@ async function generatePreviews() {
 	var allTabs = await getTabsInWindow();
 	if (!allTabs || allTabs.length == 0) return;
 
-	var activeTab = allTabs.find(at => at.active);
+	var activeTab = allTabs ? allTabs.find(at => at.active) : undefined;
 	var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t));
 
 	var isActiveTabValid = validTabs.includes(activeTab);
 	// tab preview handler
 	document.getElementById('tab-title').innerText = isActiveTabValid ? activeTab.title : `Can't snooze this tab`;
-	document.getElementById('tab-favicon').src = isActiveTabValid && activeTab.favIconUrl ? activeTab.favIconUrl : '../icons/unknown.png';
+	document.getElementById('tab-favicon').src = isActiveTabValid && activeTab.favIconUrl ? activeTab.favIconUrl : (activeTab ? getFaviconUrl(activeTab.url) : '../icons/unknown.png');
 	tabPreview.classList.toggle('disabled', !isActiveTabValid);
 	tabPreview.classList.toggle('active', isActiveTabValid);
 
 	// window preview handler
 	document.getElementById('window-title').innerText = `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`;
-	windowPreview.classList.toggle('disabled', (validTabs.length === 1 && isActiveTabValid) || validTabs.length === 0);
+	windowPreview.classList.toggle('disabled', isSafari || (validTabs.length === 1 && isActiveTabValid) || validTabs.length === 0);
 	windowPreview.classList.toggle('active', !isActiveTabValid && validTabs.length > 0);
 
 	// Disable tab preview if invalid link type

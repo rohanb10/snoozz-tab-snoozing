@@ -45,6 +45,7 @@ h4, p {
 	opacity: 1;
 }
 select, option {
+	border-radius: 0;
 	border: none;
 	outline: none;
 	text-align: center;
@@ -109,6 +110,11 @@ select {
 }
 #shortcut {
 	flex-wrap: wrap;
+	@media screen and (min-color-index: 0) and (-webkit-min-device-pixel-ratio: 0) {
+		@media {
+			display: none;
+		}
+	}
 }
 #shortcut:not(.show) .ff-info, #shortcut:not(.show) .chrome-info, #shortcut:not(.show) .shortcuts {
 	max-height: 0;
@@ -178,10 +184,10 @@ input[type=checkbox] {
 	clip-path: inset(0 0 0 0);
 	transition: clip-path .5s ease-in-out
 }
-.storage-text, .storage-low {
+.storage-text, .storage-low, .storage-full {
 	text-align: center;
 }
-.storage-low.hidden {
+.storage-low.hidden, .storage-full.hidden {
 	display: none;
 }
 .reset-container {
