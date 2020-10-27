@@ -116,8 +116,9 @@ async function generatePreviews() {
 	
 	var allTabs = await getTabsInWindow();
 	if (!allTabs || allTabs.length == 0) return;
+	if (allTabs.length === undefined) allTabs = [allTabs];
 
-	var activeTab = allTabs ? allTabs.find(at => at.active) : undefined;
+	var activeTab = allTabs.find(at => at.active);
 	var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t));
 
 	var isActiveTabValid = validTabs.includes(activeTab);

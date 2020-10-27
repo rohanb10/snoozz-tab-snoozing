@@ -1,5 +1,5 @@
-const isFirefox = (window.browser && chrome.runtime) || navigator.userAgent.indexOf('Firefox') !== -1;
-const isSafari = navigator.userAgent.indexOf('Safari') !== -1;
+const isFirefox = !!window.sidebar;
+const isSafari = !!navigator.userAgent.match(/safari/i) && !navigator.userAgent.match(/chrome/i) && typeof document.body.style.webkitFilter !== "undefined";
 /*	ASYNCHRONOUS FUNCTIONS	*/
 /*	GET 	*/
 async function getSnoozedTabs(ids) {
@@ -96,6 +96,7 @@ async function updateBadge(cachedTabs, cachedBadge) {
 async function openExtensionTab(url) {
 	if (isSafari) url = chrome.runtime.getURL(url);
 	var tabs = await getTabsInWindow();
+	if (isSafari && !tabs.length) tabs = [tabs];
 	var extTabs = tabs.filter(t => isDefault(t));
 
 	if (extTabs.length === 1){chrome.tabs.update(extTabs[0].id, {url: url, active: true})}
@@ -105,7 +106,7 @@ async function openExtensionTab(url) {
 		chrome.tabs.remove(extTabs.filter(et => et !== activeTab).map(t => t.id))		
 	} else {
 		var activeTab = tabs.find(t => t.active);
-		if (activeTab && activeTab.title === 'New Tab') {chrome.tabs.update(activeTab.id, {url: url})}
+		if (activeTab && ['New Tab', 'Start Page'].includes(activeTab.title)) {chrome.tabs.update(activeTab.id, {url: url})}
 		else {chrome.tabs.create({url: url})}
 	}
 }

@@ -66,9 +66,11 @@ async function setUpContextMenus(cachedMenus) {
 		})
 	} else {
 		chrome.contextMenus.create({id: 'snoozz', contexts: contexts, title: 'Snoozz until', documentUrlPatterns: ['<all_urls>']})
+		console.log(contexts);
 		cm.forEach(o => chrome.contextMenus.create({
 			parentId: 'snoozz',
-			id: o, contexts: contexts,
+			id: o, 
+			contexts: contexts,
 			title: choices[o].label.toLowerCase(),
 			...isFirefox ? {icons: {32: `../icons/${o}.png`}} : {}
 		}));
