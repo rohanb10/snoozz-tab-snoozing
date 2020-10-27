@@ -1,34 +1,33 @@
 # Using Snoozz with Safari
 
+<div align="center">
+	<img src="https://i.imgur.com/wzYR5gz.png" alt="Snoozz x Safari">
+</div>
+
 I'm not paying Apple a hundred bucks a year for the privilege of publishing my free, open source extension in their App Store.
 
 If you want to build your own version of Snoozz for Safari, here's how you do it.
 
-### System Requirements
-- Safari 14+
+### Requirements
 - MacOS 10.14.6+
 - Xcode 12+
-- Ability to google solutions to a frustrating amount of error codes
+- [Command Line Tools]((https://developer.apple.com/download/more/)) for Xcode
+- Latest [release](https://github.com/rohanb10/snoozz-tab-snoozing/releases/tag/v2.3.0) of Snoozz
+- Safari 14+
+	- Show **Developer** menu in **Safari** > **Preferences** > **Advanced**
+	- Allow [Unsigned Extensions](https://i.imgur.com/4l1piHd.png) in the **Develop** menu
 
 ### Instructions
 
- 1. Make sure you have Command Line Tools for Xcode installed. You can download it [here](https://developer.apple.com/download/more/).
- 2. Download a zip file of this repo.
- 
- 3. Extract the zip and delete the non-critical folders (`docs/`, `external_assets`).
- 4. Convert the extension to an Xcode package using this command. More info [here](https://developer.apple.com/documentation/safariservices/safari_web_extensions/converting_a_web_extension_for_safari).
+ 1. Convert the extension to an Xcode package using this command. More info [here](https://developer.apple.com/documentation/safariservices/safari_web_extensions/converting_a_web_extension_for_safari).
  ```
- xcrun safari-web-extension-converter /path/to/extension
+ 	xcrun safari-web-extension-converter /path/to/extension
  ```
- 5. In Xcode, find and open the `manifest.json` file in the Resources directory.
- 6. In `manifest.json`, under the `permissions` key change the permission `tabs` to `activeTab`. (This is to [minimise](https://developer.apple.com/documentation/safariservices/safari_web_extensions/managing_safari_web_extension_permissions) access requests to the user)
- 7. [Build and run](https://developer.apple.com/documentation/safariservices/safari_app_extensions/building_a_safari_app_extension#2957926) the extension.
- 8. In the newly built app, click on the **Quit and Open Safari Preferences...** button.
- 
- 9. In Safari, toggle developer mode if it's not on already. **Preferences** > **Advanced** > **Show Develop menu in menu bar**.
- 10. Click on the Develop menu at the top, and then enable **Allow Unsigned Extensions** at the bottom of the dropdown. (This will reset everytime you quit Safari. It's dumb, I agree)
- 11. Open the **Extensions** Menu in Safari Preferences and enable Snoozz. ([help](https://developer.apple.com/documentation/safariservices/safari_app_extensions/building_a_safari_app_extension#2957925))
- 12. Get through all the scary warning menus and then get snoozing.
+ 2. In Xcode, find and open the `manifest.json` file in the `Resources/` directory.
+ 3. In `manifest.json`, under the `permissions` key change the permission `tabs` to `activeTab`. (This is to [minimise](https://developer.apple.com/documentation/safariservices/safari_web_extensions/managing_safari_web_extension_permissions) access requests to the user)
+ 4. [Build and run](https://developer.apple.com/documentation/safariservices/safari_app_extensions/building_a_safari_app_extension#2957926) the extension.
+ 5. Quit the newly built Snoozz app. Open **Safari** > **Preferences** > **Extensions** and enable Snoozz.
+ 6. Get through all the scary warning menus and then get snoozing.
 
 ### What's broken ?
 - **Snoozing windows**
