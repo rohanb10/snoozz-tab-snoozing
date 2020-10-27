@@ -231,6 +231,8 @@ p {
 	text-align: center;
 	font-size: 1.2em;
 	margin: 2.5em 0;
+}
+p, p a {
 	color: #666;
 }
 .settings img {

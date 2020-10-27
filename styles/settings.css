@@ -20,11 +20,14 @@ h2 span {
 	padding: 1em;
 	margin: .5em 0;
 	border-radius: .33em;
-	border: 1px dashed #fff;
+	border: 2px dashed #fff;
 	transition: border-color .25s ease-in-out;
 }
 .input-container:hover {
-	border-color: #bbb;
+	border-color: #333;
+}
+.input-container:focus-within:not(:hover) {
+	border-color: tomato;
 }
 .input-container {
 	max-width: 100%;
@@ -32,13 +35,13 @@ h2 span {
 h4 ~ p {
 	font-size: .8em;
 	margin: 0;
-	opacity: .25;
+	opacity: .15;
 	transition: opacity .25s ease-in-out
 }
 h4, p {
 	cursor: default;
 }
-.input-container:hover p, .input-container:hover .storage-available {
+.input-container:hover p, .input-container:hover .storage-available, .input-container:focus-within p {
 	opacity: 1;
 }
 select, option {

@@ -2,6 +2,12 @@ async function initialize() {
 	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('/html/dashboard.html'), {once:true});
 	showIconOnScroll();
 
+	if (window.location.hash) {
+		try { document.getElementById(window.location.hash.slice(1)).focus() } catch {}
+		window.location.hash = '';
+		window.history.replaceState(null, null, window.location.pathname);
+	}
+
 	var options = await getOptions();
 	try {updateFormValues(options)} catch(e) {}
 	addListeners();
