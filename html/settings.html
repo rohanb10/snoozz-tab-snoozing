@@ -134,27 +134,36 @@
 				<p>Set up shortcuts to snooze a tab without any clicks.</p>
 			</div>
 			<div class="btn"><div></div></div>
-			<div class="ff-info">
+			<div class="mini firefox-info">
+				<strong>Instructions</strong>
 				<ol>
-					<strong>Instructions</strong>
-					<li>Open the Firefox Add-Ons page in a new tab: <code>about:addons</code></li>
+					<li>Open the Firefox Add-Ons page in a new tab: <code>about:addons</code>.</li>
 					<li>Click on the <a target="_blank" href="https://bug1303384.bmoattachments.org/attachment.cgi?id=9051647">gear icon</a> in the top right and select <strong>Manage Extension Shortcuts</strong>.</li> 
 					<li>Configure snooze time shortcuts using your own key bindings.</li>
 				</ol>
 			</div>
-			<div class="chrome-info">
+			<div class="mini chrome-info">
 				<strong>Instructions</strong>
-				<div>Configure snooze time shortcuts on the <a data-href="chrome://extensions/shortcuts">Chrome Extension Shortcuts</a> page</div>
+				<div>Configure snooze time shortcuts on the <a data-href="chrome://extensions/shortcuts">Chrome Extension Shortcuts</a> page.</div>
 			</div>
-			<div class="shortcuts">
+			<div class="mini safari-info">
+				<div>It is not possible to configure keyboard shortcuts for extensions in Safari.</div>
+			</div>
+			<div class="mini shortcuts">
 				<strong>Currently active shortcuts</strong>
 				<div class="bindings"></div>
 			</div>
 		</div>
-		<div class="input-container storage">
-			<h4>Storage</h4>
-			<p>Choose to save data in this browser only or across.</p>
-			<p>This shows you how much storage is used and available.</p>
+		<div class="input-container">
+			<div class="flex">
+				<div>
+					<h4>Storage</h4>
+					<p>Choose to save data in this browser only or across all synced browsers.</p>
+				</div>
+				<div class="select-wrapper"><select id="storage">
+					<option value="local">Local</option>
+				</select></div>
+			</div>
 			<div class="storage-available">
 				<div class="storage-used"></div>
 			</div>

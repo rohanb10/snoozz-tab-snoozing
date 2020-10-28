@@ -8,7 +8,7 @@ async function init() {
 		openExtensionTab(el.target.dataset.href);
 		setTimeout(_ => window.close(), 100);
 	}));
-	if (isFirefox) {
+	if (getBrowser() === 'firefox') {
 		chrome.tabs.onActivated.addListener(_ => setTimeout(_ => window.close(), 50))
 		chrome.runtime.onMessage.addListener(msg => {if (msg.closePopup) window.close()});
 	}
@@ -130,7 +130,7 @@ async function generatePreviews() {
 
 	// window preview handler
 	document.getElementById('window-title').innerText = `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`;
-	windowPreview.classList.toggle('disabled', isSafari || (validTabs.length === 1 && isActiveTabValid) || validTabs.length === 0);
+	windowPreview.classList.toggle('disabled', getBrowser(true) === 'safari' || (validTabs.length === 1 && isActiveTabValid) || validTabs.length === 0);
 	windowPreview.classList.toggle('active', !isActiveTabValid && validTabs.length > 0);
 
 	// Disable tab preview if invalid link type

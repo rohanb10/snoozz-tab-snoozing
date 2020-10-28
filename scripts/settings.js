@@ -1,14 +1,12 @@
 async function initialize() {
-	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('/html/dashboard.html'), {once:true});
+	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('/html/dashboard.html'));
 	showIconOnScroll();
 
 	if (window.location.hash) {
-		var section = document.querySelector(window.location.hash);
-		if (section) section.focus();
+		if (document.getElementById(window.location.hash.slice(1))) highlightSetting(window.location.hash.slice(1))
 		window.location.hash = '';
 		window.history.replaceState(null, null, window.location.pathname);
 	}
-
 	var options = await getOptions();
 	try {updateFormValues(options)} catch(e) {}
 	addListeners();
@@ -22,30 +20,32 @@ async function initialize() {
 	document.getElementById('reset').addEventListener('click', resetSettings);
 	document.getElementById('version').innerText = `Snoozz v${chrome.runtime.getManifest().version}`;
 
-	if (isFirefox) document.querySelector('code').addEventListener('click', _ => {
+	document.querySelector('code').addEventListener('click', _ => {
 		clipboard('about:addons')
 		document.querySelector('body > .copied').classList.add('toast');
 		setTimeout(_ => document.querySelector('body > .copied').remove('toast'), 4000)
 	});
 }
+function highlightSetting(name, condition) {
+	var el = document.getElementById(name).closest('.input-container');
+	if (condition !== undefined) return el.classList.toggle('highlight', condition)
+	el.classList.add('highlight');
+	document.getElementById(name).addEventListener('click',_ => el.classList.remove('highlight'), {once: true})
+}
 
 async function calculateStorage() {
 	var available = ((chrome.storage.local.QUOTA_BYTES || 5242880) / 1000).toFixed(1);
-	var used = (await getStorageSize(isFirefox) / 1000).toFixed(1);
+	var used = (await getStorageSize() / 1000).toFixed(1);
 	var sizeAndSuffix = num => num < 1000 ? num + 'KB' : (num/1000).toFixed(2) + 'MB'
 	document.querySelector('.storage-used').style.clipPath = `inset(0 ${99 - (used * 100 / available)}% 0 0)`;
 	document.querySelector('.storage-text').innerText = `${sizeAndSuffix(used)} of ${sizeAndSuffix(available)} used.`
 	document.querySelector('.storage-low').classList.toggle('hidden', used / available < .75 || used / available >= 1);
 	document.querySelector('.storage-full').classList.toggle('hidden', used / available < 1);
+	highlightSetting('storage', used / available >= 1)
 }
 
 function updateFormValues(storage) {
-	document.querySelector(`#morning option[value='${storage.morning}']`).setAttribute('selected', true)
-	document.querySelector(`#evening option[value='${storage.evening}']`).setAttribute('selected', true)
-	document.querySelector(`#timeOfDay option[value=${storage.timeOfDay}]`).setAttribute('selected', true)
-	document.querySelector(`#history option[value='${storage.history}']`).setAttribute('selected', true)
-	document.querySelector(`#badge option[value=${storage.badge}]`).setAttribute('selected', true)
-	document.querySelector(`#closeDelay option[value='${storage.closeDelay}']`).setAttribute('selected', true)
+	['morning', 'evening', 'timeOfDay', 'history', 'badge', 'closeDelay'].forEach(o => document.getElementById(o).value = storage[o].toString())
 	if (storage.contextMenu.length > 0) storage.contextMenu.forEach(o => document.getElementById(o).checked = true);
 	if (storage.contextMenu.length > 4) document.querySelector('.choice-list').classList.add('disabled');
 }
@@ -67,12 +67,12 @@ async function save(e) {
 }
 
 function toggleShortcuts(e) {
-	var s = e.currentTarget.parentElement;
+	var s = e.target.closest('.input-container');
 	s.classList.toggle('show');
-	s.querySelectorAll('.ff-info, .chrome-info, .shortcuts').forEach(el => el.style.maxHeight = '0');
+	s.querySelectorAll('.mini').forEach(el => el.style.maxHeight = '0');
 	updateKeyBindings();
 
-	var browserInfo = s.querySelector(`.${isFirefox ? 'ff':'chrome'}-info`);
+	var browserInfo = s.querySelector(`.${getBrowser()}-info`);
 	if (browserInfo === 'chrome-info') browserInfo.querySelector('a[data-href]').addEventListener('click', e => {
 		chrome.tabs.create({url: e.target.getAttribute('data-href'), active: true})
 	});

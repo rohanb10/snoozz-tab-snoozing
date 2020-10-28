@@ -55,28 +55,27 @@ async function setUpContextMenus(cachedMenus) {
 	var cm = cachedMenus || await getOptions('contextMenu');
 	if (!cm || !cm.length || cm.length === 0) return;
 	var choices = await getChoices();
-	var contexts = isFirefox ? ['link', 'tab'] : ['link'];
+	var contexts = getBrowser() === 'firefox' ? ['link', 'tab'] : ['link'];
 	if (cm.length === 1) {
 		chrome.contextMenus.create({
 			id: cm[0], 
 			contexts: contexts, 
 			title: `Snoozz until ${choices[cm[0]].label.toLowerCase()}`, 
 			documentUrlPatterns: ['<all_urls>'],
-			...isFirefox ? {icons: {32: `../icons/${cm[0]}.png`}} : {}
+			...(getBrowser() === 'firefox') ? {icons: {32: `../icons/${cm[0]}.png`}} : {}
 		})
 	} else {
 		chrome.contextMenus.create({id: 'snoozz', contexts: contexts, title: 'Snoozz until', documentUrlPatterns: ['<all_urls>']})
-		console.log(contexts);
 		cm.forEach(o => chrome.contextMenus.create({
 			parentId: 'snoozz',
 			id: o, 
 			contexts: contexts,
 			title: choices[o].label.toLowerCase(),
-			...isFirefox ? {icons: {32: `../icons/${o}.png`}} : {}
+			...(getBrowser() === 'firefox') ? {icons: {32: `../icons/${o}.png`}} : {}
 		}));
 	}
 	chrome.contextMenus.onClicked.addListener(snoozeInBackground)
-	if (isFirefox) chrome.contextMenus.onShown.addListener(contextMenuUpdater)
+	if (getBrowser() === 'firefox') chrome.contextMenus.onShown.addListener(contextMenuUpdater)
 }
 chrome.commands.onCommand.addListener(async (command, tab) => {
 	tab = tab || await getTabsInWindow(true);
@@ -157,4 +156,4 @@ function init() {
 chrome.runtime.onInstalled.addListener(setUpExtension);
 chrome.runtime.onStartup.addListener(init);
 chrome.alarms.onAlarm.addListener(a => { if (a.name === 'wakeUpTabs') wakeUpTask()});
-if (chrome.idle) chrome.idle.onStateChanged.addListener(s => {if (s === 'active' || isFirefox) wakeUpTask()});
+if (chrome.idle) chrome.idle.onStateChanged.addListener(s => {if (s === 'active' || getBrowser() === 'firefox') wakeUpTask()});

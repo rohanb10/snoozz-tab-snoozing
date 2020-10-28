@@ -1,5 +1,8 @@
-const isFirefox = !!window.sidebar;
-const isSafari = !!navigator.userAgent.match(/safari/i) && !navigator.userAgent.match(/chrome/i) && typeof document.body.style.webkitFilter !== "undefined";
+function getBrowser() {
+	if (!!navigator.userAgent.match(/safari/i) && !navigator.userAgent.match(/chrome/i) && typeof document.body.style.webkitFilter !== "undefined") return 'safari';
+	if (!!window.sidebar) return 'firefox';
+	return 'chrome';
+}
 /*	ASYNCHRONOUS FUNCTIONS	*/
 /*	GET 	*/
 async function getSnoozedTabs(ids) {
@@ -18,8 +21,8 @@ async function getOptions(keys) {
 	
 }
 async function getTabsInWindow(active) {
-	if (isSafari) active = true;
-	var p = new Promise(r => chrome.tabs.query({active: active, currentWindow: true }, r));
+	if (getBrowser() === 'safari') active = true;
+	var p = new Promise(r => chrome.tabs.query({active: active, currentWindow: true}, r));
 	if (!active) return p;
 	var tabs = await p;
 	return tabs[0];
@@ -29,14 +32,15 @@ async function getAllWindows() {
 }
 async function getTabId(url) {
 	var tabsInWindow = await getTabsInWindow();
+	if (!tabsInWindow.length) tabsInWindow = [tabsInWindow];
 	var foundTab  = tabsInWindow.find(t => t.url === url);
 	return foundTab ? parseInt(foundTab.id) : false; 
 }
 async function getKeyBindings() {
 	return new Promise(r => chrome.commands.getAll(r));
 }
-async function getStorageSize(isFirefox) {
-	if (!isFirefox) return new Promise(r => chrome.storage.local.getBytesInUse(r));
+async function getStorageSize() {
+	if (getBrowser() !== 'firefox') return new Promise(r => chrome.storage.local.getBytesInUse(r));
 	var tabs = await getSnoozedTabs();
 	var options = await getOptions();
 	return calcObjectSize(tabs) + calcObjectSize(options);
@@ -94,11 +98,10 @@ async function updateBadge(cachedTabs, cachedBadge) {
 
 // open tab for an extension page
 async function openExtensionTab(url) {
-	if (isSafari) url = chrome.runtime.getURL(url);
+	if (getBrowser() === 'safari') url = chrome.runtime.getURL(url);
 	var tabs = await getTabsInWindow();
-	if (isSafari && !tabs.length) tabs = [tabs];
+	if (getBrowser() === 'safari' && !tabs.length) tabs = [tabs];
 	var extTabs = tabs.filter(t => isDefault(t));
-
 	if (extTabs.length === 1){chrome.tabs.update(extTabs[0].id, {url: url, active: true})}
 	else if (extTabs.length > 1) {
 		var activeTab = extTabs.some(et => et.active) ? extTabs.find(et => et.active) : extTabs.reduce((t1, t2) => t1.index > t2.index ? t1 : t2);

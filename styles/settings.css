@@ -26,7 +26,7 @@ h2 span {
 .input-container:hover {
 	border-color: #333;
 }
-.input-container:focus-within:not(:hover) {
+.input-container.highlight, .input-container.highlight:hover {
 	border-color: tomato;
 }
 .input-container {
@@ -41,7 +41,7 @@ h4 ~ p {
 h4, p {
 	cursor: default;
 }
-.input-container:hover p, .input-container:hover .storage-available, .input-container:focus-within p {
+.input-container:hover p, .input-container:hover .storage-available, .input-container.highlight p, .input-container.highlight .storage-available {
 	opacity: 1;
 }
 select, option {
@@ -110,16 +110,11 @@ select {
 }
 #shortcut {
 	flex-wrap: wrap;
-	@media screen and (min-color-index: 0) and (-webkit-min-device-pixel-ratio: 0) {
-		@media {
-			display: none;
-		}
-	}
 }
-#shortcut:not(.show) .ff-info, #shortcut:not(.show) .chrome-info, #shortcut:not(.show) .shortcuts {
+#shortcut:not(.show) .mini {
 	max-height: 0;
 }
-.ff-info, .chrome-info, .shortcuts {
+.mini {
 	width: 100%;
 	max-height: 0;
 	transition: max-height .3s ease-in-out;
