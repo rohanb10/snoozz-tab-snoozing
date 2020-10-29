@@ -1,18 +1,15 @@
 import json
-import os
 import shutil
 import zipfile
-#pip install pyfiglet
-# import pyfiglet
+import re
 
 manifest = json.load(open('manifest.json'))
 version =  manifest['version']
 
 print('\n\n\x1b[1;31;40m' + 'Building Snoozz v' + version + '\x1b[0m\n\n')
 
-folder = 'build-temp'
+folder = 'build_temp'
 shitfiles = shutil.ignore_patterns('.DS_Store', '.git', '.Trashes', '.Spotlight-V100', '.github')
-
 
 shutil.copytree('html', folder + '/html', ignore = shitfiles)
 shutil.copytree('scripts', folder + '/scripts', ignore = shitfiles)
@@ -39,10 +36,13 @@ safari_manifest.write(json.dumps(data, indent=4))
 safari_manifest.close()
 
 shutil.make_archive('Snoozz for Safari - ' + version, 'zip', folder)
-print('\n\nCreated Safari Release -' + '\x1b[1;32;40m' + 'Snoozz for Safari - ' + version + '\x1b[0m')
+print('\n\nCreated Safari Release: ' + '\x1b[1;32;40m' + 'Snoozz for Safari - ' + version + '\x1b[0m')
 
-#print('\n\nChangelog')
-#changelog.close()
+print('\n\nChanges in v' + version)
+with open('docs/changelog.md', 'r') as file:
+	latest = re.search('#### ' + version + '(.+?)####', file.read().replace('\n', '¿'))
+	if latest:
+		print(latest.group(1).replace('¿', '\n'))
 
 shutil.rmtree(folder)
-print('Done.')
+print('Done.\n\n')
