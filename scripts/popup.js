@@ -1,4 +1,4 @@
-var closeDelay;
+var collapse, ccContainer, closeDelay = 1000;
 async function init() {
 	await buildChoices();
 	buildCustomChoice();
@@ -12,103 +12,73 @@ async function init() {
 		chrome.tabs.onActivated.addListener(_ => setTimeout(_ => window.close(), 50))
 		chrome.runtime.onMessage.addListener(msg => {if (msg.closePopup) window.close()});
 	}
+	if (getBrowser() === 'safari') await chrome.runtime.backgroundPage(bg => bg.wakeUpTask());
 
+	closeDelay = await getOptions('closeDelay');
  	var tabs = await getSnoozedTabs();
  	if (!tabs || tabs.length === 0) return;
  	var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear()).length;
  	if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount);
-
- 	closeDelay = await getOptions('closeDelay');
 }
 
 async function buildChoices() {
-	var choiceContainer = document.querySelector('.section.choices');
 	var choices = await getChoices();
-	Object.entries(choices).forEach(([name, config]) => {
-		var choice = Object.assign(document.createElement('div'), {
-			classList: `choice ${config.disabled ? 'disabled' : ''} ${config.isDark ? 'dark-on-hover' : ''}`,
-			style: `--bg:${config.color}`
-		})
-
+	document.querySelector('.section.choices').append(...(Object.entries(choices).map(([name, o]) => {
 		var icon = Object.assign(document.createElement('img'), {src: `../icons/${name}.png`});
-		var label = Object.assign(document.createElement('div'), {classList: 'label', innerText: config.label});
-		var div = document.createElement('div');
-		div.append(icon, label);
+		var label = wrapInDiv({classList: 'label', innerText: o.label});
+		var date = wrapInDiv({classList: 'date', innerText: o.timeString});
+		var time = wrapInDiv({classList: 'time', innerText: dayjs(o.time).format(`h${dayjs(o.time).minute() !== 0 ? ':mm ':''}A`)});
 
-		var date = Object.assign(document.createElement('div'), {classList: 'date', innerText: config.timeString});
-		var time = Object.assign(document.createElement('div'), {classList: 'time', innerText: dayjs(config.time).format(`h${dayjs(config.time).minute() !== 0 ? ':mm ':''}A`)});
-		var div2 = document.createElement('div');
-		div2.append(date, time);
-
-		choice.append(div, div2);
-		choice.addEventListener('click', e => snooze(config.time, e.target));
-
-		choiceContainer.append(choice);
-	})
+		return wrapInDiv({
+			classList: `choice ${o.hi} ${o.disabled ? 'disabled' : ''} ${o.isDark ? 'dark-on-hover' : ''}`,
+			style: `--bg:${o.color}`,
+			onclick: e => snooze(o.time, e.target)
+		}, wrapInDiv('', icon, label), wrapInDiv('', date, time));
+	})));
 }
 
-var collapseTimeout, ccContainer;
 function buildCustomChoice() {
 	var NOW = dayjs();
-	var submitButton = Object.assign(document.createElement('div'), {classList: 'submit-btn disabled', innerText: 'snoozz'});
-	submitButton.addEventListener('click', e => {
-		var dv = date.value, tv = time.value;
-		var dateTime = dayjs(`${dv} ${tv}`);
-
-		if (dv.length === 0 || !dv.match(/^\d{4}-\d{2}-\d{2}$/) || dayjs(dv).dayOfYear() < dayjs().dayOfYear()) return date.classList.add('invalid');
-		if (tv.length === 0 || !tv.match(/^\d{2}:\d{2}$/) || dateTime <= dayjs()) return time.classList.add('invalid');
-		
-		// success
-		e.target.classList.add('disabled');
-		[date,time].forEach(dt => dt.setAttribute('disabled', true));
-		snooze(dateTime, ccContainer)
+	var icon = Object.assign(document.createElement('img'), {src: `../icons/alarm.png`})
+	var label = wrapInDiv({classList: 'label', innerText: 'Choose your own time'})
+	var submitButton = wrapInDiv({
+		classList: 'submit-btn disabled',
+		innerText: 'snoozz',
+		onclick: e => {
+			var dv = date.value, tv = time.value;
+			if (dv.length === 0 || !dv.match(/^\d{4}-\d{2}-\d{2}$/) || dayjs(dv).dayOfYear() < dayjs().dayOfYear()) return date.classList.add('invalid');
+			if (tv.length === 0 || !tv.match(/^\d{2}:\d{2}$/) || dayjs(dv + tv) <= dayjs()) return time.classList.add('invalid');
+			
+			e.target.classList.add('disabled');
+			[date,time].forEach(i => i.setAttribute('disabled', true));
+			snooze(dayjs(dv + tv), ccContainer)
+		}
 	});
 
 	var date = Object.assign(document.createElement('input'), {type: 'date', required: true, value: NOW.format('YYYY-MM-DD')});
 	var time = Object.assign(document.createElement('input'), {type: 'time', required: true, value: NOW.format('HH:mm')});
-
-	[date,time].forEach(dt => dt.addEventListener('click', focusForm));
-	[date,time].forEach(dt => dt.addEventListener('blur', _ => focusForm(false)));
-	[date,time].forEach(dt => dt.addEventListener('change', _=> {
-		clearTimeout(collapseTimeout)
-		var formEdited = date.value !== NOW.format('YYYY-MM-DD') || time.value !== NOW.format('HH:mm');
-		if (formEdited) submitButton.classList.remove('disabled');
-		if (!formEdited) collapseTimeout = setTimeout(_ => cc.classList.remove('active'), 3000);
-	}));
-	[date,time].forEach(dt => dt.addEventListener('input', el => [date,time].forEach(ddtt => ddtt.classList.remove('invalid'))));
-
-	var input = Object.assign(document.createElement('div'), {classList: 'input'});
-	input.append(date, time);
-
-	var ccForm = Object.assign(document.createElement('div'), {classList: 'custom-choice-form'});
-	ccForm.append(input, submitButton);
-
-	ccContainer = Object.assign(document.createElement('div'), {classList: 'custom-choice dark-on-hover',style: '--bg: #4C72CA'});
-	ccContainer.addEventListener('mouseover', activateForm);
-	ccContainer.addEventListener('mousemove', activateForm);
-	ccContainer.addEventListener('mouseout', e => {
-		if (!submitButton.classList.contains('disabled')) return;
-		collapseTimeout = setTimeout(_ => activateForm(false), 3000);
+	[date,time].forEach(dt => {
+		dt.addEventListener('click', focusForm)
+		dt.addEventListener('blur', _ => collapse = setTimeout(_ => focusForm(false)), 3000)
+		dt.addEventListener('input', el => [date,time].forEach(ddtt => ddtt.classList.remove('invalid')))
+		dt.addEventListener('change', _ => {
+			activateForm = focusForm = _ => {}
+			submitButton.classList.remove('disabled')
+		});
 	})
 
-	var icon = Object.assign(document.createElement('img'), {src: `../icons/alarm.png`})
-	var label = Object.assign(document.createElement('div'), {classList: 'label', innerText: 'Choose your own time'});
-	var labelDiv = document.createElement('div');
-	labelDiv.append(icon, label);
-
-	ccContainer.append(labelDiv, ccForm)
+	ccContainer = wrapInDiv({
+		classList: 'custom-choice dark-on-hover',
+		style: '--bg: #4C72CA',
+		onmouseover: activateForm,
+		onmousemove: activateForm,
+		onmouseout: _ => collapse = setTimeout(_ => activateForm(false), 3000),
+	}, wrapInDiv('', icon, label), wrapInDiv('custom-choice-form', wrapInDiv('input', date, time), submitButton));
 
 	document.querySelector('.section.choices').after(ccContainer);
 }
-
-function activateForm(shouldActivate = true) {
-	ccContainer.classList.toggle('active', shouldActivate);
-	clearTimeout(collapseTimeout);
-}
-function focusForm(shouldFocus = true) {
-	ccContainer.classList.toggle('focused', shouldFocus);
-	clearTimeout(collapseTimeout);
-}
+var activateForm = (a = true) => {ccContainer.classList.toggle('active', a); clearTimeout(collapse)}
+var focusForm = (f = true) => {ccContainer.classList.toggle('focused', f); clearTimeout(collapse)}
 
 async function generatePreviews() {
 	var windowPreview = document.querySelector('div[data-preview="window"]')
@@ -152,10 +122,10 @@ function toggleActivePreview(el) {
 }
 
 async function snooze(time, choice) {
-	var response, selectedPreview = document.querySelector('div[data-preview].active');
+	var selectedPreview = document.querySelector('div[data-preview].active');
 	if (!selectedPreview || !['window', 'tab'].includes(selectedPreview.getAttribute('data-preview'))) return;
 
-	response = selectedPreview.getAttribute('data-preview') === 'window' ? await snoozeWindow(time) : await snoozeTab(time);
+	var response = selectedPreview.getAttribute('data-preview') === 'window' ? await snoozeWindow(time) : await snoozeTab(time);
 	if (response && !(response.tabId || response.windowId)) return;
 
 	await chrome.runtime.sendMessage(Object.assign(response, {close: true, delay: closeDelay}));
@@ -174,7 +144,7 @@ function changePreviewAfterSnooze(previewParent, choice) {
 		preview.style.color = choice.classList.contains('dark-on-hover') ? '#fff' : '#000';
 		preview.style.backgroundImage = `linear-gradient(to right, ${getComputedStyle(choice).backgroundColor} 50%, rgb(221, 221, 221) 0)`
 		preview.classList.add('animate');
-	})
+	});
 }
 
 window.onload = init

@@ -25,6 +25,8 @@ async function initialize() {
 		document.querySelector('body > .copied').classList.add('toast');
 		setTimeout(_ => document.querySelector('body > .copied').remove('toast'), 4000)
 	});
+
+	if (getBrowser() === 'safari') await chrome.runtime.backgroundPage(bg => bg.wakeUpTask());
 }
 function highlightSetting(name, condition) {
 	var el = document.getElementById(name).closest('.input-container');

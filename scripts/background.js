@@ -21,7 +21,7 @@ chrome.storage.onChanged.addListener(async changes => {
 
 async function wakeUpTask(cachedTabs) {
 	var tabs = cachedTabs || await getSnoozedTabs();
-	cleanUpHistory(tabs);
+	await cleanUpHistory(tabs);
 	if (!tabs || !tabs.length || tabs.length === 0 || sleeping(tabs).length === 0) {
 		bgLog(['No tabs are asleep'],['pink'], 'pink');
 		return chrome.alarms.clear('wakeUpTabs');
@@ -79,7 +79,7 @@ async function setUpContextMenus(cachedMenus) {
 }
 chrome.commands.onCommand.addListener(async (command, tab) => {
 	tab = tab || await getTabsInWindow(true);
-	snoozeInBackground({menuItemId: command, pageUrl: tab.url}, tab)
+	await snoozeInBackground({menuItemId: command, pageUrl: tab.url}, tab)
 })
 
 async function snoozeInBackground(item, tab) {
@@ -88,9 +88,7 @@ async function snoozeInBackground(item, tab) {
 	var isHref = item.linkUrl && item.linkUrl.length && item.linkUrl.length > 0;
 	var url = isHref ? item.linkUrl : item.pageUrl;
 
-	if(!isValid({url : url})) {
-		return createNotification(null, `Can't snoozz that :(`, 'icons/main-icon.png', 'The link you are trying to snooze is invalid.');
-	}
+	if(!isValid({url : url})) return createNotification(null, `Can't snoozz that :(`, 'icons/main-icon.png', 'The link you are trying to snooze is invalid.');
 
 	var snoozeTime = c && c.time;
 	if (!snoozeTime || c.disabled || dayjs().isAfter(dayjs(snoozeTime))) {
@@ -104,7 +102,7 @@ async function snoozeInBackground(item, tab) {
 	var msg = `${!isHref ? tab.title : getHostname(url)} will wake up at ${snoozeTime.format('h:mm a [on] ddd, D MMM')}.`
 	createNotification(snoozeTab.id, 'A new tab is now napping :)', 'icons/main-icon.png', msg, 'html/dashboard.html');
 	if (!isHref) chrome.tabs.remove(tab.id);
-	chrome.runtime.sendMessage({updateDash: true});
+	await chrome.runtime.sendMessage({updateDash: true});
 }
 
 async function contextMenuUpdater(menu) {
@@ -120,7 +118,7 @@ async function cleanUpHistory(tabs) {
 	var tabsToDelete = tabs.filter(t => h && t.opened && dayjs().isAfter(dayjs(t.opened).add(h, 'd')));
 	if (tabsToDelete.length === 0) return;
 	bgLog(['Deleting old tabs automatically:',tabsToDelete.map(t => t.id)],['','red'], 'red')
-	saveTabs(tabs.filter(t => !tabsToDelete.includes(t)));
+	await saveTabs(tabs.filter(t => !tabsToDelete.includes(t)));
 }
 
 async function setUpExtension() {

@@ -9,18 +9,16 @@ I'm not paying Apple a hundred bucks a year for the privilege of publishing my f
 If you want to build your own version of Snoozz for Safari, here's how you do it.
 
 ### Requirements
-- MacOS 10.14.6+
-- Xcode 12+
+- **MacOS 10.14.6+**
+- **Xcode 12+**
 - [Command Line Tools]((https://developer.apple.com/download/more/)) for Xcode
-- <details><summary>Safari 14+</summary>
+- **Safari 14+**
 	- Show **Developer** menu in **Safari** > **Preferences** > **Advanced**
 	- Allow [Unsigned Extensions](https://i.imgur.com/4l1piHd.png) in the **Develop** menu</details>
 
 
-<details><summary>Latest release of [Snoozz for Safari](https://github.com/rohanb10/snoozz-tab-snoozing/releases/latest) v2.3.1+</summary>
-	There is only one small difference between the Safari release and the regular release. The `tabs` permission is replaced with `activeTab` in the manifest [to minimise](https://developer.apple.com/documentation/safariservices/safari_web_extensions/managing_safari_web_extension_permissions) access requests to the user.
-</details>
-
+- Latest release of **[Snoozz for Safari](https://github.com/rohanb10/snoozz-tab-snoozing/releases/latest) v2.3.1+**
+	- The only difference betweent the safari and regular release is the use of the `activeTab` permission instead of `tabs` to minimise [access requests](https://developer.apple.com/documentation/safariservices/safari_web_extensions/managing_safari_web_extension_permissions) to the user.
 
 
 ### Instructions
@@ -38,14 +36,14 @@ If you want to build your own version of Snoozz for Safari, here's how you do it
 
 ### What's broken ?
 - **Snoozing windows:**
-	This requires the `tabs` permission. If I ask for that permission, you will see a privacy popup every single time you try to snooze a website you have not snoozed before.
+	This requires use of the `tabs` API. Using that API, you will see a privacy popup every single time you try to snooze a website you have not snoozed before. The popup explicitly states *Grant the extension permission to read all your data on this site* which is going to put off a lot of users.
 
 - **Notifications:**
-	Safari does not support the notifications API.
+	Safari does not support the `notifications` API.
 - **Keyboard Shortcuts:**
 	Safari does not let you configure your own keyboard shortcuts.
-- **Unpredictable wake up delays:**
-	Safari does not support the idle API. It is used to calculate the next tab to wake up after your computer comes back from standby.
+- **Inconsistent wake up times:**
+	Safari does not support the `idle` API. It is used to calculate the next tab to wake up after your computer comes back from standby. It's very likely that your tabs will not wake up until you interact with the extension in any way.
 - **Shit input for "Choose your own time" in the popup menu:**
 	Safari does not have custom panels for date and time inputs. Fallbacks to a simple (ugly) text field with no validation UI.
 - **UI bugs:**

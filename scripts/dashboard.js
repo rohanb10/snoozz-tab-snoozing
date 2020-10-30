@@ -7,9 +7,8 @@ async function init() {
 
 	// refresh dashboard when storage changed if page is not in focus
 	chrome.storage.onChanged.addListener(async changes => {
-		if (!changes.snoozed || document.hasFocus() || !document.hidden ) return;
-		CACHED_TABS = changes.snoozed.newValue;
-		fillTimeGroups()
+		if (changes.snoozed) CACHED_TABS = changes.snoozed.newValue;
+		if (!document.hasFocus() || document.hidden) fillTimeGroups();
 	});
 
 	chrome.runtime.onMessage.addListener(async msg => {
@@ -31,6 +30,8 @@ async function init() {
 
 	buildTimeGroups();
 	fillTimeGroups();
+
+	if (getBrowser() === 'safari') await chrome.runtime.backgroundPage(bg => bg.wakeUpTask());
 }
 
 function setupClock() {
@@ -142,8 +143,8 @@ function fillTimeGroups(searchQuery) {
 function buildTab(t) {
 	var tab = wrapInDiv({className:`tab${t.tabs ? ' window collapsed':''}`, id: t.id});
 
-	var icon = Object.assign(document.createElement('img'), {className: 'icon', src: getIconForTab(t)});
-	icon.onerror = () => icon.src = '../icons/unknown.png';
+	var icon = Object.assign(document.createElement('img'), {className: `icon ${t.tabs ? 'dropdown':''}`, src: getIconForTab(t)});
+	icon.onerror = _ => icon.src = '../icons/unknown.png';
 	var iconContainer = wrapInDiv('icon-container', icon);
 
 	var title = wrapInDiv({className: 'tab-name', innerText: t.title, title: t.url ?? ''})
@@ -170,6 +171,7 @@ function buildTab(t) {
 		littleTabs = wrapInDiv('tabs');
 		t.tabs.forEach(lt => {
 			var littleIcon = Object.assign(document.createElement('img'), {className: 'little-icon', src: getIconForTab(lt)});
+			littleIcon.onerror = _ => littleIcon.src = '../icons/unknown.png';
 			var littleTitle = wrapInDiv({className: 'tab-name', innerText: lt.title});
 			var littleTab = wrapInDiv('little-tab', littleIcon, littleTitle);
 			littleTab.addEventListener('click', _ => openTab(lt));
@@ -244,8 +246,7 @@ async function sendTabsToHistory(ids) {
 debugMode = pretty => document.querySelectorAll('.tab').forEach(t => t.onclick = async _ => console.log(pretty ? await getPrettyTab(t.id) : await getSnoozedTabs([t.id])));
 
 async function removeTabsFromHistory(ids) {
-	if (!ids) return;
-	if (ids.length > 1 && !confirm('Are you sure you want to remove multiple tabs? \nYou can\'t undo this.')) return;
+	if (!ids || (ids.length > 1 && !confirm('Are you sure you want to remove multiple tabs? \nYou can\'t undo this.'))) return;
 	var tabs = CACHED_TABS;
 	tabs = tabs.filter(t => !ids.includes(t.id));
 	chrome.runtime.sendMessage({logOptions: ['delete', ids]});

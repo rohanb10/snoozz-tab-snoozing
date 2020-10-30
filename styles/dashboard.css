@@ -13,6 +13,8 @@
 }
 #no-tabs.hidden, .search-container.hidden, .instructions.hidden {
 	opacity: 0;
+	pointer-events: none;
+	touch-events: none;
 }
 #time-container {
 	max-width: 80em;

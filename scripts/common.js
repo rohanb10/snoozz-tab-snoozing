@@ -127,7 +127,13 @@ async function openTab(tab, windowId, automatic = false) {
 }
 
 async function openWindow(t, automatic = false) {
-	var targetWindow = await createWindow(t.id);
+	var targetWindow, currentWindow = await getTabsInWindow();
+	if (currentWindow.length && currentWindow.filter(isDefault).length === currentWindow.length) {
+		await openExtensionTab(`/html/rise_and_shine.html#${t.id}`);
+		targetWindow = currentWindow[0].windowId;
+	} else {
+		targetWindow = await createWindow(t.id)
+	}
 
 	// send message to map browser tabs to tab-list in rise_and_shine.html
 	var loadingCount = 0;
