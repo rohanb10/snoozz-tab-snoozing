@@ -130,7 +130,7 @@ div[data-preview].disabled {
 
 .choice.disabled, .custom-choice.disabled, h3.disabled,  div[data-preview].disabled .preview {
 	pointer-events: none;
-	touch-actions: none;
+	touch-action: none;
 	opacity: .1;
 	cursor: unset;
 }
@@ -148,7 +148,7 @@ div[data-preview].disabled {
 }
 .choice div {
 	pointer-events: none;
-	touch-actions: none;
+	touch-action: none;
 }
 
 .choice > div:first-of-type, .custom-choice > div:first-of-type {
@@ -211,7 +211,7 @@ div[data-preview].disabled {
 }
 .submit-btn.disabled {
 	pointer-events: none;
-	touch-actions: none;
+	touch-action: none;
 	opacity: 0.2;
 }
 
@@ -235,7 +235,7 @@ input {
 	transition: all .3s ease-in-out;
 }
 
-input:focus,input:active {
+input:focus, input:active {
 	outline: none;
 }
 

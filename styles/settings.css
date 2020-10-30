@@ -76,12 +76,12 @@ select {
 .choice-list.disabled input, .choice-list.disabled input + label{
 	opacity: .4;
 	pointer-events: none;
-	touch-actions: none;
+	touch-action: none;
 }
 .choice-list.disabled input:checked, .choice-list.disabled input:checked + label {
 	opacity: 1;
 	pointer-events: unset;
-	touch-actions: unset;
+	touch-action: unset;
 }
 .choice-list > div {
 	font-size: 1.1em;

@@ -4,10 +4,11 @@
 .face-1,.face-2,.middle{background:#f8f8f8;border-radius:50%}
 .hour,.minute,.second,.arm{border-radius:50px}
 .contain-clock{margin:-75px auto;width:155px;height:200px}
-.bell,.middle{background:#F3B845}
+.bell{background:#F2B147}
+.middle{background:#4A89C5}
 .bell,.face-2{box-shadow:inset -5px 0 1px rgba(0,0,0,.1)}
 .face-1{top:23px;left:23px;z-index:3;width:109px;height:109px}
-.face-2{margin:10em auto;z-index:2;border:15px solid #E16561;width:125px;height:125px}
+.face-2{margin:10em auto;z-index:2;border:15px solid #E34D68;width:125px;height:125px}
 .line{left:50%;margin-left:-3px;background:#575757;width:6px;height:126px}
 .line-2{left:63px;transform:rotate(90deg)}
 .line-3,.line-4,.line-5,.line-6,.second{margin-left:-1px;width:2px}

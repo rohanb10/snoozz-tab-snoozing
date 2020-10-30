@@ -8,13 +8,13 @@
 	font-size: 1.5em;
 	text-align: center;
 	pointer-events: none;
-	touch-actions: none;
+	touch-action: none;
 	transition: opacity .3s ease-in-out;
 }
 #no-tabs.hidden, .search-container.hidden, .instructions.hidden {
 	opacity: 0;
 	pointer-events: none;
-	touch-events: none;
+	touch-action: none;
 }
 #time-container {
 	max-width: 80em;
