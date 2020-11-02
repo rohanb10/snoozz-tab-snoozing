@@ -49,9 +49,10 @@ Some features and colours of icons have been altered to be compatible with small
 
 | Author | Icons |
 |--|--|
-| [Freepik](https://www.flaticon.com/authors/freepik) | Alarm, Arrow, Bathtub, Calendar, Coffee, Egg, Magnifying Glass, Octopus, Sheep
+| [Freepik](https://www.flaticon.com/authors/freepik) | Alarm, Arrow, Bathtub, Calendar, Coffee, Egg, Octopus, Sheep
 | [Justicon](https://dribbble.com/Justicon) | Chai
 | [Icon Box](https://www.flaticon.com/authors/icon-box) | Gear
+| [Those Icons](https://www.flaticon.com/authors/those-icons) | Magnifying Glass
 | [Smashicons](https://smashicons.com/) | Sheep
 | [dDara](https://www.flaticon.com/authors/ddara) | Wii Fit Trainer
 

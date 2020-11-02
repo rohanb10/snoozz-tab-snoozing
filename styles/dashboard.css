@@ -268,24 +268,37 @@ p, p a {
 	position: relative;
 	display: inline-block;
 	padding-bottom: 3px;
-	transition: background .3s ease-in-out;
-	background: #DDD;
+	transition: background-position .3s linear .2s;
+	background: linear-gradient(90deg, #F3B845 0%, #DF4E76 50%, #DDD 50%, #DDD 100%);
+	background-size: 200%;
+	background-position: right;
+}
+.input-wrapper:not(.valid-search):focus-within:before {
+	content: '3 characters minimum';
+	position: absolute;
+	top: 110%;
+	width: 100%;
+	text-align: center;
+	font-size: .9em;
+	color: #BBB;
 }
 .input-wrapper:after {
 	content: '';
 	position: absolute;
 	left: calc(100% - 1.5em);
 	top: .3rem;
-	height: 1.25em;
+	height: 1.2em;
 	width: 1.25em;
-	transition: left .3s ease-in-out;
+	transition: left .2s linear;
 	background: #FFF url('../icons/search.svg') no-repeat 98% center;
 }
 .input-wrapper.searching {
-	background: linear-gradient(-90deg, #DF4E76 0%, #F3B845 100%);
+	background-position: left;
+	transition-delay: 0s;
 }
 .input-wrapper.searching:after {
 	left: 105%;
+	transition-delay: .3s;
 }
 .instructions {
 	position: fixed;

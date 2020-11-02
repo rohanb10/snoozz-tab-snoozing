@@ -21,7 +21,8 @@ async function init() {
 	document.addEventListener('visibilitychange', _ => {setupClock();fillTimeGroups()});
 	var search = document.getElementById('search');
 	search.addEventListener('input', _ => {
-		search.parentElement.classList.toggle('searching', search.value && search.value.length && search.value.length > 0);
+		search.parentElement.classList.toggle('searching', search.value.length > 0);
+		search.parentElement.classList.toggle('valid-search', search.value.length > 2);
 		fillTimeGroups(search.value.toLowerCase());
 	})
 
@@ -113,15 +114,15 @@ function search(t, query) {
 	return false;
 }
 
-function fillTimeGroups(searchQuery) {
+function fillTimeGroups(searchQuery = '') {
+	console.log('filling');
 	var tabs = CACHED_TABS || [];
 	document.querySelectorAll('#time-container p, #time-container .tab').forEach(el => el.remove());
 	document.querySelector('.search-container').classList.toggle('hidden', tabs.length < 2);
 	document.querySelector('.instructions').classList.toggle('hidden', tabs.length > 0);
-	// search
-	if (searchQuery && searchQuery.length && searchQuery.length > 2) tabs = tabs.filter(t => {
-		return search(t, searchQuery) || (t.tabs && t.tabs.some(tt => search(tt, searchQuery)));
-	})
+
+	if (searchQuery.length > 2) tabs = tabs.filter(t => search(t, searchQuery) || (t.tabs && t.tabs.some(tt => search(tt, searchQuery))));
+
 	var s = sleeping(tabs);
 	if (s.length > 0) s.sort((t1,t2) => t1.wakeUpTime - t2.wakeUpTime).forEach(f => {
 		var timeGroup = document.getElementById(getTimeGroup('wakeUpTime', f));
