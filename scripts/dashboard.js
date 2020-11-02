@@ -115,7 +115,6 @@ function search(t, query) {
 }
 
 function fillTimeGroups(searchQuery = '') {
-	console.log('filling');
 	var tabs = CACHED_TABS || [];
 	document.querySelectorAll('#time-container p, #time-container .tab').forEach(el => el.remove());
 	document.querySelector('.search-container').classList.toggle('hidden', tabs.length < 2);

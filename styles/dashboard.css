@@ -254,7 +254,7 @@ p, p a {
 #search {
 	border: none;
 	height: 2em;
-	width: 17.5em;
+	width: 20em;
 	-moz-appearance: none;
 	-webkit-appearance: none;
 }
@@ -289,7 +289,7 @@ p, p a {
 	top: .3rem;
 	height: 1.2em;
 	width: 1.25em;
-	transition: left .2s linear;
+	transition: left .2s linear .25s, background-color 1ms linear .3s, filter .3s ease-in-out;
 	background: #FFF url('../icons/search.svg') no-repeat 98% center;
 }
 .input-wrapper.searching {
@@ -298,7 +298,11 @@ p, p a {
 }
 .input-wrapper.searching:after {
 	left: 105%;
+	background-color: rgba(0,0,0,0);
 	transition-delay: .3s;
+}
+.input-wrapper.searching.valid-search:after {
+	filter: invert(44%) sepia(34%) saturate(3287%) hue-rotate(316deg) brightness(93%) contrast(87%);
 }
 .instructions {
 	position: fixed;
