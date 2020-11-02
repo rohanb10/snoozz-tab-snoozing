@@ -70,8 +70,17 @@ select {
 	background-position-y: center;
 	padding-right: 20px;
 }
+#right-click .btn div:before {
+	content: 'configure'
+}
+#right-click.show .btn div:before {
+	content: 'close'
+}
 .choice-list {
-	padding-top: 1em;
+	width: 100%;
+	max-height: 0;
+	overflow-y: hidden;
+	transition: max-height .5s ease-in-out, padding-top .1s linear .4s;
 }
 .choice-list.disabled input, .choice-list.disabled input + label{
 	opacity: .4;
@@ -86,6 +95,10 @@ select {
 .choice-list > div {
 	font-size: 1.1em;
 	margin: .5em;
+}
+#right-click.show .choice-list {
+	padding-top: 1em;
+	transition-delay: 0s;
 }
 .btn {
 	padding: 2px;
@@ -108,7 +121,7 @@ select {
 .btn:hover, .select-wrapper:hover {
 	background: linear-gradient(-90deg, #DF4E76 0%, #F3B845 100%);
 }
-#shortcut {
+#shortcut, #right-click {
 	flex-wrap: wrap;
 }
 #shortcut:not(.show) .mini {
@@ -186,9 +199,11 @@ input[type=checkbox] {
 	display: none;
 }
 .reset-container {
-	text-align: right;
+	text-align: center;
 }
 #reset {
+	display: inline-block;
+	margin: 3em 0 0;
 	cursor: pointer;
 	text-decoration: underline;
 	opacity: .75;

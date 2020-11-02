@@ -12,6 +12,7 @@ async function initialize() {
 	addListeners();
 
 	document.querySelector('#shortcut .btn').addEventListener('click', toggleShortcuts);
+	document.querySelector('#right-click .btn').addEventListener('click', toggleRightClickOptions);
 	document.addEventListener('visibilitychange', updateKeyBindings);
 
 	calculateStorage();
@@ -66,6 +67,12 @@ async function save(e) {
 	document.querySelectorAll('select').forEach(s => options[s.id] = isNaN(s.value) ? s.value : parseInt(s.value));
 	options.contextMenu = Array.from(document.querySelectorAll('#contextMenu input:checked')).map(c => c.id);
 	saveOptions(options);
+}
+
+function toggleRightClickOptions(e) {
+	var s = e.target.closest('.input-container'), collapsed = document.getElementById('contextMenu');
+	s.classList.toggle('show');
+	collapsed.style.maxHeight = s.classList.contains('show') ? `calc(${collapsed.scrollHeight}px + 1em)` : '0px'
 }
 
 function toggleShortcuts(e) {

@@ -69,23 +69,14 @@
 		</div>
 		<div class="input-container flex">
 			<div>
-				<h4>Automatically delete tabs after</h4>
-				<p>All tabs in history will be deleted after this amount of time.</p>
-				<p>Changes to this setting may take upto an hour to apply.</p>
+				<h4>Close popup automatically after</h4>
+				<p>Choose to see an animation before closing the Snoozz popup.</p>
+				<p>You may close the popup at any time. Changes will always be saved.</p>
 			</div>
-			<div class="select-wrapper"><select id="history">
-				<option value="1">24 Hours</option>
-				<option value="2">48 Hours</option>
-				<option value="3">72 Hours</option>
-				<option disabled>&nbsp;</option>
-				<option value="7">7 Days</option>
-				<option value="14">14 Days</option>
-				<option disabled>&nbsp;</option>
-				<option value="30">1 Month</option>
-				<option value="90">3 Months</option>
-				<option value="182">6 Months</option>
-				<option disabled>&nbsp;</option>
-				<option value="365">1 Year</option>
+			<div class="select-wrapper"><select id="closeDelay">
+				<option value="1">0 seconds</option>
+				<option value="1000">1 second</option>
+				<option value="2000">2 seconds</option>
 			</select></div>
 		</div>
 		<div class="input-container flex">
@@ -99,24 +90,13 @@
 				<option value="all">All Snoozed Tabs</option>
 			</select></div>
 		</div>
-		<div class="input-container flex">
-			<div>
-				<h4>Close popup automatically after</h4>
-				<p>Choose to see an animation before closing the Snoozz popup.</p>
-				<p>You may close the popup at any time. Changes will always be saved.</p>
-			</div>
-			<div class="select-wrapper"><select id="closeDelay">
-				<option value="1">0 seconds</option>
-				<option value="1000">1 second</option>
-				<option value="2000">2 seconds</option>
-			</select></div>
-		</div>
-		<div class="input-container large right-click">
+		<div class="input-container flex" id="right-click">
 			<div>
 				<h4>Snoozz tabs using the right-click (context) menu</h4>
 				<p>The option will only appear when you click on a valid link<span></span>.</p>
 				<p>You may select up to five choices.</p>
 			</div>
+			<div class="btn"><div></div></div>
 			<div id="contextMenu" class="choice-list">
 				<div><input type="checkbox" id="today-morning"><label for="today-morning">This Morning</label></div>
 				<div><input type="checkbox" id="today-evening"><label for="today-evening">This Evening</label></div>
@@ -170,6 +150,27 @@
 			<p class="storage-text">-</p>
 			<p class="storage-low hidden">Your storage is almost filled up. Consider changing your <a>history</a> settings to free up some space.</p>
 			<p class="storage-full hidden">You have no free space to save more tabs. Delete your <a>history</a> settings to free up some space.</p>
+		</div>
+		<div class="input-container flex">
+			<div>
+				<h4>Automatically delete tabs after</h4>
+				<p>All tabs in history will be deleted after this amount of time.</p>
+				<p>Changes to this setting may take upto an hour to apply.</p>
+			</div>
+			<div class="select-wrapper"><select id="history">
+				<option value="1">24 Hours</option>
+				<option value="2">48 Hours</option>
+				<option value="3">72 Hours</option>
+				<option disabled>&nbsp;</option>
+				<option value="7">7 Days</option>
+				<option value="14">14 Days</option>
+				<option disabled>&nbsp;</option>
+				<option value="30">1 Month</option>
+				<option value="90">3 Months</option>
+				<option value="182">6 Months</option>
+				<option disabled>&nbsp;</option>
+				<option value="365">1 Year</option>
+			</select></div>
 		</div>
 		<div class="reset-container center">
 			<a id="reset">reset settings</a>
