@@ -53,7 +53,7 @@ div[data-preview]:not(.active):not(.disabled):hover {
 	opacity: .5 !important;
 }
 div[data-preview].active .preview, div[data-preview]:not(.active):not(.disabled):hover .preview {
-	border-color: #000;
+	border-color: var(--color);
 }
 div[data-preview].disabled {
 	border-color: transparent !important;
@@ -67,14 +67,16 @@ div[data-preview].disabled {
 	border-radius: .33em;
 	height: 3.5em;
 	max-width: 100%;
-	background-image: linear-gradient(to right, #ddd 50%, #ddd 0);
+	background-color: #ddd;
 	background-position: right;
 	background-size: 200% 200%;
-	transition: background-position 1.9s linear, color .4s ease-in-out .75s;
-	border: 2px solid transparent;
+	transition: background-position 1.9s linear;
+	border: 2px solid var(--color);
 	scrollbar-width: none;
 	cursor: pointer;
+	color: var(--color);
 }
+
 .preview.snoozed {
 	display: flex;
 	justify-content: center;
@@ -84,6 +86,7 @@ div[data-preview].disabled {
 	background-position: left;
 }
 .preview.snoozed span {
+	transition: color .4s ease-in-out .75s;
 	font-size: 1.5em;
 	font-weight: bolder;
 }
@@ -165,7 +168,10 @@ div[data-preview].disabled {
 .choice .date {
 	color: #777;
 }
-.choice:hover *, .choice.focused * {
+body.dark .choice .date {
+	color: #AAA;
+}
+.choice:hover *, .choice.focused *, body.dark .choice:hover *, body.dark .choice.focused * {
 	color: #000;
 }
 
@@ -215,7 +221,8 @@ div[data-preview].disabled {
 	opacity: 0.2;
 }
 
-.choice:hover, .choice.focused, .custom-choice:hover, .custom-choice.focused {
+.choice:hover, .choice.focused, .custom-choice:hover, .custom-choice.focused,
+body.dark .choice:hover, body.dark .choice.focused, body.dark .custom-choice:hover, body.dark .custom-choice.focused {
 	background-color: var(--bg);
 }
 
@@ -226,7 +233,12 @@ input::-webkit-datetime-edit-month-field:focus, input::-webkit-datetime-edit-day
 	color: #fff !important;
 }
 
+body.dark .preview, body.dark .choice, body.dark .custom-choice {
+	background-color: #232323
+}
+
 input {
+	color: var(--color);
 	background-color: inherit;
 	-webkit-appearance: none;
 	border: none;
@@ -292,7 +304,7 @@ input::-webkit-calendar-picker-indicator {
 .dashboard-btn {
 	cursor: pointer;
 	font-size: 1.25em;
-	border-bottom: 1px solid black;
+	border-bottom: 1px solid var(--color);
 }
 .dashboard-btn:hover {
 	text-decoration: underline;
@@ -305,6 +317,9 @@ input::-webkit-calendar-picker-indicator {
 	font-size: .75em;
 	text-transform: uppercase;
 	color: #666;
+}
+body.dark .upcoming {
+	color: #BBB;
 }
 .upcoming:not([data-today='']) {
 	opacity: 1;

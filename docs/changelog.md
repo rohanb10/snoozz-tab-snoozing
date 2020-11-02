@@ -13,12 +13,14 @@ PRs and other ideas welcome.
 
 ## Changes ##
 
-**October 2020**
+**November 2020**
 #### 2.3.1
+- Dark mode 🌚
 - Visualise available storage on the settings page
 - Add option to select time as "now" for [monday, weekend, next-week, next-month]
-- Safari specific changes. No release planned on app store, but able to build for personal use -> [See how](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/safari.md)
+- Webkit specific changes. [See how](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/safari.md) to build for Safari (not distributed through app store)
 
+**October 2020**
 #### 2.3.0
 - First release on Microsoft Edge 🎉
 - Add Search to the Dashboard -> `urls | titles | snooze date | wake up date | day of week | month | relative time | snoozz state`

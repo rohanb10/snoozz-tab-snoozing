@@ -84,6 +84,13 @@ async function createWindow(tabId) {
 }
 
 /*	CONFIGURE	*/
+
+async function setTheme() {
+	var t = await getOptions('theme');
+	document.body.classList.toggle('dark', t === 'dark');
+}
+setTheme();
+
 async function updateBadge(cachedTabs, cachedBadge) {
 	var num = 0;
 	var badge = cachedBadge || await getOptions('badge');

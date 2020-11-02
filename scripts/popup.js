@@ -138,13 +138,16 @@ function changePreviewAfterSnooze(previewParent, choice) {
 	var preview = previewParent.querySelector(`.preview`);
 	preview.classList.add('snoozed');
 	preview.textContent = '';
-	preview.appendChild(Object.assign(document.createElement('span'), {textContent: `Snoozing ${previewParent.getAttribute('data-preview')}`}));
-	preview.style.transition = `background-position ${closeDelay - 100}ms linear, color 400ms ease-in-out ${(closeDelay/2) - 250}ms`;
-	setTimeout(_ => {
-		preview.style.color = choice.classList.contains('dark-on-hover') ? '#fff' : '#000';
-		preview.style.backgroundImage = `linear-gradient(to right, ${getComputedStyle(choice).backgroundColor} 50%, rgb(221, 221, 221) 0)`
-		preview.classList.add('animate');
-	});
+	preview.appendChild(Object.assign(document.createElement('span'), {
+		textContent: `Snoozing ${previewParent.getAttribute('data-preview')}`,
+		style: {
+			transition: `color 400ms ease-in-out ${(closeDelay/2) - 250}ms`,
+			color: choice.classList.contains('dark-on-hover') ? '#fff' : '#000',
+		}
+	}));
+	preview.style.transition = `background-position ${closeDelay - 100}ms linear`
+	preview.style.backgroundImage = `linear-gradient(to right, ${getComputedStyle(choice).backgroundColor} 50%, ${getComputedStyle(preview).backgroundColor} 0)`
+	preview.classList.add('animate');
 }
 
 window.onload = init

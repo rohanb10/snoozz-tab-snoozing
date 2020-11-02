@@ -130,6 +130,7 @@ async function setUpExtension() {
 		evening: 18,
 		timeOfDay: 'morning',
 		history: 14,
+		theme: 'light',
 		badge: 'today',
 		closeDelay: 1000,
 		contextMenu: ['today-evening', 'tom-morning', 'tom-evening', 'weekend', 'monday']

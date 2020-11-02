@@ -7,10 +7,10 @@ h2 {
 }
 h2 span {
 	padding: .25em;
-	border-bottom: 3px solid #EAB35C;
+	border-bottom: 3px solid #f3b845;
 }
 .about-container h2 span {
-	border-color: #D05E74;
+	border-color: #df4e76;
 }
 .input-container.flex, .input-container > .flex {
 	justify-content: space-between;
@@ -20,11 +20,11 @@ h2 span {
 	padding: 1em;
 	margin: .5em 0;
 	border-radius: .33em;
-	border: 2px dashed #fff;
+	border: 2px dashed transparent;
 	transition: border-color .25s ease-in-out;
 }
 .input-container:hover {
-	border-color: #333;
+	border-color: var(--color);
 }
 .input-container.highlight, .input-container.highlight:hover {
 	border-color: tomato;
@@ -58,7 +58,7 @@ select, option, label {
 }
 .select-wrapper {
 	padding-bottom: 2px;
-	background: linear-gradient(#000 0%, #000 100%);
+	background: linear-gradient(var(--color) 0%, var(--color) 100%);
 }
 select {
 	appearance: none;
@@ -69,6 +69,11 @@ select {
 	background-position-x: 100%;
 	background-position-y: center;
 	padding-right: 20px;
+	color: var(--color);
+	background-color: var(--bg-color);
+}
+body.dark select {
+	background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path fill='white' d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
 }
 #right-click .btn div:before {
 	content: 'configure'
@@ -102,11 +107,11 @@ select {
 }
 .btn {
 	padding: 2px;
-	background: linear-gradient(#000 0%, #000 100%);
+	background: linear-gradient(var(--color) 0%, var(--color) 100%);
 	cursor: pointer;
 }
 .btn div {
-	background-color: #fff;
+	background-color: var(--bg-color);
 	padding: .5em .25em;
 	font-size: .75em;
 	font-weight: bold;
@@ -119,7 +124,7 @@ select {
 	content: 'hide';
 }
 .btn:hover, .select-wrapper:hover {
-	background: linear-gradient(-90deg, #DF4E76 0%, #F3B845 100%);
+	background: linear-gradient(-90deg, #df4e76 0%, #f3b845 100%);
 }
 #shortcut, #right-click {
 	flex-wrap: wrap;
@@ -145,6 +150,7 @@ div > strong {
 	width: 15em;
 }
 kbd {
+	color: var(--bg-color);
 	background-color: #eee;
     border-radius: .25em;
     border: 1px solid #222;
@@ -165,9 +171,9 @@ code {
 	right: 1em;
 	font-size: 1.5em;
 	bottom: -2em;
-	border: 1px dashed #000;
+	border: 1px dashed var(--color);
 	padding: .25em .5em;
-	background-color: #fff;
+	background-color: var(--bg-color);
 	transition: bottom .3s ease-in-out;
 }
 .copied.toast {
@@ -180,7 +186,7 @@ input[type=checkbox] {
 .storage-available {
 	margin: 2.5em auto .5em;
 	width: 50%;
-	border: 2px solid black;
+	border: 2px solid var(--color);
 	padding: 3px;
 	opacity: .25;
 	transition: opacity .25s ease-in-out

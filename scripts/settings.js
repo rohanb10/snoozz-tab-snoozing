@@ -48,7 +48,7 @@ async function calculateStorage() {
 }
 
 function updateFormValues(storage) {
-	['morning', 'evening', 'timeOfDay', 'history', 'badge', 'closeDelay'].forEach(o => document.getElementById(o).value = storage[o].toString())
+	['morning', 'evening', 'timeOfDay', 'history', 'theme', 'badge', 'closeDelay'].forEach(o => {if (storage[o]) document.getElementById(o).value = storage[o].toString()})
 	if (storage.contextMenu.length > 0) storage.contextMenu.forEach(o => document.getElementById(o).checked = true);
 	if (storage.contextMenu.length > 4) document.querySelector('.choice-list').classList.add('disabled');
 }
@@ -67,6 +67,7 @@ async function save(e) {
 	document.querySelectorAll('select').forEach(s => options[s.id] = isNaN(s.value) ? s.value : parseInt(s.value));
 	options.contextMenu = Array.from(document.querySelectorAll('#contextMenu input:checked')).map(c => c.id);
 	saveOptions(options);
+	setTheme();
 }
 
 function toggleRightClickOptions(e) {
@@ -116,6 +117,7 @@ async function resetSettings() {
 		morning: 9,
 		evening: 18,
 		timeOfDay: 'morning',
+		theme: 'light',
 		history: 14,
 		badge: 'today',
 		closeDelay: 1000,

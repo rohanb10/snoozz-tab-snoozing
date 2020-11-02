@@ -10,10 +10,19 @@ body, html, h1, h3, h4, h4+p {
 	margin: 0 auto;
 }
 body {
-	background-color: #FFF;
+	--color: #000;
+	--bg-color: #fff;
+
+	color: var(--color);
+	background-color: var(--bg-color);
+
 	padding: 1em 0;
 	font-family: 'Arial', sans-serif;
 	font-size: .8rem;
+}
+body.dark {
+	--bg-color: #333;
+	--color: #FFF;
 }
 @-moz-document url-prefix() {
 	body {
@@ -39,6 +48,9 @@ body {
 	margin-left: 1.5em;
 	max-height: 2.5em;
 }
+body.dark .snoozz-text, body.dark img[src="../icons/unknown.png"], body.dark .settings img {
+	filter: invert(1);
+}
 .scroll-logo {
 	position: fixed;
 	top: 0;
@@ -61,7 +73,7 @@ body {
 	animation: spin 5s infinite linear;
 }
 a {
-	color: #000;
+	color: var(--color);
 	cursor: pointer;
 	text-decoration: underline;
 }
@@ -76,15 +88,9 @@ a:hover {
 	top: 0.5em;
 	right: 0.5em;
 	cursor: pointer;
-	box-sizing: border-box;
-	border: 1px solid white;
 }
 .settings img, .dashboard img {
 	width: 3em;
-	transition: background-color .3s ease-in-out;
-	-webkit-backface-visibility: hidden;
-	border: 1px solid white;
-	-webkit-background-clip: padding-box;
 	filter: grayscale(100%)
 }
 .settings:before, .dashboard:before {
@@ -98,17 +104,12 @@ a:hover {
 	touch-action: none;
 	transition: opacity .3s ease-in-out;
 	white-space: nowrap;
-	background-color: #fff;
 }
 .settings:hover:before, .dashboard:hover:before {
 	opacity: 1;
 }
 .settings img:hover {
-	filter: grayscale(0);
-	background: linear-gradient(-90deg, rgba(223,78,118,1) 0%, rgba(243,184,69,1) 100%);
-	clip-path: polygon(87% 25%, 75% 13%, 67% 21%, 58% 17%, 58% 6%, 42% 6%, 42% 17%, 33% 21%, 25% 13%, 13% 25%, 21% 33%, 17% 41%, 6% 41%, 6% 59%, 17% 59%, 20% 67%, 13% 75%, 25% 87%, 33% 79%, 41% 83%, 41% 94%, 59% 94%, 59% 83%, 67% 80%, 75% 88%, 88% 76%, 80% 67%, 83% 59%, 94% 59%, 94% 41%, 83% 41%, 79% 33%);
-	-webkit-clip-path: polygon(87% 25%, 75% 13%, 67% 21%, 58% 17%, 58% 6%, 42% 6%, 42% 17%, 33% 21%, 25% 13%, 13% 25%, 21% 33%, 17% 41%, 6% 41%, 6% 59%, 17% 59%, 20% 67%, 13% 75%, 25% 87%, 33% 79%, 41% 83%, 41% 94%, 59% 94%, 59% 83%, 67% 80%, 75% 88%, 88% 76%, 80% 67%, 83% 59%, 94% 59%, 94% 41%, 83% 41%, 79% 33%);
-	animation: spin 2.5s linear infinite;
+	animation: spin 2.5s steps(16, end) infinite;
 }
 
 .dashboard img:hover {
