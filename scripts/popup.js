@@ -12,7 +12,7 @@ async function init() {
 		chrome.tabs.onActivated.addListener(_ => setTimeout(_ => window.close(), 50))
 		chrome.runtime.onMessage.addListener(msg => {if (msg.closePopup) window.close()});
 	}
-	if (getBrowser() === 'safari') await chrome.runtime.backgroundPage(bg => bg.wakeUpTask());
+	if (getBrowser() === 'safari') await chrome.runtime.getBackgroundPage(bg => bg.wakeUpTask());
 
 	closeDelay = await getOptions('closeDelay');
  	var tabs = await getSnoozedTabs();

@@ -7,14 +7,14 @@ function getBrowser() {
 /*	GET 	*/
 async function getSnoozedTabs(ids) {
 	var p = await new Promise(r => chrome.storage.local.get('snoozed', r));
-	if (!p.snoozed) return;
+	if (!p.snoozed) return [];
 	if (!ids || (ids.length && ids.length === 0)) return p.snoozed;
 	var found = p.snoozed.filter(s => s.id && (ids.length ? ids.includes(s.id) : ids === s.id));
 	return found.length === 1 ? found[0] : found;
 }
 async function getOptions(keys) {
 	var p = await new Promise(r => chrome.storage.local.get('snoozedOptions', r));
-	if (!p.snoozedOptions) return;
+	if (!p.snoozedOptions) return [];
 	if (!keys) return p.snoozedOptions;
 	if (typeof keys === 'string') return p.snoozedOptions[keys];
 	return Object.keys(p.snoozedOptions).filter(k => keys.includes(k)).reduce((o, k) => {o[k] = p.snoozedOptions[k];return o},{});
@@ -37,6 +37,7 @@ async function getTabId(url) {
 	return foundTab ? parseInt(foundTab.id) : false; 
 }
 async function getKeyBindings() {
+	if (!chrome.commands) return [];
 	return new Promise(r => chrome.commands.getAll(r));
 }
 async function getStorageSize() {
@@ -70,13 +71,13 @@ async function saveTabs(tabs) {
 	return new Promise(r => chrome.storage.local.set({'snoozed': tabs}, r));
 }
 /*	CREATE 	*/
-function createAlarm(name, time, willWakeUpATab = false) {
+async function createAlarm(time, willWakeUpATab) {
 	bgLog(['Next Alarm at',dayjs(time).format('HH:mm:ss D/M/YY')], ['', willWakeUpATab ? 'yellow':'white'])
-	chrome.alarms.create(name, {when: time});
+	await chrome.alarms.create('wakeUpTabs', {when: time});
 }
-function createNotification(id, title, imgUrl, msg, clickUrl) {
+async function createNotification(id, title, imgUrl, msg, clickUrl) {
 	if (!chrome.notifications) return;
-	chrome.notifications.create(id, {type: 'basic', iconUrl: chrome.extension.getURL(imgUrl), title: title, message: msg});
+	await chrome.notifications.create(id, {type: 'basic', iconUrl: chrome.extension.getURL(imgUrl), title: title, message: msg});
 	if (clickUrl) chrome.notifications.onClicked.addListener(_ => openExtensionTab(clickUrl));
 }
 async function createWindow(tabId) {

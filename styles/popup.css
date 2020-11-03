@@ -6,6 +6,7 @@ body {
 	position: relative;
 	width: 45em;
 	padding: .5em;
+	background-image: none;
 }
 img {
 	max-width: 4.5em;

@@ -14,6 +14,19 @@ body {
 	--bg-color: #fff;
 
 	color: var(--color);
+	background: linear-gradient(135deg, var(--bg-color) 25%, transparent 25%) -20px 25px,
+				linear-gradient(225deg, var(--bg-color) 25%, transparent 25%) -20px 25px,
+				linear-gradient(315deg, var(--bg-color) 25%, transparent 25%) 0px 25px,
+				linear-gradient( 45deg, var(--bg-color) 25%, transparent 25%) 0px 25px,
+				linear-gradient(135deg, rgba(243, 184, 69, .25) 25%, transparent 25%) -20px 24px,
+				linear-gradient(225deg, rgba(243, 184, 69, .25) 25%, transparent 25%) -20px 24px,
+				linear-gradient(315deg, rgba(243, 184, 69, .25) 25%, transparent 25%) 0px 24px,
+				linear-gradient( 45deg, rgba(243, 184, 69, .25) 25%, transparent 25%) 0px 24px,
+				linear-gradient(135deg, rgba(223, 78, 118, .2) 25%, transparent 25%) -20px 26px,
+				linear-gradient(225deg, rgba(223, 78, 118, .2) 25%, transparent 25%) -20px 26px,
+				linear-gradient(315deg, rgba(223, 78, 118, .2) 25%, transparent 25%) 0px 26px,
+				linear-gradient( 45deg, rgba(223, 78, 118, .2) 25%, transparent 25%) 0px 26px;
+	background-size: 40px 40px;
 	background-color: var(--bg-color);
 
 	padding: 1em 0;
@@ -66,11 +79,12 @@ body.dark .snoozz-text, body.dark img[src="../icons/unknown.png"], body.dark .se
 .scroll-logo img {
 	max-height: 3em;
 	cursor: pointer;
+	animation: spin 20s infinite linear paused;
 }
 
 @keyframes spin {from {transform: rotate(0)} to {transform: rotate(360deg)}}
-.scroll-logo img:hover {
-	animation: spin 5s infinite linear;
+.scroll-logo:not(.hidden) img {
+	animation-play-state: running;
 }
 a {
 	color: var(--color);
@@ -78,7 +92,7 @@ a {
 	text-decoration: underline;
 }
 a:hover {
-	background: linear-gradient(0deg, #df4e76 0%, #f3b845 100%);
+	background: linear-gradient(90deg, #f3b845 0%, #df4e76 100%);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }

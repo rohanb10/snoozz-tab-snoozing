@@ -22,7 +22,7 @@ async function init() {
 	var search = document.getElementById('search');
 	search.addEventListener('input', _ => {
 		search.parentElement.classList.toggle('searching', search.value.length > 0);
-		search.parentElement.classList.toggle('valid-search', search.value.length > 2);
+		search.parentElement.parentElement.classList.toggle('valid-search', search.value.length > 2);
 		fillTimeGroups(search.value.toLowerCase());
 	})
 
@@ -32,7 +32,7 @@ async function init() {
 	buildTimeGroups();
 	fillTimeGroups();
 
-	if (getBrowser() === 'safari') await chrome.runtime.backgroundPage(bg => bg.wakeUpTask());
+	if (getBrowser() === 'safari') await chrome.runtime.getBackgroundPage(bg => bg.wakeUpTask());
 }
 
 function setupClock() {

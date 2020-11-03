@@ -67,13 +67,13 @@ h2 {
 	align-items: center;
 	justify-content: space-between;
 	border-radius: 1em;
-	background-color: #F7F7F7;
+	background-color: rgba(240, 240, 240, .6);
 	margin: .5em 1em;
 	box-sizing: border-box;
 	flex-wrap: wrap;
 }
 body.dark .tab {
-	background-color: #232323;
+	background-color: rgba(35, 35, 35, .6);
 }
 .tab > div:nth-child(-n+5) {
 	height: 100%;
@@ -102,6 +102,7 @@ body.dark .tab {
 	text-overflow: ellipsis;
 	font-weight: bold;
 }
+
 .tabs {
 	width: 100%;
 	overflow-y: hidden;
@@ -156,10 +157,18 @@ body.dark .tab {
 	padding-top: .25em;
 	font-size: .8em;
 	text-transform: uppercase;
+	opacity: .3;
+	transition: opacity .3s ease-in-out;
 	color: #777;
 }
 body.dark .nap-time, body.dark .wakeup-label {
 	color: #BABABA;
+}
+.tab:hover .nap-time, .tab:hover .wakeup-label {
+	opacity: 1;
+}
+.search-container.valid-search + #time-container .tab .nap-time, .search-container.valid-search + #time-container .tab .wakeup-label {
+	opacity: 1;
 }
 .edit-container {
 
@@ -171,7 +180,7 @@ body.dark .nap-time, body.dark .wakeup-label {
 .wakeup-btn-container {
 	width: 10%;
 }
-.wakeup-button span {
+.wakeup-button span, body.dark .wakeup-button span:hover {
 	font-size: .85em;
 	text-transform: uppercase;
 	background-color: #CCC;
@@ -181,8 +190,8 @@ body.dark .nap-time, body.dark .wakeup-label {
 	transition: all .25s ease-in-out;
 	border-radius: .25em;
 }
-.wakeup-button span:hover {
-	background-color: #888;
+body.dark .wakeup-button span, .wakeup-button span:hover {
+	background-color: #666;
 	color: #FFF;
 }
 .remove-btn-container {
@@ -202,7 +211,7 @@ body.dark .remove-btn-container img:not(:hover) {
 .wakeup-button, .remove-button {
 	cursor: pointer;
 }
-body.dark .remove-btn-container img, body.dark .icon.dropdown {
+body.dark .remove-btn-container img, body.dark .icon.dropdown, body.dark .up-arrow {
 	filter: invert(1);
 }
 #history .tab:not(.window) .tab-name:hover {
@@ -213,6 +222,9 @@ body.dark .remove-btn-container img, body.dark .icon.dropdown {
 	border-radius: .25em;
 	cursor: pointer;
 	background-color: #DDD;
+}
+body.dark .tabs .little-tab:hover {
+	background-color: #222;
 }
 
 @media (max-width: 56em) {
@@ -245,7 +257,7 @@ p {
 	font-size: 1.2em;
 	margin: 2.5em 0;
 }
-body:not(.dark) p, p a {
+body:not(.dark) p {
 	opacity: .75;
 }
 .settings img {
@@ -256,6 +268,7 @@ body:not(.dark) p, p a {
 	font-size: 1.15em;
 }
 .search-container {
+	position: relative;
 	margin: 2em 0;
 }
 .search-icon {
@@ -267,7 +280,7 @@ body:not(.dark) p, p a {
 	height: 2em;
 	width: 20em;
 	color: var(--color);
-	background-color: var(--bg-color);
+	background-color: inherit;
 	-moz-appearance: none;
 	-webkit-appearance: none;
 }
@@ -280,16 +293,24 @@ body:not(.dark) p, p a {
 .input-wrapper {
 	position: relative;
 	display: inline-block;
-	padding-bottom: 3px;
+}
+.input-wrapper:before {
+	content: '';
+	position: absolute;
+	width: 100%;
+	height: 3px;
+	top: 100%;
+	left: 0%;
 	transition: background-position .3s linear .2s;
 	background: linear-gradient(90deg, #f3b845 0%, #DF4E76 50%, #DDD 50%, #DDD 100%);
-	background-size: 200%;
+	background-size: 202%;
 	background-position: right;
 }
-.input-wrapper:not(.valid-search):focus-within:before {
+.search-container:not(.valid-search):focus-within:before {
 	content: '3 characters minimum';
 	position: absolute;
-	top: 110%;
+	left: 0;
+	top: 120%;
 	width: 100%;
 	text-align: center;
 	font-size: .9em;
@@ -305,7 +326,7 @@ body:not(.dark) p, p a {
 	background: url('../icons/search.svg') no-repeat 98% center;
 	transition: left .2s linear .25s, filter .3s ease-in-out;
 }
-.input-wrapper.searching {
+.input-wrapper.searching:before {
 	background-position: left;
 	transition-delay: 0s;
 }
@@ -313,7 +334,7 @@ body:not(.dark) p, p a {
 	left: 105%;
 	transition-delay: .3s, 0s;
 }
-.input-wrapper.searching.valid-search:after {
+.search-container.valid-search .input-wrapper.searching:after {
 	filter: invert(44%) sepia(34%) saturate(3287%) hue-rotate(316deg) brightness(93%) contrast(87%);
 }
 .instructions {
@@ -330,7 +351,7 @@ body:not(.dark) p, p a {
 .instructions div {
 	text-align: left;
 	font-size: 1.2em;
-	border: 2px dashed black;
+	border: 2px dashed var(--color);
 	padding: .5rem .75rem;
 	margin: .4em 0 0;
 }

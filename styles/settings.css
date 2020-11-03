@@ -22,17 +22,22 @@ h2 span {
 	border-radius: .33em;
 	border: 2px dashed transparent;
 	transition: border-color .25s ease-in-out;
+	background-color: rgba(240, 240, 240, .5);
+}
+body.dark .input-container {
+	background-color: rgba(35, 35, 35, .5);
 }
 .input-container:hover {
-	border-color: var(--color);
+	border-color: rgba(128, 128, 128, 1);
 }
 .input-container.highlight, .input-container.highlight:hover {
-	border-color: tomato;
+	border-color: #c71543;
+	border-width: 3px;
 }
 .input-container {
 	max-width: 100%;
 }
-h4 ~ p {
+.settings-container p {
 	font-size: .8em;
 	margin: 0;
 	opacity: .15;
@@ -56,21 +61,34 @@ select, option, label {
 	cursor: pointer;
 	position: relative;
 }
-.select-wrapper {
-	padding-bottom: 2px;
-	background: linear-gradient(var(--color) 0%, var(--color) 100%);
+.select-wrapper, .btn {
+	position: relative;
+	cursor: pointer;
 }
+.select-wrapper:after, .btn:after {
+	content: '';
+	position: absolute;
+	width: 100%;
+	left: 0;
+	background-image: linear-gradient(90deg, #f3b845 0%, #DF4E76 50%, var(--color) 50%, var(--color) 100%);
+	background-size: 202%;
+	background-position: right;
+	transition: background-position .3s ease-in-out;
+	height: 2px;
+	top: 100%;
+}
+
 select {
 	appearance: none;
 	-moz-appearance: none;
 	-webkit-appearance: none;
+	background-color: inherit;
 	background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
 	background-repeat: no-repeat;
 	background-position-x: 100%;
 	background-position-y: center;
 	padding-right: 20px;
 	color: var(--color);
-	background-color: var(--bg-color);
 }
 body.dark select {
 	background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path fill='white' d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
@@ -105,16 +123,9 @@ body.dark select {
 	padding-top: 1em;
 	transition-delay: 0s;
 }
-.btn {
-	padding: 2px;
-	background: linear-gradient(var(--color) 0%, var(--color) 100%);
-	cursor: pointer;
-}
 .btn div {
-	background-color: var(--bg-color);
-	padding: .5em .25em;
-	font-size: .75em;
-	font-weight: bold;
+	padding: .25em;
+	font-size: .8em;
 	text-transform: uppercase;
 }
 #shortcut .btn div:before {
@@ -123,8 +134,8 @@ body.dark select {
 #shortcut.show .btn div:before {
 	content: 'hide';
 }
-.btn:hover, .select-wrapper:hover {
-	background: linear-gradient(-90deg, #df4e76 0%, #f3b845 100%);
+.btn:hover:after, .select-wrapper:hover:after {
+	background-position: left;
 }
 #shortcut, #right-click {
 	flex-wrap: wrap;
@@ -188,7 +199,7 @@ input[type=checkbox] {
 	width: 50%;
 	border: 2px solid var(--color);
 	padding: 3px;
-	opacity: .25;
+	opacity: .15;
 	transition: opacity .25s ease-in-out
 }
 
@@ -198,8 +209,9 @@ input[type=checkbox] {
 	clip-path: inset(0 0 0 0);
 	transition: clip-path .5s ease-in-out
 }
-.storage-text, .storage-low, .storage-full {
+p.storage-text, p.storage-low, p.storage-full {
 	text-align: center;
+	margin: .5em 0;
 }
 .storage-low.hidden, .storage-full.hidden {
 	display: none;

@@ -17,6 +17,7 @@ async function initialize() {
 
 	calculateStorage();
 	chrome.storage.onChanged.addListener(calculateStorage);
+	document.querySelectorAll('a[data-highlight="history"]').forEach(a => a.addEventListener('click', e => highlightSetting('history')))
 
 	document.getElementById('reset').addEventListener('click', resetSettings);
 	document.getElementById('version').innerText = `Snoozz v${chrome.runtime.getManifest().version}`;
@@ -27,7 +28,7 @@ async function initialize() {
 		setTimeout(_ => document.querySelector('body > .copied').remove('toast'), 4000)
 	});
 
-	if (getBrowser() === 'safari') await chrome.runtime.backgroundPage(bg => bg.wakeUpTask());
+	if (getBrowser() === 'safari') await chrome.runtime.getBackgroundPage(bg => bg.wakeUpTask());
 }
 function highlightSetting(name, condition) {
 	var el = document.getElementById(name).closest('.input-container');

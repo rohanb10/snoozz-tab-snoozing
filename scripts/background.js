@@ -21,8 +21,9 @@ chrome.storage.onChanged.addListener(async changes => {
 
 async function wakeUpTask(cachedTabs) {
 	var tabs = cachedTabs || await getSnoozedTabs();
+	if (!tabs || !tabs.length || tabs.length === 0) return;
 	await cleanUpHistory(tabs);
-	if (!tabs || !tabs.length || tabs.length === 0 || sleeping(tabs).length === 0) {
+	if (sleeping(tabs).length === 0) {
 		bgLog(['No tabs are asleep'],['pink'], 'pink');
 		return chrome.alarms.clear('wakeUpTabs');
 	}
@@ -36,7 +37,7 @@ async function setNextAlarm(tabs) {
 	} else {
 		var oneHour = dayjs().add(1, 'h').valueOf();
 		bgLog(['Next tab waking up:', next.id, 'at', dayjs(next.wakeUpTime).format('HH:mm:ss D/M/YY')],['','green','','yellow'])
-		await createAlarm('wakeUpTabs', next.wakeUpTime < oneHour ? next.wakeUpTime : oneHour, next.wakeUpTime < oneHour);
+		await createAlarm(next.wakeUpTime < oneHour ? next.wakeUpTime : oneHour, next.wakeUpTime < oneHour);
 	}
 }
 
@@ -77,7 +78,7 @@ async function setUpContextMenus(cachedMenus) {
 	chrome.contextMenus.onClicked.addListener(snoozeInBackground)
 	if (getBrowser() === 'firefox') chrome.contextMenus.onShown.addListener(contextMenuUpdater)
 }
-chrome.commands.onCommand.addListener(async (command, tab) => {
+if (chrome.commands) chrome.commands.onCommand.addListener(async (command, tab) => {
 	tab = tab || await getTabsInWindow(true);
 	await snoozeInBackground({menuItemId: command, pageUrl: tab.url}, tab)
 })
@@ -95,7 +96,7 @@ async function snoozeInBackground(item, tab) {
 		return createNotification(null, `Can't snoozz that :(`, 'icons/main-icon.png', 'The time you have selected is invalid.');
 	}
 
-	var title = !isHref ? tab.title : item.linkText;
+	var title = !isHref ? tab.title : (item.linkText ? item.linkText : item.selectionText);
 	var icon = !isHref ? tab.favIconUrl : undefined;
 	var isPinned = !isHref && tab.pinned ? tab.pinned : undefined;
 	await snoozeTab(snoozeTime.valueOf(), Object.assign(item, {url: url, title: title, favIconUrl: icon, pinned: isPinned}));
