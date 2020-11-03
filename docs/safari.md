@@ -2,7 +2,7 @@
 
 <div align="center">
 	<img src="https://i.imgur.com/wzYR5gz.png" alt="Snoozz x Safari">
-</div>
+</div><br><br>
 
 I'm not paying Apple a hundred bucks a year for the privilege of publishing my free, open source extension in their App Store.
 
@@ -11,30 +11,34 @@ If you want to build your own version of Snoozz for Safari, here's how you do it
 ### Requirements
 - **MacOS 10.14.6+**
 - **Xcode 12+**
-- [Command Line Tools]((https://developer.apple.com/download/more/)) for Xcode
+	- Including [Command Line Tools]((https://developer.apple.com/download/more/)) for Xcode
 - **Safari 14+**
 	- Show **Developer** menu in **Safari** > **Preferences** > **Advanced**
 	- Allow [Unsigned Extensions](https://i.imgur.com/4l1piHd.png) in the **Develop** menu</details>
 
 
-- Latest release of **[Snoozz for Safari](https://github.com/rohanb10/snoozz-tab-snoozing/releases/latest) v2.3.1+**
-	- The only difference betweent the safari and regular release is the use of the `activeTab` permission instead of `tabs` to minimise [access requests](https://developer.apple.com/documentation/safariservices/safari_web_extensions/managing_safari_web_extension_permissions) to the user.
+- **Snoozz for Safari** ([latest release](https://github.com/rohanb10/snoozz-tab-snoozing/releases/latest))
+	- The `activeTab` permission is used in place of `tabs` to minimise [access requests](https://developer.apple.com/documentation/safariservices/safari_web_extensions/managing_safari_web_extension_permissions) to the user.
+	- All unsupported WebExtension APIs are removed (`notifications`, `idle`, `commands`).
 
 
 ### Instructions
 
-1. In Terminal, navigate to the unzipped Snoozz directory and convert the extension to an Xcode package using this command. [More info](https://developer.apple.com/documentation/safariservices/safari_web_extensions/converting_a_web_extension_for_safari) on all the extra options/flags.
+1. In Terminal, navigate to the downloaded (unzipped) `Snoozz for Safari` directory and [convert the extension]((https://developer.apple.com/documentation/safariservices/safari_web_extensions/converting_a_web_extension_for_safari)) to an Xcode package using this command:
 ```
-	xcrun safari-web-extension-converter . --app-name "Snoozz for Safari"  --bundle-identifier com.snoozeman.snoozz --swift --force
+	xcrun safari-web-extension-converter . --app-name "snoozz_for_safari"  --bundle-identifier com.snoozeman.snoozz --swift --force --no-open
 ```
 
-2. [Build and run](https://developer.apple.com/documentation/safariservices/safari_app_extensions/building_a_safari_app_extension#2957926) the extension.
+2. Go to the created `snoozz_for_safari` directory, then [build and run](https://developer.apple.com/documentation/safariservices/safari_app_extensions/building_a_safari_app_extension#2957926) the xcodeproject.
+```
+	xcodebuild -scheme snoozz_for_safari build
+```
 
-3. Quit the newly built Snoozz app. Open **Safari** > **Preferences** > **Extensions** and enable Snoozz.
+3. Open **Safari** > **Preferences** > **Extensions** and enable Snoozz.
 
 4. Get through all the scary warning menus and then get snoozing.
 
-### What's broken ?
+### What's broken?
 - **Snoozing windows:**
 	This requires use of the `tabs` API. Using that API, you will see a privacy popup every single time you try to snooze a website you have not snoozed before. The popup explicitly states *Grant the extension permission to read all your data on this site* which is going to put off a lot of users.
 
