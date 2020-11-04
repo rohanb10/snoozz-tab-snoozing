@@ -28,7 +28,7 @@ async function initialize() {
 		setTimeout(_ => document.querySelector('body > .copied').remove('toast'), 4000)
 	});
 
-	if (getBrowser() === 'safari') await chrome.runtime.getBackgroundPage(bg => bg.wakeUpTask());
+	if (getBrowser() === 'safari') await chrome.runtime.getBackgroundPage(async bg => {await bg.wakeUpTask()});
 }
 function highlightSetting(name, condition) {
 	var el = document.getElementById(name).closest('.input-container');

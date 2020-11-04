@@ -32,7 +32,7 @@ async function init() {
 	buildTimeGroups();
 	fillTimeGroups();
 
-	if (getBrowser() === 'safari') await chrome.runtime.getBackgroundPage(bg => bg.wakeUpTask());
+	if (getBrowser() === 'safari') await chrome.runtime.getBackgroundPage(async bg => {await bg.wakeUpTask()});
 }
 
 function setupClock() {

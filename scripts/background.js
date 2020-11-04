@@ -136,7 +136,7 @@ async function setUpExtension() {
 		closeDelay: 1000,
 		contextMenu: ['today-evening', 'tom-morning', 'tom-evening', 'weekend', 'monday']
 	}, options));
-	init();
+	await init();
 }
 function sendToLogs([which, p1]) {
 	try {
@@ -148,12 +148,12 @@ function sendToLogs([which, p1]) {
 	} catch (e) {console.log('logError', e, which, p1)}
 }
 
-function init() {
-	wakeUpTask();
-	setUpContextMenus();
+async function init() {
+	await wakeUpTask();
+	await setUpContextMenus();
 }
 
 chrome.runtime.onInstalled.addListener(setUpExtension);
 chrome.runtime.onStartup.addListener(init);
-chrome.alarms.onAlarm.addListener(a => { if (a.name === 'wakeUpTabs') wakeUpTask()});
-if (chrome.idle) chrome.idle.onStateChanged.addListener(s => {if (s === 'active' || getBrowser() === 'firefox') wakeUpTask()});
+chrome.alarms.onAlarm.addListener(async a => { if (a.name === 'wakeUpTabs') await wakeUpTask()});
+if (chrome.idle) chrome.idle.onStateChanged.addListener(async s => {if (s === 'active' || getBrowser() === 'firefox') await wakeUpTask()});
