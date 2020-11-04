@@ -79,6 +79,7 @@ async function setUpContextMenus(cachedMenus) {
 	if (getBrowser() === 'firefox') chrome.contextMenus.onShown.addListener(contextMenuUpdater)
 }
 if (chrome.commands) chrome.commands.onCommand.addListener(async (command, tab) => {
+	if (command === 'dashboard') return openExtensionTab('/html/dashboard.html');
 	tab = tab || await getTabsInWindow(true);
 	await snoozeInBackground({menuItemId: command, pageUrl: tab.url}, tab)
 })

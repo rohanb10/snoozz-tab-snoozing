@@ -161,10 +161,10 @@ div > strong {
 	width: 15em;
 }
 kbd {
-	color: var(--bg-color);
-	background-color: #eee;
+	color: var(--color);
+	background-color: var(--bg-color);
     border-radius: .25em;
-    border: 1px solid #222;
+    border: 1px solid var(--color);
     display: inline-block;
     padding: .1em .2em;
     margin: 0 .25em;

@@ -84,9 +84,9 @@ function toggleShortcuts(e) {
 	updateKeyBindings();
 
 	var browserInfo = s.querySelector(`.${getBrowser()}-info`);
-	if (browserInfo === 'chrome-info') browserInfo.querySelector('a[data-href]').addEventListener('click', e => {
+	browserInfo.querySelectorAll('a[data-href]').forEach(s => s.addEventListener('click', e => {
 		chrome.tabs.create({url: e.target.getAttribute('data-href'), active: true})
-	});
+	}));
 	if (s.classList.contains('show')) browserInfo.style.maxHeight = browserInfo.scrollHeight + 'px';
 
 }
@@ -104,7 +104,9 @@ async function updateKeyBindings() {
 
 	commands.forEach(c => {
 		var keys = wrapInDiv('', ...splitShortcut(c.shortcut).map(s => Object.assign(document.createElement('kbd'),{innerText: s})));
-		bindings.append(wrapInDiv('flex', wrapInDiv({innerText: choices[c.name].label}), keys));
+		if (choices[c.name]) bindings.append(wrapInDiv('flex', wrapInDiv({innerText: choices[c.name].label}), keys));
+		if (c.name === 'dashboard') bindings.append(wrapInDiv('flex', wrapInDiv({innerText: 'Open Sleeping Tabs'}), keys));
+		if (c.name === '_execute_browser_action') bindings.append(wrapInDiv('flex', wrapInDiv({innerText: 'Open Popup'}), keys));
 	});
 	if (document.getElementById('shortcut').classList.contains('show')) {
 		document.querySelector('.shortcuts').style.maxHeight = document.querySelector('.shortcuts').scrollHeight + 'px';	

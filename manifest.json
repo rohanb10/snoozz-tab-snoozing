@@ -28,6 +28,9 @@
 	"permissions": ["alarms", "contextMenus", "idle", "notifications", "storage", "tabs"],
 
 	"commands": {
+		"dashboard": {
+			"description": "Show me my sleeping tabs"
+		},
 		"today-morning": {
 			"description": "Snooze till today morning"
 		},
