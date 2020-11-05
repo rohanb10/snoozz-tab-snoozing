@@ -63,7 +63,7 @@ print('Created GH Release: ' + '\x1b[1;32;40m' + name + '.zip' + '\x1b[0m')
 #
 # Modify manifest file for safari and build
 #
-
+shutil.copy('docs/safari.md', FOLDER)
 if 'idle' in data['permissions']: data['permissions'].remove('idle')
 if 'notifications' in data['permissions']: data['permissions'].remove('notifications')
 data['permissions'] = [p.replace('tabs','activeTab') for p in data['permissions']]

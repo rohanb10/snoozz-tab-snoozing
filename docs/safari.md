@@ -29,8 +29,9 @@ If you want to build your own version of Snoozz for Safari, here's how you do it
 	xcrun safari-web-extension-converter . --app-name "snoozz_for_safari"  --bundle-identifier com.snoozeman.snoozz --swift --force --no-open
 ```
 
-2. Go to the created `snoozz_for_safari` directory, then [build and run](https://developer.apple.com/documentation/safariservices/safari_app_extensions/building_a_safari_app_extension#2957926) the xcodeproject.
+2. [Build and run](https://developer.apple.com/documentation/safariservices/safari_app_extensions/building_a_safari_app_extension#2957926) the xcodeproject.
 ```
+	cd snoozz_for_safari
 	xcodebuild -scheme snoozz_for_safari build
 ```
 

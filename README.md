@@ -5,7 +5,7 @@
 </p>
 
 <div align="center">
-	<img src="https://img.shields.io/badge/crx%20size-56.4kb-brightgreen" alt="Total file size">
+	<img src="https://img.shields.io/badge/crx%20size-55.9kb-brightgreen" alt="Total file size">
 	<a target="_blank" href="https://addons.mozilla.org/en-US/firefox/addon/snoozz/">
 		<img src="https://img.shields.io/amo/v/snoozz?color=orange&logo=firefox-browser&label=firefox%20add-on" alt="Mozilla Add-on">
 		</a>
