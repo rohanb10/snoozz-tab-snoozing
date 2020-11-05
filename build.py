@@ -15,7 +15,7 @@ print('\n\x1b[1;31;40m' + 'Building Snoozz v' + VERSION + '\x1b[0m\n')
 
 
 #
-# Remove non-essential files
+# Copy essential files only
 #
 shitfiles = shutil.ignore_patterns('.DS_Store', '.git', '.Trashes', '.Spotlight-V100', '.github')
 
@@ -23,8 +23,8 @@ shutil.copytree('html', FOLDER + '/html', ignore = shitfiles)
 shutil.copytree('scripts', FOLDER + '/scripts', ignore = shitfiles)
 shutil.copytree('styles', FOLDER + '/styles', ignore = shitfiles)
 shutil.copytree('icons', FOLDER + '/icons', ignore = shitfiles)
-shutil.copy('manifest.json', FOLDER)
-modified_manifest = open(FOLDER + '/manifest.json', 'w+')
+with open(FOLDER + '/manifest.json', 'w+') as m:
+	m.write(json.dumps(data, indent=4))
 
 #
 # Build release for chrome
@@ -79,8 +79,6 @@ if len(argv) > 1 and argv[1] == 'safaridev':
 else:
 	shutil.make_archive(name, 'zip', FOLDER)
 	print('Created Safari Release: ' + '\x1b[1;32;40m' + name + '.zip' + '\x1b[0m')
-
-modified_manifest.close()
 
 #
 # Print changelog
