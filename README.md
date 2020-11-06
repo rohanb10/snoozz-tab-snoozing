@@ -30,9 +30,9 @@
 
 A Web Extension to *snoozz* tabs and windows now and have them reopen automatically later. 
 
-Available in the Chrome [Web Store](https://chrome.google.com/webstore/detail/snoozz-snooze-tabs-window/lklendgldejcnkkaldoggoapclkepgfb), Firefox [Add-On Store](https://addons.mozilla.org/en-US/firefox/addon/snoozz/), Microsoft Edge [Addons]() and you can also [create your own build](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/safari.md) for Safari.
+Available on [Chrome](https://chrome.google.com/webstore/detail/snoozz-snooze-tabs-window/lklendgldejcnkkaldoggoapclkepgfb), [Firefox](https://addons.mozilla.org/en-US/firefox/addon/snoozz/), [Edge] [Addons]() and as a custom build for [Safari](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/safari.md).
 
-[Latest Release](https://github.com/rohanb10/snoozz-tab-snoozing/releases/latest/) | [Privacy](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/PRIVACY.md) | [Changelog](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/changelog.md)
+[Latest Release](https://github.com/rohanb10/snoozz-tab-snoozing/releases/latest/) | [Changelog](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/changelog.md) | [Browser Compatibility](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/compatibility.md) | [Privacy](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/PRIVACY.md)
 
 
 

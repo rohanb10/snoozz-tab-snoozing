@@ -1,37 +1,46 @@
 # Privacy
 
-No data is collected, aggregated or analysed in any way. All your tab and window data stays on your machine without any remote access. This extension is designed to work completely offline. There is no 3rd party or remote code being executed.
+No data is collected, aggregated or analysed in any way. Not even diagnostic or crash data.
+
+All your tab and window data stays on your machine without any network communication. It is not uploaded anywhere.
+
+This extension is designed to work completely offline. There is no 3rd party or remote code being executed.
 
 ## Extension Permissions
 
-**alarms**
+#### alarms
 - A single alarm is created (and reused) to wake up your tabs at the correct time.
-- If not tabs are waking up in the next hour, the alarm is set to be triggered again in an hour.
-
-**notifications**
-- Send you notifications when a tab is reopened. 
-(Not critical to the functioning of the extension, so if you have your notifications turned off that’s perfectly fine.)
+- If no tabs are waking up in the next hour, the alarm is set to be triggered again in an hour.
 
 
-**tabs**
-- Used to fetch only the metadata from your tabs (title, url, favicon). 
-(You can review the code for this [here](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/scripts/common.js#L108-L142) if you don't believe me)
-- This permission is also used to create new tabs/windows when they wake up, and to close them when you put them to sleep. 
+#### notifications
+- Send you notifications when a tab is reopened. (Not critical to use of the extension, you can turn them off at the system level)
 
 
-**storage**
-- Used to store your snoozed tabs, with as little information retained as possible to save those precious kilobytes. 
+#### tabs
+- Used to fetch **only** the metadata from your tabs (title, url, favicon). You can review code for this in the `snoozeTab(...)` and `snoozeWindow(...)` functions in [this file](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/scripts/common.js)
+- No metadata is passively recorded - it is only saved when users perform a specific action to snooze a tab or window.
+
+
+#### storage
+- Used to store snoozed tabs and windows. 
+- Used to store user preferences which can be configured the settings page.
 - Only local storage is used for this extension.
-- When a tab/window wakes up, it is added to the ‘History’ section of your dashboard just in case you need to find something you previously snoozed.
-- The history is cleared periodically. You can change this on the settings page if you would like to turn this off.
+- Old tabs are deleted periodically. You can adjust the frequency of this on the settings page (Default - 14 days after they have woken up).
 
 
-**contextMenu**
+#### contextMenu
 - Used to create the Snoozz submenu in your context menu.
 - Only appears when you right click on a link with a valid href attribute. 
 - This can be turned off on your settings page. 
 
-**idle**
-- Changes in idle state to `active` will force the alarm to trigger so it may open any tabs or recalculate the alarm time.
 
-### If you delete this extension, all your data and preferences are deleted with it. It cannot be recovered. I’ve tried.
+#### idle
+- When the `idle` state changes to `active`, the extension will open any overdue tabs or recalculate the next alarm time.
+
+
+#### commands
+- Used to configure keyboard shortcuts on compatible browsers. Shortcuts are off by default.
+
+
+### If you delete this extension, all your data and preferences are deleted with it. It cannot be recovered at all. I’ve tried.
