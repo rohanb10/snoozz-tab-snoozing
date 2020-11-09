@@ -61,6 +61,10 @@ select, option, label {
 	cursor: pointer;
 	position: relative;
 }
+option {
+	color: var(--color);
+	background-color: var(--bg-color);
+}
 .select-wrapper, .btn {
 	position: relative;
 	cursor: pointer;
