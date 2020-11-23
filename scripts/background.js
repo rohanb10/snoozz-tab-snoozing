@@ -30,10 +30,12 @@ async function wakeUpTask(cachedTabs) {
 	await setNextAlarm(tabs);
 }
 
+var debounce;
 async function setNextAlarm(tabs) {
 	var next = sleeping(tabs).reduce((t1,t2) => t1.wakeUpTime < t2.wakeUpTime ? t1 : t2);
 	if (next.wakeUpTime <= dayjs().valueOf()) {
-		await wakeMeUp(tabs);
+		clearTimeout(debounce)
+		debounce = setTimeout(_ => wakeMeUp(tabs), 10000)
 	} else {
 		var oneHour = dayjs().add(1, 'h').valueOf();
 		bgLog(['Next tab waking up:', next.id, 'at', dayjs(next.wakeUpTime).format('HH:mm:ss D/M/YY')],['','green','','yellow'])
@@ -42,6 +44,7 @@ async function setNextAlarm(tabs) {
 }
 
 async function wakeMeUp(tabs) {
+	console.log('in wake me up');
 	var now = dayjs().valueOf();
 	var wakingUp = t => !t.opened && (t.url || (t.tabs && t.tabs.length && t.tabs.length > 0)) && t.wakeUpTime && t.wakeUpTime <= now;
 	if (tabs.filter(wakingUp).length === 0) return;
@@ -103,7 +106,7 @@ async function snoozeInBackground(item, tab) {
 	await snoozeTab(snoozeTime.valueOf(), Object.assign(item, {url: url, title: title, favIconUrl: icon, pinned: isPinned}));
 	var msg = `${!isHref ? tab.title : getHostname(url)} will wake up at ${snoozeTime.format('h:mm a [on] ddd, D MMM')}.`
 	createNotification(snoozeTab.id, 'A new tab is now napping :)', 'icons/main-icon.png', msg, 'html/dashboard.html');
-	if (!isHref) chrome.tabs.remove(tab.id);
+	if (!isHref) await chrome.tabs.remove(tab.id);
 	await chrome.runtime.sendMessage({updateDash: true});
 }
 
@@ -112,7 +115,7 @@ async function contextMenuUpdater(menu) {
 	for (c of menu.menuIds) {
 		if (choices[c]) await chrome.contextMenus.update(c, {enabled: !choices[c].disabled});
 	}
-	chrome.contextMenus.refresh();
+	await chrome.contextMenus.refresh();
 }
 
 async function cleanUpHistory(tabs) {
