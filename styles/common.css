@@ -14,18 +14,18 @@ body {
 	--bg-color: #fff;
 
 	color: var(--color);
-	background: linear-gradient(135deg, var(--bg-color) 25%, transparent 25%) -20px 25px,
-				linear-gradient(225deg, var(--bg-color) 25%, transparent 25%) -20px 25px,
-				linear-gradient(315deg, var(--bg-color) 25%, transparent 25%) 0px 25px,
-				linear-gradient( 45deg, var(--bg-color) 25%, transparent 25%) 0px 25px,
-				linear-gradient(135deg, rgba(243, 184, 69, .25) 25%, transparent 25%) -20px 24px,
-				linear-gradient(225deg, rgba(243, 184, 69, .25) 25%, transparent 25%) -20px 24px,
-				linear-gradient(315deg, rgba(243, 184, 69, .25) 25%, transparent 25%) 0px 24px,
-				linear-gradient( 45deg, rgba(243, 184, 69, .25) 25%, transparent 25%) 0px 24px,
-				linear-gradient(135deg, rgba(223, 78, 118, .2) 25%, transparent 25%) -20px 26px,
-				linear-gradient(225deg, rgba(223, 78, 118, .2) 25%, transparent 25%) -20px 26px,
-				linear-gradient(315deg, rgba(223, 78, 118, .2) 25%, transparent 25%) 0px 26px,
-				linear-gradient( 45deg, rgba(223, 78, 118, .2) 25%, transparent 25%) 0px 26px;
+	background: linear-gradient(135deg, var(--bg-color) 25%, #FFF0 25%) -20px 25px,
+				linear-gradient(225deg, var(--bg-color) 25%, #FFF0 25%) -20px 25px,
+				linear-gradient(315deg, var(--bg-color) 25%, #FFF0 25%) 0px 25px,
+				linear-gradient( 45deg, var(--bg-color) 25%, #FFF0 25%) 0px 25px,
+				linear-gradient(135deg, #F3B84528 25%, #FFF0 25%) -19px 23px,
+				linear-gradient(225deg, #F3B84528 25%, #FFF0 25%) -19px 23px,
+				linear-gradient(315deg, #F3B84528 25%, #FFF0 25%) 0px 23px,
+				linear-gradient( 45deg, #F3B84528 25%, #FFF0 25%) 0px 23px,
+				linear-gradient(135deg, #DF4E7621 25%, #FFF0 25%) -20px 27px,
+				linear-gradient(225deg, #DF4E7621 25%, #FFF0 25%) -20px 27px,
+				linear-gradient(315deg, #DF4E7621 25%, #FFF0 25%) 0px 27px,
+				linear-gradient( 45deg, #DF4E7621 25%, #FFF0 25%) 0px 27px;
 	background-size: 40px 40px;
 	background-color: var(--bg-color);
 

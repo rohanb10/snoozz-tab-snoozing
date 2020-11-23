@@ -247,8 +247,8 @@ async function getChoices(which) {
 		'monday': {
 			label: 'Next Monday',
 			color: '#488863',
-			time: NOW.startOf('d').weekday(8).add(config.timeOfDay, 'h'),
-			timeString: NOW.weekday(8).format('ddd, D MMM'),
+			time: NOW.startOf('d').weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8).add(config.timeOfDay, 'h'),
+			timeString: NOW.weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8).format('ddd, D MMM'),
 			isDark: true,
 		},
 		'week': {

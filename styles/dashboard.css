@@ -73,7 +73,7 @@ h2 {
 	flex-wrap: wrap;
 }
 body.dark .tab {
-	background-color: rgba(35, 35, 35, .6);
+	background-color: rgba(35, 35, 35, .7);
 }
 .tab > div:nth-child(-n+5) {
 	height: 100%;
@@ -107,7 +107,7 @@ body.dark .tab {
 	width: 100%;
 	overflow-y: hidden;
 	min-height: unset !important;
-	transition: opacity .5s ease-in-out, max-height .5s linear, border-color .5s ease-in-out;
+	transition: opacity .33s ease-in-out, max-height .33s ease-in-out, border-color .33s ease-in-out;
 	opacity: 1;
 	display: flex;
 	flex-wrap: wrap;
@@ -122,7 +122,7 @@ body.dark .tab {
 .window .icon-container .icon {
 	transform: rotateX(180deg);
 	opacity: .35;
-	transition: transform .5s ease-in-out;
+	transition: transform .33s ease-in-out;
 }
 .window .icon-container .icon:hover {
 	opacity: 1;
