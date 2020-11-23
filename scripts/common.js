@@ -71,14 +71,13 @@ async function saveTabs(tabs) {
 	return new Promise(r => chrome.storage.local.set({'snoozed': tabs}, r));
 }
 /*	CREATE 	*/
-async function createAlarm(time, willWakeUpATab) {
-	bgLog(['Next Alarm at',dayjs(time).format('HH:mm:ss D/M/YY')], ['', willWakeUpATab ? 'yellow':'white'])
-	await chrome.alarms.create('wakeUpTabs', {when: time});
+async function createAlarm(when, willWakeUpATab) {
+	bgLog(['Next Alarm at', dayjs(when).format('HH:mm:ss D/M/YY')], ['', willWakeUpATab ? 'yellow':'white'])
+	await chrome.alarms.create('wakeUpTabs', {when});
 }
-async function createNotification(id, title, imgUrl, msg, clickUrl) {
+async function createNotification(id, title, imgUrl, message) {
 	if (!chrome.notifications) return;
-	await chrome.notifications.create(id, {type: 'basic', iconUrl: chrome.extension.getURL(imgUrl), title: title, message: msg});
-	if (clickUrl) chrome.notifications.onClicked.addListener(async _ => await openExtensionTab(clickUrl));
+	await chrome.notifications.create(id, {type: 'basic', iconUrl: chrome.extension.getURL(imgUrl), title, message});
 }
 async function createWindow(tabId) {
 	return new Promise(r => chrome.windows.create({url: `/html/rise_and_shine.html#${tabId}`}, r));
@@ -110,15 +109,15 @@ async function openExtensionTab(url) {
 	var tabs = await getTabsInWindow();
 	if (getBrowser() === 'safari' && !tabs.length) tabs = [tabs];
 	var extTabs = tabs.filter(t => isDefault(t));
-	if (extTabs.length === 1){chrome.tabs.update(extTabs[0].id, {url: url, active: true})}
+	if (extTabs.length === 1){chrome.tabs.update(extTabs[0].id, {url, active: true})}
 	else if (extTabs.length > 1) {
 		var activeTab = extTabs.some(et => et.active) ? extTabs.find(et => et.active) : extTabs.reduce((t1, t2) => t1.index > t2.index ? t1 : t2);
-		chrome.tabs.update(activeTab.id, {url: url, active: true});
+		chrome.tabs.update(activeTab.id, {url, active: true});
 		chrome.tabs.remove(extTabs.filter(et => et !== activeTab).map(t => t.id))		
 	} else {
 		var activeTab = tabs.find(t => t.active);
-		if (activeTab && ['New Tab', 'Start Page'].includes(activeTab.title)) {chrome.tabs.update(activeTab.id, {url: url})}
-		else {chrome.tabs.create({url: url})}
+		if (activeTab && ['New Tab', 'Start Page'].includes(activeTab.title)) {chrome.tabs.update(activeTab.id, {url})}
+		else {chrome.tabs.create({url})}
 	}
 }
 
@@ -127,11 +126,11 @@ async function openTab(tab, windowId, automatic = false) {
 	if (!windows || !windows.length || windows.length === 0) {
 		await new Promise(r => chrome.windows.create({url: tab.url}, r));
 	} else {
-		await new Promise(r => chrome.tabs.create({url: tab.url, active: false, pinned: tab.pinned, windowId: windowId}, r));	
+		await new Promise(r => chrome.tabs.create({url: tab.url, active: false, pinned: tab.pinned, windowId}, r));	
 	}
 	if (!automatic) return;
 	var msg = `${tab.title} -- snoozed ${dayjs(tab.timeCreated).fromNow()}`;
-	createNotification(tab.id, 'A tab woke up!', 'icons/main-icon.png', msg, './html/dashboard.html');
+	createNotification(tab.id, 'A tab woke up!', 'icons/main-icon.png', msg);
 }
 
 async function openWindow(t, automatic = false) {
@@ -158,7 +157,7 @@ async function openWindow(t, automatic = false) {
 	
 	if (!automatic) return;
 	var msg = `This window was put to sleep ${dayjs(t.timeCreated).fromNow()}`;
-	createNotification(t.id, 'A window woke up!', 'icons/main-icon.png', msg, './html/dashboard.html');
+	createNotification(t.id, 'A window woke up!', 'icons/main-icon.png', msg);
 	return;
 }
 
@@ -178,7 +177,7 @@ async function snoozeTab(snoozeTime, overrideTab) {
 	await saveTab(sleepyTab);
 	chrome.runtime.sendMessage({logOptions: ['newtab', sleepyTab, snoozeTime]});
 	var tabId = activeTab.id || await getTabId(activeTab.url);
-	return {tabId: tabId}
+	return {tabId}
 }
 
 async function snoozeWindow(snoozeTime) {
