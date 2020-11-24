@@ -50,7 +50,6 @@ async function setNextAlarm(tabs) {
 }
 
 async function wakeMeUp(tabs) {
-	console.log('in wake me up');
 	var now = dayjs().valueOf();
 	var wakingUp = t => !t.opened && (t.url || (t.tabs && t.tabs.length && t.tabs.length > 0)) && t.wakeUpTime && t.wakeUpTime <= now;
 	if (tabs.filter(wakingUp).length === 0) return;
@@ -109,7 +108,7 @@ async function snoozeInBackground(item, tab) {
 	var title = !isHref ? tab.title : (item.linkText ? item.linkText : item.selectionText);
 	var favIconUrl = !isHref ? tab.favIconUrl : undefined;
 	var pinned = !isHref && tab.pinned ? tab.pinned : undefined;
-	await snoozeTab(snoozeTime.valueOf(), Object.assign(item, {url, title, icon, pinned}));
+	await snoozeTab(snoozeTime.valueOf(), Object.assign(item, {url, title, favIconUrl, pinned}));
 	var msg = `${!isHref ? tab.title : getHostname(url)} will wake up at ${snoozeTime.format('h:mm a [on] ddd, D MMM')}.`
 	createNotification(snoozeTab.id, 'A new tab is now napping :)', 'icons/main-icon.png', msg);
 	if (!isHref) await chrome.tabs.remove(tab.id);

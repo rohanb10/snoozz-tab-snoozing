@@ -14,7 +14,7 @@ PRs and other ideas welcome.
 ## Changes ##
 
 **November 2020**
-#### 2.3.2
+#### 2.3.2.1
 - Multiple tabs/windows waking up bug fix 🤞
 - Confirmation when changing history setting
 
