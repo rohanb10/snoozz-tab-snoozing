@@ -39,7 +39,7 @@ body.dark {
 }
 @-moz-document url-prefix() {
 	body {
-		font-size: .75em;
+		font-size: .9em;
 	}
 }
 
@@ -56,6 +56,13 @@ body.dark {
 
 .snoozz-logo {
 	max-width: 5em;
+}
+.snoozz-logo.hoverable {
+	transition: transform 2s linear;
+}
+.snoozz-logo.hoverable:hover {
+	transition-duration: 60s;
+	transform: rotate(4320deg);
 }
 .snoozz-text {
 	margin-left: 1.5em;

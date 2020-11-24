@@ -49,7 +49,12 @@ async function calculateStorage() {
 }
 
 function updateFormValues(storage) {
-	['morning', 'evening', 'timeOfDay', 'history', 'theme', 'badge', 'closeDelay'].forEach(o => {if (storage[o]) document.getElementById(o).value = storage[o].toString()})
+	['morning', 'evening', 'timeOfDay', 'history', 'theme', 'badge', 'closeDelay'].forEach(o => {
+		if (storage[o] && document.querySelector(`#${o} option[value="${storage[o]}"]`)) {
+			document.getElementById(o).value = storage[o].toString()
+			document.getElementById(o).setAttribute('data-orig-value', storage[o]);
+		}
+	});
 	if (storage.contextMenu.length > 0) storage.contextMenu.forEach(o => document.getElementById(o).checked = true);
 	if (storage.contextMenu.length > 4) document.querySelector('.choice-list').classList.add('disabled');
 }
@@ -64,11 +69,19 @@ function addListeners() {
 }
 
 async function save(e) {
+	if (e.target.id === 'history') {
+		var tabs = await getSnoozedTabs();
+		var count = tabs.filter(t => t.opened && dayjs().isAfter(dayjs(t.opened).add(e.target.value, 'd'))).length;
+		if (count > 0 && !window.confirm(`Changing this setting will remove ${count} tab${count > 1 ? 's' : ''} from your Snoozz history. Are you sure you want to continue with this change?`)) {
+			return e.target.value = e.target.getAttribute('data-orig-value');
+		}
+	}
 	var options = {}
 	document.querySelectorAll('select').forEach(s => options[s.id] = isNaN(s.value) ? s.value : parseInt(s.value));
 	options.contextMenu = Array.from(document.querySelectorAll('#contextMenu input:checked')).map(c => c.id);
-	saveOptions(options);
-	setTheme();
+	await saveOptions(options);
+	await setTheme();
+	if (e.target.tagName.toLowerCase() === 'select') e.target.setAttribute('data-orig-value', e.target.value);
 }
 
 function toggleRightClickOptions(e) {

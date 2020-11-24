@@ -38,7 +38,7 @@ body.dark .input-container {
 	max-width: 100%;
 }
 .settings-container p {
-	font-size: .8em;
+	font-size: .85em;
 	margin: 0;
 	opacity: .15;
 	transition: opacity .25s ease-in-out
@@ -53,8 +53,8 @@ select, option {
 	border-radius: 0;
 	border: none;
 	outline: none;
-	text-align: center;
 	text-align-last: center;
+	font-size: .9rem;
 	padding: .25em;
 }
 select, option, label {

@@ -131,9 +131,9 @@ function fillTimeGroups(searchQuery = '') {
 	var a = tabs.filter(t => t.opened);
 	if (a.length > 0) {
 		a.sort((t1,t2) => t2.opened - t1.opened).forEach(h => document.getElementById(getTimeGroup('wakeUpTime', h)).append(buildTab(h)))	
-		var historyHref = Object.assign(document.createElement('a'), {href: "./settings.html#history", innerText: HISTORY.toString()});
+		var historyHref = Object.assign(document.createElement('a'), {href: "./settings.html#history", innerText: `${HISTORY} day${HISTORY>1?'s':''}`});
 		var msg = document.createElement('p');
-		msg.append('Tabs in your history are removed ', historyHref, ` day${HISTORY>1?'s':''} after they wake up.`);
+		msg.append('Tabs in your Snoozz history are removed ', historyHref, ' after they wake up.');
 		document.getElementById('history').appendChild(msg);
 	}
 	document.getElementById('api-message').classList.toggle('hidden', s.length === 0 && a.length === 0)

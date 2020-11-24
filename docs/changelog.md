@@ -14,6 +14,10 @@ PRs and other ideas welcome.
 ## Changes ##
 
 **November 2020**
+#### 2.3.2
+- Multiple tabs/windows waking up bug fix 🤞
+- Confirmation when changing history setting
+
 #### 2.3.1
 - Dark mode 🌚
 - Visualise available storage on the settings page

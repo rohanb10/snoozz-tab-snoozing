@@ -12,6 +12,7 @@ chrome.storage.onChanged.addListener(async changes => {
 		await setUpContextMenus(changes.snoozedOptions.newValue.contextMenu);
 		updateBadge(null, changes.snoozedOptions.newValue.badge);
 		SAVED_OPTIONS = changes.snoozedOptions.newValue;
+		if (changes.snoozedOptions.newValue.history !== changes.snoozedOptions.oldValue.history) await wakeUpTask();
 	}
 	if (changes.snoozed) {
 		await updateBadge(changes.snoozed.newValue);
