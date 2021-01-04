@@ -41,7 +41,7 @@ async function setNextAlarm(tabs) {
 	var next = sleeping(tabs).reduce((t1,t2) => t1.wakeUpTime < t2.wakeUpTime ? t1 : t2);
 	if (next.wakeUpTime <= dayjs().valueOf()) {
 		clearTimeout(debounce)
-		debounce = setTimeout(_ => wakeMeUp(tabs), 10000)
+		debounce = setTimeout(_ => wakeMeUp(tabs), 3000)
 	} else {
 		var oneHour = dayjs().add(1, 'h').valueOf();
 		bgLog(['Next tab waking up:', next.id, 'at', dayjs(next.wakeUpTime).format('HH:mm:ss D/M/YY')],['','green','','yellow'])
@@ -52,11 +52,13 @@ async function setNextAlarm(tabs) {
 async function wakeMeUp(tabs) {
 	var now = dayjs().valueOf();
 	var wakingUp = t => !t.opened && (t.url || (t.tabs && t.tabs.length && t.tabs.length > 0)) && t.wakeUpTime && t.wakeUpTime <= now;
-	if (tabs.filter(wakingUp).length === 0) return;
-	bgLog(['Waking up tabs', tabs.filter(wakingUp).map(t => t.id).join(', ')], ['', 'green'], 'yellow');
-	for (var s of tabs.filter(wakingUp)) s.tabs ? await openWindow(s, true) : await openTab(s, null, true);
+	var tabsToWakeUp = tabs.filter(wakingUp);
+	if (tabsToWakeUp.length === 0) return;
+	bgLog(['Waking up tabs', tabsToWakeUp.map(t => t.id).join(', ')], ['', 'green'], 'yellow');
 	tabs.filter(wakingUp).forEach(t => t.opened = now);
 	await saveTabs(tabs);
+
+	for (var s of tabsToWakeUp) s.tabs ? await openWindow(s, true) : await openTab(s, null, true);
 }
 
 async function setUpContextMenus(cachedMenus) {

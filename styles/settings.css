@@ -27,10 +27,10 @@ h2 span {
 body.dark .input-container {
 	background-color: rgba(35, 35, 35, .5);
 }
-.input-container:hover {
-	border-color: rgba(128, 128, 128, 1);
+.input-container:hover, .input-container:focus-within {
+	border-color: #808080;
 }
-.input-container.highlight, .input-container.highlight:hover {
+.input-container.highlight, .input-container.highlight:hover, input-container.highlight:focus-within {
 	border-color: #c71543;
 	border-width: 3px;
 }
@@ -46,7 +46,9 @@ body.dark .input-container {
 h4, p {
 	cursor: default;
 }
-.input-container:hover p, .input-container:hover .storage-available, .input-container.highlight p, .input-container.highlight .storage-available {
+.input-container:hover p, .input-container:hover .storage-available,
+.input-container.highlight p, .input-container.highlight .storage-available,
+.input-container:focus-within p, .input-container:focus-within .storage-available {
 	opacity: 1;
 }
 select, option {
@@ -103,21 +105,17 @@ body.dark select {
 #right-click.show .btn div:before {
 	content: 'close'
 }
+#right-click:not(.show) input[type="checkbox"] {
+	visibility: hidden;
+}
 .choice-list {
 	width: 100%;
 	max-height: 0;
 	overflow-y: hidden;
 	transition: max-height .5s ease-in-out, padding-top .1s linear .4s;
 }
-.choice-list.disabled input, .choice-list.disabled input + label{
-	opacity: .4;
-	pointer-events: none;
-	touch-action: none;
-}
-.choice-list.disabled input:checked, .choice-list.disabled input:checked + label {
-	opacity: 1;
-	pointer-events: unset;
-	touch-action: unset;
+.choice-list input:disabled + label {
+	opacity: .25
 }
 .choice-list > div {
 	font-size: 1.1em;
@@ -127,18 +125,21 @@ body.dark select {
 	padding-top: 1em;
 	transition-delay: 0s;
 }
+.btn {
+	outline: none;
+}
 .btn div {
 	padding: .25em;
 	font-size: .8em;
 	text-transform: uppercase;
 }
 #shortcut .btn div:before {
-	content: 'show';
+	content: 'configure';
 }
 #shortcut.show .btn div:before {
 	content: 'hide';
 }
-.btn:hover:after, .select-wrapper:hover:after {
+.btn:hover:after, .btn:focus-within:after, .select-wrapper:hover:after, .select-wrapper:focus-within:after {
 	background-position: left;
 }
 #shortcut, #right-click {
@@ -146,6 +147,7 @@ body.dark select {
 }
 #shortcut:not(.show) .mini {
 	max-height: 0;
+	visibility: hidden;
 }
 .mini {
 	width: 100%;
@@ -156,6 +158,9 @@ body.dark select {
 div > strong {
 	display: block;
 	margin-top: 1em;
+}
+div > strong + div {
+	margin-bottom: .5em;
 }
 .bindings .flex {
 	justify-content: unset;

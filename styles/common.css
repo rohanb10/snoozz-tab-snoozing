@@ -2,6 +2,7 @@
 	box-sizing: border-box;
 	scrollbar-width: none;
 }
+
 *::-webkit-scrollbar {
 	display: none;
 }
@@ -98,6 +99,11 @@ a {
 	cursor: pointer;
 	text-decoration: underline;
 }
+a:focus-within {
+	outline-offset: 3px;
+	outline: 2px dashed crimson;
+	background: none;
+}
 a:hover {
 	background: linear-gradient(90deg, #f3b845 0%, #df4e76 100%);
 	-webkit-background-clip: text;
@@ -109,6 +115,9 @@ a:hover {
 	top: 0.5em;
 	right: 0.5em;
 	cursor: pointer;
+}
+.settings:focus-within, .dashboard:focus-within {
+	outline: 2px dashed crimson;
 }
 .settings img, .dashboard img {
 	width: 3em;
@@ -126,14 +135,14 @@ a:hover {
 	transition: opacity .3s ease-in-out;
 	white-space: nowrap;
 }
-.settings:hover:before, .dashboard:hover:before {
+.settings:hover:before, .dashboard:hover:before, .settings:focus-within:before, .dashboard:focus-within:before {
 	opacity: 1;
 }
-.settings img:hover {
+.settings img:hover, .settings:focus-within img {
 	animation: spin 2.5s steps(16, end) infinite;
 }
 
-.dashboard img:hover {
+.dashboard img:hover, .dashboard:focus-within img {
 	filter: grayscale(0);
 }
 

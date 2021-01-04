@@ -134,12 +134,13 @@ async function openTab(tab, windowId, automatic = false) {
 }
 
 async function openWindow(t, automatic = false) {
-	var targetWindow, currentWindow = await getTabsInWindow();
+	var targetWindowID, currentWindow = await getTabsInWindow();
 	if (currentWindow.length && currentWindow.filter(isDefault).length === currentWindow.length) {
 		await openExtensionTab(`/html/rise_and_shine.html#${t.id}`);
-		targetWindow = currentWindow[0].windowId;
+		targetWindowID = currentWindow[0].windowId;
 	} else {
-		targetWindow = await createWindow(t.id)
+		var window = await createWindow(t.id);
+		targetWindowID = window.id;
 	}
 
 	// send message to map browser tabs to tab-list in rise_and_shine.html
@@ -152,8 +153,8 @@ async function openWindow(t, automatic = false) {
 		if (state.status === 'loading' && state.url) loadingCount ++;
 	});
 
-	for (var s of t.tabs) await openTab(s, targetWindow.id);
-	chrome.windows.update(targetWindow.id, {focused: true});
+	for (var s of t.tabs) await openTab(s, targetWindowID);
+	chrome.windows.update(targetWindowID, {focused: true});
 	
 	if (!automatic) return;
 	var msg = `This window was put to sleep ${dayjs(t.timeCreated).fromNow()}`;

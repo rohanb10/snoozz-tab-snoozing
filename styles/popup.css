@@ -172,7 +172,7 @@ div[data-preview].disabled {
 body.dark .choice .date {
 	color: #AAA;
 }
-.choice:hover *, .choice.focused *, body.dark .choice:hover *, body.dark .choice.focused * {
+.choice:hover *, .choice.focused *, .choice:focus-within *, .choice.focused:focus-within * {
 	color: #000;
 }
 
@@ -195,12 +195,15 @@ body.dark .choice .date {
 	align-items: center;
 	transition: opacity .3s ease-in-out;
 	opacity: 0;
+	visibility: hidden;
 }
 .custom-choice.active, .custom-choice.focused {
+	visibility: visible;
 	max-width: 45em;
 }
 .custom-choice.active .custom-choice-form, .custom-choice.focused .custom-choice-form {
-	opacity: 1
+	opacity: 1;
+	visibility: visible;
 }
 
 .custom-choice .input {
@@ -223,14 +226,19 @@ body.dark .choice .date {
 }
 
 .choice:hover, .choice.focused, .custom-choice:hover, .custom-choice.focused,
-body.dark .choice:hover, body.dark .choice.focused, body.dark .custom-choice:hover, body.dark .custom-choice.focused {
+.choice:focus-within, .choice.focused, .custom-choice:focus-within, .custom-choice.focused {
 	background-color: var(--bg);
+	outline: none;
+}
+.choice.focused, .custom-choice.focused {
+	transition: background-color 0s linear;
 }
 
 input::-webkit-datetime-edit-month-field:focus, input::-webkit-datetime-edit-day-field:focus, input::-webkit-datetime-edit-year-field:focus, input::-webkit-datetime-edit-hour-field:focus, input::-webkit-datetime-edit-minute-field:focus {
 	color: #fff !important;
 }
-.dark-on-hover:hover *, .dark-on-hover.focused *, .custom-choice:hover *, .custom-choice.focused * {
+.dark-on-hover:hover *, .dark-on-hover.focused *, .custom-choice:hover *, .custom-choice.focused *,
+.dark-on-hover:focus-within *, .dark-on-hover.focused *, .custom-choice:focus-within *, .custom-choice.focused * {
 	color: #fff !important;
 }
 

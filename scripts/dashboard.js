@@ -1,6 +1,7 @@
 const TIME_GROUPS = ['Today', 'Tomorrow', 'This Week', 'Next Week', 'Later', 'History'];
 var HISTORY = -1, CACHED_TABS, ticktock;
 async function init() {
+	document.querySelector('.settings').onkeyup = e => {if (e.which === 13) openExtensionTab('/html/settings.html')}
 	document.querySelector('.settings').addEventListener('click', _ => openExtensionTab('/html/settings.html'), {once:true})
 	showIconOnScroll();
 	setupClock();
@@ -67,12 +68,18 @@ function buildTimeGroups() {
 		var name = Object.assign(document.createElement('h2'), {className: 'time-name', innerText: t});
 		var timeAction = Object.assign(document.createElement('div'), {
 			className: `time-action`,
+			tabIndex: 0,
 			innerText: tID === 'history' ? 'clear history' : 'wake up all'
 		});
-		timeAction.addEventListener('click', async _ => {
+		timeAction.onclick = async _ => {
 			var ids = Array.from(document.querySelectorAll(`#${tID} .tab`)).map(t =>t.id);
 			tID === 'history' ? await removeTabsFromHistory(ids) : await wakeUpTabsAbruptly(ids);
-		}, {once: true})
+		}
+		timeAction.onkeyup = async e => {
+			if (e.which !== 13) return;
+			var ids = Array.from(document.querySelectorAll(`#${tID} .tab`)).map(t =>t.id);
+			tID === 'history' ? await removeTabsFromHistory(ids) : await wakeUpTabsAbruptly(ids);
+		}
 		header.append(name, timeAction);
 		timeGroup.append(header);
 		container.append(timeGroup);
@@ -143,12 +150,19 @@ function fillTimeGroups(searchQuery = '') {
 function buildTab(t) {
 	var tab = wrapInDiv({className:`tab${t.tabs ? ' window collapsed':''}`, id: t.id});
 
-	var icon = Object.assign(document.createElement('img'), {className: `icon ${t.tabs ? 'dropdown':''}`, src: getIconForTab(t)});
+	var icon = Object.assign(document.createElement('img'), {
+		className: `icon ${t.tabs ? 'dropdown':''}`,
+		src: getIconForTab(t),
+		tabIndex: t.tabs ? 0 : -1,
+	});
 	icon.onerror = _ => icon.src = '../icons/unknown.png';
 	var iconContainer = wrapInDiv('icon-container', icon);
 
-	var title = wrapInDiv({className: 'tab-name', innerText: t.title, title: t.url ?? ''})
-	if (t.opened && !t.tabs) title.addEventListener('click', _ => openTab(t));
+	var title = wrapInDiv({className: 'tab-name', innerText: t.title, title: t.url ?? '', tabIndex: t.tabs ? -1 : 0})
+	if (t.opened && !t.tabs) {
+		title.onclick = _ => openTab(t);
+		title.onkeyup = e => { if (e.which === 13) openTab(t)};
+	}
 	var startedNap = Object.assign(document.createElement('div'), {
 		className: 'nap-time',
 		innerText: `Started napping at ${dayjs(t.timeCreated).format('h:mm a [on] ddd D MMM YYYY')}`,
@@ -173,21 +187,25 @@ function buildTab(t) {
 			var littleIcon = Object.assign(document.createElement('img'), {className: 'little-icon', src: getIconForTab(lt)});
 			littleIcon.onerror = _ => littleIcon.src = '../icons/unknown.png';
 			var littleTitle = wrapInDiv({className: 'tab-name', innerText: lt.title});
-			var littleTab = wrapInDiv('little-tab', littleIcon, littleTitle);
-			littleTab.addEventListener('click', _ => openTab(lt));
+			var littleTab = wrapInDiv({className: 'little-tab', tabIndex: 0}, littleIcon, littleTitle);
+			littleTab.onclick = _ => openTab(lt);
+			littleTab.onkeyup = e => {if (e.which === 13) openTab(lt)};
 			littleTabs.append(littleTab);
 		});
 
 		[iconContainer, titleContainer].forEach(c => c.addEventListener('click', _ => tab.classList.toggle('collapsed')))
+		iconContainer.onkeyup = e => {if (e.which === 13) tab.classList.toggle('collapsed')}
 	}
 
-	var wakeUpBtn = Object.assign(document.createElement('div'), {className:'wakeup-button', innerHTML: !t.opened ? '<span>Wake up now</span>' : ''});
-	wakeUpBtn.addEventListener('click', async _ => await wakeUpTabsAbruptly([t.id]));
-	var wakeUpBtnContainer = wrapInDiv('wakeup-btn-container', wakeUpBtn)
+	var wakeUpBtn = t.opened ? '' : Object.assign(document.createElement('img'), {className:'wakeup-button', src: '../icons/sun.png', tabIndex: 0});
+	wakeUpBtn.onclick = async _ => await wakeUpTabsAbruptly([t.id]);
+	wakeUpBtn.onkeyup = async e => {if (e.which === 13) await wakeUpTabsAbruptly([t.id])}
+	var wakeUpBtnContainer = wrapInDiv('wakeup-btn-container tooltip', wakeUpBtn)
 
-	var removeBtn = Object.assign(document.createElement('img'), {className:'remove-button', src: '../icons/close.svg',title: 'Delete'});
-	removeBtn.addEventListener('click', async _ => t.opened ? await removeTabsFromHistory([t.id]) : await sendTabsToHistory([t.id]));
-	var removeBtnContainer = wrapInDiv('remove-btn-container', removeBtn)
+	var removeBtn = Object.assign(document.createElement('img'), {className:'remove-button', src: '../icons/close.svg',title: 'Delete', tabIndex: 0});
+	removeBtn.onclick = async _ => t.opened ? await removeTabsFromHistory([t.id]) : await sendTabsToHistory([t.id]);
+	removeBtn.onkeyup = async e => {if (e.which === 13) {t.opened ? await removeTabsFromHistory([t.id]) : await sendTabsToHistory([t.id])}}
+	var removeBtnContainer = wrapInDiv('remove-btn-container tooltip', removeBtn)
 
 	tab.append(iconContainer, titleContainer, wakeUpTimeContainer, wakeUpBtnContainer, removeBtnContainer, littleTabs);
 	return tab;

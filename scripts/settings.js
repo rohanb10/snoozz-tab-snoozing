@@ -1,4 +1,5 @@
 async function initialize() {
+	document.querySelector('.dashboard').onkeyup = e => {if (e.which === 13) openExtensionTab('/html/dashboard.html')}
 	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('/html/dashboard.html'));
 	showIconOnScroll();
 
@@ -12,7 +13,9 @@ async function initialize() {
 	addListeners();
 
 	document.querySelector('#shortcut .btn').addEventListener('click', toggleShortcuts);
+	document.querySelector('#shortcut .btn').onkeyup = e => {if (e.which === 13) toggleShortcuts()}
 	document.querySelector('#right-click .btn').addEventListener('click', toggleRightClickOptions);
+	document.querySelector('#right-click .btn').onkeyup = e => {if (e.which === 13) toggleRightClickOptions()}
 	document.addEventListener('visibilitychange', updateKeyBindings);
 
 	calculateStorage();
@@ -20,6 +23,7 @@ async function initialize() {
 	document.querySelectorAll('a[data-highlight="history"]').forEach(a => a.addEventListener('click', e => highlightSetting('history')))
 
 	document.getElementById('reset').addEventListener('click', resetSettings);
+	document.getElementById('reset').onkeyup = e => {if (e.which === 13) resetSettings()}
 	document.getElementById('version').innerText = `Snoozz v${chrome.runtime.getManifest().version}`;
 
 	document.querySelector('code').addEventListener('click', _ => {
@@ -56,20 +60,24 @@ function updateFormValues(storage) {
 		}
 	});
 	if (storage.contextMenu.length > 0) storage.contextMenu.forEach(o => document.getElementById(o).checked = true);
-	if (storage.contextMenu.length > 4) document.querySelector('.choice-list').classList.add('disabled');
+	if (storage.contextMenu.length > 4) document.querySelectorAll('#contextMenu input:not(:checked)').forEach(c => c.disabled = true)
 }
 
 function addListeners() {
 	document.querySelectorAll('select').forEach(s => s.addEventListener('change', save));
 	document.querySelectorAll('#contextMenu input').forEach(c => c.addEventListener('change', e => {
-		// disable if 5 options are selected;
-		document.querySelector('.choice-list').classList.toggle('disabled', document.querySelectorAll('#contextMenu input:checked').length > 4);
+		if (document.querySelectorAll('#contextMenu input:checked').length > 4) {
+			document.querySelectorAll('#contextMenu input:not(:checked)').forEach(c => c.disabled = true)
+		} else {
+			document.querySelectorAll('#contextMenu input').forEach(c => c.disabled = false)
+		}
+		// document.querySelector('.choice-list').classList.toggle('disabled', );
 		save()
 	}))
 }
 
 async function save(e) {
-	if (e.target.id === 'history') {
+	if (e && e.target.id === 'history') {
 		var tabs = await getSnoozedTabs();
 		var count = tabs.filter(t => t.opened && dayjs().isAfter(dayjs(t.opened).add(e.target.value, 'd'))).length;
 		if (count > 0 && !window.confirm(`Changing this setting will remove ${count} tab${count > 1 ? 's' : ''} from your Snoozz history. Are you sure you want to continue with this change?`)) {
@@ -81,26 +89,35 @@ async function save(e) {
 	options.contextMenu = Array.from(document.querySelectorAll('#contextMenu input:checked')).map(c => c.id);
 	await saveOptions(options);
 	await setTheme();
-	if (e.target.tagName.toLowerCase() === 'select') e.target.setAttribute('data-orig-value', e.target.value);
+	if (e && e.target.tagName.toLowerCase() === 'select') e.target.setAttribute('data-orig-value', e.target.value);
 }
 
 function toggleRightClickOptions(e) {
-	var s = e.target.closest('.input-container'), collapsed = document.getElementById('contextMenu');
+	
+	var collapsed = document.getElementById('contextMenu');
+	var s = collapsed.closest('.input-container');
 	s.classList.toggle('show');
 	collapsed.style.maxHeight = s.classList.contains('show') ? `calc(${collapsed.scrollHeight}px + 1em)` : '0px'
 }
 
 function toggleShortcuts(e) {
-	var s = e.target.closest('.input-container');
+	var s =  document.getElementById('shortcut').closest('.input-container');
 	s.classList.toggle('show');
-	s.querySelectorAll('.mini').forEach(el => el.style.maxHeight = '0');
+	s.querySelectorAll('.mini').forEach(el => {
+		el.style.maxHeight = '0';
+		el.style.visibility= 'hidden';
+	});
 	updateKeyBindings();
 
 	var browserInfo = s.querySelector(`.${getBrowser()}-info`);
 	browserInfo.querySelectorAll('a[data-href]').forEach(s => s.addEventListener('click', e => {
 		chrome.tabs.create({url: e.target.getAttribute('data-href'), active: true})
 	}));
-	if (s.classList.contains('show')) browserInfo.style.maxHeight = browserInfo.scrollHeight + 'px';
+	if (s.classList.contains('show')) {
+		browserInfo.style.maxHeight = browserInfo.scrollHeight + 'px';
+		browserInfo.style.visibility = 'visible';
+	}
+	document.querySelector('.mini.shortcuts').style.visibility = 'visible';
 
 }
 

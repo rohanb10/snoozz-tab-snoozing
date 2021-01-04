@@ -30,7 +30,7 @@
 
 A Web Extension to *snoozz* tabs and windows now and have them reopen automatically later. 
 
-Available on [Chrome](https://chrome.google.com/webstore/detail/snoozz-snooze-tabs-window/lklendgldejcnkkaldoggoapclkepgfb), [Firefox](https://addons.mozilla.org/en-US/firefox/addon/snoozz/), [Edge] [Addons]() and as a custom build for [Safari](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/safari.md).
+Available on [Chrome](https://chrome.google.com/webstore/detail/snoozz-snooze-tabs-window/lklendgldejcnkkaldoggoapclkepgfb), [Firefox](https://addons.mozilla.org/en-US/firefox/addon/snoozz/), [Edge](https://microsoftedge.microsoft.com/addons/detail/ifofnjpbldmdcbkaalbdgaopphhlopok) and as a custom build for [Safari](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/safari.md).
 
 [Latest Release](https://github.com/rohanb10/snoozz-tab-snoozing/releases/latest/) | [Changelog](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/changelog.md) | [Browser Compatibility](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/compatibility.md) | [Privacy](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/PRIVACY.md)
 
@@ -54,6 +54,7 @@ Some features and colours of icons have been altered to be compatible with small
 | [Icon Box](https://www.flaticon.com/authors/icon-box) | Gear
 | [Those Icons](https://www.flaticon.com/authors/those-icons) | Magnifying Glass
 | [Smashicons](https://smashicons.com/) | Sheep
+| [Alfredo Hernandez](https://www.alfredocreates.com/) | Sun
 | [dDara](https://www.flaticon.com/authors/ddara) | Wii Fit Trainer
 
 Also would like to credit [Joni Trythall](https://jonitrythall.com/) for the CSS alarm clock used in the dashboard - [codepen](https://codepen.io/jonitrythall/pen/slvmi). I wrote my own JS to set the clock to the current time.

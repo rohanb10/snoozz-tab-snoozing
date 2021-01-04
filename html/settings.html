@@ -14,6 +14,7 @@
 		<img class="snoozz-logo hoverable" src="../icons/main-icon.png">
 		<img class="snoozz-text" src="../icons/snoozz.png">
 	</div>
+	<div tabindex="0" class="dashboard" data-hover="See your sleeping tabs"><img src="../icons/sheep.png"></div>
 	<div class="settings-container">
 		<h2><span>Settings</span></h2><br>
 		<div class="input-container flex">
@@ -105,7 +106,7 @@
 				<p>The option will only appear when you click on a valid link<span></span>.</p>
 				<p>You may select up to five choices.</p>
 			</div>
-			<div class="btn"><div></div></div>
+			<div tabindex="0" class="btn"><div></div></div>
 			<div id="contextMenu" class="choice-list">
 				<div><input type="checkbox" id="today-morning"><label for="today-morning">This Morning</label></div>
 				<div><input type="checkbox" id="today-evening"><label for="today-evening">This Evening</label></div>
@@ -122,18 +123,18 @@
 				<h4>Keyboard shortcuts</h4>
 				<p>Set up shortcuts to snooze a tab without any clicks.</p>
 			</div>
-			<div class="btn"><div></div></div>
+			<div tabindex="0" class="btn"><div></div></div>
 			<div class="mini firefox-info">
 				<strong>Instructions</strong>
 				<ol>
 					<li>Open the Firefox Add-Ons page in a new tab: <code>about:addons</code>.</li>
-					<li>Click on the <a target="_blank" href="https://bug1303384.bmoattachments.org/attachment.cgi?id=9051647">gear icon</a> in the top right and select <strong>Manage Extension Shortcuts</strong>.</li> 
+					<li>Click on the <a tabindex="0" target="_blank" href="https://bug1303384.bmoattachments.org/attachment.cgi?id=9051647">gear icon</a> in the top right and select <strong>Manage Extension Shortcuts</strong>.</li> 
 					<li>Configure snooze time shortcuts using your own key bindings.</li>
 				</ol>
 			</div>
 			<div class="mini chrome-info">
 				<strong>Instructions</strong>
-				<div>Configure snooze time shortcuts on the <a data-href="chrome://extensions/shortcuts">Extension Shortcuts</a> page.</div>
+				<div>Configure snooze time shortcuts on the <a tabindex="0" data-href="chrome://extensions/shortcuts">Extension Shortcuts</a> page.</div>
 			</div>
 			<div class="mini safari-info">
 				<strong>Uh Oh</strong>
@@ -184,7 +185,7 @@
 			</select></div>
 		</div>
 		<div class="reset-container center">
-			<a id="reset">reset settings</a>
+			<a tabindex="0" id="reset">reset settings</a>
 		</div>
 	</div><br>
 	<div class="about-container">
@@ -201,7 +202,6 @@
 		<div><p>Built by <a target='blank' href="https://rohan.xyz">rohan</a> in 2020.</p></div>
 	</div>
 	<div class="copied">Copied to clipboard</div>
-	<div class="dashboard" data-hover="See your sleeping tabs"><img src="../icons/sheep.png"></div>
 	<script type="text/javascript" src="../scripts/dayjs.min.js"></script>
 	<script type="text/javascript" src="../scripts/common.js"></script>
 	<script type="text/javascript" src="../scripts/settings.js"></script>

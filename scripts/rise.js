@@ -1,4 +1,5 @@
 async function init() {
+	document.querySelector('.dashboard').onkeyup = e => {if (e.which === 13) openExtensionTab('/html/dashboard.html')}
 	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('/html/dashboard.html'), {once:true});
 	showIconOnScroll();
 
@@ -14,14 +15,14 @@ async function init() {
 async function fetchTabFromStorage() {
 	var tabs = await getSnoozedTabs();
 	var query = window.location.hash.substring(1);
-	if (!query || query.length === 0 || !tabs || tabs.length === 0) return;
+	if (!query || query.length === 0 || !tabs || tabs.length === 0) return false;
 
 	var found = tabs.find(t => t.id && t.id === query);
 	if (!found || !found.tabs || !found.tabs.length || found.tabs.length === 0) return;
 	return found;
 }
 function populate(found) {
-	if (!found) setTimeout(_ => window.close(), 1000);
+	if (!found && found !== false) setTimeout(_ => window.close(), 1000);
 	document.querySelector('#when span').innerText = dayjs(found.timeCreated).format('h:mma on dddd, DD MMM YYYY')
 	var till = document.querySelector('#till span');
 	till.innerText = dayjs(found.timeCreated).to(dayjs(found.wakeUpTime),true)

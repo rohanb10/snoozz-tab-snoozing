@@ -53,16 +53,21 @@ h2 {
 	margin-top: 0;
 }
 .time-action {
+	padding: .25em .75em;
 	color: #AAA;
+	border: 2px dashed transparent;
 }
 .time-action:hover {
 	cursor: pointer;
 	text-decoration: underline;
 	color: var(--color);
 }
+.time-action:focus-within {
+	outline: none;
+	border-color: crimson;
+}
 .tab {
 	position: relative;
-	z-index: 2;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -71,9 +76,17 @@ h2 {
 	margin: .5em 1em;
 	box-sizing: border-box;
 	flex-wrap: wrap;
+	border: 2px dashed transparent;
+	transition: border-color .3s ease-in-out;
 }
 body.dark .tab {
 	background-color: rgba(35, 35, 35, .7);
+}
+.tab:focus-within {
+	border-color: #808080;
+}
+body.dark .tab:focus-within {
+	border-color: #ddd;
 }
 .tab > div:nth-child(-n+5) {
 	height: 100%;
@@ -85,10 +98,20 @@ body.dark .tab {
 .icon-container {
 	width: 10%;
 }
+.icon-container.tooltip:focus-within:after {
+	content: 'See Tabs';
+	transform: translate(-50%, 0px);
+	left: 50%;
+}
 .icon {
 	display: block;
+	border-radius: 2em;
+
 	margin: 0 auto;
-	max-width: 1.5rem;
+	max-width: 38px;
+	max-height: 38px;
+	padding: 4px;
+	border: 2px dashed transparent;
 }
 .title-container {
 	width: 50%;
@@ -108,7 +131,6 @@ body.dark .tab {
 	overflow-y: hidden;
 	min-height: unset !important;
 	transition: opacity .33s ease-in-out, max-height .33s ease-in-out, border-color .33s ease-in-out;
-	opacity: 1;
 	display: flex;
 	flex-wrap: wrap;
 	max-height: 0;
@@ -117,10 +139,18 @@ body.dark .tab {
 	overflow-y: scroll;
 }
 .window.collapsed .icon-container .icon {
-	transform: rotateX(0);
+	transform: rotateX(0) scale(.95);
+}
+.window .icon-container .icon:focus-within {
+	outline: none;
+	border: 2px dashed crimson;
+	opacity: 1;
+}
+body.dark .icon-container .icon:focus-within {
+	filter: invert(16%) sepia(73%) saturate(4860%) hue-rotate(339deg) brightness(87%) contrast(97%);
 }
 .window .icon-container .icon {
-	transform: rotateX(180deg);
+	transform: rotateX(180deg) scale(.95);
 	opacity: .35;
 	transition: transform .33s ease-in-out;
 }
@@ -138,6 +168,7 @@ body.dark .tab {
 	display: flex;
 	padding: .75rem 1rem;
 	margin: .25rem;
+	border: 2px dashed transparent;
 	width: calc(100% / 3 - .5rem);
 }
 .little-tab .little-icon {
@@ -149,6 +180,9 @@ body.dark .tab {
 	font-size: .9rem;
 	font-weight: normal;
 	width: calc(100% - 2rem);
+}
+.tab.window.collapsed .little-tab {
+	visibility: hidden
 }
 .wakeup-time {
 	font-size: 1em;
@@ -164,7 +198,7 @@ body.dark .tab {
 body.dark .nap-time, body.dark .wakeup-label {
 	color: #BABABA;
 }
-.tab:hover .nap-time, .tab:hover .wakeup-label {
+.tab:hover .nap-time, .tab:hover .wakeup-label, .tab:focus-within .nap-time, .tab:focus-within .wakeup-label {
 	opacity: 1;
 }
 .search-container.valid-search + #time-container .tab .nap-time, .search-container.valid-search + #time-container .tab .wakeup-label {
@@ -180,6 +214,46 @@ body.dark .nap-time, body.dark .wakeup-label {
 .wakeup-btn-container {
 	width: 10%;
 }
+.tooltip {
+	position: relative;
+}
+.tooltip:after {
+	pointer-events: none;
+	position: absolute;
+	top: 90%;
+	left: 0;
+	background-color: #fff;
+	border-radius: 5px;
+	padding: .5em;
+	white-space: nowrap;
+	z-index: 8;
+}
+.wakeup-btn-container:not(:empty):hover:after, .wakeup-btn-container:not(:empty):focus-within:after {
+	content: 'Wake Up Now';
+	transform: translateX(calc(-50% + 19px));
+}
+.wakeup-btn-container:focus-within:after, .remove-btn-container:focus-within:after {
+	border: 2px dashed crimson;
+}
+body.dark .tooltip:focus-within:after, body.dark .tooltip:hover:after {
+	color: #fff;
+	background-color: #222;
+}
+.wakeup-button {
+	max-width: 38px;
+	max-height: 38px;
+	padding: 4px;
+	border-radius: 38px;
+	border: 2px dashed transparent;
+	filter: grayscale(1);
+}
+.wakeup-button:focus-within, .remove-btn-container img:focus-within, .little-tab:focus-within {
+	outline: none;
+	border-color: crimson;
+}
+.wakeup-button:hover, .wakeup-button:focus-within {
+	filter: grayscale(0);
+}
 .wakeup-button span, body.dark .wakeup-button span:hover {
 	font-size: .85em;
 	text-transform: uppercase;
@@ -190,22 +264,26 @@ body.dark .nap-time, body.dark .wakeup-label {
 	transition: all .25s ease-in-out;
 	border-radius: .25em;
 }
-body.dark .wakeup-button span, .wakeup-button span:hover {
-	background-color: #666;
-	color: #FFF;
-}
 .remove-btn-container {
 	width: 5%;
 	text-align: right;
 }
+.remove-btn-container:hover:after, .remove-btn-container:focus-within:after {
+	content: 'Remove';
+	transform: translateX(calc(-50% + 19px));
+}
 .remove-btn-container img {
-	opacity: .25;
-	max-height: 1em;
+	opacity: .3;
+	max-height: 38px;
+	max-width: 38px;
+	padding: 10px;
+	border-radius: 38px;
+	border: 2px dashed transparent;
 }
-body.dark .remove-btn-container img:not(:hover) {
-	opacity: .4;
+body.dark .remove-btn-container img:focus-within {
+	filter: invert(16%) sepia(73%) saturate(4860%) hue-rotate(339deg) brightness(87%) contrast(97%);
 }
-.remove-btn-container img:hover {
+.remove-btn-container img:focus-within, .remove-btn-container img:hover {
 	opacity: 1;
 }
 .wakeup-button, .remove-button {
@@ -214,7 +292,9 @@ body.dark .remove-btn-container img:not(:hover) {
 body.dark .remove-btn-container img, body.dark .icon.dropdown, body.dark .up-arrow {
 	filter: invert(1);
 }
-#history .tab:not(.window) .tab-name:hover {
+
+#history .tab:not(.window) .tab-name:hover, #history .tab:not(.window) .tab-name:focus-within {
+	outline: none;
 	text-decoration: underline;
 	cursor: pointer;
 }
@@ -326,7 +406,7 @@ body:not(.dark) p {
 	background: url('../icons/search.svg') no-repeat 98% center;
 	transition: left .2s linear .25s, filter .3s ease-in-out;
 }
-.input-wrapper.searching:before {
+.input-wrapper.searching:before, .input-wrapper:focus-within:before {
 	background-position: left;
 	transition-delay: 0s;
 }

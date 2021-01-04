@@ -14,9 +14,13 @@ PRs and other ideas welcome.
 ## Changes ##
 
 **November 2020**
-#### 2.3.2.1
+#### 2.3.2.1 and 2.3.2.2
+- Critical bug hotfixes released within 24 hours of 2.3.2
+
+#### 2.3.2
 - Multiple tabs/windows waking up bug fix 🤞
 - Confirmation when changing history setting
+snooze in background hotfix
 
 #### 2.3.1
 - Dark mode 🌚

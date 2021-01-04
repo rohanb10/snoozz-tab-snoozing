@@ -8,6 +8,12 @@ async function init() {
 		openExtensionTab(el.target.dataset.href);
 		setTimeout(_ => window.close(), 100);
 	}));
+	document.querySelectorAll('.dashboard-btn, .settings').forEach(btn => btn.onkeyup = e => {
+		if (e.which == 13) {
+			openExtensionTab(btn.dataset.href);
+			setTimeout(_ => window.close(), 100);
+		}
+	});
 	if (getBrowser() === 'firefox') {
 		chrome.tabs.onActivated.addListener(_ => setTimeout(_ => window.close(), 50))
 		chrome.runtime.onMessage.addListener(msg => {if (msg.closePopup) window.close()});
@@ -19,6 +25,21 @@ async function init() {
  	if (!tabs || tabs.length === 0) return;
  	var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear()).length;
  	if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount);
+
+ 	document.addEventListener('keyup', e => {
+ 		if (e.which >= 48 && e.which <= 56) {
+ 			var choices = document.querySelectorAll('.choice');
+ 			var selectedChoice = choices && choices.length > 0 ? choices[e.which - 48 - 1] : false;
+ 			if (!selectedChoice || selectedChoice.classList.contains('disabled')) return;
+ 			choices.forEach(c => c.classList.remove('focused'));
+ 			selectedChoice.focus();
+ 		}
+ 		if (e.which === 13) {
+ 			var selectedChoice = document.querySelector('.choice.focused');
+ 			if (!selectedChoice) return;
+ 			snooze(o.time, c)
+ 		}
+ 	})
 }
 
 async function buildChoices() {
@@ -29,11 +50,14 @@ async function buildChoices() {
 		var date = wrapInDiv({classList: 'date', innerText: o.timeString});
 		var time = wrapInDiv({classList: 'time', innerText: dayjs(o.time).format(`h${dayjs(o.time).minute() !== 0 ? ':mm ':''}A`)});
 
-		return wrapInDiv({
-			classList: `choice ${o.hi} ${o.disabled ? 'disabled' : ''} ${o.isDark ? 'dark-on-hover' : ''}`,
+		var c = wrapInDiv({
+			classList: `choice${o.disabled ? ' disabled' : ''}${o.isDark ? ' dark-on-hover' : ''}`,
 			style: `--bg:${o.color}`,
-			onclick: e => snooze(o.time, e.target)
+			tabIndex: o.disabled ? -1 : 0,
 		}, wrapInDiv('', icon, label), wrapInDiv('', date, time));
+		c.onclick = _ => snooze(o.time, c)
+		c.onkeyup = e => {if (e.which === 13) snooze(o.time, c)}
+		return c
 	})));
 }
 
@@ -70,6 +94,7 @@ function buildCustomChoice() {
 	ccContainer = wrapInDiv({
 		classList: 'custom-choice dark-on-hover',
 		style: '--bg: #4C72CA',
+		tabIndex: 0,
 		onmouseover: activateForm,
 		onmousemove: activateForm,
 		onmouseout: _ => collapse = setTimeout(_ => activateForm(false), 3000),
