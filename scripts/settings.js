@@ -54,7 +54,7 @@ async function calculateStorage() {
 
 function updateFormValues(storage) {
 	['morning', 'evening', 'timeOfDay', 'history', 'theme', 'badge', 'closeDelay'].forEach(o => {
-		if (storage[o] && document.querySelector(`#${o} option[value="${storage[o]}"]`)) {
+		if (storage[o] !== undefined && document.querySelector(`#${o} option[value="${storage[o]}"]`)) {
 			document.getElementById(o).value = storage[o].toString()
 			document.getElementById(o).setAttribute('data-orig-value', storage[o]);
 		}
@@ -82,6 +82,20 @@ async function save(e) {
 		var count = tabs.filter(t => t.opened && dayjs().isAfter(dayjs(t.opened).add(e.target.value, 'd'))).length;
 		if (count > 0 && !window.confirm(`Changing this setting will remove ${count} tab${count > 1 ? 's' : ''} from your Snoozz history. Are you sure you want to continue with this change?`)) {
 			return e.target.value = e.target.getAttribute('data-orig-value');
+		}
+	}
+	if (e && ['morning', 'evening'].includes(e.target.id)) {
+		var tabs = await getSnoozedTabs();
+		var ot = parseInt(e.target.getAttribute('data-orig-value'));
+		var f = t => !t.opened && dayjs(t.wakeUpTime).hour() === ot && dayjs(t.wakeUpTime).minute() === 0 && dayjs(t.wakeUpTime).second() === 0
+		var tabsToChange = tabs.filter(f)
+		if (tabsToChange.length > 0) {
+			var count = `${tabsToChange.length > 1 ? 'are' : 'is'} ${tabsToChange.length} tab${tabsToChange.length > 1 ? 's' : ''}`
+			if (confirm(`There ${count} scheduled to wake up at ${dayjs().hour(ot).format('hA')}.
+Would you like to update ${tabsToChange.length > 1 ? 'them' : 'it'} to snooze till ${dayjs().hour(e.target.value).format('hA')}?`)) {
+				tabs.filter(f).forEach(t => t.wakeUpTime = dayjs(t.wakeUpTime).hour(e.target.value).valueOf())
+				await saveTabs(tabs);
+			}
 		}
 	}
 	var options = {}
