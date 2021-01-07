@@ -21,7 +21,34 @@ chrome.storage.onChanged.addListener(async changes => {
 });
 
 chrome.notifications.onClicked.addListener(async id => {
-	if (id !== 'no-op') await openExtensionTab('html/dashboard.html');
+	if (!id || id === 'no-op') {
+		await openExtensionTab('html/dashboard.html');
+	} else {
+		try {
+			var t = await getSnoozedTabs(id);
+			if (t.tabs && t.tabs.length > 1) {
+				var wins = await getAllWindows();
+				var found = false;
+				if (wins) wins.map(w => w.id).forEach(async wid => {
+					if (found) return;
+					var tabs = await new Promise(r => chrome.tabs.query({windowId: wid}, r));
+					if (tabs && tabs.some(t => t.url.indexOf(id) > -1)) return found = tabs.find(t => t.url.indexOf(id) > -1)
+				});
+				if (found && found.id && found.windowId) {
+					chrome.tabs.update(found.id, {active: true});
+					chrome.windows.update(found.windowId, {focused: true});
+				} else {
+					await openExtensionTab('html/dashboard.html');
+				}
+			} else {
+				var tabList = await new Promise(r => chrome.tabs.query({url: t.url}, r));
+				await chrome.tabs.update(tabList[0].id, {active: true})
+			}
+		} catch (e) {
+			await openExtensionTab('html/dashboard.html');
+		}
+	}
+
 	await chrome.notifications.clear(id)
 });
 

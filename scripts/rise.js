@@ -22,7 +22,7 @@ async function fetchTabFromStorage() {
 	return found;
 }
 function populate(found) {
-	if (!found && found !== false) setTimeout(_ => window.close(), 1000);
+	if (!found && found !== false) return setTimeout(_ => window.close(), 1000);
 	document.querySelector('#when span').innerText = dayjs(found.timeCreated).format('h:mma on dddd, DD MMM YYYY')
 	var till = document.querySelector('#till span');
 	till.innerText = dayjs(found.timeCreated).to(dayjs(found.wakeUpTime),true)
