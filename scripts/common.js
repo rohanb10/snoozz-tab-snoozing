@@ -167,7 +167,7 @@ async function snoozeTab(snoozeTime, overrideTab) {
 	var activeTab = overrideTab || await getTabsInWindow(true);
 	if (!activeTab || !activeTab.url) return {};
 	var sleepyTab = {
-		id: Math.random().toString(36).slice(-10),
+		id: [...Array(16)].map(() => Math.random().toString(36)[2]).join(''),
 		title: activeTab.title ?? getBetterUrl(activeTab.url),
 		url: activeTab.url,
 		favicon: activeTab.favIconUrl && activeTab.favIconUrl.length < 150 ? activeTab.favIconUrl : '',

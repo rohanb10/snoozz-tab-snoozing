@@ -1,37 +1,36 @@
 const TIME_GROUPS = ['Today', 'Tomorrow', 'This Week', 'Next Week', 'Later', 'History'];
-var HISTORY = -1, CACHED_TABS, ticktock;
+var HISTORY = -1, CACHED_TABS = [], ticktock;
 async function init() {
 	document.querySelector('.settings').onkeyup = e => {if (e.which === 13) openExtensionTab('/html/settings.html')}
 	document.querySelector('.settings').addEventListener('click', _ => openExtensionTab('/html/settings.html'), {once:true})
 	showIconOnScroll();
 	setupClock();
 
-	// refresh dashboard when storage changed if page is not in focus
 	chrome.storage.onChanged.addListener(async changes => {
-		if (changes.snoozed) CACHED_TABS = changes.snoozed.newValue;
-		if (!document.hasFocus() || document.hidden) fillTimeGroups();
+		if (changes.snoozed) {
+			CACHED_TABS = changes.snoozed.newValue;
+			updateTabs()
+		}
 	});
 
 	chrome.runtime.onMessage.addListener(async msg => {
 		if (msg.updateDash) {
-			var tabs = await getSnoozedTabs();
-			CACHED_TABS = tabs;
-			fillTimeGroups();
+			CACHED_TABS = await getSnoozedTabs();;
+			updateTabs()
 		}
 	});
-	document.addEventListener('visibilitychange', _ => {setupClock();fillTimeGroups()});
+	document.addEventListener('visibilitychange', _ => {setupClock();updateTabs()});
 	var search = document.getElementById('search');
 	search.addEventListener('input', _ => {
 		search.parentElement.classList.toggle('searching', search.value.length > 0);
 		search.parentElement.parentElement.classList.toggle('valid-search', search.value.length > 2);
-		fillTimeGroups(search.value.toLowerCase());
-	})
+		performSearch(search.value.toLowerCase())
+	});
 
 	CACHED_TABS = await getSnoozedTabs();
 	HISTORY = await getOptions('history');
 
 	buildTimeGroups();
-	fillTimeGroups();
 
 	if (getBrowser() === 'safari') await chrome.runtime.getBackgroundPage(async bg => {await bg.wakeUpTask()});
 }
@@ -56,6 +55,38 @@ function setupClock() {
 		ticktock = setTimeout(moveSecondHand, 1000)
 	}
 	ticktock = setTimeout(moveSecondHand, 1000);
+}
+
+function updateTabs() {
+	var cachedTabIds = CACHED_TABS.map(ct => ct.id);
+	var allTabIds = Array.from(document.querySelectorAll('.tab') ?? []).map(at => at.id);
+
+	// if (allTabIds.filter(at => !cachedTabIds.includes(at)).length === 0) return;
+	allTabIds.filter(at => !cachedTabIds.includes(at)).forEach(t => document.getElementById(t).remove())
+
+	// add any remaining tabs from cache
+	cachedTabIds.forEach(tid => {
+		var t = CACHED_TABS.find(ct => ct.id === tid)
+		if (document.getElementById(tid)) {
+			if (!document.getElementById(tid).closest(`#${getTimeGroup(t)}`)) insertIntoCorrectPosition(t)
+		} else {
+			insertIntoCorrectPosition(t)
+		}
+	})
+	updateTimeGroups()
+}
+function insertIntoCorrectPosition(t) {
+	var tab = document.getElementById(t.id) || buildTab(t);
+	var allTabs, index = 0, group = document.getElementById(getTimeGroup(t));
+	if (t && group) allTabs = group.querySelectorAll('.tab');
+	if (allTabs && allTabs.length > 0) {
+		Array.from(allTabs).map(s => CACHED_TABS.find(ct => ct.id === s.id)).forEach(s => {
+			if (!t.opened && dayjs(t.wakeUpTime).isAfter(s.wakeUpTime) || t.wakeUpTime === s.wakeUpTime) index++;
+			if (t.opened && dayjs(t.opened).isBefore(s.opened)) index++;
+		});
+		group.insertBefore(tab, Array.from(allTabs)[index]);
+	}
+	buildTabActions(t)
 }
 
 function buildTimeGroups() {
@@ -84,16 +115,40 @@ function buildTimeGroups() {
 		timeGroup.append(header);
 		container.append(timeGroup);
 	});
+
+	var s = sleeping(CACHED_TABS);
+	if (s.length > 0) s.sort((t1,t2) => t1.wakeUpTime - t2.wakeUpTime).forEach(st => {
+		var timeGroup = document.getElementById(getTimeGroup(st));
+		if (timeGroup) timeGroup.append(buildTab(st));
+	})
+
+	var awake = CACHED_TABS.filter(t => t.opened);
+	if (awake.length > 0) {
+		var hist_div = document.getElementById('history')
+		awake.sort((t1,t2) => t2.opened - t1.opened).forEach(at => hist_div.append(buildTab(at)))	
+
+		var historyHref = Object.assign(document.createElement('a'), {href: "./settings.html#history", innerText: `${HISTORY} day${HISTORY>1?'s':''}`});
+		var msg = document.createElement('p');
+		msg.append('Tabs in your Snoozz history are removed ', historyHref, ' after they wake up.');
+		document.getElementById('history').appendChild(msg);
+	}
+	updateTimeGroups();
 }
 
 function updateTimeGroups() {
 	TIME_GROUPS.forEach(name => {
 		var tg = document.getElementById(name.replace(/ /g,"_").toLowerCase())
-		var tabCount = Array.from(tg.querySelectorAll('.tab')).length
+		var tabCount = Array.from(tg.querySelectorAll('.tab')).filter(t => !t.classList.contains('hidden')).length;
 		tg.classList.toggle('hidden', tabCount === 0)
 		tg.querySelector('.time-action').classList.toggle('hidden', tabCount < 2);
 	})
-	document.getElementById('no-tabs').classList.toggle('hidden', document.querySelector('.tab'));
+	var allTabs = document.querySelectorAll('.tab')
+	var allTabsHidden = Array.from(allTabs).every(t => t.classList.contains('hidden'));
+
+	document.querySelector('.instructions').classList.toggle('hidden', allTabs.length > 0);
+	document.querySelector('.search-container').classList.toggle('hidden', allTabs.length < 2);
+	document.getElementById('no-tabs').classList.toggle('hidden', !allTabsHidden);
+	document.getElementById('api-message').classList.toggle('hidden', allTabsHidden)
 }
 
 function matchQuery(query, against) {
@@ -105,6 +160,7 @@ function matchQuery(query, against) {
 }
 
 function search(t, query) {
+	if (query.length < 3) return true
 	// tab props
 	if (t.url && t.url.toLowerCase().indexOf(query) > -1) return true;
 	if (t.title && t.title.toLowerCase().indexOf(query) > -1) return true;
@@ -112,8 +168,8 @@ function search(t, query) {
 	if (!t.opened && ('snoozed sleeping asleep napping snoozzed snoozing snoozzing').indexOf(query) > -1) return true;
 	if (t.opened && ('manually deleted removed reopened awake history').indexOf(query) > -1) return true;
 	// categories
-	if (matchQuery(query, getTimeGroup('wakeUpTime', t, true).map(tg => tg.replace(/_/g, ' ')))) return true;
-	if (matchQuery(query, getTimeGroup('timeCreated', t, true).map(tg => tg.replace(/_/g, ' ')))) return true;
+	if (matchQuery(query, getTimeGroup(t, 'wakeUpTime', true).map(tg => tg.replace(/_/g, ' ')))) return true;
+	if (matchQuery(query, getTimeGroup(t, 'timeCreated', true).map(tg => tg.replace(/_/g, ' ')))) return true;
 	// absolute time
 	if ( t.opened && matchQuery(query, dayjs(t.opened).format('dddd DD MMMM A'))) return true;
 	if (!t.opened && t.wakeUpTime && matchQuery(query, dayjs(t.wakeUpTime).format('dddd DD MMMM A'))) return true;
@@ -121,30 +177,41 @@ function search(t, query) {
 	return false;
 }
 
-function fillTimeGroups(searchQuery = '') {
-	var tabs = CACHED_TABS || [];
-	document.querySelectorAll('#time-container p, #time-container .tab').forEach(el => el.remove());
-	document.querySelector('.search-container').classList.toggle('hidden', tabs.length < 2);
-	document.querySelector('.instructions').classList.toggle('hidden', tabs.length > 0);
-
-	if (searchQuery.length > 2) tabs = tabs.filter(t => search(t, searchQuery) || (t.tabs && t.tabs.some(tt => search(tt, searchQuery))));
-
-	var s = sleeping(tabs);
-	if (s.length > 0) s.sort((t1,t2) => t1.wakeUpTime - t2.wakeUpTime).forEach(f => {
-		var timeGroup = document.getElementById(getTimeGroup('wakeUpTime', f));
-		if (timeGroup) timeGroup.append(buildTab(f));
-	})
-
-	var a = tabs.filter(t => t.opened);
-	if (a.length > 0) {
-		a.sort((t1,t2) => t2.opened - t1.opened).forEach(h => document.getElementById(getTimeGroup('wakeUpTime', h)).append(buildTab(h)))	
-		var historyHref = Object.assign(document.createElement('a'), {href: "./settings.html#history", innerText: `${HISTORY} day${HISTORY>1?'s':''}`});
-		var msg = document.createElement('p');
-		msg.append('Tabs in your Snoozz history are removed ', historyHref, ' after they wake up.');
-		document.getElementById('history').appendChild(msg);
-	}
-	document.getElementById('api-message').classList.toggle('hidden', s.length === 0 && a.length === 0)
+function performSearch(searchQuery = '') {
+	var tabs = document.querySelectorAll('.tab');
+	if (tabs) tabs.forEach(t => t.classList.toggle('hidden', !search((CACHED_TABS).find(ct => ct.id == t.id), searchQuery)));
 	updateTimeGroups();
+}
+
+function buildTabActions(t, tabDiv) {
+	tabDiv = tabDiv || document.getElementById(t.id);
+	var tabName = tabDiv.querySelector('.tab-name');
+	var wakeUpBtn = tabDiv.querySelector('img.wakeup-button');
+	var removeBtn = tabDiv.querySelector('img.remove-button');
+
+	if (!!t.opened) {
+		if (!t.tabs) {
+			tabName.setAttribute('tabIndex', 0);
+			tabName.onclick = _ => openTab(t.url);
+			tabName.onkeyup = e => { if (e.which === 13) openTab(t.url)};
+		}
+		wakeUpBtn.remove();
+		removeBtn.remove();
+
+		var newRemoveBtn = Object.assign(document.createElement('img'), {className:'remove-button', src: '../icons/close.svg', tabIndex: 0});
+		newRemoveBtn.onclick = async _ => await removeTabsFromHistory([t.id])
+		newRemoveBtn.onkeyup = async e => {if (e.which === 13) await removeTabsFromHistory([t.id])}
+		tabDiv.querySelector('.remove-btn-container').append(newRemoveBtn)
+	} else {
+		wakeUpBtn.onclick = async _ => await wakeUpTabsAbruptly([t.id])
+		wakeUpBtn.onkeyup = async e => {if (e.which === 13) await wakeUpTabsAbruptly([t.id])}
+		removeBtn.onclick = async _ => await sendTabsToHistory([t.id])
+		removeBtn.onkeyup = async e => {if (e.which === 13) await sendTabsToHistory([t.id])}
+	}
+	tabDiv.querySelector('.wakeup-label').innerText = t.deleted ? 'Deleted on' : (t.opened ? `Woke up ${t.opened < t.wakeUpTime ? 'manually' : 'automatically'} on` : 'Waking up')
+	tabDiv.querySelector('.wakeup-time').innerText = t.opened ? dayjs(t.opened).format('dddd, D MMM') : formatSnoozedUntil(t.wakeUpTime)
+	tabDiv.querySelector('.wakeup-time').title = dayjs(t.opened ? t.opened : t.wakeUpTime).format('h:mm a [on] ddd, D MMMM YYYY');
+	return tabDiv;
 }
 
 function buildTab(t) {
@@ -158,27 +225,15 @@ function buildTab(t) {
 	icon.onerror = _ => icon.src = '../icons/unknown.png';
 	var iconContainer = wrapInDiv('icon-container', icon);
 
-	var title = wrapInDiv({className: 'tab-name', innerText: t.title, title: t.url ?? '', tabIndex: t.tabs ? -1 : 0})
-	if (t.opened && !t.tabs) {
-		title.onclick = _ => openTab(t);
-		title.onkeyup = e => { if (e.which === 13) openTab(t)};
-	}
+	var title = wrapInDiv({className: 'tab-name', innerText: t.title, title: t.url ?? ''});
+
 	var startedNap = Object.assign(document.createElement('div'), {
 		className: 'nap-time',
 		innerText: `Started napping at ${dayjs(t.timeCreated).format('h:mm a [on] ddd D MMM YYYY')}`,
 	});
 	var titleContainer = wrapInDiv('title-container', title, startedNap);
 
-	var wakeUpLabel = Object.assign(document.createElement('div'), {
-		className: 'wakeup-label',
-		innerText: t.deleted ? 'Deleted on' : (t.opened ? `Woke up ${t.opened < t.wakeUpTime ? 'manually' : 'automatically'} on` : 'Waking up')
-	});
-	var wakeUpTime = Object.assign(document.createElement('div'), {
-		className: 'wakeup-time',
-		innerText: t.opened ? dayjs(t.opened).format('dddd, D MMM') : formatSnoozedUntil(t.wakeUpTime),
-		title: dayjs(t.opened ? t.opened : t.wakeUpTime).format('h:mm a [on] ddd, D MMMM YYYY')
-	});
-	var wakeUpTimeContainer = wrapInDiv('wakeup-time-container', wakeUpLabel, wakeUpTime);
+	var wakeUpTimeContainer = wrapInDiv('wakeup-time-container', wrapInDiv('wakeup-label'), wrapInDiv('wakeup-time'));
 
 	var littleTabs = '';
 	if (t.tabs && t.tabs.length) {
@@ -197,18 +252,14 @@ function buildTab(t) {
 		iconContainer.onkeyup = e => {if (e.which === 13) tab.classList.toggle('collapsed')}
 	}
 
-	var wakeUpBtn = t.opened ? '' : Object.assign(document.createElement('img'), {className:'wakeup-button', src: '../icons/sun.png', tabIndex: 0});
-	wakeUpBtn.onclick = async _ => await wakeUpTabsAbruptly([t.id]);
-	wakeUpBtn.onkeyup = async e => {if (e.which === 13) await wakeUpTabsAbruptly([t.id])}
+	var wakeUpBtn = Object.assign(document.createElement('img'), {className:'wakeup-button', src: '../icons/sun.png', tabIndex: 0});
 	var wakeUpBtnContainer = wrapInDiv('wakeup-btn-container tooltip', wakeUpBtn)
 
-	var removeBtn = Object.assign(document.createElement('img'), {className:'remove-button', src: '../icons/close.svg',title: 'Delete', tabIndex: 0});
-	removeBtn.onclick = async _ => t.opened ? await removeTabsFromHistory([t.id]) : await sendTabsToHistory([t.id]);
-	removeBtn.onkeyup = async e => {if (e.which === 13) {t.opened ? await removeTabsFromHistory([t.id]) : await sendTabsToHistory([t.id])}}
+	var removeBtn = Object.assign(document.createElement('img'), {className:'remove-button', src: '../icons/close.svg', tabIndex: 0});
 	var removeBtnContainer = wrapInDiv('remove-btn-container tooltip', removeBtn)
 
 	tab.append(iconContainer, titleContainer, wakeUpTimeContainer, wakeUpBtnContainer, removeBtnContainer, littleTabs);
-	return tab;
+	return buildTabActions(t, tab);
 }
 
 var getIconForTab = t => t.tabs && t.tabs.length ? '../icons/dropdown.svg': (t.favicon && t.favicon !== '' ? t.favicon : getFaviconUrl(t.url));
@@ -221,7 +272,7 @@ function formatSnoozedUntil(ts) {
 	return date.format('ddd, MMM D [@] h:mm a');
 }
 
-function getTimeGroup(timeType, tab, searchQuery = false) {
+function getTimeGroup(tab, timeType = 'wakeUpTime', searchQuery = false) {
 	if (!searchQuery && tab.opened) return 'history';
 
 	var group = [];
@@ -239,29 +290,23 @@ function getTimeGroup(timeType, tab, searchQuery = false) {
 
 async function wakeUpTabsAbruptly(ids) {
 	if (!ids) return;
-	var tabs = CACHED_TABS;
-	tabs.filter(t => ids.includes(t.id)).forEach(t => t.opened = dayjs().valueOf())
+	CACHED_TABS.filter(t => ids.includes(t.id)).forEach(t => t.opened = dayjs().valueOf())
 	chrome.runtime.sendMessage({logOptions: ['manually', ids]});
-	await saveTabs(tabs);
-	for (var t of tabs.filter(n => ids.includes(n.id))) t.tabs && t.tabs.length ? await openWindow(t) : await openTab(t);
-	CACHED_TABS = tabs;
-	fillTimeGroups();
+	await saveTabs(CACHED_TABS);
+	for (var t of CACHED_TABS.filter(n => ids.includes(n.id))) t.tabs && t.tabs.length ? await openWindow(t) : await openTab(t);
+	updateTimeGroups();
 }
 
 async function sendTabsToHistory(ids) {
 	if (!ids) return;
-	var tabs = CACHED_TABS;
-	tabs.filter(t => ids.includes(t.id)).forEach(t => {
+	CACHED_TABS.filter(t => ids.includes(t.id)).forEach(t => {
 		t.opened = dayjs().valueOf();
 		t.deleted = true;
 	});
 	chrome.runtime.sendMessage({logOptions: ['history', ids]});
-	await saveTabs(tabs);
-	CACHED_TABS = tabs;
-	fillTimeGroups();
+	await saveTabs(CACHED_TABS);
+	updateTimeGroups();
 }
-
-debugMode = pretty => document.querySelectorAll('.tab').forEach(t => t.onclick = async _ => console.log(pretty ? await getPrettyTab(t.id) : await getSnoozedTabs([t.id])));
 
 async function removeTabsFromHistory(ids) {
 	if (!ids || (ids.length > 1 && !confirm('Are you sure you want to remove multiple tabs? \nYou can\'t undo this.'))) return;
@@ -269,8 +314,9 @@ async function removeTabsFromHistory(ids) {
 	tabs = tabs.filter(t => !ids.includes(t.id));
 	chrome.runtime.sendMessage({logOptions: ['delete', ids]});
 	await saveTabs(tabs);
-	CACHED_TABS = tabs;
-	fillTimeGroups()
+	updateTimeGroups();
 }
+
+debugMode = pretty => document.querySelectorAll('.tab').forEach(t => t.onclick = async _ => console.log(pretty ? await getPrettyTab(t.id) : await getSnoozedTabs([t.id])));
 
 window.onload = init

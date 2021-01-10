@@ -172,7 +172,8 @@ div[data-preview].disabled {
 body.dark .choice .date {
 	color: #AAA;
 }
-.choice:hover *, .choice.focused *, .choice:focus-within *, .choice.focused:focus-within * {
+.choice:hover *, .choice.focused *, .choice:focus-within *, .choice.focused:focus-within *,
+body.dark .choice:hover *, body.dark .choice.focused *, body.dark .choice:focus-within *, body.dark .choice.focused:focus-within * {
 	color: #000;
 }
 
@@ -226,7 +227,9 @@ body.dark .choice .date {
 }
 
 .choice:hover, .choice.focused, .custom-choice:hover, .custom-choice.focused,
-.choice:focus-within, .choice.focused, .custom-choice:focus-within, .custom-choice.focused {
+.choice:focus-within, .custom-choice:focus-within,
+body.dark .choice:hover, body.dark .choice.focused, body.dark .custom-choice:hover, body.dark .custom-choice.focused,
+body.dark .choice:focus-within, body.dark .custom-choice:focus-within {
 	background-color: var(--bg);
 	outline: none;
 }

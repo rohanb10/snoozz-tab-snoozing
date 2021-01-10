@@ -38,7 +38,7 @@ function highlightSetting(name, condition) {
 	var el = document.getElementById(name).closest('.input-container');
 	if (condition !== undefined) return el.classList.toggle('highlight', condition)
 	el.classList.add('highlight');
-	document.getElementById(name).addEventListener('click',_ => el.classList.remove('highlight'), {once: true})
+	document.getElementById(name).addEventListener('click', _ => el.classList.remove('highlight'), {once: true})
 }
 
 async function calculateStorage() {
@@ -71,7 +71,6 @@ function addListeners() {
 		} else {
 			document.querySelectorAll('#contextMenu input').forEach(c => c.disabled = false)
 		}
-		// document.querySelector('.choice-list').classList.toggle('disabled', );
 		save()
 	}))
 }
@@ -124,9 +123,10 @@ function toggleShortcuts(e) {
 	updateKeyBindings();
 
 	var browserInfo = s.querySelector(`.${getBrowser()}-info`);
-	browserInfo.querySelectorAll('a[data-href]').forEach(s => s.addEventListener('click', e => {
-		chrome.tabs.create({url: e.target.getAttribute('data-href'), active: true})
-	}));
+	browserInfo.querySelectorAll('a[data-href]').forEach(s => {
+		s.onclick = e => chrome.tabs.create({url: e.target.getAttribute('data-href'), active: true});
+		s.onkeyUp = e => { if (e.which === 13) chrome.tabs.create({url: e.target.getAttribute('data-href'), active: true})}
+	});
 	if (s.classList.contains('show')) {
 		browserInfo.style.maxHeight = browserInfo.scrollHeight + 'px';
 		browserInfo.style.visibility = 'visible';
