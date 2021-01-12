@@ -26,14 +26,16 @@ chrome.notifications.onClicked.addListener(async id => {
 	if (t && t.id && id && id.length) {
 		var found = t.tabs ? await findTabAnywhere(null, t.id) : await findTabAnywhere(t.url);
 		if (found && found.id && found.windowId) {
-			await chrome.windows.update(found.windowId, {focused: true});
-			if (t.tabs) {
-				var winTabs = await getTabsInWindow();
-				await chrome.tabs.update(winTabs[0] && winTabs[0].id ? winTabs[0].id : found.id, {active: true});
-			} else {
-				await chrome.tabs.update(found.id, {active: true});
-			}
-			return;
+			try {
+				await chrome.windows.update(found.windowId, {focused: true});
+				if (t.tabs) {
+					var winTabs = await getTabsInWindow();
+					await chrome.tabs.update(winTabs[0] && winTabs[0].id ? winTabs[0].id : found.id, {active: true});
+				} else {
+					await chrome.tabs.update(found.id, {active: true});
+				}
+				return;
+			} catch (e) {}
 		} 
 	}
 	await openExtensionTab('html/dashboard.html');

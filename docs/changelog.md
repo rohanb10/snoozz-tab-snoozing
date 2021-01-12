@@ -2,8 +2,7 @@
 *In no particular order*
 - Cloud sync
 - Firefox date + time picker for popup
-- Make contextMenu permission optional
-- Custom notifications on dashboard instead of native ?
+- Make contextMenu + allTabs permissions optional
 - Edit snooze times (maybe a snoozz again / recurring feature?)
 - Make accessibile
 - Tab groups (Chrome only) (if API ever opens up)
@@ -12,6 +11,12 @@
 PRs and other ideas welcome.
 
 ## Changes ##
+
+**January 2021**
+#### 2.3.3
+- Make entire extension keyboard navigable
+- Improve dashboard performance
+- Change notification click actions
 
 **November 2020**
 #### 2.3.2.1 and 2.3.2.2

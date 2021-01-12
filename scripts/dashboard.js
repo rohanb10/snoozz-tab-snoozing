@@ -150,13 +150,15 @@ function updateTimeGroups() {
 		tg.classList.toggle('hidden', tabCount === 0)
 		tg.querySelector('.time-action').classList.toggle('hidden', tabCount < 2);
 	})
-	var allTabs = document.querySelectorAll('.tab')
-	var allTabsHidden = Array.from(allTabs).every(t => t.classList.contains('hidden'));
+	var allTabs = document.querySelectorAll('.tab') || []
+	var allTabsHidden = !allTabs.length || Array.from(allTabs).every(t => t.classList.contains('hidden'));
 
 	document.querySelector('.instructions').classList.toggle('hidden', allTabs.length > 0);
 	document.querySelector('.search-container').classList.toggle('hidden', allTabs.length < 2);
 	document.getElementById('no-tabs').classList.toggle('hidden', !allTabsHidden);
 	document.getElementById('api-message').classList.toggle('hidden', allTabsHidden)
+	var histTabs = document.querySelectorAll('#history .tab') || [];
+	document.getElementById('history-message').classList.toggle('hidden', !histTabs.length || Array.from(histTabs).every(t => t.classList.contains('hidden')))
 }
 
 function matchQuery(query, against) {

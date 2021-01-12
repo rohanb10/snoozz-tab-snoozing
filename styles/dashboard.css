@@ -42,7 +42,7 @@ h2 {
 #history h2 {
 	border-color: var(--color);
 }
-.time-action.hidden, #api-message.hidden {
+.time-action.hidden, #api-message.hidden, #history-message.hidden {
 	display: none;
 }
 .tab.hidden, .time-group.hidden {
