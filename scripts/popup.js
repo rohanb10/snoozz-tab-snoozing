@@ -22,10 +22,11 @@ async function init() {
 
 	closeDelay = await getOptions('closeDelay');
  	var tabs = await getSnoozedTabs();
- 	if (!tabs || tabs.length === 0) return;
- 	var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear()).length;
- 	if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount);
-
+ 	if (tabs && tabs.length) {
+ 		var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear()).length;
+		if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount);
+	}
+ 	
  	document.addEventListener('keyup', e => {
  		if (e.which >= 48 && e.which <= 56) {
  			var choices = document.querySelectorAll('.choice');

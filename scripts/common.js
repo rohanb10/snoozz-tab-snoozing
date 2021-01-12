@@ -36,6 +36,17 @@ async function getTabId(url) {
 	var foundTab  = tabsInWindow.find(t => t.url === url);
 	return foundTab ? parseInt(foundTab.id) : false; 
 }
+async function findTabAnywhere(url, tabDBId) {
+	var wins = await getAllWindows(), found = false;
+	if (!wins || !wins.length) return found;
+	for (var wid of wins.map(w => w.id)) {
+		if (found) return;
+		var tabs = await new Promise(r => chrome.tabs.query({windowId: wid}, r));
+		if (url && tabs && tabs.some(t => t.url === url)) return found = tabs.find(t => t.url === url);
+		if (!url && tabdDBId && tabs && tabs.some(t => t.url.indexOf(tabDBId) > -1)) return found = tabs.find(t => t.url.indexOf(tabDBId) > -1);
+	}
+	return found;
+}
 async function getKeyBindings() {
 	if (!chrome.commands) return [];
 	return new Promise(r => chrome.commands.getAll(r));
@@ -123,7 +134,7 @@ async function openExtensionTab(url) {
 
 async function openTab(tab, windowId, automatic = false) {
 	var windows = await getAllWindows();
-	if (!windows || !windows.length || windows.length === 0) {
+	if (!windows || !windows.length) {
 		await new Promise(r => chrome.windows.create({url: tab.url}, r));
 	} else {
 		await new Promise(r => chrome.tabs.create({url: tab.url, active: false, pinned: tab.pinned, windowId}, r));	
@@ -178,7 +189,7 @@ async function snoozeTab(snoozeTime, overrideTab) {
 	await saveTab(sleepyTab);
 	chrome.runtime.sendMessage({logOptions: ['newtab', sleepyTab, snoozeTime]});
 	var tabId = activeTab.id || await getTabId(activeTab.url);
-	return {tabId}
+	return {tabId, tabDBId: sleepyTab.id}
 }
 
 async function snoozeWindow(snoozeTime) {

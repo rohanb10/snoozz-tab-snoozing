@@ -1,6 +1,6 @@
 async function initialize() {
-	document.querySelector('.dashboard').onkeyup = e => {if (e.which === 13) openExtensionTab('/html/dashboard.html')}
-	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('/html/dashboard.html'));
+	document.querySelector('.dashboard').addEventListener('keyup', e => {if (e.which === 13) openExtensionTab('/html/dashboard.html')}, {once:true})
+	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('/html/dashboard.html'), {once:true});
 	showIconOnScroll();
 
 	if (window.location.hash) {
@@ -38,6 +38,7 @@ function highlightSetting(name, condition) {
 	var el = document.getElementById(name).closest('.input-container');
 	if (condition !== undefined) return el.classList.toggle('highlight', condition)
 	el.classList.add('highlight');
+	setTimeout(_ =>el.scrollIntoView({behavior: 'smooth', block: 'center'}), 1000);
 	document.getElementById(name).addEventListener('click', _ => el.classList.remove('highlight'), {once: true})
 }
 

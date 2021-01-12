@@ -274,8 +274,11 @@ body.dark .tooltip:focus-within:after, body.dark .tooltip:hover:after {
 	text-align: right;
 }
 .remove-btn-container:hover:after, .remove-btn-container:focus-within:after {
-	content: 'Remove';
+	content: 'Send to History';
 	transform: translateX(calc(-50% + 19px));
+}
+#history .remove-btn-container:hover:after, #history .remove-btn-container:focus-within:after{
+	content: 'Remove'
 }
 .remove-btn-container img {
 	opacity: .3;

@@ -67,17 +67,20 @@ function updateTabs() {
 	// add any remaining tabs from cache
 	cachedTabIds.forEach(tid => {
 		var t = CACHED_TABS.find(ct => ct.id === tid)
+		console.log(t)
 		if (document.getElementById(tid)) {
-			if (!document.getElementById(tid).closest(`#${getTimeGroup(t)}`)) insertIntoCorrectPosition(t)
+			console.log('ssss',document.getElementById(tid).closest(`#${getTimeGroup(t)}`))
+			if (!document.getElementById(tid).closest(`#${getTimeGroup(t)}`)) insertIntoCorrectPosition(t, true)
 		} else {
 			insertIntoCorrectPosition(t)
 		}
 	})
 	updateTimeGroups()
 }
-function insertIntoCorrectPosition(t) {
-	var tab = document.getElementById(t.id) || buildTab(t);
+function insertIntoCorrectPosition(t, alreadyExists = false) {
+	var tab = alreadyExists ? document.getElementById(t.id) : buildTab(t);
 	var allTabs, index = 0, group = document.getElementById(getTimeGroup(t));
+	console.log('tttt', group, group.querySelectorAll('.tab'));
 	if (t && group) allTabs = group.querySelectorAll('.tab');
 	if (allTabs && allTabs.length > 0) {
 		Array.from(allTabs).map(s => CACHED_TABS.find(ct => ct.id === s.id)).forEach(s => {
@@ -85,8 +88,10 @@ function insertIntoCorrectPosition(t) {
 			if (t.opened && dayjs(t.opened).isBefore(s.opened)) index++;
 		});
 		group.insertBefore(tab, Array.from(allTabs)[index]);
+	} else {
+		group.append(tab);
 	}
-	buildTabActions(t)
+	buildTabActions(t, tab)
 }
 
 function buildTimeGroups() {
@@ -119,19 +124,22 @@ function buildTimeGroups() {
 	var s = sleeping(CACHED_TABS);
 	if (s.length > 0) s.sort((t1,t2) => t1.wakeUpTime - t2.wakeUpTime).forEach(st => {
 		var timeGroup = document.getElementById(getTimeGroup(st));
-		if (timeGroup) timeGroup.append(buildTab(st));
+		if (!timeGroup) return;
+		var tab = buildTab(st)
+		timeGroup.append(tab);
+		buildTabActions(st, tab)
 	})
 
 	var awake = CACHED_TABS.filter(t => t.opened);
 	if (awake.length > 0) {
 		var hist_div = document.getElementById('history')
-		awake.sort((t1,t2) => t2.opened - t1.opened).forEach(at => hist_div.append(buildTab(at)))	
-
-		var historyHref = Object.assign(document.createElement('a'), {href: "./settings.html#history", innerText: `${HISTORY} day${HISTORY>1?'s':''}`});
-		var msg = document.createElement('p');
-		msg.append('Tabs in your Snoozz history are removed ', historyHref, ' after they wake up.');
-		document.getElementById('history').appendChild(msg);
+		awake.sort((t1,t2) => t2.opened - t1.opened).forEach(at => {
+			var tab = buildTab(at);
+			hist_div.append(tab);
+			buildTabActions(at, tab);
+		});
 	}
+	document.getElementById('historyHref').innerText = `${HISTORY} day${HISTORY>1?'s':''}`
 	updateTimeGroups();
 }
 
@@ -185,6 +193,7 @@ function performSearch(searchQuery = '') {
 
 function buildTabActions(t, tabDiv) {
 	tabDiv = tabDiv || document.getElementById(t.id);
+
 	var tabName = tabDiv.querySelector('.tab-name');
 	var wakeUpBtn = tabDiv.querySelector('img.wakeup-button');
 	var removeBtn = tabDiv.querySelector('img.remove-button');
@@ -259,7 +268,7 @@ function buildTab(t) {
 	var removeBtnContainer = wrapInDiv('remove-btn-container tooltip', removeBtn)
 
 	tab.append(iconContainer, titleContainer, wakeUpTimeContainer, wakeUpBtnContainer, removeBtnContainer, littleTabs);
-	return buildTabActions(t, tab);
+	return tab;
 }
 
 var getIconForTab = t => t.tabs && t.tabs.length ? '../icons/dropdown.svg': (t.favicon && t.favicon !== '' ? t.favicon : getFaviconUrl(t.url));

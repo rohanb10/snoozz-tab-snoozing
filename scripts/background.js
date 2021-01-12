@@ -21,35 +21,22 @@ chrome.storage.onChanged.addListener(async changes => {
 });
 
 chrome.notifications.onClicked.addListener(async id => {
-	if (!id || id === 'no-op') {
-		await openExtensionTab('html/dashboard.html');
-	} else {
-		try {
-			var t = await getSnoozedTabs(id);
-			if (t.tabs && t.tabs.length > 1) {
-				var wins = await getAllWindows();
-				var found = false;
-				if (wins) wins.map(w => w.id).forEach(async wid => {
-					if (found) return;
-					var tabs = await new Promise(r => chrome.tabs.query({windowId: wid}, r));
-					if (tabs && tabs.some(t => t.url.indexOf(id) > -1)) return found = tabs.find(t => t.url.indexOf(id) > -1)
-				});
-				if (found && found.id && found.windowId) {
-					chrome.tabs.update(found.id, {active: true});
-					chrome.windows.update(found.windowId, {focused: true});
-				} else {
-					await openExtensionTab('html/dashboard.html');
-				}
-			} else {
-				var tabList = await new Promise(r => chrome.tabs.query({url: t.url}, r));
-				await chrome.tabs.update(tabList[0].id, {active: true})
-			}
-		} catch (e) {
-			await openExtensionTab('html/dashboard.html');
-		}
-	}
-
 	await chrome.notifications.clear(id)
+	var t = await getSnoozedTabs(id);
+	if (t && t.id && id && id.length) {
+		var found = t.tabs ? await findTabAnywhere(null, t.id) : await findTabAnywhere(t.url);
+		if (found && found.id && found.windowId) {
+			await chrome.windows.update(found.windowId, {focused: true});
+			if (t.tabs) {
+				var winTabs = await getTabsInWindow();
+				await chrome.tabs.update(winTabs[0] && winTabs[0].id ? winTabs[0].id : found.id, {active: true});
+			} else {
+				await chrome.tabs.update(found.id, {active: true});
+			}
+			return;
+		} 
+	}
+	await openExtensionTab('html/dashboard.html');
 });
 
 async function wakeUpTask(cachedTabs) {
@@ -124,22 +111,22 @@ if (chrome.commands) chrome.commands.onCommand.addListener(async (command, tab) 
 async function snoozeInBackground(item, tab) {
 	var c = await getChoices(item.menuItemId);
 	
-	var isHref = item.linkUrl && item.linkUrl.length && item.linkUrl.length > 0;
+	var isHref = item.linkUrl && item.linkUrl.length;
 	var url = isHref ? item.linkUrl : item.pageUrl;
-
-	if(!isValid({url})) return createNotification('no-op', `Can't snoozz that :(`, 'icons/main-icon.png', 'The link you are trying to snooze is invalid.');
+	console.log(isHref, url, !isValid({url}));
+	if(!isValid({url})) return createNotification(null, `Can't snoozz that :(`, 'icons/main-icon.png', 'The link you are trying to snooze is invalid.');
 
 	var snoozeTime = c && c.time;
 	if (!snoozeTime || c.disabled || dayjs().isAfter(dayjs(snoozeTime))) {
-		return createNotification('no-op', `Can't snoozz that :(`, 'icons/main-icon.png', 'The time you have selected is invalid.');
+		return createNotification(null, `Can't snoozz that :(`, 'icons/main-icon.png', 'The time you have selected is invalid.');
 	}
 
 	var title = !isHref ? tab.title : (item.linkText ? item.linkText : item.selectionText);
 	var favIconUrl = !isHref ? tab.favIconUrl : undefined;
 	var pinned = !isHref && tab.pinned ? tab.pinned : undefined;
-	await snoozeTab(snoozeTime.valueOf(), Object.assign(item, {url, title, favIconUrl, pinned}));
+	var snoozed = await snoozeTab(snoozeTime.valueOf(), Object.assign(item, {url, title, favIconUrl, pinned}));
 	var msg = `${!isHref ? tab.title : getHostname(url)} will wake up at ${snoozeTime.format('h:mm a [on] ddd, D MMM')}.`
-	createNotification(snoozeTab.id, 'A new tab is now napping :)', 'icons/main-icon.png', msg);
+	createNotification(snoozed.tabDBId, 'A new tab is now napping :)', 'icons/main-icon.png', msg);
 	if (!isHref) await chrome.tabs.remove(tab.id);
 	await chrome.runtime.sendMessage({updateDash: true});
 }

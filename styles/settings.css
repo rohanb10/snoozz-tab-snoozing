@@ -175,8 +175,9 @@ kbd {
     border-radius: .25em;
     border: 1px solid var(--color);
     display: inline-block;
-    padding: .1em .2em;
+    padding: .1em .4em;
     margin: 0 .25em;
+    font-size: 1.1em;
 }
 code {
 	cursor: pointer;
