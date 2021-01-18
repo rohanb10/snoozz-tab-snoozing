@@ -62,7 +62,7 @@ async function getPrettyTab(tabId) {
 	var tab = await getSnoozedTabs([tabId])
 	Object.keys(tab).forEach(k => {
 		if (typeof tab[k] === 'string' && tab[k].length > 75) tab[k] = tab[k].substring(0,72) + '...';
-		if (!isNaN(tab[k])) tab[k] = dayjs(tab[k]).format('HH:mm:ss D/M/YY');
+		if (!isNaN(tab[k])) tab[k] = dayjs(tab[k]).format('HH:mm:ss DD/MM/YY');
 	})
 	return tab;
 }
@@ -83,7 +83,7 @@ async function saveTabs(tabs) {
 }
 /*	CREATE 	*/
 async function createAlarm(when, willWakeUpATab) {
-	bgLog(['Next Alarm at', dayjs(when).format('HH:mm:ss D/M/YY')], ['', willWakeUpATab ? 'yellow':'white'])
+	bgLog(['Next Alarm at', dayjs(when).format('HH:mm:ss DD/MM/YY')], ['', willWakeUpATab ? 'yellow':'white'])
 	await chrome.alarms.create('wakeUpTabs', {when});
 }
 async function createNotification(id, title, imgUrl, message) {
@@ -328,7 +328,7 @@ var clipboard = text => {
 }
 
 var bgLog = (logs, colors, timestampColor = 'grey') => {
-	var timestamp = dayjs().format('[%c]D/M/YY HH:mm:ss[%c] | ')
+	var timestamp = dayjs().format('[%c]DD/MM/YY HH:mm:ss[%c] | ')
 	logs = logs.map(l => '%c'+l+'%c').join(' ')
 	colors.unshift(timestampColor);
 	colors = colors.flatMap((v,i,a)=>i !== a.length ? [v, ''] : v).map(c => {

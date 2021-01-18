@@ -67,9 +67,7 @@ function updateTabs() {
 	// add any remaining tabs from cache
 	cachedTabIds.forEach(tid => {
 		var t = CACHED_TABS.find(ct => ct.id === tid)
-		console.log(t)
 		if (document.getElementById(tid)) {
-			console.log('ssss',document.getElementById(tid).closest(`#${getTimeGroup(t)}`))
 			if (!document.getElementById(tid).closest(`#${getTimeGroup(t)}`)) insertIntoCorrectPosition(t, true)
 		} else {
 			insertIntoCorrectPosition(t)
@@ -80,7 +78,6 @@ function updateTabs() {
 function insertIntoCorrectPosition(t, alreadyExists = false) {
 	var tab = alreadyExists ? document.getElementById(t.id) : buildTab(t);
 	var allTabs, index = 0, group = document.getElementById(getTimeGroup(t));
-	console.log('tttt', group, group.querySelectorAll('.tab'));
 	if (t && group) allTabs = group.querySelectorAll('.tab');
 	if (allTabs && allTabs.length > 0) {
 		Array.from(allTabs).map(s => CACHED_TABS.find(ct => ct.id === s.id)).forEach(s => {
@@ -200,11 +197,11 @@ function buildTabActions(t, tabDiv) {
 	var wakeUpBtn = tabDiv.querySelector('img.wakeup-button');
 	var removeBtn = tabDiv.querySelector('img.remove-button');
 
-	if (!!t.opened) {
+	if (t.opened) {
 		if (!t.tabs) {
 			tabName.setAttribute('tabIndex', 0);
-			tabName.onclick = _ => openTab(t.url);
-			tabName.onkeyup = e => { if (e.which === 13) openTab(t.url)};
+			tabName.onclick = _ => openTab(t);
+			tabName.onkeyup = e => { if (e.which === 13) openTab(t)};
 		}
 		wakeUpBtn.remove();
 		removeBtn.remove();

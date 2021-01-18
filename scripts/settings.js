@@ -1,6 +1,6 @@
 async function initialize() {
-	document.querySelector('.dashboard').addEventListener('keyup', e => {if (e.which === 13) openExtensionTab('/html/dashboard.html')}, {once:true})
-	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('/html/dashboard.html'), {once:true});
+	document.querySelector('.dashboard').addEventListener('keyup', e => {if (e.which === 13) openExtensionTab('/html/dashboard.html')})
+	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('/html/dashboard.html'));
 	showIconOnScroll();
 
 	if (window.location.hash) {
@@ -173,6 +173,7 @@ async function resetSettings() {
 	}
 	await saveOptions(defaultOptions);
 	updateFormValues(defaultOptions);
+	await setTheme();
 }
 
 window.onload = initialize

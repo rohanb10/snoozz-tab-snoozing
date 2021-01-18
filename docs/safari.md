@@ -24,7 +24,7 @@ If you want to build your own version of Snoozz for Safari, here's how you do it
 
 ### Instructions
 
-1. In Terminal, navigate to the downloaded (unzipped) `Snoozz for Safari` directory and [convert the extension]((https://developer.apple.com/documentation/safariservices/safari_web_extensions/converting_a_web_extension_for_safari)) to an Xcode package using this command:
+1. In Terminal, navigate into the downloaded (unzipped) `Snoozz for Safari` directory and [convert the extension]((https://developer.apple.com/documentation/safariservices/safari_web_extensions/converting_a_web_extension_for_safari)) to an Xcode package using this command:
 ```
 	xcrun safari-web-extension-converter . --app-name "snoozz_for_safari"  --bundle-identifier com.snoozeman.snoozz --swift --force --no-open
 ```

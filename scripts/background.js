@@ -60,7 +60,7 @@ async function setNextAlarm(tabs) {
 		debounce = setTimeout(_ => wakeMeUp(tabs), 3000)
 	} else {
 		var oneHour = dayjs().add(1, 'h').valueOf();
-		bgLog(['Next tab waking up:', next.id, 'at', dayjs(next.wakeUpTime).format('HH:mm:ss D/M/YY')],['','green','','yellow'])
+		bgLog(['Next tab waking up:', next.id, 'at', dayjs(next.wakeUpTime).format('HH:mm:ss DD/MM/YY')],['','green','','yellow'])
 		await createAlarm(next.wakeUpTime < oneHour ? next.wakeUpTime : oneHour, next.wakeUpTime < oneHour);
 	}
 }
@@ -115,7 +115,6 @@ async function snoozeInBackground(item, tab) {
 	
 	var isHref = item.linkUrl && item.linkUrl.length;
 	var url = isHref ? item.linkUrl : item.pageUrl;
-	console.log(isHref, url, !isValid({url}));
 	if(!isValid({url})) return createNotification(null, `Can't snoozz that :(`, 'icons/main-icon.png', 'The link you are trying to snooze is invalid.');
 
 	var snoozeTime = c && c.time;
@@ -167,8 +166,8 @@ async function setUpExtension() {
 }
 function sendToLogs([which, p1]) {
 	try {
-		if (which === 'newtab') bgLog(['Snoozing a new tab', p1.id, 'till', dayjs(p1.wakeUpTime).format('HH:mm:ss D/M/YY')],['', 'green', '', 'yellow'],'green')
-		if (which === 'newwindow') bgLog(['Snoozing a new window', p1.id, 'till', dayjs(p1.wakeUpTime).format('HH:mm:ss D/M/YY')],['', 'green', '', 'yellow'],'green');
+		if (which === 'newtab') bgLog(['Snoozing a new tab', p1.id, 'till', dayjs(p1.wakeUpTime).format('HH:mm:ss DD/MM/YY')],['', 'green', '', 'yellow'],'green')
+		if (which === 'newwindow') bgLog(['Snoozing a new window', p1.id, 'till', dayjs(p1.wakeUpTime).format('HH:mm:ss DD/MM/YY')],['', 'green', '', 'yellow'],'green');
 		if (which === 'history') bgLog(['Sending tabs to history:', p1.join(', ')], ['', 'green'], 'blue');
 		if (which === 'manually') bgLog(['Waking up tabs manually:', p1.join(', ')], ['', 'green'], 'blue');
 		if (which === 'delete') bgLog(['Deleting tabs manually:', p1.join(', ')], ['', 'red'], 'red');
