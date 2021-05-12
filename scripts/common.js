@@ -187,12 +187,12 @@ async function snoozeTab(snoozeTime, overrideTab) {
 		timeCreated: dayjs().valueOf(),
 	}
 	await saveTab(sleepyTab);
-	chrome.runtime.sendMessage({logOptions: ['newtab', sleepyTab, snoozeTime]});
+	chrome.runtime.sendMessage({logOptions: ['tab', sleepyTab, snoozeTime]});
 	var tabId = activeTab.id || await getTabId(activeTab.url);
 	return {tabId, tabDBId: sleepyTab.id}
 }
 
-async function snoozeWindow(snoozeTime) {
+async function snoozeWindow(snoozeTime, isAGroup) {
 	var tabsInWindow = await getTabsInWindow();
 	var validTabs = tabsInWindow.filter(t => !isDefault(t) && isValid(t));
 	if (validTabs.length === 0) return {};
@@ -200,21 +200,72 @@ async function snoozeWindow(snoozeTime) {
 		await snoozeTab(snoozeTime, validTabs[0])
 		return {windowId: tabsInWindow.find(w => w.active).windowId};
 	}
+
 	var sleepyGroup = {
 		id: Math.random().toString(36).slice(-10),
-		title: `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`,
 		wakeUpTime: dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
+	}
+
+	if (isAGroup && false) {
+	// if (isAGroup && chrome.tabGroups) {
+		var active = tabsInWindow.find(t => t.active && t.groupId);
+		// if (!active || !active.groupId || active.groupId == -1) return {};
+		// validTabs = tabsInWindow.filter(t => t.groupId && t.groupId == active.groupId && !isDefault(t) && isValid(t));
+		// var group = await chrome.tabGroups.get(active.groupId);
+		// sleepyGroup = Object.assign(sleepyGroup, {
+		// 	title: group && group.title ? group.title : `${getTabCountLabel(validTabs)} grouped tabs from ${getSiteCountLabel(validTabs)}`,
+		// 	group: {
+		// 		color: group.color,
+		// 		collapsed: group.collapsed,
+		// 	}
+		// });
+	} else {
+		sleepyGroup = Object.assign(sleepyGroup, {
+			title: `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`,
+		});
+	}
+
+	sleepyGroup = Object.assign(sleepyGroup, {
 		tabs: validTabs.map(t => ({
 			title: t.title,
 			url: t.url,
 			favicon: t.favIconUrl && t.favIconUrl.length < 150 ? t.favIconUrl : '',
 			...t.pinned ? {pinned: true} : {}
 		}))
-	}
+	});
 	await saveTab(sleepyGroup);
-	chrome.runtime.sendMessage({logOptions: ['newwindow', sleepyGroup, snoozeTime]});
-	return {windowId: tabsInWindow.find(w => w.active).windowId};
+	if (isAGroup) {
+		chrome.runtime.sendMessage({logOptions: ['group', sleepyGroup, snoozeTime]});	
+		return {tabId: tabsInWindow.filter(t => t.groupId && t.groupId == active.groupId).map(t => t.id)}
+	} else {
+		chrome.runtime.sendMessage({logOptions: ['window', sleepyGroup, snoozeTime]});	
+		return {windowId: tabsInWindow.find(w => w.active).windowId};
+	}	
+}
+
+async function snoozeSelectedTabs(snoozeTime) {
+	var tabsInSelection = await getTabsInWindow();
+	tabsInSelection = tabsInSelection.filter(t => t.highlighted && !isDefault(t) && isValid(t));
+	if (tabsInSelection.length === 0) return {};
+	var tabsToClose = []
+	for (var t of tabsInSelection) {
+		var response = await snoozeTab(snoozeTime, t);
+		if (response && response.tabId) tabsToClose.push(response.tabId);
+	}
+	return {tabId: tabsToClose}
+}
+
+async function snoozeGroupedTabs(snoozeTime) {
+	var tabsInSelection = await getTabsInWindow();
+	
+
+	var sleepyGroup = {
+		id: Math.random().toString(36).slice(-10),
+		title: 'Group Title',
+		wakeUpTime: dayjs(snoozeTime).valueOf
+	}
+
 }
 
 async function getChoices(which) {

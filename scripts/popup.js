@@ -2,7 +2,7 @@ var collapse, ccContainer, closeDelay = 1000;
 async function init() {
 	await buildChoices();
 	buildCustomChoice();
-	await generatePreviews();
+	await buildTargets()
  	
  	document.querySelectorAll('.dashboard-btn, .settings').forEach(btn => btn.addEventListener('click', el => {
 		openExtensionTab(el.target.dataset.href);
@@ -106,10 +106,7 @@ function buildCustomChoice() {
 var activateForm = (a = true) => {ccContainer.classList.toggle('active', a); clearTimeout(collapse)}
 var focusForm = (f = true) => {ccContainer.classList.toggle('focused', f); clearTimeout(collapse)}
 
-async function generatePreviews() {
-	var windowPreview = document.querySelector('div[data-preview="window"]')
-	var tabPreview = document.querySelector('div[data-preview="tab"]')
-	
+async function buildTargets() {
 	var allTabs = await getTabsInWindow();
 	if (!allTabs || allTabs.length == 0) return;
 	if (allTabs.length === undefined) allTabs = [allTabs];
@@ -118,54 +115,94 @@ async function generatePreviews() {
 	var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t));
 
 	var isActiveTabValid = validTabs.includes(activeTab);
-	// tab preview handler
-	document.getElementById('tab-title').innerText = isActiveTabValid ? activeTab.title : `Can't snooze this tab`;
-	document.getElementById('tab-favicon').src = isActiveTabValid && activeTab.favIconUrl ? activeTab.favIconUrl : (activeTab ? getFaviconUrl(activeTab.url) : '../icons/unknown.png');
-	tabPreview.classList.toggle('disabled', !isActiveTabValid);
-	tabPreview.classList.toggle('active', isActiveTabValid);
+	document.getElementById('tab').classList.toggle('disabled', !isActiveTabValid);
+	var isWindowValid = getBrowser() !== 'safari' && (validTabs.length > 1 || validTabs.length == 1 && !isActiveTabValid);
+	document.getElementById('window').classList.toggle('disabled', !isWindowValid);
+	var isSelectionValid = getBrowser() !== 'safari' && validTabs.length > 1 && activeTab.highlighted && validTabs.filter(t => t.highlighted).length > 1;
+	document.getElementById('selection').classList.toggle('disabled', !isSelectionValid);
+	var isGroupValid = getBrowser() === 'chrome' && validTabs.length > 1 && activeTab.groupId && activeTab.groupId != -1 && validTabs.filter(vt => vt.groupId && vt.groupId != activeTab.groupId).length > 1
+	document.getElementById('group').classList.toggle('disabled', !isGroupValid);
 
-	// window preview handler
-	document.getElementById('window-title').innerText = `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`;
-	windowPreview.classList.toggle('disabled', getBrowser(true) === 'safari' || (validTabs.length === 1 && isActiveTabValid) || validTabs.length === 0);
-	windowPreview.classList.toggle('active', !isActiveTabValid && validTabs.length > 0);
+	// hide groups if not chrome
+	if (getBrowser() !== 'chrome' || true) document.getElementById('group').style.display = 'none';
 
-	// Disable tab preview if invalid link type
-	if (!tabPreview.classList.contains('disabled')) tabPreview.addEventListener('click', toggleActivePreview)
-	if (!windowPreview.classList.contains('disabled')) windowPreview.addEventListener('click', toggleActivePreview);
-
-	// Disable everything if both tabs and windows are unsnoozable.
-	if (validTabs.length === 0 || (windowPreview.classList.contains('disabled') && tabPreview.classList.contains('disabled'))) {
+	if (isActiveTabValid) {
+		document.getElementById('tab').classList.add('active');
+	} else if (isWindowValid) {
+		document.getElementById('window').classList.add('active');
+	} else if (isSelectionValid) {
+		document.getElementById('selection').classList.add('active');
+	} else if (isGroupValid) {
+		document.getElementById('group').classList.add('active');
+	} else {
 		document.querySelectorAll('.choice, .custom-choice, h3').forEach(c => {c.classList.add('disabled');c.setAttribute('tabindex','-1')});
+		return document.getElementById('preview-text').innerText = `Can't snooze this tab`;
+	}
+	await generatePreview(document.querySelector('.target.active').id)
+
+	document.querySelectorAll('.target').forEach(t => t.addEventListener('click', async e => {
+		if (e.target.classList.contains('disabled')) return;
+		document.querySelectorAll('.target').forEach(s => s.classList.remove('active'));
+		e.target.classList.add('active');
+		document.getElementById('icon').classList.toggle('flipped');
+		await generatePreview(e.target.id);
+	}));
+}
+
+async function generatePreview(type) {
+	var previewText = document.getElementById('preview-text');
+	var previewIcon = document.getElementById('preview-favicon');
+
+	var allTabs = await getTabsInWindow();
+	if (!allTabs || !allTabs.length) return;
+	
+	if (type == 'tab') {
+		previewText.innerText = allTabs.find(at => at.active).title;
+		previewIcon.src = allTabs.find(at => at.active).favIconUrl ? allTabs.find(at => at.active).favIconUrl : '../icons/unknown.png';
+	} else if (type == 'window') {
+		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t));
+		previewText.innerText = `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`;
+		previewIcon.src = '../icons/window.png'
+	} else if (type == 'selection') {
+		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t) && t.highlighted);
+		previewText.innerText = `${validTabs.length} selected tabs from ${getSiteCountLabel(validTabs)}`;
+		previewIcon.src = '../icons/magnet.png'
+	} else if (type == 'group') {
+		var currentTabGroup = allTabs.find(at => at.active).groupId;
+		var validTabs = allTabs.filter(t => currentTabGroup && currentTabGroup != -1 && !isDefault(t) && isValid(t) && t.groupId && t.groupId == currentTabGroup);
+		previewText.innerText = `${validTabs.length} grouped tabs from ${getSiteCountLabel(validTabs)}`;
+		previewIcon.src = '../icons/octopus.png'
+	} else {
+		previewText.innerText = `Can't snooze this tab`;
 	}
 }
 
-function toggleActivePreview(el) {
-	var windowPreview = document.querySelector('div[data-preview="window"]')
-	var tabPreview = document.querySelector('div[data-preview="tab"]')
-	windowPreview.classList.toggle('active', el.currentTarget === windowPreview)
-	tabPreview.classList.toggle('active', el.currentTarget === tabPreview)
-	document.getElementById('icon').classList.toggle('flipped')
-}
-
 async function snooze(time, choice) {
-	var selectedPreview = document.querySelector('div[data-preview].active');
-	if (!selectedPreview || !['window', 'tab'].includes(selectedPreview.getAttribute('data-preview'))) return;
+	var target = document.querySelector('.target.active');
+	if (!['tab', 'window', 'selection', 'group'].includes(target.id)) return;
 
-	var response = selectedPreview.getAttribute('data-preview') === 'window' ? await snoozeWindow(time) : await snoozeTab(time);
+	var response;
+	if (target.id == 'tab') {
+		response = await snoozeTab(time);
+	} else if (target.id == 'window') {
+		response = await snoozeWindow(time);
+	} else if (target.id == 'selection') {
+		response = await snoozeSelectedTabs(time);
+	} else if (target.id == 'group') {
+		// response = await snoozeGroupedTabs(time);
+	}
 	if (response && !(response.tabId || response.windowId)) return;
-
 	await chrome.runtime.sendMessage(Object.assign(response, {close: true, delay: closeDelay}));
-	changePreviewAfterSnooze(selectedPreview, choice)
+	displayPreviewAnimation(choice, target.id)
 }
-
-function changePreviewAfterSnooze(previewParent, choice) {
+function displayPreviewAnimation(choice, type) {
 	document.body.style.pointerEvents = 'none';
 	choice.classList.add('focused');
-	var preview = previewParent.querySelector(`.preview`);
+	var preview = document.getElementById('preview');
 	preview.classList.add('snoozed');
 	preview.textContent = '';
 	preview.appendChild(Object.assign(document.createElement('span'), {
-		textContent: `Snoozing ${previewParent.getAttribute('data-preview')}`,
+		textContent: `Snoozing ${type}`,
 		style: {
 			transition: `color 400ms ease-in-out ${(closeDelay/2) - 250}ms`,
 			color: choice.classList.contains('dark-on-hover') ? '#fff' : '#000',
@@ -175,5 +212,4 @@ function changePreviewAfterSnooze(previewParent, choice) {
 	preview.style.backgroundImage = `linear-gradient(to right, ${getComputedStyle(choice).backgroundColor} 50%, ${getComputedStyle(preview).backgroundColor} 0)`
 	preview.classList.add('animate');
 }
-
 window.onload = init

@@ -11,18 +11,6 @@ body {
 img {
 	max-width: 4.5em;
 }
-.header .center img {
-	max-width: 3em;
-	margin-top: .75rem;
-}
-.header > div {
-	margin-bottom: 1rem;
-	width: 45%;
-	max-width: 45%;
-}
-.header > div:nth-of-type(even) {
-	width: 10%;	
-}
 
 a {
 	color: #000;
@@ -34,70 +22,89 @@ h3 {
 	transition: opacity, .5s ease-in-out
 }
 
-.center {
-	text-align: center;
-	justify-content: center;
-}
 #icon {
 	transition: transform .3s ease-in-out;
 }
 #icon.flipped {
 	transform: rotate(180deg);
 }
-div[data-preview], div[data-preview].disabled .preview {
-	opacity: .3 !important;
+
+.header > div {
+	margin-bottom: 1rem;
+	padding: 0 .25rem;
+	width: 50%;
+	max-width: 50%;
 }
-div[data-preview].active {
-	opacity: 1 !important;
+#targets {
+	margin: .25em 0 .75em;
+	padding: .5em;
+	justify-content: space-evenly;
+	height: 3em;
 }
-div[data-preview]:not(.active):not(.disabled):hover {
-	opacity: .5 !important;
+.target {
+	font-size: 1.2em;
+	padding: 2px;
+	cursor: pointer;
+	color: #888;
+	border-bottom: 3px solid transparent;
+	transition: border-color .3s ease-in-out;
 }
-div[data-preview].active .preview, div[data-preview]:not(.active):not(.disabled):hover .preview {
-	border-color: var(--color);
+.target:not(.active):not(.disabled):hover {
+	opacity: .75;
+	color: var(--color);
 }
-div[data-preview].disabled {
-	border-color: transparent !important;
-	pointer-events: none !important;
-	touch-action: none !important;
+.target.active {
+	border-color: #DF4E76;
+	opacity: 1;
+	color: var(--color);
 }
-.preview {
+.target.disabled {
+	cursor: default;
+	opacity: .1;
+	pointer-events: unset;
+}
+
+#preview {
 	margin: .5em 0;
 	padding: .5em;
 	align-items: center;
 	border-radius: .33em;
-	height: 3.5em;
+	height: 4.5em;
 	max-width: 100%;
+	justify-content: unset;
 	background-color: #ddd;
 	background-position: right;
 	background-size: 200% 200%;
 	transition: background-position 1.9s linear;
-	border: 2px solid var(--color);
+	border: 2px solid transparent;
 	scrollbar-width: none;
-	cursor: pointer;
 	color: var(--color);
 }
 
-.preview.snoozed {
+#preview.snoozed {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 }
-.preview.animate {
+#preview.animate {
 	background-position: left;
 }
-.preview.snoozed span {
+#preview.snoozed span {
 	transition: color .4s ease-in-out .75s;
 	font-size: 1.5em;
 	font-weight: bolder;
 }
-#tab-favicon, #window-favicon {
-	height: 1.75em;
-	width: 1.75em;
-	margin-right: .75em;
+#preview-favicon {
+	height: 2.5em;
+	width: 2.5em;
+	margin-right: 1em;
+	margin-left: .25em;
 }
-#window-favicon {
-	max-height: 2em;
+
+#preview-text {
+	line-height: 1.5;
+	max-height: 4em;
+	overflow: scroll;
 }
 
 .section {
@@ -111,12 +118,6 @@ div[data-preview].disabled {
 .section.choices > div {
 	max-width: 48.8%;
 	flex-basis: 48.8%;
-}
-
-#tab-title, #window-title {
-	line-height: 1.5;
-	max-height: 3em;
-	overflow: scroll;
 }
 
 .choice, .custom-choice {
@@ -245,7 +246,7 @@ input::-webkit-datetime-edit-month-field:focus, input::-webkit-datetime-edit-day
 	color: #fff !important;
 }
 
-body.dark .preview, body.dark .choice, body.dark .custom-choice {
+body.dark #preview, body.dark .choice, body.dark .custom-choice {
 	background-color: #232323
 }
 
@@ -340,14 +341,21 @@ body.dark .upcoming {
 	content: attr(data-today)
 }
 .footer {
-	padding-top: 1rem;
+	padding: 1rem .25rem 0;
+	justify-content: space-between;
+	align-items: center;
+}
+.footer .center img {
+	max-width: 3em;
 }
 .settings {
-	top: unset;
-	bottom: .2em;
-	right: .25em;
+	position: relative;
+	top: 0;
+	right: 0;
+	margin-left: 1.25rem;
 }
 .settings img {
+	vertical-align: middle;
 	width: 1.75em;
 }
 .settings:before {
