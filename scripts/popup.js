@@ -3,8 +3,8 @@ async function init() {
 	await buildChoices();
 	buildCustomChoice();
 	await buildTargets()
- 	
- 	document.querySelectorAll('.dashboard-btn, .settings').forEach(btn => btn.addEventListener('click', el => {
+
+	document.querySelectorAll('.dashboard-btn, .settings').forEach(btn => btn.addEventListener('click', el => {
 		openExtensionTab(el.target.dataset.href);
 		setTimeout(_ => window.close(), 100);
 	}));
@@ -21,26 +21,30 @@ async function init() {
 	if (getBrowser() === 'safari') await chrome.runtime.getBackgroundPage(async bg => {await bg.wakeUpTask()});
 
 	closeDelay = await getOptions('closeDelay');
- 	var tabs = await getSnoozedTabs();
- 	if (tabs && tabs.length) {
- 		var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear()).length;
+	var tabs = await getSnoozedTabs();
+	if (tabs && tabs.length) {
+		var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear()).length;
 		if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount);
 	}
- 	
- 	document.addEventListener('keyup', e => {
- 		if (e.which >= 48 && e.which <= 56) {
- 			var choices = document.querySelectorAll('.choice');
- 			var selectedChoice = choices && choices.length > 0 ? choices[e.which - 48 - 1] : false;
- 			if (!selectedChoice || selectedChoice.classList.contains('disabled')) return;
- 			choices.forEach(c => c.classList.remove('focused'));
- 			selectedChoice.focus();
- 		}
- 		if (e.which === 13) {
- 			var selectedChoice = document.querySelector('.choice.focused');
- 			if (!selectedChoice) return;
- 			snooze(o.time, c)
- 		}
- 	})
+
+	document.addEventListener('keyup', e => {
+		if (e.which >= 48 && e.which <= 56) {
+			var choices = document.querySelectorAll('.choice');
+			var selectedChoice = choices && choices.length > 0 ? choices[e.which - 48 - 1] : false;
+			if (!selectedChoice || selectedChoice.classList.contains('disabled')) return;
+			choices.forEach(c => c.classList.remove('focused'));
+			selectedChoice.focus();
+		}
+		if (e.which === 13) {
+			var selectedChoice = document.querySelector('.choice.focused');
+			if (!selectedChoice) return;
+			snooze(o.time, c)
+		}
+		if (e.which === 84) document.getElementById('tab').click();
+		if (e.which === 87) document.getElementById('window').click();
+		if (e.which === 83) document.getElementById('selection').click();
+		if (e.which === 71) document.getElementById('group').click();
+	})
 }
 
 async function buildChoices() {
@@ -120,8 +124,11 @@ async function buildTargets() {
 	document.getElementById('window').classList.toggle('disabled', !isWindowValid);
 	var isSelectionValid = getBrowser() !== 'safari' && validTabs.length > 1 && activeTab.highlighted && validTabs.filter(t => t.highlighted).length > 1;
 	document.getElementById('selection').classList.toggle('disabled', !isSelectionValid);
-	var isGroupValid = getBrowser() === 'chrome' && validTabs.length > 1 && activeTab.groupId && activeTab.groupId != -1 && validTabs.filter(vt => vt.groupId && vt.groupId != activeTab.groupId).length > 1
+	var isGroupValid = false && getBrowser() === 'chrome' && validTabs.length > 1 && activeTab.groupId && activeTab.groupId != -1 && validTabs.filter(vt => vt.groupId && vt.groupId != activeTab.groupId).length > 1
 	document.getElementById('group').classList.toggle('disabled', !isGroupValid);
+
+	document.querySelectorAll('.target').forEach(t => t.tabIndex = t.classList.contains('disabled') ? -1 : 0);
+	document.querySelectorAll('.target').forEach(t => t.addEventListener('keyup', e => { if (e.which == 13) t.click() }));
 
 	// hide groups if not chrome
 	if (getBrowser() !== 'chrome' || true) document.getElementById('group').style.display = 'none';
@@ -141,7 +148,7 @@ async function buildTargets() {
 	await generatePreview(document.querySelector('.target.active').id)
 
 	document.querySelectorAll('.target').forEach(t => t.addEventListener('click', async e => {
-		if (e.target.classList.contains('disabled')) return;
+		if (e.target.classList.contains('disabled') || e.target.classList.contains('active')) return;
 		document.querySelectorAll('.target').forEach(s => s.classList.remove('active'));
 		e.target.classList.add('active');
 		document.getElementById('icon').classList.toggle('flipped');

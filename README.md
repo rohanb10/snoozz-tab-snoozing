@@ -49,9 +49,10 @@ Some features and colours of icons have been altered to be compatible with small
 
 | Author | Icons |
 |--|--|
-| [Freepik](https://www.flaticon.com/authors/freepik) | Alarm, Arrow, Bathtub, Calendar, Coffee, Egg, Octopus, Sheep
+| [Freepik](https://www.flaticon.com/authors/freepik) | Alarm, Arrow, Bathtub, Calendar, Coffee, Egg, Porthole, Octopus, Sheep
 | [Justicon](https://dribbble.com/Justicon) | Chai
 | [Icon Box](https://www.flaticon.com/authors/icon-box) | Gear
+| [Kiran Shastry](https://dribbble.com/kiranshastry) | Magnet
 | [Those Icons](https://www.flaticon.com/authors/those-icons) | Magnifying Glass
 | [Smashicons](https://smashicons.com/) | Sheep
 | [Alfredo Hernandez](https://www.alfredocreates.com/) | Sun

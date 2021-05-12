@@ -63,6 +63,11 @@ h3 {
 	opacity: .1;
 	pointer-events: unset;
 }
+.target:focus-within, .dashboard-btn:focus-within {
+	outline-offset: 3px;
+	outline: 2px dashed crimson;
+	background: none;
+}
 
 #preview {
 	margin: .5em 0;
