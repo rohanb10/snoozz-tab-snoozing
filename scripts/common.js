@@ -258,8 +258,6 @@ async function snoozeSelectedTabs(snoozeTime) {
 
 async function snoozeGroupedTabs(snoozeTime) {
 	var tabsInSelection = await getTabsInWindow();
-	
-
 	var sleepyGroup = {
 		id: Math.random().toString(36).slice(-10),
 		title: 'Group Title',
@@ -346,6 +344,16 @@ var getTabCountLabel = tabs => `${tabs.length} tab${tabs.length === 1 ? '' : 's'
 var getSiteCountLabel = tabs => {
 	var count = tabs.map(t => getHostname(t.url)).filter((v,i,s) => s.indexOf(v) === i).length;
 	return count > 1 ? `${count} different websites` : `${count} website`;
+}
+
+var verifyTab = tab => {
+	if (!tab) return false;
+	if (!tab.title) return false;
+	if (!tab.id) return false;
+	if (!tab.url && (!tab.tabs || !tab.tabs.length)) return false;
+	if (!tab.wakeUpTime) return false;
+	if (!tab.timeCreated) return false;
+	return true;
 }
 
 var sleeping = tabs => tabs.filter(t => !t.opened);

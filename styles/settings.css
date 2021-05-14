@@ -83,6 +83,21 @@ option {
 	height: 2px;
 	top: 100%;
 }
+.full-btn {
+	padding: 2px;
+	background-image: linear-gradient(90deg, #f3b845 0%, #DF4E76 50%, var(--color) 50%, var(--color) 100%);
+	background-size: 202%;
+	background-position: right;
+	cursor: pointer;
+	margin-left: .75rem;
+	transition: background-position .3s ease-in-out
+}
+.full-btn div {
+	background-color: var(--bg-color);
+}
+#import_hidden {
+	display: none;
+}
 
 select {
 	appearance: none;
@@ -125,10 +140,12 @@ body.dark select {
 	padding-top: 1em;
 	transition-delay: 0s;
 }
-.btn {
+.btn, .full-btn {
 	outline: none;
 }
-.btn div {
+.btn div, .full-btn div {
+	position: relative;
+	z-index: 5;
 	padding: .25em;
 	font-size: .8em;
 	text-transform: uppercase;
@@ -139,7 +156,7 @@ body.dark select {
 #shortcut.show .btn div:before {
 	content: 'hide';
 }
-.btn:hover:after, .btn:focus-within:after, .select-wrapper:hover:after, .select-wrapper:focus-within:after {
+.btn:hover:after, .btn:focus-within:after, .select-wrapper:hover:after, .select-wrapper:focus-within:after, .full-btn:hover, .full-btn:focus-within {
 	background-position: left;
 }
 #shortcut, #right-click {
@@ -187,17 +204,18 @@ code {
 	padding: .1em .2em;
 	user-select: none;
 }
-.copied {
+.copied, .import-success, .import-fail {
 	position: fixed;
 	right: 1em;
-	font-size: 1.5em;
-	bottom: -2em;
+	font-size: 1.25em;
+	bottom: -3em;
 	border: 1px dashed var(--color);
 	padding: .25em .5em;
+	border-radius: .25rem;
 	background-color: var(--bg-color);
 	transition: bottom .3s ease-in-out;
 }
-.copied.toast {
+.copied.toast, .import-success.toast, .import-fail.toast {
 	bottom: 1em;
 }
 input[type=checkbox] {

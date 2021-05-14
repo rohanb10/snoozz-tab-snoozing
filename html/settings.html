@@ -184,6 +184,19 @@
 				<option value="99999">Never</option>
 			</select></div>
 		</div>
+		<div class="input-container flex">
+			<div>
+				<h4>Manage Snoozz Data</h4>
+				<p>Import or Export tabs from this device.</p>
+				<p>No data will be lost during data transfer.</p>
+				<p>Any duplicate tabs will be combined with your existing data.</p>
+			</div>
+			<div class="flex">
+				<input type="file" accept="text/plain" id="import_hidden">
+				<div tabindex="0" id="import" class="full-btn"><div>Import</div></div>
+				<div tabindex="0" id="export" class="full-btn"><div>Export</div></div>
+			</div>
+		</div>
 		<div class="reset-container center">
 			<a tabindex="0" id="reset">reset settings</a>
 		</div>
@@ -202,6 +215,8 @@
 		<div><p>Built by <a target='blank' href="https://rohan.xyz">rohan</a> in 2020.</p></div>
 	</div>
 	<div class="copied">Copied to clipboard</div>
+	<div class="import-success">Succesfully imported tabs from <span></span>.</div>
+	<div class="import-fail">Unable to import tabs from this file.<br>Please select another one.</div>
 	<script type="text/javascript" src="../scripts/dayjs.min.js"></script>
 	<script type="text/javascript" src="../scripts/common.js"></script>
 	<script type="text/javascript" src="../scripts/settings.js"></script>

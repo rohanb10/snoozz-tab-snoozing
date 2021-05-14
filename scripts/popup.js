@@ -130,7 +130,7 @@ async function buildChoices() {
 		var time = wrapInDiv({classList: 'time', innerText: dayjs(o.time).format(`h${dayjs(o.time).minute() !== 0 ? ':mm ':''}A`)});
 
 		var c = wrapInDiv({
-			classList: `choice${o.disabled ? ' disabled' : ''}${o.isDark ? ' dark-on-hover' : ''}`,
+			classList: `choice${o.disabled ? ' disabled always-disabled' : ''}${o.isDark ? ' dark-on-hover' : ''}`,
 			style: `--bg:${o.color}`,
 			tabIndex: o.disabled ? -1 : 0,
 		}, wrapInDiv('', icon, label), wrapInDiv('', date, time));

@@ -22,6 +22,14 @@ async function initialize() {
 	chrome.storage.onChanged.addListener(calculateStorage);
 	document.querySelectorAll('a[data-highlight="history"]').forEach(a => a.addEventListener('click', e => highlightSetting('history')))
 
+	document.getElementById('import').addEventListener('click', _ => document.getElementById('import_hidden').click());
+	document.getElementById('import').onkeyup = e => {if (e.which === 13) document.getElementById('import_hidden').click()}
+
+	document.getElementById('import_hidden').addEventListener('change', importTabs);
+
+	document.getElementById('export').addEventListener('click', exportTabs);
+	document.getElementById('export').onkeyup = e => {if (e.which === 13) exportTabs()}
+
 	document.getElementById('reset').addEventListener('click', resetSettings);
 	document.getElementById('reset').onkeyup = e => {if (e.which === 13) resetSettings()}
 	document.getElementById('version').innerText = `Snoozz v${chrome.runtime.getManifest().version}`;
@@ -93,7 +101,10 @@ async function save(e) {
 			var count = `${tabsToChange.length > 1 ? 'are' : 'is'} ${tabsToChange.length} tab${tabsToChange.length > 1 ? 's' : ''}`
 			if (confirm(`There ${count} scheduled to wake up at ${dayjs().hour(ot).format('hA')}.
 Would you like to update ${tabsToChange.length > 1 ? 'them' : 'it'} to snooze till ${dayjs().hour(e.target.value).format('hA')}?`)) {
-				tabs.filter(f).forEach(t => t.wakeUpTime = dayjs(t.wakeUpTime).hour(e.target.value).valueOf())
+				tabs.filter(f).forEach(t => {
+					t.modifiedTime = dayjs().valueOf();
+					t.wakeUpTime = dayjs(t.wakeUpTime).hour(e.target.value).valueOf()
+				})
 				await saveTabs(tabs);
 			}
 		}
@@ -174,6 +185,51 @@ async function resetSettings() {
 	await saveOptions(defaultOptions);
 	updateFormValues(defaultOptions);
 	await setTheme();
+}
+
+async function exportTabs() {
+	var tabs = await getSnoozedTabs();
+	var now = dayjs();
+	var element = document.createElement('a');
+	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(tabs)));
+	element.setAttribute('download', `Snoozz_export_${now.format('YYYY')}_${now.format('MM')}_${now.format('DD')}.txt`);
+	element.style.display = 'none';
+	document.body.appendChild(element);
+	element.click();
+	document.body.removeChild(element);
+}
+
+async function importTabs(e) {
+	try {
+		var text = await e.target.files[0].text();
+		var json_array = JSON.parse(text);
+		if (!json_array || !json_array.length) throw false;
+
+		var allTabs = await getSnoozedTabs();
+		var existing_ids = allTabs.map(at => at.id), needs_update = [];
+
+		// remove tabs that already exist in the system, or are more recently updated
+		json_array = json_array.filter(t => {
+			if (!verifyTab(t)) return false;
+			if (!existing_ids.includes(t.id))return true;
+			var existing = allTabs.find(at => at.id == t.id);
+			if (!existing.opened && (t.opened || (t.modifiedTime && !existing.modifiedTime) || (existing.modifiedTime && t.modifiedTime && dayjs(t.modifiedTime) > dayjs(existing.modifiedTime)))) {
+				needs_update.push(existing.id);
+				return true;
+			}
+			return false;
+		});
+
+		await saveTabs(allTabs.filter(at => !needs_update.includes(at.id)).concat(json_array));
+
+		var count = json_array.length;
+		document.querySelector('body > .import-success').innerText = `${count} tab${count == 1 ? ' was' : 's were'} imported from ${e.target.files[0].name}`;
+		document.querySelector('body > .import-success').classList.add('toast');
+		setTimeout(_ => document.querySelector('body > .import-success').remove('toast'), 4000)
+	} catch {
+		document.querySelector('body > .import-fail').classList.add('toast');
+		setTimeout(_ => document.querySelector('body > .import-fail').remove('toast'), 4000)
+	}
 }
 
 window.onload = initialize
