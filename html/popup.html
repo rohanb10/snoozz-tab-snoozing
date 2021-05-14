@@ -6,6 +6,7 @@
 	<title>snoozz</title>
 	<link rel="stylesheet" href="../styles/common.css" />
 	<link rel="stylesheet" href="../styles/popup.css" />
+	<link rel="stylesheet" href="../styles/flatpickr.css" />
 </head>
 <body>
 	<h3 class="center">What?</h3>
@@ -21,7 +22,31 @@
 		</div>
 	</div>
 	<h3 class="center">When?</h3>
-	<div class="section choices"></div>
+	<div class="section choices">
+		<div class="form-overlay">
+			<span class="overlay-close-btn">&times;</span>
+			<div class="date-wrapper"><div id="date"></div></div>
+			<div class="time-wrapper">
+				<div id="time"></div>
+				<div class="quick-actions">
+					<h3 class="center">Quick Actions</h3>
+					<div class="flex">
+						<div class="action" data-value="-5">-5 mins</div>
+						<div class="action" data-value="-60">-1 hour</div>
+						<div class="action" data-value="-1440">-1 day</div>
+					</div>
+					<div class="flex">
+						<div class="action" data-value="5">+5 mins</div>
+						<div class="action" data-value="60">+1 hour</div>
+						<div class="action" data-value="1440">+1 day</div>
+					</div>
+					<div class="flex">
+						<div class="reset-action">Reset</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div class="footer flex">
 		<div class="center"><img id="icon" src="../icons/main-icon.png"></div>
 		<div>
@@ -33,6 +58,7 @@
 		</div>
 	</div>
 	<script type="text/javascript" src="../scripts/dayjs.min.js"></script>
+	<script type="text/javascript" src="../scripts/flatpickr.js"></script>
 	<script type="text/javascript" src="../scripts/common.js"></script>
 	<script type="text/javascript" src="../scripts/popup.js"></script>
 </body>

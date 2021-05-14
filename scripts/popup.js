@@ -1,8 +1,8 @@
-var collapse, ccContainer, closeDelay = 1000;
+var collapse, customChoice, closeDelay = 1000;
 async function init() {
 	await buildChoices();
 	buildCustomChoice();
-	await buildTargets()
+	await buildTargets();
 
 	document.querySelectorAll('.dashboard-btn, .settings').forEach(btn => btn.addEventListener('click', el => {
 		openExtensionTab(el.target.dataset.href);
@@ -28,14 +28,14 @@ async function init() {
 	}
 
 	document.addEventListener('keyup', e => {
-		if (e.which >= 48 && e.which <= 56) {
+		if (e.which >= 48 && e.which <= 56 && !document.querySelector('.form-overlay').classList.contains('show')) {
 			var choices = document.querySelectorAll('.choice');
 			var selectedChoice = choices && choices.length > 0 ? choices[e.which - 48 - 1] : false;
 			if (!selectedChoice || selectedChoice.classList.contains('disabled')) return;
 			choices.forEach(c => c.classList.remove('focused'));
 			selectedChoice.focus();
 		}
-		if (e.which === 13) {
+		if (e.which === 13 && !document.querySelector('.form-overlay').classList.contains('show')) {
 			var selectedChoice = document.querySelector('.choice.focused');
 			if (!selectedChoice) return;
 			snooze(o.time, c)
@@ -46,69 +46,6 @@ async function init() {
 		if (e.which === 71) document.getElementById('group').click();
 	})
 }
-
-async function buildChoices() {
-	var choices = await getChoices();
-	document.querySelector('.section.choices').append(...(Object.entries(choices).map(([name, o]) => {
-		var icon = Object.assign(document.createElement('img'), {src: `../icons/${name}.png`});
-		var label = wrapInDiv({classList: 'label', innerText: o.label});
-		var date = wrapInDiv({classList: 'date', innerText: o.timeString});
-		var time = wrapInDiv({classList: 'time', innerText: dayjs(o.time).format(`h${dayjs(o.time).minute() !== 0 ? ':mm ':''}A`)});
-
-		var c = wrapInDiv({
-			classList: `choice${o.disabled ? ' disabled' : ''}${o.isDark ? ' dark-on-hover' : ''}`,
-			style: `--bg:${o.color}`,
-			tabIndex: o.disabled ? -1 : 0,
-		}, wrapInDiv('', icon, label), wrapInDiv('', date, time));
-		c.onclick = _ => snooze(o.time, c)
-		c.onkeyup = e => {if (e.which === 13) snooze(o.time, c)}
-		return c
-	})));
-}
-
-function buildCustomChoice() {
-	var NOW = dayjs();
-	var icon = Object.assign(document.createElement('img'), {src: `../icons/alarm.png`})
-	var label = wrapInDiv({classList: 'label', innerText: 'Choose your own time'})
-	var submitButton = wrapInDiv({
-		classList: 'submit-btn disabled',
-		innerText: 'snoozz',
-		onclick: e => {
-			var dv = date.value, tv = time.value;
-			if (dv.length === 0 || !dv.match(/^\d{4}-\d{2}-\d{2}$/) || dayjs(dv).dayOfYear() < dayjs().dayOfYear()) return date.classList.add('invalid');
-			if (tv.length === 0 || !tv.match(/^\d{2}:\d{2}$/) || dayjs(dv + tv) <= dayjs()) return time.classList.add('invalid');
-			
-			e.target.classList.add('disabled');
-			[date,time].forEach(i => i.setAttribute('disabled', true));
-			snooze(dayjs(dv + tv), ccContainer)
-		}
-	});
-
-	var date = Object.assign(document.createElement('input'), {type: 'date', required: true, value: NOW.format('YYYY-MM-DD')});
-	var time = Object.assign(document.createElement('input'), {type: 'time', required: true, value: NOW.format('HH:mm')});
-	[date,time].forEach(dt => {
-		dt.addEventListener('click', focusForm)
-		dt.addEventListener('blur', _ => collapse = setTimeout(_ => focusForm(false)), 3000)
-		dt.addEventListener('input', el => [date,time].forEach(ddtt => ddtt.classList.remove('invalid')))
-		dt.addEventListener('change', _ => {
-			activateForm = focusForm = _ => {}
-			submitButton.classList.remove('disabled')
-		});
-	})
-
-	ccContainer = wrapInDiv({
-		classList: 'custom-choice dark-on-hover',
-		style: '--bg: #4C72CA',
-		tabIndex: 0,
-		onmouseover: activateForm,
-		onmousemove: activateForm,
-		onmouseout: _ => collapse = setTimeout(_ => activateForm(false), 3000),
-	}, wrapInDiv('', icon, label), wrapInDiv('custom-choice-form', wrapInDiv('input', date, time), submitButton));
-
-	document.querySelector('.section.choices').after(ccContainer);
-}
-var activateForm = (a = true) => {ccContainer.classList.toggle('active', a); clearTimeout(collapse)}
-var focusForm = (f = true) => {ccContainer.classList.toggle('focused', f); clearTimeout(collapse)}
 
 async function buildTargets() {
 	var allTabs = await getTabsInWindow();
@@ -183,6 +120,122 @@ async function generatePreview(type) {
 		previewText.innerText = `Can't snooze this tab`;
 	}
 }
+
+async function buildChoices() {
+	var choices = await getChoices();
+	document.querySelector('.section.choices').append(...(Object.entries(choices).map(([name, o]) => {
+		var icon = Object.assign(document.createElement('img'), {src: `../icons/${name}.png`});
+		var label = wrapInDiv({classList: 'label', innerText: o.label});
+		var date = wrapInDiv({classList: 'date', innerText: o.timeString});
+		var time = wrapInDiv({classList: 'time', innerText: dayjs(o.time).format(`h${dayjs(o.time).minute() !== 0 ? ':mm ':''}A`)});
+
+		var c = wrapInDiv({
+			classList: `choice${o.disabled ? ' disabled' : ''}${o.isDark ? ' dark-on-hover' : ''}`,
+			style: `--bg:${o.color}`,
+			tabIndex: o.disabled ? -1 : 0,
+		}, wrapInDiv('', icon, label), wrapInDiv('', date, time));
+		c.onclick = _ => snooze(o.time, c)
+		c.onkeyup = e => {if (e.which === 13) snooze(o.time, c)}
+		return c
+	})));
+}
+
+function buildCustomChoice() {
+	var date = flatpickr('#date', {
+		inline: true,
+		defaultDate: dayjs().format('YYYY-MM-DD'),
+		minDate: dayjs().format('YYYY-MM-DD'),
+	});
+	var time = flatpickr('#time', {
+		inline: true,
+		enableTime: true,
+		noCalendar: true,
+		defaultDate: dayjs().format('HH:mm'),
+		onChange: validate,
+		onValueUpdate: validate
+	});
+
+	var getDateTime = _ => dayjs(dayjs(date.selectedDates).format('YYYY-MM-DD') + dayjs(time.selectedDates).format('HH:mm'));
+
+	var reset = _ => {
+		var now = dayjs();
+		time.setDate(now.format('HH:mm'));
+		date.setDate(now.format('YYYY-MM-DD'));
+	}
+
+	var validate = async _ => {
+		await new Promise(r => setTimeout(r, 50));
+		var now = dayjs();
+		console.log('validating', now, getDateTime());
+		document.querySelectorAll('.action').forEach(action => {
+			action.classList.toggle('disabled', (getDateTime().add(parseInt(action.getAttribute('data-value')), 'm') < now));
+		});
+		if (getDateTime() < now) reset()
+		time.set('minTime', getDateTime().dayOfYear() == now.dayOfYear() ? now.format('HH:mm') : null);
+		document.querySelector('.date-display').innerText = dayjs(date.selectedDates).format('ddd, D MMM');
+		document.querySelector('.time-display').innerText = dayjs(time.selectedDates).format('h:mm A');
+		document.querySelector('.submit-btn').classList.toggle('disabled', getDateTime() <= now);
+		return getDateTime() > now;
+	}
+
+	var submitButton = wrapInDiv({
+		classList: 'submit-btn disabled',
+		innerText: 'snoozz',
+		onclick: e => {
+			if (e.target.classList.contains('disabled') || !validate()) return;
+			snooze(getDateTime(), customChoice)
+		}
+	});
+
+	var icon = Object.assign(document.createElement('img'), {src: `../icons/alarm.png`})
+	var label = wrapInDiv({classList: 'label', innerText: 'Choose your own time'})
+	var customChoice = wrapInDiv({
+		classList: 'custom-choice dark-on-hover',
+		style: '--bg: #4C72CA',
+		tabIndex: 0,
+		onclick: _ => {
+			customChoice.classList.add('focused');
+			document.querySelectorAll('.choice').forEach(c => {c.classList.add('disabled');c.setAttribute('tabindex','-1')});
+			document.querySelector('.form-overlay').classList.add('show')
+		}
+	}, wrapInDiv('', icon, label), wrapInDiv('custom-info', wrapInDiv('display', wrapInDiv('date-display'), wrapInDiv('time-display')), submitButton));
+	document.querySelector('.section.choices').after(customChoice);
+
+
+	// attach listeners
+	document.querySelector('.overlay-close-btn').addEventListener('click', _ => {
+		customChoice.classList.remove('focused');
+		document.querySelectorAll('.choice').forEach(c => {c.classList.remove('disabled');c.setAttribute('tabindex','0')});
+		document.querySelector('.form-overlay').classList.remove('show');
+	})
+	document.querySelectorAll('.action').forEach(action => action.addEventListener('click', function(e) {
+		if (action.classList.contains('disabled')) return;
+		var amount = parseInt(e.target.getAttribute('data-value'));
+		if (Math.abs(amount) > 1000) {
+			date.setDate(dayjs(date.selectedDates).add(amount, 'm').toDate());
+		} else {
+			if (dayjs(time.selectedDates).add(amount, 'm').dayOfYear() != dayjs(time.selectedDates).dayOfYear()) {
+				date.setDate(dayjs(date.selectedDates).add(amount < 0 ? -1 : 1, 'd').toDate());
+			}
+			time.setDate(dayjs(time.selectedDates).add(amount, 'm').toDate());
+		}
+		validate();
+	}));
+	document.querySelector('.f-am-pm').addEventListener('click', _ => validate);
+	
+	document.querySelector('.reset-action').addEventListener('click', _ => {reset();validate()});
+	document.querySelector('.form-overlay .f-days').addEventListener('click', e => {if (e.target.classList.contains('f-day')) validate()});
+	document.querySelectorAll('.form-overlay .time-wrapper input').forEach(i => {
+		i.addEventListener('blur', validate);
+		i.addEventListener('increment', validate);
+		i.addEventListener('keyup', e => {if (e.which && (e.which == 38 || e.which == 40)) validate()})
+	});
+
+	validate();
+}
+
+var activateForm = (a = true) => {customChoice.classList.toggle('active', a); clearTimeout(collapse)}
+var focusForm = (f = true) => {customChoice.classList.toggle('focused', f); clearTimeout(collapse)}
 
 async function snooze(time, choice) {
 	var target = document.querySelector('.target.active');

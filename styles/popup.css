@@ -1,7 +1,3 @@
-body, html, h1, h3 {
-	margin: 0 auto;
-}
-
 body {
 	position: relative;
 	width: 45em;
@@ -19,6 +15,7 @@ a {
 h3 {
 	text-transform: uppercase;
 	font-size: .9em;
+	margin-bottom: .25rem;
 	transition: opacity, .5s ease-in-out
 }
 
@@ -28,10 +25,10 @@ h3 {
 #icon.flipped {
 	transform: rotate(180deg);
 }
-
+.header {
+	margin: 0 .25rem .5rem;
+}
 .header > div {
-	margin-bottom: 1rem;
-	padding: 0 .25rem;
 	width: 50%;
 	max-width: 50%;
 }
@@ -63,7 +60,7 @@ h3 {
 	opacity: .1;
 	pointer-events: unset;
 }
-.target:focus-within, .dashboard-btn:focus-within {
+.target:focus-visible, .dashboard-btn:focus-visible {
 	outline-offset: 3px;
 	outline: 2px dashed crimson;
 	background: none;
@@ -74,7 +71,7 @@ h3 {
 	padding: .5em;
 	align-items: center;
 	border-radius: .33em;
-	height: 4.5em;
+	height: 4.75em;
 	max-width: 100%;
 	justify-content: unset;
 	background-color: #ddd;
@@ -120,7 +117,79 @@ h3 {
 .section:first-of-type {
 	justify-content: space-between;
 }
-.section.choices > div {
+.section.choices {
+	position: relative;
+}
+.form-overlay {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border-radius: .33em;
+	background-color: #f7f7f7;
+	margin: .25rem;
+	z-index: 2;
+	justify-content: space-between;
+}
+.form-overlay.show {
+	display: flex;
+}
+.form-overlay > div {
+	width: 50%;
+}
+.overlay-close-btn {
+	position: absolute;
+	top: .25rem;
+	right: .75rem;
+	line-height: 1;
+	font-size: 2rem;
+	opacity: .25;
+	cursor: pointer;
+}
+.overlay-close-btn:hover {
+	opacity: .5;
+}
+.date-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: .25rem;
+}
+.time-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+.time-wrapper .f-calendar {
+  width: 150px;
+  transform: scale(1.25);
+  background: rgba(0,0,0,0.1);
+}
+.quick-actions {
+	margin-top: 3rem;
+}
+.quick-actions h3 {
+	opacity: .5;
+}
+.action, .reset-action, .custom-action {
+	padding: .25rem .5rem;
+	margin: .25rem .5rem;
+	border-radius: 3em;
+	cursor: pointer;
+	text-align: center;
+	min-width: 70px;
+	background: rgba(0,0,0,0.1);
+}
+.action:not(.disabled):hover {
+	background: rgba(0,0,0,0.2);
+}
+.action.disabled {
+	cursor: not-allowed;
+	opacity: .4;
+}
+.section.choices > .choice {
 	max-width: 48.8%;
 	flex-basis: 48.8%;
 }
@@ -132,7 +201,7 @@ h3 {
 	padding: .25em .5em;
 	border-radius: .33em;
 	background-color: #f7f7f7;
-	height: 4.5em;
+	height: 4.75em;
 	transition: all .3s ease-in-out;
 	justify-content: space-between;
 	cursor: pointer;
@@ -184,7 +253,6 @@ body.dark .choice:hover *, body.dark .choice.focused *, body.dark .choice:focus-
 }
 
 .custom-choice {
-	cursor: default;
 	height: 4.5em;
 	padding-top: 0px;
 	padding-bottom: 0px;
@@ -193,38 +261,36 @@ body.dark .choice:hover *, body.dark .choice.focused *, body.dark .choice:focus-
 	overflow-x: hidden;
 }
 
-.custom-choice div:first-of-type, .custom-choice-form {
+.custom-choice > div {
 	flex-basis: 48.8%;
 }
-.custom-choice-form {
+.custom-info {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	transition: opacity .3s ease-in-out;
 	opacity: 0;
-	visibility: hidden;
 }
 .custom-choice.active, .custom-choice.focused {
-	visibility: visible;
 	max-width: 45em;
 }
-.custom-choice.active .custom-choice-form, .custom-choice.focused .custom-choice-form {
+.custom-choice.active .custom-info, .custom-choice.focused .custom-info {
 	opacity: 1;
-	visibility: visible;
 }
-
-.custom-choice .input {
-	display: flex;
-	flex-direction: column;
+.time-display, .date-display {
+	font-weight: bold;
+	font-size: 1.1em;
 }
-
 .submit-btn {
 	cursor: pointer;
 	transition: color .3s ease-in-out;
 	text-transform: uppercase;
+	padding: .5rem;
+	border-radius: .25rem;
+	background: rgba(0,0,0,.25);
 }
 .submit-btn:hover {
-	text-decoration: underline;
+	background: rgba(0,0,0,.4);
 }
 .submit-btn.disabled {
 	pointer-events: none;
@@ -241,82 +307,16 @@ body.dark .choice:focus-within, body.dark .custom-choice:focus-within {
 }
 .choice.focused, .custom-choice.focused {
 	transition: background-color 0s linear;
+	cursor: default;
 }
 
-input::-webkit-datetime-edit-month-field:focus, input::-webkit-datetime-edit-day-field:focus, input::-webkit-datetime-edit-year-field:focus, input::-webkit-datetime-edit-hour-field:focus, input::-webkit-datetime-edit-minute-field:focus {
-	color: #fff !important;
-}
 .dark-on-hover:hover *, .dark-on-hover.focused *, .custom-choice:hover *, .custom-choice.focused *,
 .dark-on-hover:focus-within *, .dark-on-hover.focused *, .custom-choice:focus-within *, .custom-choice.focused * {
 	color: #fff !important;
 }
 
-body.dark #preview, body.dark .choice, body.dark .custom-choice {
+body.dark #preview, body.dark .choice, body.dark .custom-choice, body.dark .form-overlay {
 	background-color: #232323
-}
-
-input {
-	color: var(--color);
-	background-color: inherit;
-	-webkit-appearance: none;
-	border: none;
-	position: relative;
-	width: 10em;
-	transition: all .3s ease-in-out;
-}
-
-input:focus, input:active {
-	outline: none;
-}
-
-input::-webkit-datetime-edit {
-	text-transform: uppercase;
-	font-family: 'Monaco';
-}
-
-input::-webkit-datetime-edit-fields-wrapper {
-	padding: .35em 0;
-}
-
-input::-webkit-datetime-edit-month-field, input::-webkit-datetime-edit-day-field, input::-webkit-datetime-edit-year-field, input::-webkit-datetime-edit-hour-field, input::-webkit-datetime-edit-minute-field {
-	background-color: rgba(0,0,0,.05);
-	padding: .25em .5em;
-	border-radius: .33em;
-	cursor: pointer;
-	transition: background-color .3s ease-in-out;
-}
-input.invalid::-webkit-datetime-edit-month-field, input.invalid::-webkit-datetime-edit-day-field, input.invalid::-webkit-datetime-edit-year-field, input.invalid::-webkit-datetime-edit-hour-field, input.invalid::-webkit-datetime-edit-minute-field {
-	background-color: rgba(255,0,0,.25);
-}
-@-moz-document url-prefix() {
-	input {
-		font-family: Arial, sans-serif;
-		display: inline-block;
-		text-align: center;
-		margin: 1px 0;
-		padding-top: 2px;
-		clip-path: inset(0 25px 0 8px);
-		background-color: rgba(0,0,0,.25);
-	}
-	input.invalid {
-		background-color: rgba(255,0,0,.65);
-	}
-} 
-
-.custom-choice:hover input.invalid::-webkit-datetime-edit-month-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-day-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-year-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-hour-field,.custom-choice:hover input.invalid::-webkit-datetime-edit-minute-field {
-	background-color: rgba(255,0,0,.5);	
-}
-
-input::-webkit-calendar-picker-indicator {
-	position: absolute;
-	z-index: 2;
-	cursor: pointer;
-	top: 0;
-	right: 0;
-	width: 100%;
-	height: 100%;
-	color: transparent;
-	background: transparent;
 }
 
 .dashboard-btn {
@@ -331,7 +331,7 @@ input::-webkit-calendar-picker-indicator {
 	content: 'Tabs waking up today - '
 }
 .upcoming {
-	opacity: 0;
+	display: none;
 	font-size: .75em;
 	text-transform: uppercase;
 	color: #666;
@@ -340,7 +340,7 @@ body.dark .upcoming {
 	color: #BBB;
 }
 .upcoming:not([data-today='']) {
-	opacity: 1;
+	display: block;
 }
 .upcoming:after {
 	content: attr(data-today)

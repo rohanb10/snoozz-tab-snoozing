@@ -36,7 +36,7 @@ chrome.notifications.onClicked.addListener(async id => {
 				}
 				return;
 			} catch (e) {}
-		} 
+		}
 	}
 	await openExtensionTab('html/dashboard.html');
 });
