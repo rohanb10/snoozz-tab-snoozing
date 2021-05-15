@@ -1,4 +1,4 @@
-var closeDelay = 1000, colorList = [], isInEditMode = false, editTabId;
+var closeDelay = 1000, colorList = [], isInEditMode = false;
 async function init() {
 	isInEditMode = getUrlParam('edit') && getUrlParam('edit') == 'true';
 
@@ -49,7 +49,7 @@ async function init() {
 		if (e.which === 84) document.getElementById('tab').click();
 		if (e.which === 87) document.getElementById('window').click();
 		if (e.which === 83) document.getElementById('selection').click();
-		if (e.which === 71) document.getElementById('group').click();
+		// if (e.which === 71) document.getElementById('group').click();
 	});
 	if (isInEditMode && parent && parent.resizeIframe) parent.resizeIframe();
 }
@@ -90,8 +90,8 @@ async function buildTargets() {
 		document.getElementById('window').classList.add('active');
 	} else if (isSelectionValid) {
 		document.getElementById('selection').classList.add('active');
-	} else if (isGroupValid) {
-		document.getElementById('group').classList.add('active');
+	// } else if (isGroupValid) {
+		// document.getElementById('group').classList.add('active');
 	} else {
 		document.querySelectorAll('.choice, .custom-choice, h3').forEach(c => {c.classList.add('disabled');c.setAttribute('tabindex','-1')});
 		return document.getElementById('preview-text').innerText = `Can't snooze this tab`;
@@ -125,11 +125,11 @@ async function generatePreview(type) {
 		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t) && t.highlighted);
 		previewText.innerText = `${validTabs.length} selected tabs from ${getSiteCountLabel(validTabs)}`;
 		previewIcon.src = '../icons/magnet.png';
-	} else if (type == 'group') {
-		var currentTabGroup = allTabs.find(at => at.active).groupId;
-		var validTabs = allTabs.filter(t => currentTabGroup && currentTabGroup != -1 && !isDefault(t) && isValid(t) && t.groupId && t.groupId == currentTabGroup);
-		previewText.innerText = `${validTabs.length} grouped tabs from ${getSiteCountLabel(validTabs)}`;
-		previewIcon.src = '../icons/octopus.png';
+	// } else if (type == 'group') {
+	// 	var currentTabGroup = allTabs.find(at => at.active).groupId;
+	// 	var validTabs = allTabs.filter(t => currentTabGroup && currentTabGroup != -1 && !isDefault(t) && isValid(t) && t.groupId && t.groupId == currentTabGroup);
+	// 	previewText.innerText = `${validTabs.length} grouped tabs from ${getSiteCountLabel(validTabs)}`;
+	// 	previewIcon.src = '../icons/octopus.png';
 	} else {
 		previewText.innerText = `Can't snooze this tab`;
 	}
@@ -269,8 +269,8 @@ async function snooze(time, choice) {
 		response = await snoozeWindow(time);
 	} else if (target.id == 'selection') {
 		response = await snoozeSelectedTabs(time);
-	} else if (target.id == 'group') {
-		// response = await snoozeGroupedTabs(time);
+	// } else if (target.id == 'group') {
+	// 	response = await snoozeGroupedTabs(time);
 	}
 	if (response && !(response.tabId || response.windowId)) return;
 	await chrome.runtime.sendMessage(Object.assign(response, {close: true, delay: closeDelay}));

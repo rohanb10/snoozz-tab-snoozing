@@ -273,8 +273,6 @@ function buildTab(t) {
 	var removeBtn = Object.assign(document.createElement('img'), {className:'remove-button', src: '../icons/close.svg', tabIndex: 0});
 	var removeBtnContainer = wrapInDiv('remove-btn-container tooltip', removeBtn)
 
-	// tab.addEventListener('click', _ => openEditModal(t.id));
-
 	tab.append(iconContainer, titleContainer, wakeUpTimeContainer, editBtnContainer, wakeUpBtnContainer, removeBtnContainer, littleTabs);
 	return tab;
 }
@@ -296,10 +294,9 @@ function getTimeGroup(tab, timeType = 'wakeUpTime', searchQuery = false) {
 	var group = [];
 	if (!tab.opened && !tab[timeType]) return group;
 	var now = dayjs(), time = searchQuery && tab.opened ? dayjs(tab.opened) : dayjs(tab[timeType]);
-	// if (tab.startUp)															group.push('next_startup');
 	if (time.week() === now.subtract(1, 'week').week()) 						group.push('last_week');
 	if (time.dayOfYear() === now.subtract(1, 'd').dayOfYear()) 					group.push('yesterday');
-	if (time.dayOfYear() === now.dayOfYear()) 		group.push('today');
+	if (time.dayOfYear() === now.dayOfYear() && time.year() == now.year()) 		group.push('today');
 	if (time.dayOfYear() === now.add(1, 'd').dayOfYear()) 						group.push('tomorrow');
 	if (time.week() === now.week()) 											group.push('this_week');
 	if (time.week() === now.add(1, 'week').week()) 								group.push('next_week');

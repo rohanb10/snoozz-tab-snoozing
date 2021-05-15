@@ -5,7 +5,7 @@
 </p>
 
 <div align="center">
-	<img src="https://img.shields.io/badge/crx%20size-55.9kb-brightgreen" alt="Total file size">
+	<img src="https://img.shields.io/badge/crx%20size-89kb-brightgreen" alt="Total file size">
 	<a target="_blank" href="https://addons.mozilla.org/en-US/firefox/addon/snoozz/">
 		<img src="https://img.shields.io/amo/v/snoozz?color=orange&logo=firefox-browser&label=firefox%20add-on" alt="Mozilla Add-on">
 		</a>
@@ -28,7 +28,17 @@
 -------------
 
 
-A Web Extension to *snoozz* tabs and windows now and have them reopen automatically later. 
+A Web Extension to *snoozz* tabs and windows now and have them reopen automatically later.
+
+Features:
+- Snooze individual tabs, selected tabs, or full windows in just two clicks
+- Configure keyboard shortcuts and context menu items to snooze tabs even quicker
+- View your currently sleeping and already awoken tabs on the dashboard
+- Edit Sleeping Tabs to wake up at a different time (still inn beta)
+- Works completely offline - None of your data is transmitted anywhere, and the extension is entirely self contained
+- Tiny file size - Less than a 100kb (including icons). Try finding another extension which can do all these things with a smaller footprint
+- Dark mode, Import/Export data, automatically clear extension history annd many more configurable user settings
+
 
 Available on [Chrome](https://chrome.google.com/webstore/detail/snoozz-snooze-tabs-window/lklendgldejcnkkaldoggoapclkepgfb), [Firefox](https://addons.mozilla.org/en-US/firefox/addon/snoozz/), [Edge](https://microsoftedge.microsoft.com/addons/detail/ifofnjpbldmdcbkaalbdgaopphhlopok) and as a custom build for [Safari](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/safari.md).
 
@@ -49,16 +59,18 @@ Some features and colours of icons have been altered to be compatible with small
 
 | Author | Icons |
 |--|--|
-| [Freepik](https://www.flaticon.com/authors/freepik) | Alarm, Arrow, Bathtub, Calendar, Coffee, Egg, Porthole, Octopus, Sheep
+| [Freepik](https://www.flaticon.com/authors/freepik) | Alarm, Arrow, Bathtub, Calendar, Coffee, Egg, Pencil, Porthole, Octopus, Rocket, Sheep
 | [Justicon](https://dribbble.com/Justicon) | Chai
+| [Octopocto](https://www.flaticon.com/authors/octopocto) | Coffee Machine
 | [Icon Box](https://www.flaticon.com/authors/icon-box) | Gear
 | [Kiran Shastry](https://dribbble.com/kiranshastry) | Magnet
 | [Those Icons](https://www.flaticon.com/authors/those-icons) | Magnifying Glass
+| [photo3idea](https://www.behance.net/Photo3idea) | Oven
 | [Smashicons](https://smashicons.com/) | Sheep
 | [Alfredo Hernandez](https://www.alfredocreates.com/) | Sun
 | [dDara](https://www.flaticon.com/authors/ddara) | Wii Fit Trainer
 
-Also would like to credit [Joni Trythall](https://jonitrythall.com/) for the CSS alarm clock used in the dashboard - [codepen](https://codepen.io/jonitrythall/pen/slvmi). I wrote my own JS to set the clock to the current time.
+Thank you to [Joni Trythall](https://jonitrythall.com/) for the CSS alarm clock used in the dashboard - [codepen](https://codepen.io/jonitrythall/pen/slvmi). I have modified the clock to be in sync with the current time.
 
 
 ------

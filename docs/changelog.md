@@ -1,16 +1,21 @@
 ## Roadmap
 *In no particular order*
+- Snooze again + recurring snoozes
 - Cloud sync
-- Firefox date + time picker for popup
 - Make contextMenu + allTabs permissions optional
-- Edit snooze times (maybe a snoozz again / recurring feature?)
 - Make accessibile
-- Tab groups (Chrome only) (if API ever opens up)
-- Favicon compression
 
-PRs and other ideas welcome.
+PRs and other ideas are welcome.
 
 ## Changes ##
+
+**May 2021**
+#### 2.4.0
+- Edit Snoozz times for sleeping tabs
+- New Date and Time picker for custom snooze time selection
+- Snooze selected tabs (and a new UI for selecting snooze targets)
+- New options: "One Hour From Now" and "On Next Startup"
+- Export and Smart Import tabs to use across different devices (No duplicates, the most recently updated tab will be saved to your device)
 
 **January 2021**
 #### 2.3.3
