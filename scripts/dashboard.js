@@ -174,8 +174,9 @@ function search(t, query) {
 	if (t.url && t.url.toLowerCase().indexOf(query) > -1) return true;
 	if (t.title && t.title.toLowerCase().indexOf(query) > -1) return true;
 	// relative time
+	if (t.startUp && !t.opened && ('start starting launch launching next time open opening').indexOf(query) > -1) return true;
 	if (!t.opened && ('snoozed sleeping asleep napping snoozzed snoozing snoozzing').indexOf(query) > -1) return true;
-	if (t.opened && ('manually deleted removed reopened awake history').indexOf(query) > -1) return true;
+	if (t.opened && ('manually deleted removed woke awake history').indexOf(query) > -1) return true;
 	// categories
 	if (matchQuery(query, getTimeGroup(t, 'wakeUpTime', true).map(tg => tg.replace(/_/g, ' ')))) return true;
 	if (matchQuery(query, getTimeGroup(t, 'timeCreated', true).map(tg => tg.replace(/_/g, ' ')))) return true;
@@ -196,6 +197,7 @@ function buildTabActions(t, tabDiv) {
 	tabDiv = tabDiv || document.getElementById(t.id);
 
 	var tabName = tabDiv.querySelector('.tab-name');
+	var editBtn = tabDiv.querySelector('img.edit-button');
 	var wakeUpBtn = tabDiv.querySelector('img.wakeup-button');
 	var removeBtn = tabDiv.querySelector('img.remove-button');
 
@@ -206,6 +208,7 @@ function buildTabActions(t, tabDiv) {
 			tabName.onkeyup = e => { if (e.which === 13) openTab(t)};
 		}
 		wakeUpBtn.remove();
+		editBtn.remove();
 		removeBtn.remove();
 
 		var newRemoveBtn = Object.assign(document.createElement('img'), {className:'remove-button', src: '../icons/close.svg', tabIndex: 0});
@@ -213,7 +216,9 @@ function buildTabActions(t, tabDiv) {
 		newRemoveBtn.onkeyup = async e => {if (e.which === 13) await removeTabsFromHistory([t.id])}
 		tabDiv.querySelector('.remove-btn-container').append(newRemoveBtn)
 	} else {
-		wakeUpBtn.onclick = async _ => await wakeUpTabsAbruptly([t.id])
+		editBtn.onclick = _ => openEditModal(t.id);
+		editBtn.onkeyup = e => {if (e.which === 13) openEditModal(t.id)}
+		wakeUpBtn.onclick = async _ => await wakeUpTabsAbruptly([t.id]);
 		wakeUpBtn.onkeyup = async e => {if (e.which === 13) await wakeUpTabsAbruptly([t.id])}
 		removeBtn.onclick = async _ => await sendTabsToHistory([t.id])
 		removeBtn.onkeyup = async e => {if (e.which === 13) await sendTabsToHistory([t.id])}
@@ -259,6 +264,8 @@ function buildTab(t) {
 		[iconContainer, titleContainer].forEach(c => c.addEventListener('click', _ => tab.classList.toggle('collapsed')))
 		iconContainer.onkeyup = e => {if (e.which === 13) tab.classList.toggle('collapsed')}
 	}
+	var editBtn = Object.assign(document.createElement('img'), {className:'edit-button', src: '../icons/edit.png', tabIndex: 0});
+	var editBtnContainer = wrapInDiv('edit-btn-container tooltip', editBtn)
 
 	var wakeUpBtn = Object.assign(document.createElement('img'), {className:'wakeup-button', src: '../icons/sun.png', tabIndex: 0});
 	var wakeUpBtnContainer = wrapInDiv('wakeup-btn-container tooltip', wakeUpBtn)
@@ -266,7 +273,9 @@ function buildTab(t) {
 	var removeBtn = Object.assign(document.createElement('img'), {className:'remove-button', src: '../icons/close.svg', tabIndex: 0});
 	var removeBtnContainer = wrapInDiv('remove-btn-container tooltip', removeBtn)
 
-	tab.append(iconContainer, titleContainer, wakeUpTimeContainer, wakeUpBtnContainer, removeBtnContainer, littleTabs);
+	// tab.addEventListener('click', _ => openEditModal(t.id));
+
+	tab.append(iconContainer, titleContainer, wakeUpTimeContainer, editBtnContainer, wakeUpBtnContainer, removeBtnContainer, littleTabs);
 	return tab;
 }
 
@@ -282,19 +291,56 @@ function formatSnoozedUntil(ts) {
 
 function getTimeGroup(tab, timeType = 'wakeUpTime', searchQuery = false) {
 	if (!searchQuery && tab.opened) return 'history';
+	if (!searchQuery && tab.startUp) return 'next_startup';
 
 	var group = [];
 	if (!tab.opened && !tab[timeType]) return group;
 	var now = dayjs(), time = searchQuery && tab.opened ? dayjs(tab.opened) : dayjs(tab[timeType]);
-	if (tab.startUp)															group.push('next_startup');
+	// if (tab.startUp)															group.push('next_startup');
 	if (time.week() === now.subtract(1, 'week').week()) 						group.push('last_week');
 	if (time.dayOfYear() === now.subtract(1, 'd').dayOfYear()) 					group.push('yesterday');
-	if (time.dayOfYear() === now.dayOfYear() && time.year() == now.year()) 		group.push('today');
+	if (time.dayOfYear() === now.dayOfYear()) 		group.push('today');
 	if (time.dayOfYear() === now.add(1, 'd').dayOfYear()) 						group.push('tomorrow');
 	if (time.week() === now.week()) 											group.push('this_week');
 	if (time.week() === now.add(1, 'week').week()) 								group.push('next_week');
 	if (time.valueOf() > now.add(1, 'week').valueOf())							group.push('later');
 	return searchQuery ? group : group[0];
+}
+
+function openEditModal(tabId) {
+	var overlay = document.querySelector('body > .iframe-overlay');
+	overlay.style.top = window.scrollY + 'px';
+	var iframe = document.createElement('iframe');
+	iframe.src = './popup.html?edit=true&tabId=' + tabId;
+	iframe.setAttribute('scrolling', 'no');
+	overlay.append(iframe);
+	overlay.classList.add('open');
+	bodyScrollFreezer.freeze();
+	overlay.addEventListener('click', closeOnOutsideClick, {once: true});
+	document.addEventListener('keyup', closeOnOutsideClick);
+}
+function deleteTabFromDiv(tabId) {
+	document.getElementById(tabId).outerHTML = '';
+}
+
+function closeOnOutsideClick(e) {
+	if (e.which && e.which == 27) closeEditModal();
+	if(e.target && e.target.classList.contains('iframe-overlay')) closeEditModal();
+}
+
+function resizeIframe() {
+	var frame = document.querySelector('body > .iframe-overlay > iframe');
+	frame.style.height = frame.contentWindow.document.documentElement.scrollHeight + 'px';
+}
+
+function closeEditModal() {
+	var overlay = document.querySelector('body > .iframe-overlay');
+	overlay.removeEventListener('click', closeOnOutsideClick);
+	document.removeEventListener('keyup', closeOnOutsideClick);
+	overlay.classList.remove('open');
+	overlay.querySelector('iframe').remove();
+	overlay.style.top = '';
+	bodyScrollFreezer.unfreeze()
 }
 
 async function wakeUpTabsAbruptly(ids) {

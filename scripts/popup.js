@@ -1,8 +1,14 @@
-var collapse, customChoice, closeDelay = 1000, colorList = [];
+var closeDelay = 1000, colorList = [], isInEditMode = false, editTabId;
 async function init() {
+	isInEditMode = getUrlParam('edit') && getUrlParam('edit') == 'true';
+
 	await buildChoices();
 	buildCustomChoice();
-	await buildTargets();
+	if (isInEditMode) {
+		initEditMode();
+	} else {
+		await buildTargets();
+	}
 
 	document.querySelectorAll('.dashboard-btn, .settings').forEach(btn => btn.addEventListener('click', el => {
 		openExtensionTab(el.target.dataset.href);
@@ -22,7 +28,7 @@ async function init() {
 
 	closeDelay = await getOptions('closeDelay');
 	var tabs = await getSnoozedTabs();
-	if (tabs && tabs.length) {
+	if (!isInEditMode && tabs && tabs.length) {
 		var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear()).length;
 		if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount);
 	}
@@ -44,7 +50,15 @@ async function init() {
 		if (e.which === 87) document.getElementById('window').click();
 		if (e.which === 83) document.getElementById('selection').click();
 		if (e.which === 71) document.getElementById('group').click();
-	})
+	});
+	if (isInEditMode && parent && parent.resizeIframe) parent.resizeIframe();
+}
+async function initEditMode() {
+	document.getElementById('targets').remove();
+	document.querySelector('.footer').remove();
+	var t = await getSnoozedTabs(getUrlParam('tabId'));
+	document.getElementById('preview-text').innerText = t.title;
+	document.getElementById('preview-favicon').src = t.tabs ? '../icons/window.png' : t.favicon && t.favicon.length ? t.favicon : getFaviconUrl(t.url);
 }
 
 async function buildTargets() {
@@ -106,16 +120,16 @@ async function generatePreview(type) {
 	} else if (type == 'window') {
 		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t));
 		previewText.innerText = `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`;
-		previewIcon.src = '../icons/octopus.png'
+		previewIcon.src = '../icons/window.png';
 	} else if (type == 'selection') {
 		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t) && t.highlighted);
 		previewText.innerText = `${validTabs.length} selected tabs from ${getSiteCountLabel(validTabs)}`;
-		previewIcon.src = '../icons/magnet.png'
+		previewIcon.src = '../icons/magnet.png';
 	} else if (type == 'group') {
 		var currentTabGroup = allTabs.find(at => at.active).groupId;
 		var validTabs = allTabs.filter(t => currentTabGroup && currentTabGroup != -1 && !isDefault(t) && isValid(t) && t.groupId && t.groupId == currentTabGroup);
 		previewText.innerText = `${validTabs.length} grouped tabs from ${getSiteCountLabel(validTabs)}`;
-		previewIcon.src = '../icons/octopus.png'
+		previewIcon.src = '../icons/octopus.png';
 	} else {
 		previewText.innerText = `Can't snooze this tab`;
 	}
@@ -235,10 +249,16 @@ function buildCustomChoice() {
 	validate();
 }
 
-var activateForm = (a = true) => {customChoice.classList.toggle('active', a); clearTimeout(collapse)}
-var focusForm = (f = true) => {customChoice.classList.toggle('focused', f); clearTimeout(collapse)}
-
+async function modify(time, choice) {
+	if (!isInEditMode || !getUrlParam('tabId')) return;
+	if (parent && parent.deleteTabFromDiv) parent.deleteTabFromDiv(getUrlParam('tabId'))
+	var response = await editSnoozeTime(getUrlParam('tabId'), time);
+	if (!response || !response.edited) return;
+	displayPreviewAnimation(choice, 'Going back to sleep');
+	if (parent && parent.closeEditModal) setTimeout(_ => parent.closeEditModal(), closeDelay);
+}
 async function snooze(time, choice) {
+	if (isInEditMode) return modify(time, choice);
 	var target = document.querySelector('.target.active');
 	if (!['tab', 'window', 'selection', 'group'].includes(target.id)) return;
 
@@ -254,16 +274,16 @@ async function snooze(time, choice) {
 	}
 	if (response && !(response.tabId || response.windowId)) return;
 	await chrome.runtime.sendMessage(Object.assign(response, {close: true, delay: closeDelay}));
-	displayPreviewAnimation(choice, target.id)
+	displayPreviewAnimation(choice, `Snoozing ${target.id}`)
 }
-function displayPreviewAnimation(choice, type) {
+function displayPreviewAnimation(choice, text = 'Snoozing') {
 	document.body.style.pointerEvents = 'none';
 	choice.classList.add('focused');
 	var preview = document.getElementById('preview');
 	preview.classList.add('snoozed');
 	preview.textContent = '';
 	preview.appendChild(Object.assign(document.createElement('span'), {
-		textContent: `Snoozing ${type}`,
+		textContent: text,
 		style: {
 			transition: `color 400ms ease-in-out ${(closeDelay/2) - 250}ms`,
 			color: '#000',

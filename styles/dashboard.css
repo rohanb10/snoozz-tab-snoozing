@@ -1,3 +1,7 @@
+body {
+	position: relative;
+	width: 100vw;
+}
 #no-tabs {
 	position: fixed;
 	margin: 10em auto;
@@ -75,7 +79,7 @@ body.dark .tab {
 body.dark .tab:focus-within {
 	border-color: #ddd;
 }
-.tab > div:nth-child(-n+5) {
+.tab > div{
 	height: 100%;
 	display: flex;
 	justify-content: center;
@@ -191,15 +195,25 @@ body.dark .nap-time, body.dark .wakeup-label {
 .search-container.valid-search + #time-container .tab .nap-time, .search-container.valid-search + #time-container .tab .wakeup-label {
 	opacity: 1;
 }
-.edit-container {
-
+.edit-btn-container {
+	width: 5%;
+	align-items: center;
+}
+.edit-btn-container:not(:empty):hover:after, .edit-btn-container:not(:empty):focus-within:after,
+.wakeup-btn-container:not(:empty):hover:after, .wakeup-btn-container:not(:empty):focus-within:after,
+.remove-btn-container:not(:empty):hover:after, .remove-btn-container:not(:empty):focus-within:after {
+	transform: translateX(calc(-50% + 24px));
+}
+.edit-btn-container:not(:empty):hover:after, .edit-btn-container:not(:empty):focus-within:after {
+	content: 'Edit Time';
 }
 .wakeup-time-container {
 	width: calc(25% - 5em);
 	margin-left: 5em;
 }
-.wakeup-btn-container {
-	width: 10%;
+.edit-btn-container, .wakeup-btn-container, .remove-btn-container {
+	width: 5%;
+	align-items: center;
 }
 .tooltip {
 	position: relative;
@@ -217,16 +231,15 @@ body.dark .nap-time, body.dark .wakeup-label {
 }
 .wakeup-btn-container:not(:empty):hover:after, .wakeup-btn-container:not(:empty):focus-within:after {
 	content: 'Wake Up Now';
-	transform: translateX(calc(-50% + 19px));
 }
-.wakeup-btn-container:focus-within:after, .remove-btn-container:focus-within:after {
+.edit-btn-container:focus-within:after, .wakeup-btn-container:focus-within:after, .remove-btn-container:focus-within:after {
 	border: 2px dashed crimson;
 }
 body.dark .tooltip:focus-within:after, body.dark .tooltip:hover:after {
 	color: #fff;
 	background-color: #222;
 }
-.wakeup-button {
+.wakeup-button, .edit-button {
 	max-width: 38px;
 	max-height: 38px;
 	padding: 4px;
@@ -234,33 +247,18 @@ body.dark .tooltip:focus-within:after, body.dark .tooltip:hover:after {
 	border: 2px dashed transparent;
 	filter: grayscale(1);
 }
-.wakeup-button:focus-within, .remove-btn-container img:focus-within, .little-tab:focus-within {
+.edit-button:focus-within, .wakeup-button:focus-within, .remove-btn-container img:focus-within, .little-tab:focus-within {
 	outline: none;
 	border-color: crimson;
 }
-.wakeup-button:hover, .wakeup-button:focus-within {
+.edit-button:hover, .edit-button:focus-within, .wakeup-button:hover, .wakeup-button:focus-within {
 	filter: grayscale(0);
-}
-.wakeup-button span, body.dark .wakeup-button span:hover {
-	font-size: .85em;
-	text-transform: uppercase;
-	background-color: #CCC;
-	color: #000;
-	padding: .15em .4em;
-	border: 2px solid transparent;
-	transition: all .25s ease-in-out;
-	border-radius: .25em;
-}
-.remove-btn-container {
-	width: 5%;
-	text-align: right;
 }
 .remove-btn-container:hover:after, .remove-btn-container:focus-within:after {
 	content: 'Send to History';
-	transform: translateX(calc(-50% + 19px));
 }
 #history .remove-btn-container:hover:after, #history .remove-btn-container:focus-within:after{
-	content: 'Remove'
+	content: 'Remove';
 }
 .remove-btn-container img {
 	opacity: .3;
@@ -276,7 +274,7 @@ body.dark .remove-btn-container img:focus-within {
 .remove-btn-container img:focus-within, .remove-btn-container img:hover {
 	opacity: 1;
 }
-.wakeup-button, .remove-button {
+.edit-button, .wakeup-button, .remove-button {
 	cursor: pointer;
 }
 body.dark .remove-btn-container img, body.dark .icon.dropdown, body.dark .up-arrow {
@@ -437,4 +435,33 @@ body:not(.dark) p {
 	.instructions div:last-of-type {
 		display: none;
 	}
+}
+.iframe-overlay {
+	z-index: 3;
+	position: absolute;
+	overflow: hidden;
+	top: 0;
+	left: 0;
+	height: 100vh;
+	width: 100vw;
+	background-color: rgba(0,0,0,.75);
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	display: none;
+}
+.iframe-overlay.open {
+	display: flex;
+}
+.iframe-overlay.open ~ div {
+	filter: blur(5px);
+}
+.iframe-overlay iframe {
+	width: 673px;
+	border: 0;
+	transform: translateY(100vh);
+	transition: transform .5s ease-in-out;
+}
+.iframe-overlay.open iframe {
+	transform: translateY(0);
 }

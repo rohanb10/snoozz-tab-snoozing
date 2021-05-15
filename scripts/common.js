@@ -74,7 +74,11 @@ async function saveOptions(o) {
 async function saveTab(t) {
 	if (!t) return;
 	var tabs = await getSnoozedTabs();
-	tabs.push(t);
+	if (tabs.some(tab => tab.id == t.id)) {
+		tabs[tabs.findIndex(tab => tab.id == t.id)] = t;
+	} else {
+		tabs.push(t);
+	}
 	await saveTabs(tabs);
 }
 async function saveTabs(tabs) {
@@ -171,6 +175,16 @@ async function openWindow(t, automatic = false) {
 	var msg = `This window was put to sleep ${dayjs(t.timeCreated).fromNow()}`;
 	createNotification(t.id, 'A window woke up!', 'icons/main-icon.png', msg);
 	return;
+}
+
+async function editSnoozeTime(tabId, snoozeTime) {
+	var t = await getSnoozedTabs(tabId);
+	if (t.opened) return {};
+	delete t.startUp;
+	t.wakeUpTime = snoozeTime == 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
+	t.modifiedTime = dayjs().valueOf();
+	await saveTab(t);
+	return {edited: true}
 }
 
 /*		SNOOZING 	*/
@@ -274,7 +288,7 @@ async function getChoices(which) {
 	config.timeOfDay = config.timeOfDay === 'evening' ? config.evening : (config.timeOfDay === 'morning' ? config.morning : NOW.hour() + (NOW.minute() / 60))
 	var all = {
 		'startup': {
-			label: 'On Startup',
+			label: 'On Next Startup',
 			startUp: true,
 			time: NOW.add(20, 'y'),
 			timeString: ' ',
@@ -387,6 +401,11 @@ var clipboard = text => {
 	var el = Object.assign(document.createElement('textarea'), {innerText: text});
 	document.body.append(el); el.select();
 	document.execCommand('copy'); el.remove();
+}
+
+var getUrlParam = p => {
+	var url = new URLSearchParams(window.location.search);
+	return url.get(p); 
 }
 
 var bgLog = (logs, colors, timestampColor = 'grey') => {
