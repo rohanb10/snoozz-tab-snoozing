@@ -183,9 +183,10 @@ async function snoozeTab(snoozeTime, overrideTab) {
 		url: activeTab.url,
 		favicon: activeTab.favIconUrl && activeTab.favIconUrl.length < 150 ? activeTab.favIconUrl : '',
 		...activeTab.pinned ? {pinned: true} : {},
-		wakeUpTime: dayjs(snoozeTime).valueOf(),
+		wakeUpTime: snoozeTime == 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
 	}
+	if (snoozeTime == 'startup') sleepyTab.startUp = true;
 	await saveTab(sleepyTab);
 	chrome.runtime.sendMessage({logOptions: ['tab', sleepyTab, snoozeTime]});
 	var tabId = activeTab.id || await getTabId(activeTab.url);
@@ -203,9 +204,10 @@ async function snoozeWindow(snoozeTime, isAGroup) {
 
 	var sleepyGroup = {
 		id: Math.random().toString(36).slice(-10),
-		wakeUpTime: dayjs(snoozeTime).valueOf(),
+		wakeUpTime: snoozeTime == 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
 	}
+	if (snoozeTime == 'startup') sleepyGroup.startUp = true;
 
 	if (isAGroup && false) {
 	// if (isAGroup && chrome.tabGroups) {
@@ -271,59 +273,60 @@ async function getChoices(which) {
 	var config = await getOptions(['morning', 'evening', 'timeOfDay']);
 	config.timeOfDay = config.timeOfDay === 'evening' ? config.evening : (config.timeOfDay === 'morning' ? config.morning : NOW.hour() + (NOW.minute() / 60))
 	var all = {
+		'startup': {
+			label: 'On Startup',
+			startUp: true,
+			time: NOW.add(20, 'y'),
+			timeString: ' ',
+		},
+		'in-an-hour': {
+			label: 'In One Hour',
+			time: NOW.add(1, 'h'),
+			timeString: NOW.add(1, 'h').format('D MMM')
+		},
 		'today-morning': {
 			label: 'This Morning',
-			color: '#F7D05C',
 			time: NOW.startOf('d').add(config.morning, 'h'),
 			timeString: 'Today',
 			disabled: NOW.startOf('d').add(config.morning, 'h').valueOf() < dayjs()
 		},
 		'today-evening': {
 			label: 'This Evening',
-			color: '#E1AD7A',
 			time: NOW.startOf('d').add(config.evening, 'h'),
 			timeString: 'Today',
 			disabled: NOW.startOf('d').add(config.evening, 'h').valueOf() < dayjs()
 		},
 		'tom-morning': {
 			label: 'Tomorrow Morning',
-			color: '#00b77d',
 			time: NOW.startOf('d').add(1,'d').add(config.morning, 'h'),
 			timeString: NOW.add(1,'d').format('ddd D')
 		},
 		'tom-evening': {
 			label: 'Tomorrow Evening',
-			color: '#87CCE2',
 			time: NOW.startOf('d').add(1,'d').add(config.evening, 'h'),
 			timeString: NOW.add(1,'d').format('ddd D')
 		},
 		'weekend': {
 			label: 'Weekend',
-			color: '#F08974',
 			time: NOW.startOf('d').weekday(6).add(config.timeOfDay, 'h'),
 			timeString: NOW.weekday(6).format('ddd, D MMM'),
 			disabled: NOW.day() === 6
 		},
 		'monday': {
 			label: 'Next Monday',
-			color: '#488863',
 			time: NOW.startOf('d').weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8).add(config.timeOfDay, 'h'),
 			timeString: NOW.weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8).format('ddd, D MMM'),
-			isDark: true,
 		},
 		'week': {
 			label: 'Next Week',
-			color: '#847AD0',
 			time: NOW.startOf('d').add(1, 'week').add(config.timeOfDay, 'h'),
 			timeString: NOW.startOf('d').add(1, 'week').add(config.timeOfDay, 'h').format('D MMM'),
-			isDark: true,
 		},
 		'month': {
 			label: 'Next Month',
-			color: '#F0C26C',
 			time: NOW.startOf('d').add(1, 'M').add(config.timeOfDay, 'h'),
 			timeString: NOW.startOf('d').add(1, 'M').add(config.timeOfDay, 'h').format('D MMM')
-		}
+		},
 	}
 	return which && all[which] ? all[which] : all;
 }

@@ -1,4 +1,4 @@
-var collapse, customChoice, closeDelay = 1000;
+var collapse, customChoice, closeDelay = 1000, colorList = [];
 async function init() {
 	await buildChoices();
 	buildCustomChoice();
@@ -106,7 +106,7 @@ async function generatePreview(type) {
 	} else if (type == 'window') {
 		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t));
 		previewText.innerText = `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`;
-		previewIcon.src = '../icons/window.png'
+		previewIcon.src = '../icons/octopus.png'
 	} else if (type == 'selection') {
 		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t) && t.highlighted);
 		previewText.innerText = `${validTabs.length} selected tabs from ${getSiteCountLabel(validTabs)}`;
@@ -123,19 +123,20 @@ async function generatePreview(type) {
 
 async function buildChoices() {
 	var choices = await getChoices();
-	document.querySelector('.section.choices').append(...(Object.entries(choices).map(([name, o]) => {
+	colorList = gradientSteps('#F3B845', '#DF4E76', Math.ceil(Object.keys(choices).length / 2) + 1);
+	document.querySelector('.section.choices').append(...(Object.entries(choices).map(([name, o], i) => {
 		var icon = Object.assign(document.createElement('img'), {src: `../icons/${name}.png`});
 		var label = wrapInDiv({classList: 'label', innerText: o.label});
 		var date = wrapInDiv({classList: 'date', innerText: o.timeString});
 		var time = wrapInDiv({classList: 'time', innerText: dayjs(o.time).format(`h${dayjs(o.time).minute() !== 0 ? ':mm ':''}A`)});
 
 		var c = wrapInDiv({
-			classList: `choice${o.disabled ? ' disabled always-disabled' : ''}${o.isDark ? ' dark-on-hover' : ''}`,
-			style: `--bg:${o.color}`,
+			classList: `choice ${o.disabled ? 'disabled always-disabled' : ''}`,
+			style: `--bg:${colorList[Math.floor(i / 2)]}`,
 			tabIndex: o.disabled ? -1 : 0,
-		}, wrapInDiv('', icon, label), wrapInDiv('', date, time));
-		c.onclick = _ => snooze(o.time, c)
-		c.onkeyup = e => {if (e.which === 13) snooze(o.time, c)}
+		}, wrapInDiv('', icon, label), o.startUp ? wrapInDiv() : wrapInDiv('', date, time));
+		c.onclick = _ => snooze(o.startUp ? 'startup' : o.time, c)
+		c.onkeyup = e => {if (e.which === 13) snooze(o.startUp ? 'startup' : o.time, c)}
 		return c
 	})));
 }
@@ -190,8 +191,8 @@ function buildCustomChoice() {
 	var icon = Object.assign(document.createElement('img'), {src: `../icons/alarm.png`})
 	var label = wrapInDiv({classList: 'label', innerText: 'Choose your own time'})
 	var customChoice = wrapInDiv({
-		classList: 'custom-choice dark-on-hover',
-		style: '--bg: #4C72CA',
+		classList: 'custom-choice',
+		style: `--bg: ${colorList[colorList.length - 1]}`,
 		tabIndex: 0,
 		onclick: _ => {
 			customChoice.classList.add('focused');
@@ -265,7 +266,7 @@ function displayPreviewAnimation(choice, type) {
 		textContent: `Snoozing ${type}`,
 		style: {
 			transition: `color 400ms ease-in-out ${(closeDelay/2) - 250}ms`,
-			color: choice.classList.contains('dark-on-hover') ? '#fff' : '#000',
+			color: '#000',
 		}
 	}));
 	preview.style.transition = `background-position ${closeDelay - 100}ms linear`

@@ -116,7 +116,7 @@ a:hover {
 	right: 0.5em;
 	cursor: pointer;
 }
-.settings:focus-within, .dashboard:focus-within {
+.settings:focus-visible, .dashboard:focus-visible {
 	outline: 2px dashed crimson;
 }
 .settings img, .dashboard img {

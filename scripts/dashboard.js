@@ -1,6 +1,8 @@
-const TIME_GROUPS = ['Today', 'Tomorrow', 'This Week', 'Next Week', 'Later', 'History'];
-var HISTORY = -1, CACHED_TABS = [], ticktock;
+const TIME_GROUPS = ['Next Startup', 'Today', 'Tomorrow', 'This Week', 'Next Week', 'Later', 'History'];
+var HISTORY = -1, CACHED_TABS = [], ticktock, colorList = [];
 async function init() {
+	colorList = gradientSteps('#F3B845', '#DF4E76', TIME_GROUPS.length - 1);
+	colorList.push('');
 	document.querySelector('.settings').onkeyup = e => {if (e.which === 13) openExtensionTab('/html/settings.html')}
 	document.querySelector('.settings').addEventListener('click', _ => openExtensionTab('/html/settings.html'), {once:true})
 	showIconOnScroll();
@@ -94,11 +96,11 @@ function insertIntoCorrectPosition(t, alreadyExists = false) {
 function buildTimeGroups() {
 	var container = document.getElementById('time-container');
 	
-	TIME_GROUPS.forEach(t => {
+	TIME_GROUPS.forEach((t, i) => {
 		var tID = t.replace(/ /g,'_').toLowerCase();
 		var timeGroup = Object.assign(document.createElement('div'), {className: 'time-group', id: tID});
 		var header = Object.assign(document.createElement('div'), {className: 'flex time-header'});
-		var name = Object.assign(document.createElement('h2'), {className: 'time-name', innerText: t});
+		var name = Object.assign(document.createElement('h2'), {className: 'time-name', innerText: t, style: `border-color:${colorList[i]}`});
 		var timeAction = Object.assign(document.createElement('div'), {
 			className: `time-action`,
 			tabIndex: 0,
@@ -235,10 +237,8 @@ function buildTab(t) {
 
 	var title = wrapInDiv({className: 'tab-name', innerText: t.title, title: t.url ?? ''});
 
-	var startedNap = Object.assign(document.createElement('div'), {
-		className: 'nap-time',
-		innerText: `Started napping at ${dayjs(t.timeCreated).format('h:mm a [on] ddd D MMM YYYY')}`,
-	});
+	var startedNap = wrapInDiv({className:'nap-time', innerText: `Started napping at ${dayjs(t.timeCreated).format('h:mm a [on] ddd D MMM YYYY')}`})
+	if (t.modifiedTime) startedNap.innerText = `Last modified at ${dayjs(t.timeCreated).format('h:mm a [on] ddd D MMM YYYY')}`;
 	var titleContainer = wrapInDiv('title-container', title, startedNap);
 
 	var wakeUpTimeContainer = wrapInDiv('wakeup-time-container', wrapInDiv('wakeup-label'), wrapInDiv('wakeup-time'));
@@ -286,13 +286,14 @@ function getTimeGroup(tab, timeType = 'wakeUpTime', searchQuery = false) {
 	var group = [];
 	if (!tab.opened && !tab[timeType]) return group;
 	var now = dayjs(), time = searchQuery && tab.opened ? dayjs(tab.opened) : dayjs(tab[timeType]);
-	if (time.week() === now.subtract(1, 'week').week()) 		group.push('last_week');
-	if (time.dayOfYear() === now.subtract(1, 'd').dayOfYear()) 	group.push('yesterday');
-	if (time.dayOfYear() === now.dayOfYear()) 					group.push('today');
-	if (time.dayOfYear() === now.add(1, 'd').dayOfYear()) 		group.push('tomorrow');
-	if (time.week() === now.week()) 							group.push('this_week');
-	if (time.week() === now.add(1, 'week').week()) 				group.push('next_week');
-	if (time.valueOf() > now.add(1, 'week').valueOf())			group.push('later');
+	if (tab.startUp)															group.push('next_startup');
+	if (time.week() === now.subtract(1, 'week').week()) 						group.push('last_week');
+	if (time.dayOfYear() === now.subtract(1, 'd').dayOfYear()) 					group.push('yesterday');
+	if (time.dayOfYear() === now.dayOfYear() && time.year() == now.year()) 		group.push('today');
+	if (time.dayOfYear() === now.add(1, 'd').dayOfYear()) 						group.push('tomorrow');
+	if (time.week() === now.week()) 											group.push('this_week');
+	if (time.week() === now.add(1, 'week').week()) 								group.push('next_week');
+	if (time.valueOf() > now.add(1, 'week').valueOf())							group.push('later');
 	return searchQuery ? group : group[0];
 }
 

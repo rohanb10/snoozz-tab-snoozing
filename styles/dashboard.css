@@ -20,27 +20,9 @@
 	max-width: 80em;
 	margin: 0 auto;
 }
-h2 {
+h2.time-name {
 	padding: 0 .25em;
-	border-bottom: 3px solid #FFF;
-}
-#today h2 {
-	border-color: #F5b84F;
-}
-#tomorrow h2 {
-	border-color: #EF9F54;
-}
-#this_week h2 {
-	border-color: #E9825A;
-}
-#next_week h2 {
-	border-color: #E16561;
-}
-#later h2 {
-	border-color: #E34D68;
-}
-#history h2 {
-	border-color: var(--color);
+	border-bottom: 3px solid var(--color);
 }
 .time-action.hidden, #api-message.hidden, #history-message.hidden {
 	display: none;

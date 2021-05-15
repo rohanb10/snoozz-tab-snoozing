@@ -83,6 +83,16 @@ option {
 	height: 2px;
 	top: 100%;
 }
+.btn, .full-btn {
+	outline: none;
+}
+.btn div, .full-btn div {
+	position: relative;
+	z-index: 5;
+	padding: .25em;
+	font-size: .8em;
+	text-transform: uppercase;
+}
 .full-btn {
 	padding: 2px;
 	background-image: linear-gradient(90deg, #f3b845 0%, #DF4E76 50%, var(--color) 50%, var(--color) 100%);
@@ -93,6 +103,7 @@ option {
 	transition: background-position .3s ease-in-out
 }
 .full-btn div {
+	padding: .5rem;
 	background-color: var(--bg-color);
 }
 #import_hidden {
@@ -139,16 +150,6 @@ body.dark select {
 #right-click.show .choice-list {
 	padding-top: 1em;
 	transition-delay: 0s;
-}
-.btn, .full-btn {
-	outline: none;
-}
-.btn div, .full-btn div {
-	position: relative;
-	z-index: 5;
-	padding: .25em;
-	font-size: .8em;
-	text-transform: uppercase;
 }
 #shortcut .btn div:before {
 	content: 'configure';

@@ -26,7 +26,7 @@ h3 {
 	transform: rotate(180deg);
 }
 .header {
-	margin: 0 .25rem .5rem;
+	margin: 0 .25rem .25rem;
 }
 .header > div {
 	width: 50%;
@@ -71,7 +71,7 @@ h3 {
 	padding: .5em;
 	align-items: center;
 	border-radius: .33em;
-	height: 4.75em;
+	height: 4em;
 	max-width: 100%;
 	justify-content: unset;
 	background-color: #ddd;
@@ -105,7 +105,7 @@ h3 {
 
 #preview-text {
 	line-height: 1.5;
-	max-height: 4em;
+	max-height: 3em;
 	overflow: scroll;
 }
 
@@ -154,21 +154,17 @@ h3 {
 .date-wrapper {
   display: flex;
   justify-content: center;
+  align-items: center;
   padding: .25rem;
-}
-@media all and (min--moz-device-pixel-ratio:0) {
-	.date-wrapper {
-		transform: scale(.95);
-		transform-origin: top center;
-	}
 }
 .time-wrapper {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: flex-end;
+	justify-content: center;
 }
 .time-wrapper .f-calendar {
+	margin-top: 3rem;
 	width: 150px;
 	transform: scale(1.25);
 	background: rgba(0,0,0,0.1);
@@ -207,7 +203,8 @@ h3 {
 	padding: .25em .5em;
 	border-radius: .33em;
 	background-color: #f7f7f7;
-	height: 4.75em;
+	outline: none;
+	height: 4em;
 	transition: all .3s ease-in-out;
 	justify-content: space-between;
 	cursor: pointer;
@@ -253,9 +250,8 @@ h3 {
 body.dark .choice .date {
 	color: #AAA;
 }
-.choice:hover *, .choice.focused *, .choice:focus-within *, .choice.focused:focus-within *,
-body.dark .choice:hover *, body.dark .choice.focused *, body.dark .choice:focus-within *, body.dark .choice.focused:focus-within * {
-	color: #000;
+.choice:hover *, .choice.focused *, .choice:hover .date, .custom-choice:hover *, .custom-choice.focused * {
+	color: #FFF !important;
 }
 
 .custom-choice {
@@ -279,6 +275,7 @@ body.dark .choice:hover *, body.dark .choice.focused *, body.dark .choice:focus-
 }
 .custom-choice.active, .custom-choice.focused {
 	max-width: 45em;
+	color: #FFF;
 }
 .custom-choice.active .custom-info, .custom-choice.focused .custom-info {
 	opacity: 1;
@@ -292,6 +289,7 @@ body.dark .choice:hover *, body.dark .choice.focused *, body.dark .choice:focus-
 	transition: color .3s ease-in-out;
 	text-transform: uppercase;
 	padding: .5rem;
+	color: #FFF;
 	border-radius: .25rem;
 	background: rgba(0,0,0,.25);
 }
@@ -304,21 +302,12 @@ body.dark .choice:hover *, body.dark .choice.focused *, body.dark .choice:focus-
 	opacity: 0.2;
 }
 
-.choice:hover, .choice.focused, .custom-choice:hover, .custom-choice.focused,
-.choice:focus-within, .custom-choice:focus-within,
-body.dark .choice:hover, body.dark .choice.focused, body.dark .custom-choice:hover, body.dark .custom-choice.focused,
-body.dark .choice:focus-within, body.dark .custom-choice:focus-within {
-	background-color: var(--bg);
-	outline: none;
+.choice:hover, .choice.focused, .custom-choice:hover, .custom-choice.focused, .choice:focus-within, .custom-choice:focus-within {
+	background-color: var(--bg) !important;
 }
 .choice.focused, .custom-choice.focused {
 	transition: background-color 0s linear;
 	cursor: default;
-}
-
-.dark-on-hover:hover *, .dark-on-hover.focused *, .custom-choice:hover *, .custom-choice.focused *,
-.dark-on-hover:focus-within *, .dark-on-hover.focused *, .custom-choice:focus-within *, .custom-choice.focused * {
-	color: #fff !important;
 }
 
 body.dark #preview, body.dark .choice, body.dark .custom-choice, body.dark .form-overlay {
@@ -352,12 +341,12 @@ body.dark .upcoming {
 	content: attr(data-today)
 }
 .footer {
-	padding: 1rem .25rem 0;
+	padding: .5rem .25rem 0;
 	justify-content: space-between;
 	align-items: center;
 }
 .footer .center img {
-	max-width: 3em;
+	max-width: 2.5em;
 }
 .settings {
 	position: relative;
