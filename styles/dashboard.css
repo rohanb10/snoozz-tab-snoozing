@@ -79,7 +79,7 @@ body.dark .tab {
 body.dark .tab:focus-within {
 	border-color: #ddd;
 }
-.tab > div{
+.tab > div:nth-child(-n+6) {
 	height: 100%;
 	display: flex;
 	justify-content: center;
@@ -96,8 +96,6 @@ body.dark .tab:focus-within {
 }
 .icon {
 	display: block;
-	border-radius: 2em;
-
 	margin: 0 auto;
 	max-width: 38px;
 	max-height: 38px;
@@ -202,10 +200,13 @@ body.dark .nap-time, body.dark .wakeup-label {
 .edit-btn-container:not(:empty):hover:after, .edit-btn-container:not(:empty):focus-within:after,
 .wakeup-btn-container:not(:empty):hover:after, .wakeup-btn-container:not(:empty):focus-within:after,
 .remove-btn-container:not(:empty):hover:after, .remove-btn-container:not(:empty):focus-within:after {
-	transform: translateX(calc(-50% + 24px));
+	transform: translateX(calc(-50%));
 }
 .edit-btn-container:not(:empty):hover:after, .edit-btn-container:not(:empty):focus-within:after {
 	content: 'Edit Time';
+}
+.wakeup-btn-container.again:not(:empty):hover:after, .wakeup-btn-container.again:not(:empty):focus-within:after {
+	content: 'Snooze Again';
 }
 .wakeup-time-container {
 	width: calc(25% - 5em);
@@ -222,7 +223,7 @@ body.dark .nap-time, body.dark .wakeup-label {
 	pointer-events: none;
 	position: absolute;
 	top: 90%;
-	left: 0;
+	left: 50%;
 	background-color: #fff;
 	border-radius: 5px;
 	padding: .5em;
@@ -264,7 +265,7 @@ body.dark .tooltip:focus-within:after, body.dark .tooltip:hover:after {
 	opacity: .3;
 	max-height: 38px;
 	max-width: 38px;
-	padding: 10px;
+	padding: 8px;
 	border-radius: 38px;
 	border: 2px dashed transparent;
 }
@@ -299,24 +300,18 @@ body.dark .tabs .little-tab:hover {
 	.tabs {
 		order: 3;
 	}
-	.tab > div:nth-child(-n+5) {
+	.tab > div:nth-child(-n+6) {
 		height: 3.5em;
 	}
-	.icon-container {
-		width: 15%
-	}
 	.title-container {
-		width: 75%;
+		width: 90%;
 	}
-	.remove-btn-container {
+	.wakeup-time-container {
+		width: calc(60%);
+		margin-left: 10%;
+	}
+	.remove-btn-container, .edit-btn-container, .wakeup-btn-container {
 		width: 10%;
-		order: 1;
-	}
-	.wakeup-btn-container, div.wakeup-time-container {
-		width: 50%;
-		margin: 0;
-		text-align: center;
-		order: 2;
 	}
 }
 

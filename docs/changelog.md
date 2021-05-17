@@ -11,7 +11,8 @@ PRs and other ideas are welcome.
 
 **May 2021**
 #### 2.4.0
-- Edit Snoozz times for sleeping tabs
+- Edit Snoozz times for sleeping tabs 🎉
+- Snooze Again for awoken tabs
 - New Date and Time picker for custom snooze time selection
 - Snooze selected tabs (and a new UI for selecting snooze targets)
 - New options: "One Hour From Now" and "On Next Startup"

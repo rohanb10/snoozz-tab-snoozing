@@ -99,7 +99,7 @@ a {
 	cursor: pointer;
 	text-decoration: underline;
 }
-a:focus-within {
+a:focus-visible {
 	outline-offset: 3px;
 	outline: 2px dashed crimson;
 	background: none;

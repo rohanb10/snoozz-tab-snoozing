@@ -12,7 +12,7 @@ chrome.storage.onChanged.addListener(async changes => {
 		await setUpContextMenus(changes.snoozedOptions.newValue.contextMenu);
 		updateBadge(null, changes.snoozedOptions.newValue.badge);
 		SAVED_OPTIONS = changes.snoozedOptions.newValue;
-		if (changes.snoozedOptions.newValue.history !== changes.snoozedOptions.oldValue.history) await wakeUpTask();
+		if (changes.snoozedOptions.oldValue && changes.snoozedOptions.newValue.history !== changes.snoozedOptions.oldValue.history) await wakeUpTask();
 	}
 	if (changes.snoozed) {
 		await updateBadge(changes.snoozed.newValue);
@@ -160,7 +160,7 @@ async function setUpExtension() {
 		theme: 'light',
 		badge: 'today',
 		closeDelay: 1000,
-		contextMenu: ['today-evening', 'tom-morning', 'tom-evening', 'weekend', 'monday']
+		contextMenu: ['startup', 'in-an-hour', 'today-evening', 'tom-morning', 'weekend']
 	}, options));
 	await init();
 }

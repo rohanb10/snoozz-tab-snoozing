@@ -158,7 +158,7 @@
   outline: none;
   padding: .5rem .25rem;
   -webkit-appearance: menulist;
-  -moz-appearance: menulist;
+  -moz-appearance: none;
 }
 .f-current-month .f-monthDropdown-months:focus,
 .f-current-month .f-monthDropdown-months:active {

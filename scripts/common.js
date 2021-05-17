@@ -179,10 +179,12 @@ async function openWindow(t, automatic = false) {
 
 async function editSnoozeTime(tabId, snoozeTime) {
 	var t = await getSnoozedTabs(tabId);
-	if (t.opened) return {};
 	delete t.startUp;
+	delete t.opened;
+	delete t.deleted;
 	t.wakeUpTime = snoozeTime == 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
 	t.modifiedTime = dayjs().valueOf();
+	if (snoozeTime == 'startup') t.startUp = true;
 	await saveTab(t);
 	return {edited: true}
 }
@@ -375,11 +377,13 @@ var verifyTab = tab => {
 
 var sleeping = tabs => tabs.filter(t => !t.opened);
 
-var today = tabs => tabs.filter(t => t.wakeUpTime && dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear())
+var today = tabs => tabs.filter(t => t.wakeUpTime && dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear() && dayjs(t.wakeUpTime).year() == dayjs().year())
 
 var isDefault = tabs => tabs.title && ['dashboard | snoozz', 'settings | snoozz', 'rise and shine | snoozz', 'New Tab', 'Start Page'].includes(tabs.title);
 
-var isValid = tabs => tabs.url && ['http', 'https', 'ftp'].includes(tabs.url.substring(0, tabs.url.indexOf(':')))
+var isValid = tabs => tabs.url && ['http', 'https', 'ftp'].includes(tabs.url.substring(0, tabs.url.indexOf(':')));
+
+var capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
 
 var wrapInDiv = (attr, ...nodes) => {
 	var div = Object.assign(document.createElement('div'), typeof attr === 'string' ? {className: attr} : attr);

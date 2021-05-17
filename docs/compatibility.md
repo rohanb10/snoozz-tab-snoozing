@@ -5,37 +5,39 @@ Chrome and Edge are both built on top of Chromium so they are effectively the sa
 
 | Feature | Chrome | Edge | Firefox | Safari |
 |-|:-:|:-:|:-:|:-:|
-| Snooze tabs | ✓ | ✓ | ✓ | ✓ |
-| Snooze windows | ✓ | ✓ | ✓ |  |
-| **contextMenu** |  |  |  |  |
-| Snooze links using the contextMenu | ✓ | ✓ | ✓ | ✓ |
-| Snooze tabs using the contextMenu |  |  | ✓ |  |
+| Snooze Tabs | ✓ | ✓ | ✓ | ✓ |
+| Snooze Windows | ✓ | ✓ | ✓ |  |
+| Snooze Selected Tabs | ✓ | ✓ | ✓ |  |
+| **Context Menus** |  |  |  |  |
+| Snooze links using a context menu | ✓ | ✓ | ✓ | ✓ |
+| Snooze tabs using a context menu |  |  | ✓ |  |
 | Disable invalid times dynamically |  |  | ✓ |  |
-| Display icon next to snooze time |  |  | ✓ |  |
+| Display icons next to snooze times |  |  | ✓ |  |
 | **Keyboard Shortcuts** |  |  |  |  |
 | Snooze tabs using keyboard shortcuts | ✓ | ✓ | ✓ |  |
 | Open Snoozz using keyboard shortcuts | ✓ | ✓ | ✓ |  |
 | **Popup** |  |  |  |  |
 | Use the popup to select a time to to snooze tabs/windows | ✓ | ✓ | ✓ | ✓ |
 | Disable options when tabs or windows cannot be snoozed | ✓ | ✓ | ✓ | ✓ |
-| Use a date and time picker to select custom snooze times | ✓ |  |  |  |
+| Use a date and time picker to select custom snooze times | ✓ | ✓ | ✓ | ✓ |
 | **Dashboard** |  |  |  |  |
-| View your snoozed and woken up tabs | ✓ | ✓ | ✓ | ✓ |
+| View your sleeping and woken up tabs | ✓ | ✓ | ✓ | ✓ |
+| Edit wake up times for sleeping tabs | ✓ | ✓ | ✓ | ✓ |
 | Wake up tabs manually or delete them from your history | ✓ | ✓ | ✓ | ✓ |
-| Search all your tabs by name, url, date, time, sleep state | ✓ | ✓ | ✓ | ✓ |
+| Fuzzy search your tabs by name, url, date, time, sleep state | ✓ | ✓ | ✓ | ✓ |
 | **Settings** |  |  |  |  |
-| Accurately show storage usage / available | ✓ | ✓ |  | ✓ |
+| Accurately show used and available storage | ✓ | ✓ |  | ✓ |
 | Show currently used keyboard shortcuts | ✓ | ✓ | ✓ |  |
 | Dark Mode | ✓ | ✓ | ✓ | ✓ |
-| Support for cloud storage (TBA) | ✓ | ✓ |  |  |
+| Export and Import your data | ✓ | ✓ | ✓ | ✓ |
 | **Sleeping** |  |  |  |  |
 | Save the name, url and icon for each sleepy tab | ✓ | ✓ | ✓ | ✓ |
 | Save the `pinned` state for a tab | ✓ | ✓ | ✓ | ✓ |
 | Preserve the order of tabs when snoozing a window | ✓ | ✓ | ✓ |  |
 | **Waking Up** |  |  |  |  |
-| Wake up tabs reliably when browser is open | ✓ | ✓ | ✓ | ✓ |
-| Wake up tabs reliably when browser is opening | ✓ | ✓ | ✓ |  |
-| Wake up tabs reliably when computer comes back from standby | ✓ | ✓ |  |  |
+| Wake up tabs when the browser is already open | ✓ | ✓ | ✓ | ✓ |
+| Wake up tabs when the browser is launched | ✓ | ✓ | ✓ |  |
+| Wake up tabs when computer comes back from standby | ✓ | ✓ |  |  |
 | **Notifications** |  |  |  |  |
 | Show notifications when tabs/windows wake up automatically | ✓ | ✓ | ✓ |  |
 | Show notifications when snoozing using the contextMenu | ✓ | ✓ | ✓ |  |

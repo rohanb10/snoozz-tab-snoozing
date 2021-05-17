@@ -29,7 +29,7 @@ async function init() {
 	closeDelay = await getOptions('closeDelay');
 	var tabs = await getSnoozedTabs();
 	if (!isInEditMode && tabs && tabs.length) {
-		var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear()).length;
+		var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear() && dayjs(t.wakeUpTime).year() == dayjs().year()).length;
 		if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount);
 	}
 
@@ -236,7 +236,7 @@ function buildCustomChoice() {
 		}
 		validate();
 	}));
-	document.querySelector('.f-am-pm').addEventListener('click', _ => validate);
+	document.querySelector('.f-am-pm').addEventListener('click', validate);
 	
 	document.querySelector('.reset-action').addEventListener('click', _ => {reset();validate()});
 	document.querySelector('.form-overlay .f-days').addEventListener('click', e => {if (e.target.classList.contains('f-day')) validate()});

@@ -1,7 +1,7 @@
 # snoozz
 
 <p align="center">
-  <img src="https://i.imgur.com/RfUuNja.gif" alt="Snoozz logo"/>
+  <img src="https://i.imgur.com/h6piEH8.png" alt="Snoozz logo"/>
 </p>
 
 <div align="center">
@@ -30,19 +30,20 @@
 
 A Web Extension to *snoozz* tabs and windows now and have them reopen automatically later.
 
+Check out the [Snoozz.me](https://snoozz.me) website for more features, screenshots, demo gifs, and the privacy policy (spoiler: nothing is tracked)
+
 Features:
 - Snooze individual tabs, selected tabs, or full windows in just two clicks
-- Configure keyboard shortcuts and context menu items to snooze tabs even quicker
-- View your currently sleeping and already awoken tabs on the dashboard
-- Edit Sleeping Tabs to wake up at a different time (still inn beta)
+- Configure keyboard shortcuts and context menu options to snooze tabs even quicker
+- View your currently sleeping and already awoken tabs in the nap room
+- Edit Sleeping Tabs to wake up at a different time, Snooze woken up tabs again
 - Works completely offline - None of your data is transmitted anywhere, and the extension is entirely self contained
-- Tiny file size - Less than a 100kb (including icons). Try finding another extension which can do all these things with a smaller footprint
-- Dark mode, Import/Export data, automatically clear extension history annd many more configurable user settings
 
+I initially built this for myself. Had too many tabs open at the end of the day, and didnt want to look at them until work started the next day.
 
 Available on [Chrome](https://chrome.google.com/webstore/detail/snoozz-snooze-tabs-window/lklendgldejcnkkaldoggoapclkepgfb), [Firefox](https://addons.mozilla.org/en-US/firefox/addon/snoozz/), [Edge](https://microsoftedge.microsoft.com/addons/detail/ifofnjpbldmdcbkaalbdgaopphhlopok) and as a custom build for [Safari](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/safari.md).
 
-[Latest Release](https://github.com/rohanb10/snoozz-tab-snoozing/releases/latest/) | [Changelog](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/changelog.md) | [Browser Compatibility](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/compatibility.md) | [Privacy](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/PRIVACY.md)
+[Latest Release](https://github.com/rohanb10/snoozz-tab-snoozing/releases/latest/) | [Changelog](https://snoozz.me/changelog.html) | [Browser Compatibility](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/docs/compatibility.md) | [Privacy](https://snoozz.me/privacy.html)
 
 
 
@@ -54,26 +55,4 @@ Orange: `#F3B845` | Pink: `#DF4E76`
 
 Snoozz is licensed under the [GNU GPLv3](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/LICENSE) license.
 
-## Attribution
-Some features and colours of icons have been altered to be compatible with smaller size. All 3rd party icons used in this repo are listed below.
-
-| Author | Icons |
-|--|--|
-| [Freepik](https://www.flaticon.com/authors/freepik) | Alarm, Arrow, Bathtub, Calendar, Coffee, Egg, Pencil, Porthole, Octopus, Rocket, Sheep
-| [Justicon](https://dribbble.com/Justicon) | Chai
-| [Octopocto](https://www.flaticon.com/authors/octopocto) | Coffee Machine
-| [Icon Box](https://www.flaticon.com/authors/icon-box) | Gear
-| [Kiran Shastry](https://dribbble.com/kiranshastry) | Magnet
-| [Those Icons](https://www.flaticon.com/authors/those-icons) | Magnifying Glass
-| [photo3idea](https://www.behance.net/Photo3idea) | Oven
-| [Smashicons](https://smashicons.com/) | Sheep
-| [Alfredo Hernandez](https://www.alfredocreates.com/) | Sun
-| [dDara](https://www.flaticon.com/authors/ddara) | Wii Fit Trainer
-
-Thank you to [Joni Trythall](https://jonitrythall.com/) for the CSS alarm clock used in the dashboard - [codepen](https://codepen.io/jonitrythall/pen/slvmi). I have modified the clock to be in sync with the current time.
-
-
-------
-
-
-Built by [rohan bhansali](https://rohan.xyz) in 2020
+Built by [rohan](https://rohan.xyz) in 2020/21

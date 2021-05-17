@@ -24,6 +24,9 @@ h2 span {
 	transition: border-color .25s ease-in-out;
 	background-color: rgba(240, 240, 240, .5);
 }
+.input-container.hidden-input {
+	display: none;
+}
 body.dark .input-container {
 	background-color: rgba(35, 35, 35, .5);
 }

@@ -211,6 +211,13 @@ function buildTabActions(t, tabDiv) {
 		editBtn.remove();
 		removeBtn.remove();
 
+		// using new wakeup button as snooze again button for layout purposes
+		var newEditBtn = Object.assign(document.createElement('img'), {className:'edit-button', src: '../icons/ext-icon-128.png', tabIndex: 0});
+		newEditBtn.onclick = _ => openEditModal(t.id);
+		newEditBtn.onkeyup = e => {if (e.which === 13) openEditModal(t.id)}
+		tabDiv.querySelector('.wakeup-btn-container').classList.add('again')
+		tabDiv.querySelector('.wakeup-btn-container').append(newEditBtn);
+
 		var newRemoveBtn = Object.assign(document.createElement('img'), {className:'remove-button', src: '../icons/close.svg', tabIndex: 0});
 		newRemoveBtn.onclick = async _ => await removeTabsFromHistory([t.id])
 		newRemoveBtn.onkeyup = async e => {if (e.which === 13) await removeTabsFromHistory([t.id])}
@@ -224,7 +231,7 @@ function buildTabActions(t, tabDiv) {
 		removeBtn.onkeyup = async e => {if (e.which === 13) await sendTabsToHistory([t.id])}
 	}
 	tabDiv.querySelector('.wakeup-label').innerText = t.deleted ? 'Deleted on' : (t.opened ? `Woke up ${t.opened < t.wakeUpTime ? 'manually' : 'automatically'} on` : 'Waking up')
-	tabDiv.querySelector('.wakeup-time').innerText = t.opened ? dayjs(t.opened).format('dddd, D MMM') : formatSnoozedUntil(t.wakeUpTime)
+	tabDiv.querySelector('.wakeup-time').innerText = t.opened ? dayjs(t.opened).format('dddd, D MMM') : formatSnoozedUntil(t)
 	tabDiv.querySelector('.wakeup-time').title = dayjs(t.opened ? t.opened : t.wakeUpTime).format('h:mm a [on] ddd, D MMMM YYYY');
 	return tabDiv;
 }
@@ -279,7 +286,9 @@ function buildTab(t) {
 
 var getIconForTab = t => t.tabs && t.tabs.length ? '../icons/dropdown.svg': (t.favicon && t.favicon !== '' ? t.favicon : getFaviconUrl(t.url));
 
-function formatSnoozedUntil(ts) {
+function formatSnoozedUntil(t) {
+	if (t.startUp) return `Next ${capitalize(getBrowser())} Launch`;
+	var ts = t.wakeUpTime;
 	var date = dayjs(ts);
 	if (date.dayOfYear() === dayjs().dayOfYear()) return (date.hour() > 17 ? 'Tonight' : 'Today') + date.format(' [@] h:mm a');
 	if (date.dayOfYear() === dayjs().add(1,'d').dayOfYear()) return 'Tomorrow' + date.format(' [@] h:mm a');
@@ -308,10 +317,12 @@ function openEditModal(tabId) {
 	var overlay = document.querySelector('body > .iframe-overlay');
 	overlay.style.top = window.scrollY + 'px';
 	var iframe = document.createElement('iframe');
+	iframe.setAttribute('tabIndex', '-1');
 	iframe.src = './popup.html?edit=true&tabId=' + tabId;
 	iframe.setAttribute('scrolling', 'no');
 	overlay.append(iframe);
 	overlay.classList.add('open');
+	setTimeout(_ => iframe.contentWindow.focus(), 100);
 	bodyScrollFreezer.freeze();
 	overlay.addEventListener('click', closeOnOutsideClick, {once: true});
 	document.addEventListener('keyup', closeOnOutsideClick);

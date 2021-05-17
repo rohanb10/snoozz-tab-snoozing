@@ -1,10 +1,11 @@
 # Privacy
 
-No data is collected, aggregated or analysed in any way. Not even diagnostic or crash data.
+Snoozz has never collected, aggregated or analysed your data in any way. Not even diagnostic or crash data.
 
-All your tab and window data stays on your machine without any network communication. It is not uploaded anywhere.
+All your tab and window data stays on your device without any network communication. It is not uploaded anywhere.
 
-This extension is designed to work completely offline. There is no 3rd party or remote code being executed.
+This extension is designed to work completely offline. Can't steal data if you're not connected to the internet.
+
 
 ## Extension Permissions
 
