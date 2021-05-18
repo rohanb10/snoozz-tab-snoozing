@@ -369,7 +369,7 @@ var sleeping = tabs => tabs.filter(t => !t.opened);
 
 var today = tabs => tabs.filter(t => t.wakeUpTime && dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear() && dayjs(t.wakeUpTime).year() == dayjs().year())
 
-var isDefault = tabs => tabs.title && ['dashboard | snoozz', 'settings | snoozz', 'rise and shine | snoozz', 'New Tab', 'Start Page'].includes(tabs.title);
+var isDefault = tabs => tabs.title && ['nap room | snoozz', 'settings | snoozz', 'rise and shine | snoozz', 'New Tab', 'Start Page'].includes(tabs.title);
 
 var isValid = tabs => tabs.url && ['http', 'https', 'ftp'].includes(tabs.url.substring(0, tabs.url.indexOf(':')));
 

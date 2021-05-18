@@ -10,11 +10,11 @@ async function init() {
 		await buildTargets();
 	}
 
-	document.querySelectorAll('.dashboard-btn, .settings').forEach(btn => btn.addEventListener('click', el => {
+	document.querySelectorAll('.nap-room-btn, .settings').forEach(btn => btn.addEventListener('click', el => {
 		openExtensionTab(el.target.dataset.href);
 		setTimeout(_ => window.close(), 100);
 	}));
-	document.querySelectorAll('.dashboard-btn, .settings').forEach(btn => btn.onkeyup = e => {
+	document.querySelectorAll('.nap-room-btn, .settings').forEach(btn => btn.onkeyup = e => {
 		if (e.which == 13) {
 			openExtensionTab(btn.dataset.href);
 			setTimeout(_ => window.close(), 100);

@@ -16,6 +16,7 @@ PRs and other ideas are welcome.
 - New Date and Time picker for custom snooze time selection
 - Snooze selected tabs (and a new UI for selecting snooze targets)
 - New options: "One Hour From Now" and "On Next Startup"
+- Change "Dashboard" to "Nap Room"
 - Export and Smart Import tabs to use across different devices (No duplicates, the most recently updated tab will be saved to your device)
 
 **January 2021**

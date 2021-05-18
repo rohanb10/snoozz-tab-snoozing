@@ -60,7 +60,7 @@ h3 {
 	opacity: .1;
 	pointer-events: unset;
 }
-.target:focus-visible, .dashboard-btn:focus-visible {
+.target:focus-visible, .nap-room-btn:focus-visible {
 	outline-offset: 3px;
 	outline: 2px dashed crimson;
 	background: none;
@@ -316,7 +316,7 @@ body.dark #preview, body.dark .choice, body.dark .custom-choice, body.dark .form
 .footer a {
 	text-decoration: none;
 }
-.dashboard-btn  {
+.nap-room-btn  {
 	cursor: pointer;
 	font-size: 1.25em;
 }

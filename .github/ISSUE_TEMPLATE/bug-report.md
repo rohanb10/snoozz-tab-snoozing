@@ -25,6 +25,6 @@ assignees: rohanb10
 * Device Resolution (UI related bugs only)
 
 ## Which Page
-<!-- Where did you find the bug:  [Popup / Dashboard / Settings / All] -->
+<!-- Where did you find the bug:  [Popup / Nap Room / Settings / All] -->
 
 ## Screenshots / Videos / Logs

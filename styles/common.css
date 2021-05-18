@@ -110,20 +110,20 @@ a:hover {
 	-webkit-text-fill-color: transparent;
 }
 
-.settings, .dashboard {
+.settings, .nap-room {
 	position: fixed;
 	top: 0.5em;
 	right: 0.5em;
 	cursor: pointer;
 }
-.settings:focus-visible, .dashboard:focus-visible {
+.settings:focus-visible, .nap-room:focus-visible {
 	outline: 2px dashed crimson;
 }
-.settings img, .dashboard img {
+.settings img, .nap-room img {
 	width: 3em;
 	filter: grayscale(100%)
 }
-.settings:before, .dashboard:before {
+.settings:before, .nap-room:before {
 	content: attr(data-hover);
 	position: absolute;
 	opacity: 0;
@@ -135,14 +135,14 @@ a:hover {
 	transition: opacity .3s ease-in-out;
 	white-space: nowrap;
 }
-.settings:hover:before, .dashboard:hover:before, .settings:focus-within:before, .dashboard:focus-within:before {
+.settings:hover:before, .nap-room:hover:before, .settings:focus-within:before, .nap-room:focus-within:before {
 	opacity: 1;
 }
 .settings img:hover, .settings:focus-within img {
 	animation: spin 2.5s steps(16, end) infinite;
 }
 
-.dashboard img:hover, .dashboard:focus-within img {
+.nap-room img:hover, .nap-room:focus-within img {
 	filter: grayscale(0);
 }
 

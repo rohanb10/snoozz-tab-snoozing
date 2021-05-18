@@ -20,7 +20,7 @@ Chrome and Edge are both built on top of Chromium so they are effectively the sa
 | Use the popup to select a time to to snooze tabs/windows | ✓ | ✓ | ✓ | ✓ |
 | Disable options when tabs or windows cannot be snoozed | ✓ | ✓ | ✓ | ✓ |
 | Use a date and time picker to select custom snooze times | ✓ | ✓ | ✓ | ✓ |
-| **Dashboard** |  |  |  |  |
+| **Nap Room** |  |  |  |  |
 | View your sleeping and woken up tabs | ✓ | ✓ | ✓ | ✓ |
 | Edit wake up times for sleeping tabs | ✓ | ✓ | ✓ | ✓ |
 | Wake up tabs manually or delete them from your history | ✓ | ✓ | ✓ | ✓ |

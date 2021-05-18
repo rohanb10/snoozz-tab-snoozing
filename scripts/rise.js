@@ -1,6 +1,6 @@
 async function init() {
-	document.querySelector('.dashboard').onkeyup = e => {if (e.which === 13) openExtensionTab('/html/dashboard.html')}
-	document.querySelector('.dashboard').addEventListener('click', _ => openExtensionTab('/html/dashboard.html'), {once:true});
+	document.querySelector('.nap-room').onkeyup = e => {if (e.which === 13) openExtensionTab('/html/nap-room.html')}
+	document.querySelector('.nap-room').addEventListener('click', _ => openExtensionTab('/html/nap-room.html'), {once:true});
 	showIconOnScroll();
 
 	var found = await fetchTabFromStorage();

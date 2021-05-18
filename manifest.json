@@ -28,7 +28,7 @@
 	"permissions": ["alarms", "contextMenus", "idle", "notifications", "storage", "tabs"],
 
 	"commands": {
-		"dashboard": {
+		"nap-room": {
 			"description": "Show me my sleeping tabs"
 		},
 		"startup": {
@@ -60,6 +60,11 @@
 		},
 		"month": {
 			"description": "Snooze till one month from now"
+		}
+	},
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "snooze@snooze.me"
 		}
 	}
 }

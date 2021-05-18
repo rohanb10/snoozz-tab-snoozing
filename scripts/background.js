@@ -38,7 +38,7 @@ chrome.notifications.onClicked.addListener(async id => {
 			} catch (e) {}
 		}
 	}
-	await openExtensionTab('html/dashboard.html');
+	await openExtensionTab('html/nap-room.html');
 });
 
 async function wakeUpTask(cachedTabs) {
@@ -105,7 +105,7 @@ async function setUpContextMenus(cachedMenus) {
 	if (getBrowser() === 'firefox') chrome.contextMenus.onShown.addListener(contextMenuUpdater)
 }
 if (chrome.commands) chrome.commands.onCommand.addListener(async (command, tab) => {
-	if (command === 'dashboard') return openExtensionTab('/html/dashboard.html');
+	if (command === 'nap-room') return openExtensionTab('/html/nap-room.html');
 	tab = tab || await getTabsInWindow(true);
 	await snoozeInBackground({menuItemId: command, pageUrl: tab.url}, tab)
 })
@@ -128,7 +128,7 @@ async function snoozeInBackground(item, tab) {
 	var wakeUpTime = snoozeTime.valueOf();
 	var pinned = !isHref && tab.pinned ? tab.pinned : undefined;
 	var assembledTab = Object.assign(item, {url, title, favIconUrl, pinned, startUp, wakeUpTime})
-	
+
 	var snoozed = await snoozeTab(item.menuItemId == 'startup' ? 'startup' : snoozeTime.valueOf(), assembledTab);
 	
 	var msg = `${!isHref ? tab.title : getHostname(url)} will wake up ${formatSnoozedUntil(assembledTab)}.`
