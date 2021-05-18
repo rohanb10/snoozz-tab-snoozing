@@ -228,16 +228,6 @@ async function snoozeWindow(snoozeTime, isAGroup) {
 	if (isAGroup && false) {
 	// if (isAGroup && chrome.tabGroups) {
 		var active = tabsInWindow.find(t => t.active && t.groupId);
-		// if (!active || !active.groupId || active.groupId == -1) return {};
-		// validTabs = tabsInWindow.filter(t => t.groupId && t.groupId == active.groupId && !isDefault(t) && isValid(t));
-		// var group = await chrome.tabGroups.get(active.groupId);
-		// sleepyGroup = Object.assign(sleepyGroup, {
-		// 	title: group && group.title ? group.title : `${getTabCountLabel(validTabs)} grouped tabs from ${getSiteCountLabel(validTabs)}`,
-		// 	group: {
-		// 		color: group.color,
-		// 		collapsed: group.collapsed,
-		// 	}
-		// });
 	} else {
 		sleepyGroup = Object.assign(sleepyGroup, {
 			title: `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`,
@@ -274,16 +264,6 @@ async function snoozeSelectedTabs(snoozeTime) {
 	return {tabId: tabsToClose}
 }
 
-async function snoozeGroupedTabs(snoozeTime) {
-	var tabsInSelection = await getTabsInWindow();
-	var sleepyGroup = {
-		id: Math.random().toString(36).slice(-10),
-		title: 'Group Title',
-		wakeUpTime: dayjs(snoozeTime).valueOf
-	}
-
-}
-
 async function getChoices(which) {
 	var NOW = dayjs();
 	var config = await getOptions(['morning', 'evening', 'timeOfDay']);
@@ -294,54 +274,64 @@ async function getChoices(which) {
 			startUp: true,
 			time: NOW.add(20, 'y'),
 			timeString: ' ',
+			menuLabel: 'till next startup'
 		},
 		'in-an-hour': {
 			label: 'In One Hour',
 			time: NOW.add(1, 'h'),
-			timeString: NOW.add(1, 'h').format('D MMM')
+			timeString: NOW.add(1, 'h').format('D MMM'),
+			menuLabel: 'for an hour'
 		},
 		'today-morning': {
 			label: 'This Morning',
 			time: NOW.startOf('d').add(config.morning, 'h'),
 			timeString: 'Today',
-			disabled: NOW.startOf('d').add(config.morning, 'h').valueOf() < dayjs()
+			disabled: NOW.startOf('d').add(config.morning, 'h').valueOf() < dayjs(),
+			menuLabel: 'till this morning'
 		},
 		'today-evening': {
 			label: 'This Evening',
 			time: NOW.startOf('d').add(config.evening, 'h'),
 			timeString: 'Today',
-			disabled: NOW.startOf('d').add(config.evening, 'h').valueOf() < dayjs()
+			disabled: NOW.startOf('d').add(config.evening, 'h').valueOf() < dayjs(),
+			menuLabel: 'till this evening'
 		},
 		'tom-morning': {
 			label: 'Tomorrow Morning',
 			time: NOW.startOf('d').add(1,'d').add(config.morning, 'h'),
-			timeString: NOW.add(1,'d').format('ddd D')
+			timeString: NOW.add(1,'d').format('ddd D'),
+			menuLabel: 'till tomorrow morning'
 		},
 		'tom-evening': {
 			label: 'Tomorrow Evening',
 			time: NOW.startOf('d').add(1,'d').add(config.evening, 'h'),
-			timeString: NOW.add(1,'d').format('ddd D')
+			timeString: NOW.add(1,'d').format('ddd D'),
+			menuLabel: 'till tomorrow evening'
 		},
 		'weekend': {
 			label: 'Weekend',
 			time: NOW.startOf('d').weekday(6).add(config.timeOfDay, 'h'),
 			timeString: NOW.weekday(6).format('ddd, D MMM'),
-			disabled: NOW.day() === 6
+			disabled: NOW.day() === 6,
+			menuLabel: 'till the weekend'
 		},
 		'monday': {
 			label: 'Next Monday',
 			time: NOW.startOf('d').weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8).add(config.timeOfDay, 'h'),
 			timeString: NOW.weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8).format('ddd, D MMM'),
+			menuLabel: 'till next Monday'
 		},
 		'week': {
 			label: 'Next Week',
 			time: NOW.startOf('d').add(1, 'week').add(config.timeOfDay, 'h'),
 			timeString: NOW.startOf('d').add(1, 'week').add(config.timeOfDay, 'h').format('D MMM'),
+			menuLabel: 'for a week'
 		},
 		'month': {
 			label: 'Next Month',
 			time: NOW.startOf('d').add(1, 'M').add(config.timeOfDay, 'h'),
-			timeString: NOW.startOf('d').add(1, 'M').add(config.timeOfDay, 'h').format('D MMM')
+			timeString: NOW.startOf('d').add(1, 'M').add(config.timeOfDay, 'h').format('D MMM'),
+			menuLabel: 'for a month'
 		},
 	}
 	return which && all[which] ? all[which] : all;
@@ -405,6 +395,16 @@ var clipboard = text => {
 	var el = Object.assign(document.createElement('textarea'), {innerText: text});
 	document.body.append(el); el.select();
 	document.execCommand('copy'); el.remove();
+}
+
+var formatSnoozedUntil = t => {
+	if (t.startUp) return `Next ${capitalize(getBrowser())} Launch`;
+	var ts = t.wakeUpTime;
+	var date = dayjs(ts);
+	if (date.dayOfYear() === dayjs().dayOfYear()) return (date.hour() > 17 ? 'Tonight' : 'Today') + date.format(' [@] h:mm a');
+	if (date.dayOfYear() === dayjs().add(1,'d').dayOfYear()) return 'Tomorrow' + date.format(' [@] h:mm a');
+	if (date.week() === dayjs().week()) return date.format('ddd [@] h:mm a');
+	return date.format('ddd, MMM D [@] h:mm a');
 }
 
 var getUrlParam = p => {

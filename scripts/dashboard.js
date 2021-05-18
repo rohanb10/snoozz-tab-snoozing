@@ -286,16 +286,6 @@ function buildTab(t) {
 
 var getIconForTab = t => t.tabs && t.tabs.length ? '../icons/dropdown.svg': (t.favicon && t.favicon !== '' ? t.favicon : getFaviconUrl(t.url));
 
-function formatSnoozedUntil(t) {
-	if (t.startUp) return `Next ${capitalize(getBrowser())} Launch`;
-	var ts = t.wakeUpTime;
-	var date = dayjs(ts);
-	if (date.dayOfYear() === dayjs().dayOfYear()) return (date.hour() > 17 ? 'Tonight' : 'Today') + date.format(' [@] h:mm a');
-	if (date.dayOfYear() === dayjs().add(1,'d').dayOfYear()) return 'Tomorrow' + date.format(' [@] h:mm a');
-	if (date.week() === dayjs().week()) return date.format('ddd [@] h:mm a');
-	return date.format('ddd, MMM D [@] h:mm a');
-}
-
 function getTimeGroup(tab, timeType = 'wakeUpTime', searchQuery = false) {
 	if (!searchQuery && tab.opened) return 'history';
 	if (!searchQuery && tab.startUp) return 'next_startup';

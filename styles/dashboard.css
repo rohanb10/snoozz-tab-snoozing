@@ -416,6 +416,7 @@ body:not(.dark) p {
 	font-size: 1.2em;
 	border: 2px dashed var(--color);
 	padding: .5rem .75rem;
+	border-radius: .5rem; 
 	margin: .4em 0 0;
 }
 @media all and (-webkit-min-device-pixel-ratio:0) and (min-resolution: .001dpcm) {

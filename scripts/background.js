@@ -92,12 +92,12 @@ async function setUpContextMenus(cachedMenus) {
 			...(getBrowser() === 'firefox') ? {icons: {32: `../icons/${cm[0]}.png`}} : {}
 		})
 	} else {
-		chrome.contextMenus.create({id: 'snoozz', contexts: contexts, title: 'Snoozz until', documentUrlPatterns: ['<all_urls>']})
+		chrome.contextMenus.create({id: 'snoozz', contexts: contexts, title: 'Snoozz', documentUrlPatterns: ['<all_urls>']})
 		cm.forEach(o => chrome.contextMenus.create({
 			parentId: 'snoozz',
 			id: o, 
 			contexts: contexts,
-			title: choices[o].label.toLowerCase(),
+			title: choices[o].menuLabel,
 			...(getBrowser() === 'firefox') ? {icons: {32: `../icons/${o}.png`}} : {}
 		}));
 	}
@@ -121,13 +121,19 @@ async function snoozeInBackground(item, tab) {
 	if (!snoozeTime || c.disabled || dayjs().isAfter(dayjs(snoozeTime))) {
 		return createNotification(null, `Can't snoozz that :(`, 'icons/main-icon.png', 'The time you have selected is invalid.');
 	}
-
+	// add attributes
+	var startUp = item.menuItemId == 'startup' ? true : undefined;
 	var title = !isHref ? tab.title : (item.linkText ? item.linkText : item.selectionText);
 	var favIconUrl = !isHref ? tab.favIconUrl : undefined;
+	var wakeUpTime = snoozeTime.valueOf();
 	var pinned = !isHref && tab.pinned ? tab.pinned : undefined;
-	var snoozed = await snoozeTab(snoozeTime.valueOf(), Object.assign(item, {url, title, favIconUrl, pinned}));
-	var msg = `${!isHref ? tab.title : getHostname(url)} will wake up at ${snoozeTime.format('h:mm a [on] ddd, D MMM')}.`
+	var assembledTab = Object.assign(item, {url, title, favIconUrl, pinned, startUp, wakeUpTime})
+	
+	var snoozed = await snoozeTab(item.menuItemId == 'startup' ? 'startup' : snoozeTime.valueOf(), assembledTab);
+	
+	var msg = `${!isHref ? tab.title : getHostname(url)} will wake up ${formatSnoozedUntil(assembledTab)}.`
 	createNotification(snoozed.tabDBId, 'A new tab is now napping :)', 'icons/main-icon.png', msg);
+
 	if (!isHref) await chrome.tabs.remove(tab.id);
 	await chrome.runtime.sendMessage({updateDash: true});
 }
@@ -166,7 +172,7 @@ async function setUpExtension() {
 }
 function sendToLogs([which, p1]) {
 	try {
-		if (['tab', 'window', 'group'].inlcudes(which)) bgLog(['Snoozing a new ' + which, p1.id, 'till', dayjs(p1.wakeUpTime).format('HH:mm:ss DD/MM/YY')],['', 'green', '', 'yellow'],'green')
+		if (['tab', 'window', 'group'].includes(which)) bgLog(['Snoozing a new ' + which, p1.id, 'till', dayjs(p1.wakeUpTime).format('HH:mm:ss DD/MM/YY')],['', 'green', '', 'yellow'],'green')
 		if (which === 'history') bgLog(['Sending tabs to history:', p1.join(', ')], ['', 'green'], 'blue');
 		if (which === 'manually') bgLog(['Waking up tabs manually:', p1.join(', ')], ['', 'green'], 'blue');
 		if (which === 'delete') bgLog(['Deleting tabs manually:', p1.join(', ')], ['', 'red'], 'red');
@@ -175,7 +181,6 @@ function sendToLogs([which, p1]) {
 
 async function init() {
 	var allTabs = await getSnoozedTabs();
-	console.log(allTabs);
 	if (allTabs && allTabs.length && allTabs.some(t => t.startUp && !t.opened)) {
 		allTabs.filter(t => t.startUp && !t.opened).forEach(t => t.wakeUpTime = dayjs().subtract(10, 's').valueOf());
 		await saveTabs(allTabs);

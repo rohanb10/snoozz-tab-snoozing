@@ -31,6 +31,12 @@
 		"dashboard": {
 			"description": "Show me my sleeping tabs"
 		},
+		"startup": {
+			"description": "Snooze until the next time you launch your browser"
+		},
+		"in-an-hour": {
+			"description": "Snooze for an hour"
+		},
 		"today-morning": {
 			"description": "Snooze till today morning"
 		},
