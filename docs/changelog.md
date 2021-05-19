@@ -10,6 +10,10 @@ PRs and other ideas are welcome.
 ## Changes ##
 
 **May 2021**
+#### 2.4.1 
+- show number of search results in the nap room
+- misc ui related fixes
+
 #### 2.4.0
 - Edit Snoozz times for sleeping tabs 🎉
 - Snooze Again for awoken tabs

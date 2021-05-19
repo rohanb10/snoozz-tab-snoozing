@@ -95,7 +95,7 @@ async function createNotification(id, title, imgUrl, message) {
 	await chrome.notifications.create(id, {type: 'basic', iconUrl: chrome.extension.getURL(imgUrl), title, message});
 }
 async function createWindow(tabId) {
-	return new Promise(r => chrome.windows.create({url: `/html/rise_and_shine.html#${tabId}`}, r));
+	return new Promise(r => chrome.windows.create({url: `/html/rise-and-shine.html#${tabId}`}, r));
 }
 
 /*	CONFIGURE	*/
@@ -151,14 +151,14 @@ async function openTab(tab, windowId, automatic = false) {
 async function openWindow(t, automatic = false) {
 	var targetWindowID, currentWindow = await getTabsInWindow();
 	if (currentWindow.length && currentWindow.filter(isDefault).length === currentWindow.length) {
-		await openExtensionTab(`/html/rise_and_shine.html#${t.id}`);
+		await openExtensionTab(`/html/rise-and-shine.html#${t.id}`);
 		targetWindowID = currentWindow[0].windowId;
 	} else {
 		var window = await createWindow(t.id);
 		targetWindowID = window.id;
 	}
 
-	// send message to map browser tabs to tab-list in rise_and_shine.html
+	// send message to map browser tabs to tab-list in rise-and-shine.html
 	var loadingCount = 0;
 	chrome.tabs.onUpdated.addListener(async function cleanTabsAfterLoad(id, state, title) {
 		if (loadingCount > t.tabs.length) {

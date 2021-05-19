@@ -180,6 +180,7 @@ function search(t, query) {
 	// categories
 	if (matchQuery(query, getTimeGroup(t, 'wakeUpTime', true).map(tg => tg.replace(/_/g, ' ')))) return true;
 	if (matchQuery(query, getTimeGroup(t, 'timeCreated', true).map(tg => tg.replace(/_/g, ' ')))) return true;
+	if (matchQuery(query, getTimeGroup(t, 'modifiedTime', true).map(tg => tg.replace(/_/g, ' ')))) return true;
 	// absolute time
 	if ( t.opened && matchQuery(query, dayjs(t.opened).format('dddd DD MMMM A'))) return true;
 	if (!t.opened && t.wakeUpTime && matchQuery(query, dayjs(t.wakeUpTime).format('dddd DD MMMM A'))) return true;
@@ -191,6 +192,13 @@ function performSearch(searchQuery = '') {
 	var tabs = document.querySelectorAll('.tab');
 	if (tabs) tabs.forEach(t => t.classList.toggle('hidden', !search((CACHED_TABS).find(ct => ct.id == t.id), searchQuery)));
 	updateTimeGroups();
+	countSearchItems();
+}
+
+function countSearchItems() {
+	var all = document.querySelectorAll('.time-group .tab').length;
+	var visible = document.querySelectorAll('.time-group .tab:not(.hidden)').length;
+	document.querySelector('.search-container').setAttribute('data-search', `Showing ${visible} out of ${all} items`);
 }
 
 function buildTabActions(t, tabDiv) {

@@ -203,7 +203,7 @@ kbd {
 code {
 	cursor: pointer;
 	font-size: 1.2em;
-	background-color: #ddd;
+	background-color: #999;
 	border-radius: .25em;
 	padding: .1em .2em;
 	user-select: none;

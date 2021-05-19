@@ -37,7 +37,7 @@ async function initialize() {
 	document.querySelector('code').addEventListener('click', _ => {
 		clipboard('about:addons')
 		document.querySelector('body > .copied').classList.add('toast');
-		setTimeout(_ => document.querySelector('body > .copied').remove('toast'), 4000)
+		setTimeout(_ => document.querySelector('body > .copied').classList.remove('toast'), 4000)
 	});
 
 	if (getBrowser() === 'safari') await chrome.runtime.getBackgroundPage(async bg => {await bg.wakeUpTask()});

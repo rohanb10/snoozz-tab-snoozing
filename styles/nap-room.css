@@ -15,6 +15,10 @@ body {
 	touch-action: none;
 	transition: opacity .3s ease-in-out;
 }
+#no-tabs span {
+	display: inline-block;
+	margin-top: 5em;
+}
 #no-tabs.hidden, .search-container.hidden, .instructions.hidden {
 	opacity: 0;
 	pointer-events: none;
@@ -369,15 +373,17 @@ body:not(.dark) p {
 	background-size: 202%;
 	background-position: right;
 }
-.search-container:not(.valid-search):focus-within:before {
+.search-container.valid-search:after, .search-container:not(.valid-search):focus-within:before {
 	content: '3 characters minimum';
 	position: absolute;
 	left: 0;
-	top: 120%;
+	top: 150%;
 	width: 100%;
 	text-align: center;
-	font-size: .9em;
-	color: #BBB;
+	color: var(--color);
+}
+.search-container.valid-search:after {
+	content: attr(data-search);
 }
 .input-wrapper:after {
 	content: '';

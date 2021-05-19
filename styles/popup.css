@@ -9,7 +9,7 @@ img {
 }
 
 a {
-	color: #000;
+	color: var(--color);
 }
 
 h3 {
