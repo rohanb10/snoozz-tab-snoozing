@@ -286,7 +286,7 @@ body.dark .remove-btn-container img, body.dark .icon.dropdown, body.dark .up-arr
 	filter: invert(1);
 }
 
-#history .tab:not(.window) .tab-name:hover, #history .tab:not(.window) .tab-name:focus-within {
+.tab:not(.window) .tab-name:hover, .tab:not(.window) .tab-name:focus-within {
 	outline: none;
 	text-decoration: underline;
 	cursor: pointer;

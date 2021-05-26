@@ -193,8 +193,9 @@ div > strong + div {
 kbd {
 	color: var(--color);
 	background-color: var(--bg-color);
-    border-radius: .25em;
+    border-radius: .25rem;
     border: 1px solid var(--color);
+    border-bottom-width: 2px;
     display: inline-block;
     padding: .1em .4em;
     margin: 0 .25em;

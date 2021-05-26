@@ -5,15 +5,11 @@
 </p>
 
 <div align="center">
-	<img src="https://img.shields.io/badge/crx%20size-89kb-brightgreen" alt="Total file size">
 	<a target="_blank" href="https://addons.mozilla.org/en-US/firefox/addon/snoozz/">
 		<img src="https://img.shields.io/amo/v/snoozz?color=orange&logo=firefox-browser&label=firefox%20add-on" alt="Mozilla Add-on">
 		</a>
 	<a target="_blank" href="https://chrome.google.com/webstore/detail/snoozz-snooze-tabs-window/lklendgldejcnkkaldoggoapclkepgfb">
 		<img src="https://img.shields.io/chrome-web-store/v/lklendgldejcnkkaldoggoapclkepgfb?logo=google-chrome&color=yellow&logoColor=white" alt="Chrome Web Store">
-	</a>
-	<a href="https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/LICENSE">
-		<img src="https://img.shields.io/github/license/rohanb10/snoozz-tab-snoozing?color=lightgrey" alt="License">
 	</a>
 </div>
 <div align="center">
@@ -22,6 +18,14 @@
 	</a>
 	<img alt="GitHub Release Date" src="https://img.shields.io/github/release-date/rohanb10/snoozz-tab-snoozing?color=red">
 	<img alt="GitHub commits since latest release" src="https://img.shields.io/github/commits-since/rohanb10/snoozz-tab-snoozing/latest?color=9cf">
+</div>
+<div align="center">
+	<a href="https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/LICENSE">
+		<img src="https://img.shields.io/github/license/rohanb10/snoozz-tab-snoozing?color=lightgrey" alt="License">
+	</a>
+	<a href="https://paypal.me/rohanrohanrohanrohan/2USD">
+		<img alt="Paypal Donate Link" src="https://img.shields.io/badge/Donate-PayPal-success">
+	</a>
 </div>
 
 
@@ -56,3 +60,11 @@ Orange: `#F3B845` | Pink: `#DF4E76`
 Snoozz is licensed under the [GNU GPLv3](https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/LICENSE) license.
 
 Built by [rohan](https://rohan.xyz) in 2020/21
+
+## Donations
+
+Snoozz is and always will be free. I don't have ongoing server costs or subscriptions or anything like that.
+
+If you feel like it, consider [throwing a couple bucks my way](https://paypal.me/rohanrohanrohanrohan/3USD) to help me keep the snoozz.me domain annually. 
+
+Any additional funds will be recycled back in to the community to help support other developers who's products I use.
