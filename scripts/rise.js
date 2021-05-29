@@ -25,7 +25,7 @@ function populate(found) {
 	if (!found && found !== false) return setTimeout(_ => window.close(), 1000);
 	document.querySelector('#when span').innerText = dayjs(found.timeCreated).format('h:mma on dddd, DD MMM YYYY')
 	var till = document.querySelector('#till span');
-	till.innerText = dayjs(found.timeCreated).to(dayjs(found.wakeUpTime),true)
+	till.innerText = found.startUp ? 'the next time you opened ' + capitalize(getBrowser()) : dayjs(found.timeCreated).to(dayjs(found.wakeUpTime),true) + ' later'
 	till.setAttribute('title', dayjs(found.wakeUpTime).format('h:mma on dddd, DD MMM YYYY'))
 	var tabList = document.querySelector('.tab-list');
 	found.tabs.forEach((t, i) => {

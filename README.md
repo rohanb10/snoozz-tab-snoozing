@@ -11,15 +11,13 @@
 	<a target="_blank" href="https://chrome.google.com/webstore/detail/snoozz-snooze-tabs-window/lklendgldejcnkkaldoggoapclkepgfb">
 		<img src="https://img.shields.io/chrome-web-store/v/lklendgldejcnkkaldoggoapclkepgfb?logo=google-chrome&color=yellow&logoColor=white" alt="Chrome Web Store">
 	</a>
-</div>
-<div align="center">
 	<a href="https://github.com/rohanb10/snoozz-tab-snoozing/releases/latest/">
 		<img alt="GitHub Latest Release" src="https://img.shields.io/github/v/release/rohanb10/snoozz-tab-snoozing?label=latest%20release">
 	</a>
-	<img alt="GitHub Release Date" src="https://img.shields.io/github/release-date/rohanb10/snoozz-tab-snoozing?color=red">
-	<img alt="GitHub commits since latest release" src="https://img.shields.io/github/commits-since/rohanb10/snoozz-tab-snoozing/latest?color=9cf">
 </div>
 <div align="center">
+	<img alt="GitHub Release Date" src="https://img.shields.io/github/release-date/rohanb10/snoozz-tab-snoozing?color=red">
+	<img alt="GitHub commits since latest release" src="https://img.shields.io/github/commits-since/rohanb10/snoozz-tab-snoozing/latest?color=9cf">
 	<a href="https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/LICENSE">
 		<img src="https://img.shields.io/github/license/rohanb10/snoozz-tab-snoozing?color=lightgrey" alt="License">
 	</a>
