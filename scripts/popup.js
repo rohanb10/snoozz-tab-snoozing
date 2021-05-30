@@ -3,7 +3,7 @@ async function init() {
 	isInEditMode = getUrlParam('edit') && getUrlParam('edit') == 'true';
 
 	await buildChoices();
-	buildCustomChoice();
+	await buildCustomChoice();
 	if (isInEditMode) {
 		initEditMode();
 	} else {
@@ -111,6 +111,9 @@ async function generatePreview(type) {
 	var previewText = document.getElementById('preview-text');
 	var previewIcon = document.getElementById('preview-favicon');
 
+	var iconTheme = await getOptions('icons');
+	if (!iconTheme) iconTheme = 'human';
+
 	var allTabs = await getTabsInWindow();
 	if (!allTabs || !allTabs.length) return;
 	
@@ -120,11 +123,11 @@ async function generatePreview(type) {
 	} else if (type == 'window') {
 		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t));
 		previewText.innerText = `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`;
-		previewIcon.src = '../icons/window.png';
+		previewIcon.src = `../icons/${iconTheme}/window.png`;
 	} else if (type == 'selection') {
 		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t) && t.highlighted);
 		previewText.innerText = `${validTabs.length} selected tabs from ${getSiteCountLabel(validTabs)}`;
-		previewIcon.src = '../icons/magnet.png';
+		previewIcon.src = `../icons/${iconTheme}/selection.png`;
 	// } else if (type == 'group') {
 	// 	var currentTabGroup = allTabs.find(at => at.active).groupId;
 	// 	var validTabs = allTabs.filter(t => currentTabGroup && currentTabGroup != -1 && !isDefault(t) && isValid(t) && t.groupId && t.groupId == currentTabGroup);
@@ -137,9 +140,11 @@ async function generatePreview(type) {
 
 async function buildChoices() {
 	var choices = await getChoices();
+	var iconTheme = await getOptions('icons');
+	if (!iconTheme) iconTheme = 'human';
 	colorList = gradientSteps('#F3B845', '#DF4E76', Math.ceil(Object.keys(choices).length / 2) + 1);
 	document.querySelector('.section.choices').append(...(Object.entries(choices).map(([name, o], i) => {
-		var icon = Object.assign(document.createElement('img'), {src: `../icons/${name}.png`});
+		var icon = Object.assign(document.createElement('img'), {src: `../icons/${iconTheme}/${name}.png`});
 		var label = wrapInDiv({classList: 'label', innerText: o.label});
 		var date = wrapInDiv({classList: 'date', innerText: o.timeString});
 		var time = wrapInDiv({classList: 'time', innerText: dayjs(o.time).format(`h${dayjs(o.time).minute() !== 0 ? ':mm ':''}A`)});
@@ -155,7 +160,7 @@ async function buildChoices() {
 	})));
 }
 
-function buildCustomChoice() {
+async function buildCustomChoice() {
 	var date = flatpickr('#date', {
 		inline: true,
 		defaultDate: dayjs().format('YYYY-MM-DD'),
@@ -202,7 +207,9 @@ function buildCustomChoice() {
 		}
 	});
 
-	var icon = Object.assign(document.createElement('img'), {src: `../icons/alarm.png`})
+	var iconTheme = await getOptions('icons');
+	if (!iconTheme) iconTheme = 'human';
+	var icon = Object.assign(document.createElement('img'), {src: `../icons/${iconTheme}/custom.png`})
 	var label = wrapInDiv({classList: 'label', innerText: 'Choose your own time'})
 	var customChoice = wrapInDiv({
 		classList: 'custom-choice',

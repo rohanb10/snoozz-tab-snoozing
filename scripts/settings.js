@@ -10,6 +10,7 @@ async function initialize() {
 	}
 	var options = await getOptions();
 	try {updateFormValues(options)} catch(e) {}
+	if (options.icons) document.querySelector('.nap-room img').src = `../icons/${options.icons}/nap-room.png`;
 	addListeners();
 
 	document.querySelector('#shortcut .btn').addEventListener('click', toggleShortcuts);
@@ -62,7 +63,7 @@ async function calculateStorage() {
 }
 
 function updateFormValues(storage) {
-	['morning', 'evening', 'timeOfDay', 'history', 'theme', 'badge', 'closeDelay'].forEach(o => {
+	['morning', 'evening', 'timeOfDay', 'history', 'icons', 'theme', 'badge', 'closeDelay'].forEach(o => {
 		if (storage[o] !== undefined && document.querySelector(`#${o} option[value="${storage[o]}"]`)) {
 			document.getElementById(o).value = storage[o].toString()
 			document.getElementById(o).setAttribute('data-orig-value', storage[o]);
@@ -114,6 +115,7 @@ Would you like to update ${tabsToChange.length > 1 ? 'them' : 'it'} to snooze ti
 	options.contextMenu = Array.from(document.querySelectorAll('#contextMenu input:checked')).map(c => c.id);
 	await saveOptions(options);
 	await setTheme();
+	await changeIcons(options.icons);
 	if (e && e.target.tagName.toLowerCase() === 'select') e.target.setAttribute('data-orig-value', e.target.value);
 }
 
@@ -176,6 +178,7 @@ async function resetSettings() {
 		morning: 9,
 		evening: 18,
 		timeOfDay: 'morning',
+		icons: 'human',
 		theme: 'light',
 		history: 14,
 		badge: 'today',
@@ -185,6 +188,12 @@ async function resetSettings() {
 	await saveOptions(defaultOptions);
 	updateFormValues(defaultOptions);
 	await setTheme();
+}
+
+async function changeIcons(name) {
+	if (!name) name = await getOptions('icons');
+	if (!name || !name.length) name = 'human';
+	document.querySelector('.nap-room img').src = `../icons/${name}/nap-room.png`;
 }
 
 async function exportTabs() {

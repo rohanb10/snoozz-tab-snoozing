@@ -3,6 +3,9 @@ async function init() {
 	document.querySelector('.nap-room').addEventListener('click', _ => openExtensionTab('/html/nap-room.html'), {once:true});
 	showIconOnScroll();
 
+	var options = await getOptions();
+	if (options.icons) document.querySelector('.nap-room img').src = `../icons/${options.icons}/nap-room.png`;
+
 	var found = await fetchTabFromStorage();
 	populate(found);
 	mapTabs();

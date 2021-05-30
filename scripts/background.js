@@ -161,6 +161,7 @@ async function setUpExtension() {
 	await saveOptions(Object.assign({
 		morning: 9,
 		evening: 18,
+		icons: 'human',
 		timeOfDay: 'morning',
 		history: 14,
 		theme: 'light',
