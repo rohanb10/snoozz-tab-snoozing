@@ -22,6 +22,7 @@ async function init() {
 		}
 	});
 	document.addEventListener('visibilitychange', _ => {setupClock();updateTabs()});
+	await fetchHourFormat();
 	var search = document.getElementById('search');
 	search.addEventListener('input', _ => {
 		search.parentElement.classList.toggle('searching', search.value.length > 0);
@@ -239,7 +240,7 @@ function buildTabActions(t, tabDiv) {
 	}
 	tabDiv.querySelector('.wakeup-label').innerText = t.deleted ? 'Deleted on' : (t.opened ? `Woke up ${t.opened < t.wakeUpTime ? 'manually' : 'automatically'} on` : 'Waking up')
 	tabDiv.querySelector('.wakeup-time').innerText = t.opened ? dayjs(t.opened).format('dddd, D MMM') : formatSnoozedUntil(t)
-	tabDiv.querySelector('.wakeup-time').title = dayjs(t.opened ? t.opened : t.wakeUpTime).format('h:mm a [on] ddd, D MMMM YYYY');
+	tabDiv.querySelector('.wakeup-time').title = dayjs(t.opened ? t.opened : t.wakeUpTime).format(`${getHourFormat()} [on] ddd, D MMMM YYYY`);
 	return tabDiv;
 }
 
@@ -256,8 +257,8 @@ function buildTab(t) {
 
 	var title = wrapInDiv({className: 'tab-name', innerText: t.title, title: t.url ?? ''});
 
-	var startedNap = wrapInDiv({className:'nap-time', innerText: `Started napping at ${dayjs(t.timeCreated).format('h:mm a [on] ddd D MMM YYYY')}`})
-	if (t.modifiedTime) startedNap.innerText = `Last modified at ${dayjs(t.timeCreated).format('h:mm a [on] ddd D MMM YYYY')}`;
+	var startedNap = wrapInDiv({className:'nap-time', innerText: `Started napping at ${dayjs(t.timeCreated).format(`${getHourFormat()} [on] ddd D MMM YYYY`)}`})
+	if (t.modifiedTime) startedNap.innerText = `Last modified at ${dayjs(t.timeCreated).format(`${getHourFormat()} [on] ddd D MMM YYYY`)}`;
 	var titleContainer = wrapInDiv('title-container', title, startedNap);
 
 	var wakeUpTimeContainer = wrapInDiv('wakeup-time-container', wrapInDiv('wakeup-label'), wrapInDiv('wakeup-time'));

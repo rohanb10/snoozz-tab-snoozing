@@ -2,6 +2,7 @@ var closeDelay = 1000, colorList = [], isInEditMode = false;
 async function init() {
 	isInEditMode = getUrlParam('edit') && getUrlParam('edit') == 'true';
 
+	await fetchHourFormat();
 	await buildChoices();
 	await buildCustomChoice();
 	if (isInEditMode) {
@@ -147,7 +148,8 @@ async function buildChoices() {
 		var icon = Object.assign(document.createElement('img'), {src: `../icons/${iconTheme}/${name}.png`});
 		var label = wrapInDiv({classList: 'label', innerText: o.label});
 		var date = wrapInDiv({classList: 'date', innerText: o.timeString});
-		var time = wrapInDiv({classList: 'time', innerText: dayjs(o.time).format(`h${dayjs(o.time).minute() !== 0 ? ':mm ':''}A`)});
+		// var time = wrapInDiv({classList: 'time', innerText: dayjs(o.time).format(`h${dayjs(o.time).minute() !== 0 ? ':mm ':''}A`)});
+		var time = wrapInDiv({classList: 'time', innerText: dayjs(o.time).format(`${getHourFormat(dayjs(o.time).minute() !== 0)}`)});
 
 		var c = wrapInDiv({
 			classList: `choice ${o.disabled ? 'disabled always-disabled' : ''}`,
@@ -170,6 +172,7 @@ async function buildCustomChoice() {
 		inline: true,
 		enableTime: true,
 		noCalendar: true,
+		time_24hr: HOUR_FORMAT && HOUR_FORMAT == 24,
 		defaultDate: dayjs().format('HH:mm'),
 		onChange: validate,
 		onValueUpdate: validate
@@ -186,14 +189,13 @@ async function buildCustomChoice() {
 	var validate = async _ => {
 		await new Promise(r => setTimeout(r, 50));
 		var now = dayjs();
-		console.log('validating', now, getDateTime());
 		document.querySelectorAll('.action').forEach(action => {
 			action.classList.toggle('disabled', (getDateTime().add(parseInt(action.getAttribute('data-value')), 'm') < now));
 		});
 		if (getDateTime() < now) reset()
 		time.set('minTime', getDateTime().dayOfYear() == now.dayOfYear() ? now.format('HH:mm') : null);
 		document.querySelector('.date-display').innerText = dayjs(date.selectedDates).format('ddd, D MMM');
-		document.querySelector('.time-display').innerText = dayjs(time.selectedDates).format('h:mm A');
+		document.querySelector('.time-display').innerText = dayjs(time.selectedDates).format(getHourFormat());
 		document.querySelector('.submit-btn').classList.toggle('disabled', getDateTime() <= now);
 		return getDateTime() > now;
 	}
@@ -243,7 +245,7 @@ async function buildCustomChoice() {
 		}
 		validate();
 	}));
-	document.querySelector('.f-am-pm').addEventListener('click', validate);
+	if (document.querySelector('.f-am-pm')) document.querySelector('.f-am-pm').addEventListener('click', validate);
 	
 	document.querySelector('.reset-action').addEventListener('click', _ => {reset();validate()});
 	document.querySelector('.form-overlay .f-days').addEventListener('click', e => {if (e.target.classList.contains('f-day')) validate()});
@@ -264,6 +266,7 @@ async function modify(time, choice) {
 	displayPreviewAnimation(choice, 'Going back to sleep');
 	if (parent && parent.closeEditModal) setTimeout(_ => parent.closeEditModal(), closeDelay);
 }
+
 async function snooze(time, choice) {
 	if (isInEditMode) return modify(time, choice);
 	var target = document.querySelector('.target.active');
@@ -283,6 +286,7 @@ async function snooze(time, choice) {
 	await chrome.runtime.sendMessage(Object.assign(response, {close: true, delay: closeDelay}));
 	displayPreviewAnimation(choice, `Snoozing ${target.id}`)
 }
+
 function displayPreviewAnimation(choice, text = 'Snoozing') {
 	document.body.style.pointerEvents = 'none';
 	choice.classList.add('focused');

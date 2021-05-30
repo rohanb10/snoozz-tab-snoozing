@@ -9,6 +9,7 @@ async function initialize() {
 		window.history.replaceState(null, null, window.location.pathname);
 	}
 	var options = await getOptions();
+	HOUR_FORMAT = options.hourFormat ? options.hourFormat : 12;
 	try {updateFormValues(options)} catch(e) {}
 	if (options.icons) document.querySelector('.nap-room img').src = `../icons/${options.icons}/nap-room.png`;
 	addListeners();
@@ -97,11 +98,11 @@ async function save(e) {
 		var tabs = await getSnoozedTabs();
 		var ot = parseInt(e.target.getAttribute('data-orig-value'));
 		var f = t => !t.opened && dayjs(t.wakeUpTime).hour() === ot && dayjs(t.wakeUpTime).minute() === 0 && dayjs(t.wakeUpTime).second() === 0
-		var tabsToChange = tabs.filter(f)
+		var tabsToChange = tabs.filter(f);
 		if (tabsToChange.length > 0) {
 			var count = `${tabsToChange.length > 1 ? 'are' : 'is'} ${tabsToChange.length} tab${tabsToChange.length > 1 ? 's' : ''}`
-			if (confirm(`There ${count} scheduled to wake up at ${dayjs().hour(ot).format('hA')}.
-Would you like to update ${tabsToChange.length > 1 ? 'them' : 'it'} to snooze till ${dayjs().hour(e.target.value).format('hA')}?`)) {
+			if (confirm(`There ${count} scheduled to wake up at ${dayjs().minute(0).hour(ot).format(getHourFormat())}.
+Would you like to update ${tabsToChange.length > 1 ? 'them' : 'it'} to snooze till ${dayjs().minute(0).hour(e.target.value).format(getHourFormat())}?`)) {
 				tabs.filter(f).forEach(t => {
 					t.modifiedTime = dayjs().valueOf();
 					t.wakeUpTime = dayjs(t.wakeUpTime).hour(e.target.value).valueOf()
@@ -115,6 +116,7 @@ Would you like to update ${tabsToChange.length > 1 ? 'them' : 'it'} to snooze ti
 	options.contextMenu = Array.from(document.querySelectorAll('#contextMenu input:checked')).map(c => c.id);
 	await saveOptions(options);
 	await setTheme();
+	await fetchHourFormat();
 	await changeIcons(options.icons);
 	if (e && e.target.tagName.toLowerCase() === 'select') e.target.setAttribute('data-orig-value', e.target.value);
 }
@@ -178,6 +180,7 @@ async function resetSettings() {
 		morning: 9,
 		evening: 18,
 		timeOfDay: 'morning',
+		hourFormat: 12,
 		icons: 'human',
 		theme: 'light',
 		history: 14,

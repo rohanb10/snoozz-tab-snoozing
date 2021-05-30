@@ -58,14 +58,6 @@ async function getStorageSize() {
 	return calcObjectSize(tabs) + calcObjectSize(options);
 }
 
-async function getPrettyTab(tabId) {
-	var tab = await getSnoozedTabs([tabId])
-	Object.keys(tab).forEach(k => {
-		if (typeof tab[k] === 'string' && tab[k].length > 75) tab[k] = tab[k].substring(0,72) + '...';
-		if (!isNaN(tab[k])) tab[k] = dayjs(tab[k]).format('HH:mm:ss DD/MM/YY');
-	})
-	return tab;
-}
 /*	SAVE 	*/
 async function saveOptions(o) {
 	if (!o) return;
@@ -105,6 +97,12 @@ async function setTheme() {
 	document.body.classList.toggle('dark', t === 'dark');
 }
 setTheme();
+
+var HOUR_FORMAT = 12;
+async function fetchHourFormat() {
+	var t = await getOptions('hourFormat');
+	HOUR_FORMAT = t && [24, 12].includes(t) ? t : 12;
+}
 
 async function updateBadge(cachedTabs, cachedBadge) {
 	var num = 0;
@@ -401,11 +399,13 @@ var formatSnoozedUntil = t => {
 	if (t.startUp) return `Next ${capitalize(getBrowser())} Launch`;
 	var ts = t.wakeUpTime;
 	var date = dayjs(ts);
-	if (date.dayOfYear() === dayjs().dayOfYear()) return (date.hour() > 17 ? 'Tonight' : 'Today') + date.format(' [@] h:mm a');
-	if (date.dayOfYear() === dayjs().add(1,'d').dayOfYear()) return 'Tomorrow' + date.format(' [@] h:mm a');
-	if (date.week() === dayjs().week()) return date.format('ddd [@] h:mm a');
-	return date.format('ddd, MMM D [@] h:mm a');
+	if (date.dayOfYear() === dayjs().dayOfYear()) return (date.hour() > 17 ? 'Tonight' : 'Today') + date.format(` [@] ${getHourFormat()}`);
+	if (date.dayOfYear() === dayjs().add(1,'d').dayOfYear()) return 'Tomorrow' + date.format(` [@] ${getHourFormat()}`);
+	if (date.week() === dayjs().week()) return date.format(`ddd [@] ${getHourFormat()}`);
+	return date.format(`ddd, MMM D [@] ${getHourFormat()}`);
 }
+
+var getHourFormat = showZeros => (HOUR_FORMAT && HOUR_FORMAT == 24) ? 'HH:mm' : `h${showZeros ? ':mm' : ''} A`;
 
 var getUrlParam = p => {
 	var url = new URLSearchParams(window.location.search);
