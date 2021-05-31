@@ -49,8 +49,6 @@ If you want to build your own version of Snoozz for Safari, here's how you do it
 	Safari does not let you configure your own keyboard shortcuts.
 - **Inconsistent wake up times:**
 	Safari does not support the `idle` API. It is used to calculate the next tab to wake up after your computer comes back from standby. It's very likely that your tabs will not wake up until you interact with the extension in any way.
-- **Shit input for "Choose your own time" in the popup menu:**
-	Safari does not have custom panels for date and time inputs. Fallbacks to a simple (ugly) text field with no validation UI.
 - **UI bugs:**
 	This extension was designed for Chrome and Firefox, so things might look a teeny bit off.
     

@@ -10,6 +10,12 @@ PRs and other ideas are welcome.
 ## Changes ##
 
 **May 2021**
+#### 2.4.2 
+- Introducing Icon Themes - Starting with a shiny new Animal theme. Change your theme on the Settings page.
+- Setting to choose between 12 Hour / 24 Hour time formats
+- Open links from the Nap Room without waking up a tab
+- Bug fixes on the Rise and Shine page
+
 #### 2.4.1 
 - show number of search results in the nap room
 - misc ui related fixes

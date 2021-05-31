@@ -277,7 +277,7 @@ async function getChoices(which) {
 		'in-an-hour': {
 			label: 'In One Hour',
 			time: NOW.add(1, 'h'),
-			timeString: NOW.add(1, 'h').format('D MMM'),
+			timeString: NOW.add(1, 'h').dayOfYear() == NOW.dayOfYear() ? 'Today' : 'Tomorrow',
 			menuLabel: 'for an hour'
 		},
 		'today-morning': {
@@ -297,13 +297,13 @@ async function getChoices(which) {
 		'tom-morning': {
 			label: 'Tomorrow Morning',
 			time: NOW.startOf('d').add(1,'d').add(config.morning, 'h'),
-			timeString: NOW.add(1,'d').format('ddd D'),
+			timeString: NOW.add(1,'d').format('ddd, D MMM'),
 			menuLabel: 'till tomorrow morning'
 		},
 		'tom-evening': {
 			label: 'Tomorrow Evening',
 			time: NOW.startOf('d').add(1,'d').add(config.evening, 'h'),
-			timeString: NOW.add(1,'d').format('ddd D'),
+			timeString: NOW.add(1,'d').format('ddd, D MMM'),
 			menuLabel: 'till tomorrow evening'
 		},
 		'weekend': {
