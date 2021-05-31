@@ -258,7 +258,7 @@ function buildTab(t) {
 	var title = wrapInDiv({className: 'tab-name', innerText: t.title, title: t.url ?? ''});
 
 	var startedNap = wrapInDiv({className:'nap-time', innerText: `Started napping at ${dayjs(t.timeCreated).format(`${getHourFormat()} [on] ddd D MMM YYYY`)}`})
-	if (t.modifiedTime) startedNap.innerText = `Last modified at ${dayjs(t.timeCreated).format(`${getHourFormat()} [on] ddd D MMM YYYY`)}`;
+	if (t.modifiedTime) startedNap.innerText = `Last modified at ${dayjs(t.modifiedTime).format(`${getHourFormat()} [on] ddd D MMM YYYY`)}`;
 	var titleContainer = wrapInDiv('title-container', title, startedNap);
 
 	var wakeUpTimeContainer = wrapInDiv('wakeup-time-container', wrapInDiv('wakeup-label'), wrapInDiv('wakeup-time'));

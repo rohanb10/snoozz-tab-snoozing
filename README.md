@@ -59,10 +59,4 @@ Snoozz is licensed under the [GNU GPLv3](https://github.com/rohanb10/snoozz-tab-
 
 Built by [rohan](https://rohan.xyz) in 2020/21
 
-## Donations
-
-Snoozz is and always will be free. I don't have ongoing server costs or subscriptions or anything like that.
-
-If you feel like it, consider [throwing a couple bucks my way](https://paypal.me/rohanrohanrohanrohan/3USD) to help me keep the snoozz.me domain annually. 
-
-Any additional funds will be recycled back in to the community to help support other developers who's products I use.
+[🍺 Buy me a beer](https://www.buymeacoffee.com/rohanb10)

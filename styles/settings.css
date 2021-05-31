@@ -265,9 +265,14 @@ p.storage-text, p.storage-low, p.storage-full {
 #version {
 	margin-top: 2.5em;
 }
-.about-container p, .about-container .flex span {
+.about-container p, .about-container div span {
 	padding-left: 1.25em;
 	padding-right: .5em;
+	margin-bottom: 1em;
+}
+big {
+	font-size: 1.25em;
+	margin-left: .5rem;
 }
 @media screen and (min--moz-device-pixel-ratio:0) {
 	.right-click span:after {
