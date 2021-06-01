@@ -164,7 +164,6 @@ h3 {
 	justify-content: center;
 }
 .time-wrapper .f-calendar {
-	margin-top: 3rem;
 	width: 150px;
 	transform: scale(1.25);
 	background: rgba(0,0,0,0.1);
@@ -175,7 +174,12 @@ h3 {
 .quick-actions h3 {
 	opacity: .5;
 }
-.action, .reset-action, .custom-action {
+.reset-container {
+	margin-top: .5rem;
+	opacity: .6;
+	cursor: pointer;
+}
+.action, .custom-action {
 	padding: .25rem .5rem;
 	margin: .25rem .5rem;
 	border-radius: 3em;
