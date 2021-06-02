@@ -226,7 +226,7 @@ async function buildCustomChoice() {
 			document.querySelector('.form-overlay').classList.add('show')
 		}
 	}, wrapInDiv('', icon, label), wrapInDiv('custom-info', wrapInDiv('display', wrapInDiv('date-display'), wrapInDiv('time-display')), submitButton));
-	document.querySelector('.section.special-choices').prepend(customChoice);
+	document.querySelector('.section.choices').after(customChoice);
 
 
 	// attach listeners
