@@ -211,8 +211,8 @@ function buildTabActions(t, tabDiv) {
 	var removeBtn = tabDiv.querySelector('img.remove-button');
 
 	tabName.setAttribute('tabIndex', 0);
-	tabName.onclick = _ => openTab(t);
-	tabName.onkeyup = e => { if (e.which === 13) openTab(t)};
+	if (!t.opened) tabName.onclick = _ => openTab(t);
+	if (!t.opened) tabName.onkeyup = e => { if (e.which === 13) openTab(t)};
 
 	if (t.opened) {
 		wakeUpBtn.remove();
@@ -257,8 +257,8 @@ function buildTab(t) {
 
 	var title = wrapInDiv({className: 'tab-name', innerText: t.title, title: t.url ?? ''});
 
-	var startedNap = wrapInDiv({className:'nap-time', innerText: `Started napping at ${dayjs(t.timeCreated).format(`${getHourFormat()} [on] ddd D MMM YYYY`)}`})
-	if (t.modifiedTime) startedNap.innerText = `Last modified at ${dayjs(t.modifiedTime).format(`${getHourFormat()} [on] ddd D MMM YYYY`)}`;
+	var startedNap = wrapInDiv({className:'nap-time', innerText: `Started napping at ${dayjs(t.timeCreated).format(`${getHourFormat(dayjs(t.timeCreated).minute() !== 0)} [on] ddd D MMM YYYY`)}`})
+	if (t.modifiedTime) startedNap.innerText = `Last modified at ${dayjs(t.modifiedTime).format(`${getHourFormat(dayjs(t.modifiedTime).minute() !== 0)} [on] ddd D MMM YYYY`)}`;
 	var titleContainer = wrapInDiv('title-container', title, startedNap);
 
 	var wakeUpTimeContainer = wrapInDiv('wakeup-time-container', wrapInDiv('wakeup-label'), wrapInDiv('wakeup-time'));

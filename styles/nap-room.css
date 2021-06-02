@@ -58,9 +58,9 @@ h2.time-name {
 	text-decoration: underline;
 	color: var(--color);
 }
-.time-action:focus-within {
+.time-action:focus-visible {
 	outline: none;
-	border-color: crimson;
+	border-color: #DF4E76;
 }
 .tab {
 	position: relative;
@@ -77,10 +77,10 @@ h2.time-name {
 body.dark .tab {
 	background-color: rgba(35, 35, 35, .7);
 }
-.tab:focus-within {
+.tab:focus-visible {
 	border-color: #808080;
 }
-body.dark .tab:focus-within {
+body.dark .tab:focus-visible {
 	border-color: #ddd;
 }
 .tab > div:nth-child(-n+6) {
@@ -91,9 +91,9 @@ body.dark .tab:focus-within {
 	height: 4.5em;
 }
 .icon-container {
-	width: 10%;
+	width: 5%;
 }
-.icon-container.tooltip:focus-within:after {
+.icon-container.tooltip:focus-visible:after {
 	content: 'See Tabs';
 	transform: translate(-50%, 0px);
 	left: 50%;
@@ -107,7 +107,7 @@ body.dark .tab:focus-within {
 	border: 2px dashed transparent;
 }
 .title-container {
-	width: 50%;
+	width: 55%;
 	margin: unset;
 }
 .tab-name, .wakeup-time {
@@ -134,12 +134,12 @@ body.dark .tab:focus-within {
 .window.collapsed .icon-container .icon {
 	transform: rotateX(0) scale(.95);
 }
-.window .icon-container .icon:focus-within {
+.window .icon-container .icon:focus-visible {
 	outline: none;
-	border: 2px dashed crimson;
+	border: 2px dashed #DF4E76;
 	opacity: 1;
 }
-body.dark .icon-container .icon:focus-within {
+body.dark .icon-container .icon:focus-visible {
 	filter: invert(16%) sepia(73%) saturate(4860%) hue-rotate(339deg) brightness(87%) contrast(97%);
 }
 .window .icon-container .icon {
@@ -231,14 +231,12 @@ body.dark .nap-time, body.dark .wakeup-label {
 	background-color: #fff;
 	border-radius: 5px;
 	padding: .5em;
+	border: 2px dashed #DF4E76;
 	white-space: nowrap;
 	z-index: 8;
 }
 .wakeup-btn-container:not(:empty):hover:after, .wakeup-btn-container:not(:empty):focus-within:after {
 	content: 'Wake Up Now';
-}
-.edit-btn-container:focus-within:after, .wakeup-btn-container:focus-within:after, .remove-btn-container:focus-within:after {
-	border: 2px dashed crimson;
 }
 body.dark .tooltip:focus-within:after, body.dark .tooltip:hover:after {
 	color: #fff;
@@ -254,7 +252,7 @@ body.dark .tooltip:focus-within:after, body.dark .tooltip:hover:after {
 }
 .edit-button:focus-within, .wakeup-button:focus-within, .remove-btn-container img:focus-within, .little-tab:focus-within {
 	outline: none;
-	border-color: crimson;
+	border-color: #DF4E76;
 }
 .edit-button:hover, .edit-button:focus-within, .wakeup-button:hover, .wakeup-button:focus-within {
 	filter: grayscale(0);

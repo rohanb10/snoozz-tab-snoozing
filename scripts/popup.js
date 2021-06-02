@@ -50,6 +50,7 @@ async function init() {
 		if (e.which === 84) document.getElementById('tab').click();
 		if (e.which === 87) document.getElementById('window').click();
 		if (e.which === 83) document.getElementById('selection').click();
+		if (isInEditMode && parent && parent.closeOnOutsideClick) parent.closeOnOutsideClick(e);
 		// if (e.which === 71) document.getElementById('group').click();
 	});
 	if (isInEditMode && parent && parent.resizeIframe) parent.resizeIframe();
@@ -152,6 +153,7 @@ async function buildChoices() {
 		var time = wrapInDiv({classList: 'time', innerText: dayjs(o.time).format(`${getHourFormat(dayjs(o.time).minute() !== 0)}`)});
 
 		var c = wrapInDiv({
+			id: name,
 			classList: `choice ${o.disabled ? 'disabled always-disabled' : ''}`,
 			style: `--bg:${colorList[Math.floor(i / 2)]}`,
 			tabIndex: o.disabled ? -1 : 0,
@@ -220,16 +222,18 @@ async function buildCustomChoice() {
 		onclick: _ => {
 			customChoice.classList.add('focused');
 			document.querySelectorAll('.choice').forEach(c => {c.classList.add('disabled');c.setAttribute('tabindex','-1')});
+			document.querySelector('.popup-checkbox input').setAttribute('tabindex', '-1');
 			document.querySelector('.form-overlay').classList.add('show')
 		}
 	}, wrapInDiv('', icon, label), wrapInDiv('custom-info', wrapInDiv('display', wrapInDiv('date-display'), wrapInDiv('time-display')), submitButton));
-	document.querySelector('.section.choices').after(customChoice);
+	document.querySelector('.section.special-choices').prepend(customChoice);
 
 
 	// attach listeners
 	document.querySelector('.overlay-close-btn').addEventListener('click', _ => {
 		customChoice.classList.remove('focused');
 		document.querySelectorAll('.choice').forEach(c => {c.classList.remove('disabled');c.setAttribute('tabindex','0')});
+		document.querySelector('.popup-checkbox input').setAttribute('tabindex', '0');
 		document.querySelector('.form-overlay').classList.remove('show');
 	})
 	document.querySelectorAll('.action').forEach(action => action.addEventListener('click', function(e) {

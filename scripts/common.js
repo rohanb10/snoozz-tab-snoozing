@@ -399,10 +399,10 @@ var formatSnoozedUntil = t => {
 	if (t.startUp) return `Next ${capitalize(getBrowser())} Launch`;
 	var ts = t.wakeUpTime;
 	var date = dayjs(ts);
-	if (date.dayOfYear() === dayjs().dayOfYear()) return (date.hour() > 17 ? 'Tonight' : 'Today') + date.format(` [@] ${getHourFormat()}`);
-	if (date.dayOfYear() === dayjs().add(1,'d').dayOfYear()) return 'Tomorrow' + date.format(` [@] ${getHourFormat()}`);
-	if (date.week() === dayjs().week()) return date.format(`ddd [@] ${getHourFormat()}`);
-	return date.format(`ddd, MMM D [@] ${getHourFormat()}`);
+	if (date.dayOfYear() === dayjs().dayOfYear()) return (date.hour() > 17 ? 'Tonight' : 'Today') + date.format(` [@] ${getHourFormat(date.minute() !== 0)}`);
+	if (date.dayOfYear() === dayjs().add(1,'d').dayOfYear()) return 'Tomorrow' + date.format(` [@] ${getHourFormat(date.minute() !== 0)}`);
+	if (date.week() === dayjs().week()) return date.format(`ddd [@] ${getHourFormat(date.minute() !== 0)}`);
+	return date.format(`ddd, MMM D [@] ${getHourFormat(date.minute() !== 0)}`);
 }
 
 var getHourFormat = showZeros => (HOUR_FORMAT && HOUR_FORMAT == 24) ? 'HH:mm' : `h${showZeros ? ':mm' : ''} A`;
