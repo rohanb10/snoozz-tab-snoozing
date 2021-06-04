@@ -211,8 +211,8 @@ function buildTabActions(t, tabDiv) {
 	var removeBtn = tabDiv.querySelector('img.remove-button');
 
 	tabName.setAttribute('tabIndex', 0);
-	if (!t.opened) tabName.onclick = _ => openTab(t);
-	if (!t.opened) tabName.onkeyup = e => { if (e.which === 13) openTab(t)};
+	if (!t.tabs) tabName.onclick = _ => openTab(t);
+	if (!t.tabs) tabName.onkeyup = e => { if (e.which === 13) openTab(t)};
 
 	if (t.opened) {
 		wakeUpBtn.remove();
