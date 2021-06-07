@@ -86,14 +86,12 @@ async function buildTargets() {
 	// hide groups if not chrome
 	if (getBrowser() !== 'chrome' || true) document.getElementById('group').style.display = 'none';
 
-	if (isActiveTabValid) {
+	if (isSelectionValid) {
+		document.getElementById('selection').classList.add('active');
+	} else if (isActiveTabValid) {
 		document.getElementById('tab').classList.add('active');
 	} else if (isWindowValid) {
 		document.getElementById('window').classList.add('active');
-	} else if (isSelectionValid) {
-		document.getElementById('selection').classList.add('active');
-	// } else if (isGroupValid) {
-		// document.getElementById('group').classList.add('active');
 	} else {
 		document.querySelectorAll('.choice, .custom-choice, h3').forEach(c => {c.classList.add('disabled');c.setAttribute('tabindex','-1')});
 		return document.getElementById('preview-text').innerText = `Can't snooze this tab`;
