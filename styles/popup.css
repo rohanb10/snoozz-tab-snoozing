@@ -60,7 +60,7 @@ h3 {
 	opacity: .1;
 	pointer-events: unset;
 }
-.target:focus-visible, .nap-room-btn:focus-visible {
+.target:focus-visible, .nap-room-btn:focus-visible, .checkbox input:focus-visible {
 	outline-offset: 3px;
 	outline: 2px dashed crimson;
 	background: none;
@@ -117,7 +117,7 @@ h3 {
 .section:first-of-type {
 	justify-content: space-between;
 }
-.section.choices {
+.section.choices, .section.special-choices {
 	position: relative;
 }
 .form-overlay {
@@ -152,10 +152,10 @@ h3 {
 	opacity: .5;
 }
 .date-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: .25rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: .25rem;
 }
 .time-wrapper {
 	display: flex;
@@ -195,9 +195,9 @@ h3 {
 	cursor: not-allowed;
 	opacity: .4;
 }
-.section.choices > .choice {
-	max-width: 48.8%;
-	flex-basis: 48.8%;
+.section.choices > .choice, .repeat-choice {
+	max-width: calc(50% - .5rem);
+	flex-basis: calc(50% - .5rem);
 }
 
 .choice, .custom-choice {
@@ -254,7 +254,7 @@ h3 {
 body.dark .choice .date {
 	color: #AAA;
 }
-.choice:hover *, .choice.focused *, .choice:hover .date, .custom-choice:hover *, .custom-choice.focused * {
+.choice:hover *, .choice.focused *, .choice:hover .date, .custom-choice:hover *, .custom-choice.focused *, .custom-choice.focused + .repeat-container span {
 	color: #FFF !important;
 }
 
@@ -263,12 +263,15 @@ body.dark .choice .date {
 	padding-top: 0px;
 	padding-bottom: 0px;
 	justify-content: unset;
+	width: 100%;
 	max-width: 21.5em;
 	overflow-x: hidden;
 }
-
-.custom-choice > div {
-	flex-basis: 48.8%;
+.custom-choice > div:first-of-type {
+	flex-basis: 40%;
+}
+.custom-choice > div:last-of-type {
+	flex-basis: calc(60% - .25rem);
 }
 .custom-info {
 	display: flex;
@@ -305,13 +308,29 @@ body.dark .choice .date {
 	touch-action: none;
 	opacity: 0.2;
 }
+.repeat-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	justify-content: flex-end;
+	pointer-events: none;
+	touch-action: none;
+}
+.repeat-choice label {
+	pointer-events: initial;
+	touch-action: initial;
+}
 
 .choice:hover, .choice.focused, .custom-choice:hover, .custom-choice.focused, .choice:focus-within, .custom-choice:focus-within {
 	background-color: var(--bg) !important;
 }
 .choice.focused, .custom-choice.focused {
-	transition: background-color 0s linear;
 	cursor: default;
+}
+.choice.focused {
+	transition: background-color 0s linear;
 }
 
 body.dark #preview, body.dark .choice, body.dark .custom-choice, body.dark .form-overlay {

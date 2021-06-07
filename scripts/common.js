@@ -269,70 +269,105 @@ async function getChoices(which) {
 	var all = {
 		'startup': {
 			label: 'On Next Startup',
+			repeatLabel: 'Every Browser Startup',
 			startUp: true,
 			time: NOW.add(20, 'y'),
-			timeString: ' ',
+			timeString: '',
+			repeatTime: '',
+			repeatTimeString: '',
 			menuLabel: 'till next startup'
 		},
 		'in-an-hour': {
 			label: 'In One Hour',
+			repeatLabel: 'Every hour',
 			time: NOW.add(1, 'h'),
 			timeString: NOW.add(1, 'h').dayOfYear() == NOW.dayOfYear() ? 'Today' : 'Tomorrow',
+			repeatTime: NOW.add(1, 'h').format(getHourFormat(true)),
+			repeatTimeString: `Starts at`,
+			repeat: {operation: 'add', amount: 1, type: 'h'},
 			menuLabel: 'for an hour'
 		},
 		'today-morning': {
 			label: 'This Morning',
+			repeatLabel: '-',
 			time: NOW.startOf('d').add(config.morning, 'h'),
 			timeString: 'Today',
+			repeatTime: '',
+			repeatTimeString: '',
 			disabled: NOW.startOf('d').add(config.morning, 'h').valueOf() < dayjs(),
+			repeatDisabled: true,
 			menuLabel: 'till this morning'
 		},
 		'today-evening': {
 			label: 'This Evening',
+			repeatLabel: 'Everyday',
 			time: NOW.startOf('d').add(config.evening, 'h'),
 			timeString: 'Today',
+			repeatTime: NOW.format(getHourFormat(true)),
+			repeatTimeString: 'Starts Tom At',
+			repeat: {operation: 'add', amount: 1, type: 'h'},
 			disabled: NOW.startOf('d').add(config.evening, 'h').valueOf() < dayjs(),
 			menuLabel: 'till this evening'
 		},
 		'tom-morning': {
 			label: 'Tomorrow Morning',
+			repeatLabel: 'Every Morning',
 			time: NOW.startOf('d').add(1,'d').add(config.morning, 'h'),
 			timeString: NOW.add(1,'d').format('ddd, D MMM'),
+			repeatTime: NOW.startOf('d').add(config.morning, 'h').format(getHourFormat(true)),
 			menuLabel: 'till tomorrow morning'
 		},
 		'tom-evening': {
 			label: 'Tomorrow Evening',
+			repeatLabel: 'Every Evening',
 			time: NOW.startOf('d').add(1,'d').add(config.evening, 'h'),
 			timeString: NOW.add(1,'d').format('ddd, D MMM'),
+			repeatTime: NOW.startOf('d').add(config.evening, 'h').format(getHourFormat(true)),
 			menuLabel: 'till tomorrow evening'
 		},
 		'weekend': {
 			label: 'Weekend',
+			repeatLabel: 'Every Weekend',
 			time: NOW.startOf('d').weekday(6).add(config.timeOfDay, 'h'),
 			timeString: NOW.weekday(6).format('ddd, D MMM'),
-			disabled: NOW.day() === 6,
+			repeatTime: NOW.startOf('d').add(config.timeOfDay, 'h').format(getHourFormat(true)),
+			repeatTimeString: `${NOW.weekday(6).format('ddd')} at`,
+			disabled: NOW.day() === 5,
 			menuLabel: 'till the weekend'
 		},
 		'monday': {
 			label: 'Next Monday',
+			repeatLabel: 'Every Monday',
 			time: NOW.startOf('d').weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8).add(config.timeOfDay, 'h'),
 			timeString: NOW.weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8).format('ddd, D MMM'),
+			repeatTime: NOW.startOf('d').add(config.timeOfDay, 'h').format(getHourFormat(true)),
+			repeatTimeString: `${NOW.weekday(1).format('ddd')} at`,
 			menuLabel: 'till next Monday'
 		},
 		'week': {
 			label: 'Next Week',
+			repeatLabel: 'Every week',
 			time: NOW.startOf('d').add(1, 'week').add(config.timeOfDay, 'h'),
 			timeString: NOW.startOf('d').add(1, 'week').add(config.timeOfDay, 'h').format('D MMM'),
+			repeatTime: NOW.format(getHourFormat(true)),
+			repeatTimeString: `${NOW.format('ddd')} at` ,
 			menuLabel: 'for a week'
 		},
 		'month': {
 			label: 'Next Month',
+			repeatLabel: 'Every Month',
 			time: NOW.startOf('d').add(1, 'M').add(config.timeOfDay, 'h'),
 			timeString: NOW.startOf('d').add(1, 'M').add(config.timeOfDay, 'h').format('D MMM'),
+			repeatTime: NOW.format(getHourFormat(true)),
+			repeatTimeString: `${NOW.format('Do')} of Month`,
 			menuLabel: 'for a month'
 		},
 	}
 	return which && all[which] ? all[which] : all;
+}
+
+async function calculateNextSnoozeTime(choice, startTime) {
+	console.log(choice, startTime);
 }
 
 /* END ASYNC FUNCTIONS */

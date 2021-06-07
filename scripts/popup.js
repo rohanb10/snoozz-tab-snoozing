@@ -33,6 +33,7 @@ async function init() {
 		var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear() && dayjs(t.wakeUpTime).year() == dayjs().year()).length;
 		if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount);
 	}
+	document.getElementById('repeat').addEventListener('change', toggleRepeat);
 
 	document.addEventListener('keyup', e => {
 		if (e.which >= 48 && e.which <= 56 && !document.querySelector('.form-overlay').classList.contains('show')) {
@@ -61,6 +62,20 @@ async function initEditMode() {
 	var t = await getSnoozedTabs(getUrlParam('tabId'));
 	document.getElementById('preview-text').innerText = t.title;
 	document.getElementById('preview-favicon').src = t.tabs ? '../icons/window.png' : t.favicon && t.favicon.length ? t.favicon : getFaviconUrl(t.url);
+}
+async function toggleRepeat(e) {
+	var repeat = e.target.checked;
+	var choices = await getChoices();
+	Object.entries(choices).forEach(([name, o]) => {
+		var c = document.getElementById(name);
+
+		c.classList.toggle('disabled', ((!repeat && !!o.disabled) || (repeat && !!o.repeatDisabled)))
+		c.classList.toggle('always-disabled', ((!repeat && !!o.disabled) || (repeat && !!o.repeatDisabled)))
+
+		c.querySelector('.label').innerText = repeat ? o.repeatLabel : o.label;
+		if (!o.startUp) c.querySelector('.date').innerText = repeat ? (o.repeatTimeString || '') : o.timeString;
+		if (!o.startUp) c.querySelector('.time').innerText = repeat ? (o.repeatTime || '') : dayjs(o.time).format(`${getHourFormat(dayjs(o.time).minute() !== 0)}`);
+	});
 }
 
 async function buildTargets() {
@@ -220,18 +235,18 @@ async function buildCustomChoice() {
 		onclick: _ => {
 			customChoice.classList.add('focused');
 			document.querySelectorAll('.choice').forEach(c => {c.classList.add('disabled');c.setAttribute('tabindex','-1')});
-			// document.querySelector('.popup-checkbox input').setAttribute('tabindex', '-1');
+			document.querySelector('.popup-checkbox input').setAttribute('tabindex', '-1');
 			document.querySelector('.form-overlay').classList.add('show')
 		}
 	}, wrapInDiv('', icon, label), wrapInDiv('custom-info', wrapInDiv('display', wrapInDiv('date-display'), wrapInDiv('time-display')), submitButton));
-	document.querySelector('.section.choices').after(customChoice);
+	document.querySelector('.section.special-choices').prepend(customChoice);
 
 
 	// attach listeners
 	document.querySelector('.overlay-close-btn').addEventListener('click', _ => {
 		customChoice.classList.remove('focused');
 		document.querySelectorAll('.choice').forEach(c => {c.classList.remove('disabled');c.setAttribute('tabindex','0')});
-		// document.querySelector('.popup-checkbox input').setAttribute('tabindex', '0');
+		document.querySelector('.popup-checkbox input').setAttribute('tabindex', '0');
 		document.querySelector('.form-overlay').classList.remove('show');
 	})
 	document.querySelectorAll('.action').forEach(action => action.addEventListener('click', function(e) {
@@ -270,6 +285,10 @@ async function modify(time, choice) {
 }
 
 async function snooze(time, choice) {
+	if (document.getElementById('repeat').checked) {
+		var time = await calculateRepeatSnoozeTime(choice.id, time)
+		return 
+	}
 	if (isInEditMode) return modify(time, choice);
 	var target = document.querySelector('.target.active');
 	if (!['tab', 'window', 'selection', 'group'].includes(target.id)) return;
