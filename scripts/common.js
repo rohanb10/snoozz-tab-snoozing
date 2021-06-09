@@ -82,8 +82,9 @@ async function createAlarm(when, willWakeUpATab) {
 	bgLog(['Next Alarm at', dayjs(when).format('HH:mm:ss DD/MM/YY')], ['', willWakeUpATab ? 'yellow':'white'])
 	await chrome.alarms.create('wakeUpTabs', {when});
 }
-async function createNotification(id, title, imgUrl, message) {
-	if (!chrome.notifications) return;
+async function createNotification(id, title, imgUrl, message, force) {
+	var n = typeof SAVED_OPTIONS !== 'undefined' && SAVED_OPTIONS.notifications ? SAVED_OPTIONS.notifications : await getOptions('notifications');
+	if (!chrome.notifications || (n && n === 'off' && !force)) return;
 	await chrome.notifications.create(id, {type: 'basic', iconUrl: chrome.extension.getURL(imgUrl), title, message});
 }
 async function createWindow(tabId) {

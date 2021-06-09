@@ -2,6 +2,7 @@ async function initialize() {
 	document.querySelector('.nap-room').addEventListener('keyup', e => {if (e.which === 13) openExtensionTab('/html/nap-room.html')})
 	document.querySelector('.nap-room').addEventListener('click', _ => openExtensionTab('/html/nap-room.html'));
 	showIconOnScroll();
+	madeWith()
 
 	if (window.location.hash) {
 		if (document.getElementById(window.location.hash.slice(1))) highlightSetting(window.location.hash.slice(1))
@@ -64,7 +65,7 @@ async function calculateStorage() {
 }
 
 function updateFormValues(storage) {
-	['morning', 'evening', 'timeOfDay', 'history', 'icons', 'theme', 'badge', 'closeDelay'].forEach(o => {
+	['morning', 'evening', 'timeOfDay', 'history', 'icons', 'theme', 'notifications', 'badge', 'closeDelay'].forEach(o => {
 		if (storage[o] !== undefined && document.querySelector(`#${o} option[value="${storage[o]}"]`)) {
 			document.getElementById(o).value = storage[o].toString()
 			document.getElementById(o).setAttribute('data-orig-value', storage[o]);
@@ -183,6 +184,7 @@ async function resetSettings() {
 		hourFormat: 12,
 		icons: 'human',
 		theme: 'light',
+		notifications: 'on',
 		history: 14,
 		badge: 'today',
 		closeDelay: 1000,
@@ -242,6 +244,11 @@ async function importTabs(e) {
 		document.querySelector('body > .import-fail').classList.add('toast');
 		setTimeout(_ => document.querySelector('body > .import-fail').remove('toast'), 4000)
 	}
+}
+
+function madeWith() {
+	var emojis = ['🥭', '🌶️', '🍛', '🐅', '🐘', '🦚', '🍄', '☔', '🏏', '🚃', '🛺', '🪁', '🪔'];
+	document.querySelector('.emoji').innerText = emojis[[Math.floor(Math.random() * emojis.length)]];
 }
 
 window.onload = initialize

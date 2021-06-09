@@ -16,7 +16,7 @@
 	</div>
 	<div tabindex="0" class="nap-room" data-href="/html/nap-room.html" data-hover="See your sleeping tabs"><img data-href="/html/nap-room.html" src="../icons/human/nap-room.png"></div>
 	<div class="settings-container">
-		<h2><span>Settings</span></h2><br>
+		<h2 class="center"><span>Settings</span></h2><br>
 		<div class="input-container flex">
 			<div>
 				<h4>Morning time</h4>
@@ -105,6 +105,16 @@
 			<div class="select-wrapper"><select id="theme">
 				<option value="light">Light</option>
 				<option value="dark">Dark</option>
+			</select></div>
+		</div>
+		<div class="input-container flex">
+			<div>
+				<h4>Snoozz Notifications</h4>
+				<p>Choose to see browser notifcations for tabs and windows waking up.</p>
+			</div>
+			<div class="select-wrapper"><select id="notifications">
+				<option value="on">Enabled</option>
+				<option value="off">Disabled</option>
 			</select></div>
 		</div>
 		<div class="input-container flex">
@@ -208,8 +218,8 @@
 			<div>
 				<h4>Manage Snoozz Data</h4>
 				<p>Import or Export tabs from this device.</p>
-				<p>No data will be lost during data transfer.</p>
-				<p>Any duplicate tabs will be combined with your existing data.</p>
+				<p>No data will be deleted when you peform this action.</p>
+				<p>Any duplicate tabs will be intelligently combined with your existing data.</p>
 			</div>
 			<div class="flex">
 				<input type="file" accept="text/plain" id="import_hidden">
@@ -218,13 +228,13 @@
 			</div>
 		</div>
 		<div class="reset-container center">
-			<a tabindex="0" id="reset">reset settings</a>
+			<a tabindex="0" id="reset">reset settings to default</a>
 		</div>
 	</div><br>
-	<div class="about-container">
+	<div class="about-container center">
 		<h2><span>About</span></h2>
 		<p id="version"></p>
-		<div class="flex">
+		<div class="flex links">
 			<span><a target='_blank' href="https://snoozz.me/">snooozz.me</a></span>
 			<span><a target='_blank' href="https://github.com/rohanb10/snoozz-tab-snoozing/">github</a></span>
 			<span><a target='_blank' href="https://snoozz.me/changelog.html">changelog</a></span>
@@ -233,9 +243,10 @@
 			<span><a target='_blank' href="https://snoozz.me/attribution.html">attribution</a></span>
 			<span><a target='_blank' href="https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/LICENSE">license</a></span>
 		</div>
-		<div>
-			<span>Built by <a target='blank' href="https://rohan.xyz">rohan</a> in 2020/21.</span>
-			<span><a target="_blank" href="https://www.buymeacoffee.com/rohanb10">Buy me a beer</a><big>🍺</big></span>
+		<div class="flex me">
+			<span><span class="fake-emoji">&nbsp;</span>Developed by <a target='blank' href="https://rohan.xyz">rohan</a></span>
+			<span>Built with <span class="emoji"></span> in Mumbai</span>
+			<span><a target="_blank" href="https://www.buymeacoffee.com/rohanb10">Donate</a> to Snoozz<span class="fake-emoji">&nbsp;</span></span>
 		</div>
 	</div>
 	<div class="copied">Copied to clipboard</div>
