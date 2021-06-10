@@ -65,7 +65,7 @@ async function calculateStorage() {
 }
 
 function updateFormValues(storage) {
-	['morning', 'evening', 'timeOfDay', 'history', 'icons', 'theme', 'notifications', 'badge', 'closeDelay'].forEach(o => {
+	['morning', 'evening', 'timeOfDay', 'history', 'icons', 'theme', 'notifications', 'badge', 'closeDelay', 'polling'].forEach(o => {
 		if (storage[o] !== undefined && document.querySelector(`#${o} option[value="${storage[o]}"]`)) {
 			document.getElementById(o).value = storage[o].toString()
 			document.getElementById(o).setAttribute('data-orig-value', storage[o]);
@@ -188,6 +188,7 @@ async function resetSettings() {
 		history: 14,
 		badge: 'today',
 		closeDelay: 1000,
+		polling: 'on',
 		contextMenu: ['today-evening', 'tom-morning', 'tom-evening', 'weekend', 'monday']
 	}
 	await saveOptions(defaultOptions);

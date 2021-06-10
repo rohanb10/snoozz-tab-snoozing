@@ -1,6 +1,10 @@
 var SAVED_OPTIONS;
-chrome.runtime.onMessage.addListener(msg => {
-	if (msg.logOptions) sendToLogs(msg.logOptions)
+chrome.runtime.onMessage.addListener(async msg => {
+	if (msg.logOptions) sendToLogs(msg.logOptions);
+	if (msg.poll && (navigator && navigator.onLine)) {
+		var p = SAVED_OPTIONS && SAVED_OPTIONS.polling ? SAVED_OPTIONS.polling : await getOptions('polling');
+		if (p !== 'off') poll(msg.poll);
+	}
 	if (msg.close) setTimeout(_ => {
 		if (msg.tabId) chrome.tabs.remove(msg.tabId);
 		if (msg.windowId) chrome.windows.remove(msg.windowId);
@@ -124,10 +128,9 @@ async function snoozeInBackground(item, tab) {
 	// add attributes
 	var startUp = item.menuItemId == 'startup' ? true : undefined;
 	var title = !isHref ? tab.title : (item.linkText ? item.linkText : item.selectionText);
-	var favIconUrl = !isHref ? tab.favIconUrl : undefined;
 	var wakeUpTime = snoozeTime.valueOf();
 	var pinned = !isHref && tab.pinned ? tab.pinned : undefined;
-	var assembledTab = Object.assign(item, {url, title, favIconUrl, pinned, startUp, wakeUpTime})
+	var assembledTab = Object.assign(item, {url, title, pinned, startUp, wakeUpTime})
 
 	var snoozed = await snoozeTab(item.menuItemId == 'startup' ? 'startup' : snoozeTime.valueOf(), assembledTab);
 	
@@ -169,6 +172,7 @@ async function setUpExtension() {
 		theme: 'light',
 		badge: 'today',
 		closeDelay: 1000,
+		polling: 'on',
 		contextMenu: ['startup', 'in-an-hour', 'today-evening', 'tom-morning', 'weekend']
 	}, options));
 	await init();

@@ -60,7 +60,7 @@ async function initEditMode() {
 	document.querySelector('.footer').remove();
 	var t = await getSnoozedTabs(getUrlParam('tabId'));
 	document.getElementById('preview-text').innerText = t.title;
-	document.getElementById('preview-favicon').src = t.tabs ? '../icons/window.png' : t.favicon && t.favicon.length ? t.favicon : getFaviconUrl(t.url);
+	document.getElementById('preview-favicon').src = t.tabs ? '../icons/window.png' : getFaviconUrl(t.url);
 }
 
 async function buildTargets() {
@@ -265,7 +265,7 @@ async function modify(time, choice) {
 	if (parent && parent.deleteTabFromDiv) parent.deleteTabFromDiv(getUrlParam('tabId'))
 	var response = await editSnoozeTime(getUrlParam('tabId'), time);
 	if (!response || !response.edited) return;
-	displayPreviewAnimation(choice, 'Going back to sleep');
+	await displayPreviewAnimation(choice, 'Going back to sleep');
 	if (parent && parent.closeEditModal) setTimeout(_ => parent.closeEditModal(), closeDelay);
 }
 
@@ -281,15 +281,14 @@ async function snooze(time, choice) {
 		response = await snoozeWindow(time);
 	} else if (target.id == 'selection') {
 		response = await snoozeSelectedTabs(time);
-	// } else if (target.id == 'group') {
-	// 	response = await snoozeGroupedTabs(time);
 	}
 	if (response && !(response.tabId || response.windowId)) return;
 	await chrome.runtime.sendMessage(Object.assign(response, {close: true, delay: closeDelay}));
-	displayPreviewAnimation(choice, `Snoozing ${target.id}`)
+	await displayPreviewAnimation(choice, `Snoozing ${target.id}`)
 }
 
-function displayPreviewAnimation(choice, text = 'Snoozing') {
+async function displayPreviewAnimation(choice, text = 'Snoozing') {
+	await chrome.runtime.sendMessage({poll: choice.querySelector('.label').innerText});
 	document.body.style.pointerEvents = 'none';
 	choice.classList.add('focused');
 	var preview = document.getElementById('preview');

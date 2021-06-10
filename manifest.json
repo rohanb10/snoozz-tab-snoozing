@@ -2,7 +2,7 @@
 	"name": "Snoozz - Snooze Tabs & Windows for later",
 	"short_name": "Snoozz",
 	"description": "Declutter your browser by snoozing tabs and windows until you actually need them.",
-	"version": "2.4.2.1",
+	"version": "2.4.3",
 	
 	"icons": {
 		"128": "icons/ext-icon-128.png",
@@ -22,7 +22,7 @@
 	},
 	
 	"background": {
-		"scripts": ["scripts/dayjs.min.js", "scripts/common.js", "scripts/background.js"]
+		"scripts": ["scripts/dayjs.min.js", "scripts/common.js", "scripts/poll.js", "scripts/background.js"]
 	},
 
 	"permissions": ["alarms", "contextMenus", "idle", "notifications", "storage", "tabs"],

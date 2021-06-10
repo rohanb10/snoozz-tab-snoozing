@@ -9,7 +9,16 @@ PRs and other ideas are welcome.
 
 ## Changes ##
 
+**June 2021**
+#### 2.4.3
+- Enable / Disable notifications from the settings page
+- Stop saving favicons in storage and lazily fetch them instead via DuckDuckGo when displaying in the Nap Room
+- Count selected choices and display data publicly on [stats.snoozz.me](https://stats.snoozz.me/share/zUOLA2QP/Choice%20Count?view=event)
+
 **May 2021**
+#### 2.4.2.1
+- Bug fixes in the Nap Room
+
 #### 2.4.2 
 - Introducing Icon Themes - Starting with a shiny new Animal theme. Change your theme on the Settings page.
 - Setting to choose between 12 Hour / 24 Hour time formats
