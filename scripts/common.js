@@ -196,7 +196,6 @@ async function snoozeTab(snoozeTime, overrideTab) {
 		id: [...Array(16)].map(() => Math.random().toString(36)[2]).join(''),
 		title: activeTab.title ?? getBetterUrl(activeTab.url),
 		url: activeTab.url,
-		favicon: activeTab.favIconUrl && activeTab.favIconUrl.length < 150 ? activeTab.favIconUrl : '',
 		...activeTab.pinned ? {pinned: true} : {},
 		wakeUpTime: snoozeTime == 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
@@ -237,7 +236,6 @@ async function snoozeWindow(snoozeTime, isAGroup) {
 		tabs: validTabs.map(t => ({
 			title: t.title,
 			url: t.url,
-			favicon: t.favIconUrl && t.favIconUrl.length < 150 ? t.favIconUrl : '',
 			...t.pinned ? {pinned: true} : {}
 		}))
 	});
@@ -338,7 +336,7 @@ async function getChoices(which) {
 
 /* END ASYNC FUNCTIONS */
 
-var getFaviconUrl = url => `https://www.google.com/s2/favicons?sz=32&domain=${getHostname(url)}`
+var getFaviconUrl = url => `https://icons.duckduckgo.com/ip3/${getHostname(url)}.ico`
 
 var getHostname = url => Object.assign(document.createElement('a'), {href: url}).hostname;
 

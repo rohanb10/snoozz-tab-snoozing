@@ -1,5 +1,5 @@
 const TIME_GROUPS = ['Next Startup', 'Today', 'Tomorrow', 'This Week', 'Next Week', 'Later', 'History'];
-var HISTORY = -1, CACHED_TABS = [], ticktock, colorList = [];
+var HISTORY = -1, CACHED_TABS = [], ticktock, colorList = [], observer;
 async function init() {
 	colorList = gradientSteps('#F3B845', '#DF4E76', TIME_GROUPS.length - 1);
 	colorList.push('');
@@ -7,6 +7,8 @@ async function init() {
 	document.querySelector('.settings').addEventListener('click', _ => openExtensionTab('/html/settings.html'), {once:true})
 	showIconOnScroll();
 	setupClock();
+
+	observer = lozad();
 
 	chrome.storage.onChanged.addListener(async changes => {
 		if (changes.snoozed) {
@@ -33,7 +35,12 @@ async function init() {
 	CACHED_TABS = await getSnoozedTabs();
 	HISTORY = await getOptions('history');
 
+	window.addEventListener('error', function(e) {
+	    console.log(e);
+	}, true);
+
 	buildTimeGroups();
+	observer.observe();
 
 	if (getBrowser() === 'safari') await chrome.runtime.getBackgroundPage(async bg => {await bg.wakeUpTask()});
 }
@@ -76,7 +83,8 @@ function updateTabs() {
 			insertIntoCorrectPosition(t)
 		}
 	})
-	updateTimeGroups()
+	updateTimeGroups();
+	observer.observe();
 }
 function insertIntoCorrectPosition(t, alreadyExists = false) {
 	var tab = alreadyExists ? document.getElementById(t.id) : buildTab(t);
@@ -248,11 +256,11 @@ function buildTab(t) {
 	var tab = wrapInDiv({className:`tab${t.tabs ? ' window collapsed':''}`, id: t.id});
 
 	var icon = Object.assign(document.createElement('img'), {
-		className: `icon ${t.tabs ? 'dropdown':''}`,
-		src: getIconForTab(t),
+		className: `icon lozad ${t.tabs ? 'dropdown':''}`,
 		tabIndex: t.tabs ? 0 : -1,
 	});
 	icon.onerror = _ => icon.src = '../icons/unknown.png';
+	icon.setAttribute('data-src', getIconForTab(t));
 	var iconContainer = wrapInDiv('icon-container', icon);
 
 	var title = wrapInDiv({className: 'tab-name', innerText: t.title, title: t.url ?? ''});
@@ -267,8 +275,9 @@ function buildTab(t) {
 	if (t.tabs && t.tabs.length) {
 		littleTabs = wrapInDiv('tabs');
 		t.tabs.forEach(lt => {
-			var littleIcon = Object.assign(document.createElement('img'), {className: 'little-icon', src: getIconForTab(lt)});
+			var littleIcon = Object.assign(document.createElement('img'), {className: 'little-icon'});
 			littleIcon.onerror = _ => littleIcon.src = '../icons/unknown.png';
+			littleIcon.src = getIconForTab(lt);
 			var littleTitle = wrapInDiv({className: 'tab-name', innerText: lt.title});
 			var littleTab = wrapInDiv({className: 'little-tab', tabIndex: 0}, littleIcon, littleTitle);
 			littleTab.onclick = _ => openTab(lt);
@@ -292,7 +301,7 @@ function buildTab(t) {
 	return tab;
 }
 
-var getIconForTab = t => t.tabs && t.tabs.length ? '../icons/dropdown.svg': (t.favicon && t.favicon !== '' ? t.favicon : getFaviconUrl(t.url));
+var getIconForTab = t => t.tabs && t.tabs.length ? '../icons/dropdown.svg' : getFaviconUrl(t.url);
 
 function getTimeGroup(tab, timeType = 'wakeUpTime', searchQuery = false) {
 	if (!searchQuery && tab.opened) return 'history';
