@@ -195,7 +195,7 @@ async function buildCustomChoice() {
 		if (getDateTime() < now) reset()
 		time.set('minTime', getDateTime().dayOfYear() == now.dayOfYear() ? now.format('HH:mm') : null);
 		document.querySelector('.date-display').innerText = dayjs(date.selectedDates).format('ddd, D MMM');
-		document.querySelector('.time-display').innerText = dayjs(time.selectedDates).format(getHourFormat());
+		document.querySelector('.time-display').innerText = dayjs(time.selectedDates).format(getHourFormat(true));
 		document.querySelector('.submit-btn').classList.toggle('disabled', getDateTime() <= now);
 		return getDateTime() > now;
 	}
@@ -214,6 +214,7 @@ async function buildCustomChoice() {
 	var icon = Object.assign(document.createElement('img'), {src: `../icons/${iconTheme}/custom.png`})
 	var label = wrapInDiv({classList: 'label', innerText: 'Choose your own time'})
 	var customChoice = wrapInDiv({
+		id: 'custom',
 		classList: 'custom-choice',
 		style: `--bg: ${colorList[colorList.length - 1]}`,
 		tabIndex: 0,
@@ -288,7 +289,7 @@ async function snooze(time, choice) {
 }
 
 async function displayPreviewAnimation(choice, text = 'Snoozing') {
-	await chrome.runtime.sendMessage({poll: choice.querySelector('.label').innerText});
+	await chrome.runtime.sendMessage({poll: choice.id});
 	document.body.style.pointerEvents = 'none';
 	choice.classList.add('focused');
 	var preview = document.getElementById('preview');
