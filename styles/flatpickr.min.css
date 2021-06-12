@@ -33,13 +33,14 @@
 .f-months .f-next-month.f-next-month {
   right: 0;
 }
-.f-months .f-prev-month:hover,
-.f-months .f-next-month:hover {
+.f-months .f-prev-month,
+.f-months .f-next-month {
   color: #959ea9;
+  transform: scaleY(1.5) translateY(-5px);
 }
-.f-months .f-prev-month:hover svg,
-.f-months .f-next-month:hover svg {
-  fill: #DF4E76;
+.f-months .f-prev-month:hover ,
+.f-months .f-next-month:hover  {
+  color: #DF4E76;
 }
 .f-months .f-prev-month svg,
 .f-months .f-next-month svg {
