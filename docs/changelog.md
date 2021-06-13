@@ -13,7 +13,8 @@ PRs and other ideas are welcome.
 #### 2.4.3
 - Enable / Disable notifications from the settings page
 - Stop saving favicons in storage and lazily fetch them instead via DuckDuckGo when displaying in the Nap Room
-- Count selected choices and display data publicly on [stats.snoozz.me](https://stats.snoozz.me/share/zUOLA2QP/Choice%20Count?view=event)
+- Count selected choices and display data publicly on [Snoozz Stats](https://snoozz.me/stats.html)
+- Reduce overall file size
 
 **May 2021**
 #### 2.4.2.1
