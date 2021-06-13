@@ -25,7 +25,7 @@ async function init() {
 		chrome.tabs.onActivated.addListener(_ => setTimeout(_ => window.close(), 50))
 		chrome.runtime.onMessage.addListener(msg => {if (msg.closePopup) window.close()});
 	}
-	if (getBrowser() === 'safari') await chrome.runtime.getBackgroundPage(async bg => {await bg.wakeUpTask()});
+	if (getBrowser() === 'safari') chrome.runtime.sendMessage({wakeUp: true});
 
 	closeDelay = await getOptions('closeDelay');
 	var tabs = await getSnoozedTabs();
@@ -77,8 +77,8 @@ async function buildTargets() {
 	document.getElementById('window').classList.toggle('disabled', !isWindowValid);
 	var isSelectionValid = getBrowser() !== 'safari' && validTabs.length > 1 && activeTab.highlighted && validTabs.filter(t => t.highlighted).length > 1;
 	document.getElementById('selection').classList.toggle('disabled', !isSelectionValid);
-	var isGroupValid = false && getBrowser() === 'chrome' && validTabs.length > 1 && activeTab.groupId && activeTab.groupId != -1 && validTabs.filter(vt => vt.groupId && vt.groupId != activeTab.groupId).length > 1
-	document.getElementById('group').classList.toggle('disabled', !isGroupValid);
+	// var isGroupValid = false && getBrowser() === 'chrome' && validTabs.length > 1 && activeTab.groupId && activeTab.groupId != -1 && validTabs.filter(vt => vt.groupId && vt.groupId != activeTab.groupId).length > 1
+	// document.getElementById('group').classList.toggle('disabled', !isGroupValid);
 
 	document.querySelectorAll('.target').forEach(t => t.tabIndex = t.classList.contains('disabled') ? -1 : 0);
 	document.querySelectorAll('.target').forEach(t => t.addEventListener('keyup', e => { if (e.which == 13) t.click() }));
@@ -115,11 +115,13 @@ async function generatePreview(type) {
 	if (!iconTheme) iconTheme = 'human';
 
 	var allTabs = await getTabsInWindow();
-	if (!allTabs || !allTabs.length) return;
+	if (!allTabs || allTabs.length == 0) return;
+	if (allTabs.length === undefined) allTabs = [allTabs];
 	
 	if (type == 'tab') {
-		previewText.innerText = allTabs.find(at => at.active).title;
-		previewIcon.src = allTabs.find(at => at.active).favIconUrl ? allTabs.find(at => at.active).favIconUrl : '../icons/unknown.png';
+		var a = allTabs.find(at => at.active)
+		previewText.innerText = a.title;
+		previewIcon.src = a.favIconUrl ? a.favIconUrl : (getBrowser() === 'safari' ? getFaviconUrl(a.url) : '../icons/unknown.png');
 	} else if (type == 'window') {
 		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t));
 		previewText.innerText = `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`;

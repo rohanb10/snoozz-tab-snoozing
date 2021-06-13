@@ -5,6 +5,7 @@ chrome.runtime.onMessage.addListener(async msg => {
 		var p = SAVED_OPTIONS && SAVED_OPTIONS.polling ? SAVED_OPTIONS.polling : await getOptions('polling');
 		if (p !== 'off') poll(msg.poll);
 	}
+	if (msg.wakeUp) await wakeUpTask();
 	if (msg.close) setTimeout(_ => {
 		if (msg.tabId) chrome.tabs.remove(msg.tabId);
 		if (msg.windowId) chrome.windows.remove(msg.windowId);
@@ -24,7 +25,7 @@ chrome.storage.onChanged.addListener(async changes => {
 	}
 });
 
-chrome.notifications.onClicked.addListener(async id => {
+if (chrome.notifications) chrome.notifications.onClicked.addListener(async id => {
 	await chrome.notifications.clear(id)
 	var t = await getSnoozedTabs(id);
 	if (t && t.id && id && id.length) {
@@ -119,11 +120,11 @@ async function snoozeInBackground(item, tab) {
 	
 	var isHref = item.linkUrl && item.linkUrl.length;
 	var url = isHref ? item.linkUrl : item.pageUrl;
-	if(!isValid({url})) return createNotification(null, `Can't snoozz that :(`, 'icons/main-icon.png', 'The link you are trying to snooze is invalid.', true);
+	if(!isValid({url})) return createNotification(null, `Can't snoozz that :(`, 'icons/logo.svg', 'The link you are trying to snooze is invalid.', true);
 
 	var snoozeTime = c && c.time;
 	if (!snoozeTime || c.disabled || dayjs().isAfter(dayjs(snoozeTime))) {
-		return createNotification(null, `Can't snoozz that :(`, 'icons/main-icon.png', 'The time you have selected is invalid.', true);
+		return createNotification(null, `Can't snoozz that :(`, 'icons/logo.svg', 'The time you have selected is invalid.', true);
 	}
 	// add attributes
 	var startUp = item.menuItemId == 'startup' ? true : undefined;
@@ -135,7 +136,7 @@ async function snoozeInBackground(item, tab) {
 	var snoozed = await snoozeTab(item.menuItemId == 'startup' ? 'startup' : snoozeTime.valueOf(), assembledTab);
 	
 	var msg = `${!isHref ? tab.title : getHostname(url)} will wake up ${formatSnoozedUntil(assembledTab)}.`
-	createNotification(snoozed.tabDBId, 'A new tab is now napping :)', 'icons/main-icon.png', msg, true);
+	createNotification(snoozed.tabDBId, 'A new tab is now napping :)', 'icons/logo.svg', msg, true);
 
 	if (!isHref) await chrome.tabs.remove(tab.id);
 	await chrome.runtime.sendMessage({updateDash: true});

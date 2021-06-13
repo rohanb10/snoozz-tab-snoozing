@@ -144,7 +144,7 @@ async function openTab(tab, windowId, automatic = false) {
 	}
 	if (!automatic) return;
 	var msg = `${tab.title} -- snoozed ${dayjs(tab.timeCreated).fromNow()}`;
-	createNotification(tab.id, 'A tab woke up!', 'icons/main-icon.png', msg);
+	createNotification(tab.id, 'A tab woke up!', 'icons/logo.svg', msg);
 }
 
 async function openWindow(t, automatic = false) {
@@ -172,7 +172,7 @@ async function openWindow(t, automatic = false) {
 	
 	if (!automatic) return;
 	var msg = `This window was put to sleep ${dayjs(t.timeCreated).fromNow()}`;
-	createNotification(t.id, 'A window woke up!', 'icons/main-icon.png', msg);
+	createNotification(t.id, 'A window woke up!', 'icons/logo.svg', msg);
 	return;
 }
 

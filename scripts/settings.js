@@ -43,7 +43,7 @@ async function initialize() {
 		setTimeout(_ => document.querySelector('body > .copied').classList.remove('toast'), 4000)
 	});
 
-	if (getBrowser() === 'safari') await chrome.runtime.getBackgroundPage(async bg => {await bg.wakeUpTask()});
+	if (getBrowser() === 'safari') chrome.runtime.sendMessage({wakeUp: true});
 }
 function highlightSetting(name, condition) {
 	var el = document.getElementById(name).closest('.input-container');
@@ -189,7 +189,7 @@ async function resetSettings() {
 		badge: 'today',
 		closeDelay: 1000,
 		polling: 'on',
-		contextMenu: ['today-evening', 'tom-morning', 'tom-evening', 'weekend', 'monday']
+		contextMenu: ['startup', 'in-an-hour', 'today-evening', 'tom-morning', 'weekend']
 	}
 	await saveOptions(defaultOptions);
 	updateFormValues(defaultOptions);

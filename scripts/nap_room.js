@@ -42,7 +42,7 @@ async function init() {
 	buildTimeGroups();
 	observer.observe();
 
-	if (getBrowser() === 'safari') await chrome.runtime.getBackgroundPage(async bg => {await bg.wakeUpTask()});
+	if (getBrowser() === 'safari') chrome.runtime.sendMessage({wakeUp: true});
 }
 
 function setupClock() {
@@ -97,7 +97,7 @@ function insertIntoCorrectPosition(t, alreadyExists = false) {
 		});
 		group.insertBefore(tab, Array.from(allTabs)[index]);
 	} else {
-		group.append(tab);
+		try {group.append(tab)}catch(e){}
 	}
 	buildTabActions(t, tab)
 }
@@ -329,7 +329,7 @@ function openEditModal(tabId) {
 	iframe.setAttribute('scrolling', 'no');
 	overlay.append(iframe);
 	overlay.classList.add('open');
-	setTimeout(_ => iframe.contentWindow.focus(), 100);
+	setTimeout(_ => {try {iframe.contentWindow.focus()} catch(e){}}, 200);
 	bodyScrollFreezer.freeze();
 	overlay.addEventListener('click', closeOnOutsideClick, {once: true});
 	document.addEventListener('keyup', closeOnOutsideClick);
