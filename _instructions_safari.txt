@@ -1,0 +1,16 @@
+Requirements:
+-	MacOS 10.14.6+
+-	Xcode 12+ (and Command Line Tools for Xcode)
+-	Safari 14+
+
+Steps
+1. Open terminal and navigate to the folder than contains this file
+2. Run ./safari.sh
+
+Troubleshooting
+-	If youre seeing a "Permission Denied" error, please run 
+		chmod +x ./safari.sh
+
+-	More details can be found in ./docs/safari.md
+
+-	Please email the developer: rohanb10 at gmail.com
