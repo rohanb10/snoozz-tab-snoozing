@@ -86,7 +86,7 @@ print('Created GH Release: ' + '\x1b[1;32;40m' + name + '.zip' + '\x1b[0m')
 # Modify manifest file for safari and build
 #
 shutil.copy('docs/safari.md', FOLDER)
-shutil.copy('_instructions_safari.txt', FOLDER)
+shutil.copy('instructions_safari.txt', FOLDER)
 shutil.copy('safari.sh', FOLDER)
 if 'idle' in data['permissions']: data['permissions'].remove('idle')
 if 'notifications' in data['permissions']: data['permissions'].remove('notifications')
