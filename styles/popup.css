@@ -1,6 +1,6 @@
 body {
 	position: relative;
-	width: 45em;
+	width: 50em;
 	padding: .5em;
 	background-image: none;
 }
@@ -263,7 +263,7 @@ body.dark .choice .date {
 	padding-top: 0px;
 	padding-bottom: 0px;
 	justify-content: unset;
-	max-width: 21.5em;
+	max-width: calc(50% - .5em);
 	overflow-x: hidden;
 }
 
@@ -278,7 +278,7 @@ body.dark .choice .date {
 	opacity: 0;
 }
 .custom-choice.active, .custom-choice.focused {
-	max-width: 45em;
+	max-width: 50em;
 	color: #FFF;
 }
 .custom-choice.active .custom-info, .custom-choice.focused .custom-info {
@@ -315,7 +315,7 @@ body.dark .choice .date {
 }
 
 body.dark #preview, body.dark .choice, body.dark .custom-choice, body.dark .form-overlay {
-	background-color: #232323
+	background-color: #444
 }
 .footer a {
 	text-decoration: none;
@@ -351,7 +351,7 @@ body.dark .upcoming {
 	align-items: center;
 }
 .footer .center img {
-	max-width: 2.5em;
+	width: 2.75em;
 }
 .settings {
 	position: relative;

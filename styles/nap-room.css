@@ -457,8 +457,9 @@ body:not(.dark) p {
 	filter: blur(5px);
 }
 .iframe-overlay iframe {
-	width: 673px;
+	width: 50em;
 	border: 0;
+	border-radius: .5rem;
 	transform: translateY(100vh);
 	transition: transform .5s ease-in-out;
 }

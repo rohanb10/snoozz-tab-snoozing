@@ -85,7 +85,7 @@ body.dark .snoozz-text, body.dark img[src="../icons/unknown.png"], body.dark .se
 }
 
 .scroll-logo img {
-	max-height: 3em;
+	height: 3em;
 	cursor: pointer;
 	animation: spin 20s infinite linear paused;
 }

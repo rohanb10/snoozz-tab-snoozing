@@ -287,7 +287,7 @@ async function getChoices(which) {
 			menuLabel: 'till this morning'
 		},
 		'today-evening': {
-			label: 'This Evening',
+			label: `Today ${getLaterTimeOfDay(config.evening)}`,
 			time: NOW.startOf('d').add(config.evening, 'h'),
 			timeString: 'Today',
 			disabled: NOW.startOf('d').add(config.evening, 'h').valueOf() < dayjs(),
@@ -300,7 +300,7 @@ async function getChoices(which) {
 			menuLabel: 'till tomorrow morning'
 		},
 		'tom-evening': {
-			label: 'Tomorrow Evening',
+			label: `Tomorrow ${getLaterTimeOfDay(config.evening)}`,
 			time: NOW.startOf('d').add(1,'d').add(config.evening, 'h'),
 			timeString: NOW.add(1,'d').format('ddd, D MMM'),
 			menuLabel: 'till tomorrow evening'
@@ -400,11 +400,17 @@ var formatSnoozedUntil = t => {
 	var date = dayjs(ts);
 	if (date.dayOfYear() === dayjs().dayOfYear()) return (date.hour() > 17 ? 'Tonight' : 'Today') + date.format(` [@] ${getHourFormat(date.minute() !== 0)}`);
 	if (date.dayOfYear() === dayjs().add(1,'d').dayOfYear()) return 'Tomorrow' + date.format(` [@] ${getHourFormat(date.minute() !== 0)}`);
-	if (date.week() === dayjs().week()) return date.format(`ddd [@] ${getHourFormat(date.minute() !== 0)}`);
+	if (date.week() === dayjs().week()) return date.format(`dddd [@] ${getHourFormat(date.minute() !== 0)}`);
 	return date.format(`ddd, MMM D [@] ${getHourFormat(date.minute() !== 0)}`);
 }
 
 var getHourFormat = showZeros => (HOUR_FORMAT && HOUR_FORMAT == 24) ? 'HH:mm' : `h${showZeros ? ':mm' : ''} A`;
+
+var getLaterTimeOfDay = (hour, isToday) => {
+	if (hour && hour <= 16) return 'Afternoon';
+	if (hour && hour >= 19) return 'Night';
+	return 'Evening';
+}
 
 var getUrlParam = p => {
 	var url = new URLSearchParams(window.location.search);
