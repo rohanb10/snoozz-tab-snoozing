@@ -125,6 +125,14 @@ select {
 	padding-right: 20px;
 	color: var(--color);
 }
+.seperator {
+	display: inline-block;
+	margin: 0 .5rem;
+}
+span.am-pm {
+	font-size: .8em;
+	margin-left: .5rem;
+}
 body.dark select {
 	background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path fill='white' d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
 }

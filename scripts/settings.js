@@ -10,10 +10,11 @@ async function initialize() {
 		window.history.replaceState(null, null, window.location.pathname);
 	}
 	var options = await getOptions();
-	HOUR_FORMAT = options.hourFormat ? options.hourFormat : 12;
+	options = upgradeSettings(options);
 	try {updateFormValues(options)} catch(e) {}
 	if (options.icons) document.querySelector('.nap-room img').src = `../icons/${options.icons}/nap-room.png`;
 	addListeners();
+	await fetchHourFormat();
 
 	document.querySelector('#shortcut .btn').addEventListener('click', toggleShortcuts);
 	document.querySelector('#shortcut .btn').onkeyup = e => {if (e.which === 13) toggleShortcuts()}
@@ -65,7 +66,12 @@ async function calculateStorage() {
 }
 
 function updateFormValues(storage) {
-	['morning', 'evening', 'timeOfDay', 'history', 'icons', 'theme', 'notifications', 'badge', 'closeDelay', 'polling'].forEach(o => {
+	['morning', 'evening'].forEach(o => {
+		if (typeof storage[o] === 'number' || (typeof storage[o] === 'object' && storage[o].length !== 2)) storage[o] = [storage[o], 0];
+		document.getElementById(`${o}_h`).value = storage[o][0];
+		document.getElementById(`${o}_m`).value = storage[o][1];
+	})
+	['timeOfDay', 'history', 'icons', 'theme', 'notifications', 'badge', 'closeDelay', 'polling'].forEach(o => {
 		if (storage[o] !== undefined && document.querySelector(`#${o} option[value="${storage[o]}"]`)) {
 			document.getElementById(o).value = storage[o].toString()
 			document.getElementById(o).setAttribute('data-orig-value', storage[o]);
@@ -95,6 +101,8 @@ async function save(e) {
 			return e.target.value = e.target.getAttribute('data-orig-value');
 		}
 	}
+
+	var options = {}
 	if (e && ['morning', 'evening'].includes(e.target.id)) {
 		var tabs = await getSnoozedTabs();
 		var ot = parseInt(e.target.getAttribute('data-orig-value'));
@@ -112,8 +120,9 @@ Would you like to update ${tabsToChange.length > 1 ? 'them' : 'it'} to snooze ti
 			}
 		}
 	}
-	var options = {}
-	document.querySelectorAll('select').forEach(s => options[s.id] = isNaN(s.value) ? s.value : parseInt(s.value));
+	document.querySelectorAll('select.direct').forEach(s => options[s.id] = isNaN(s.value) ? s.value : parseInt(s.value));
+	// handle morning evening time separately
+	['morning', 'evening'].forEach(o => options[o] = [document.getElementById(`${o}_h`).value, document.getElementById(`${o}_m`).value]);
 	options.contextMenu = Array.from(document.querySelectorAll('#contextMenu input:checked')).map(c => c.id);
 	await saveOptions(options);
 	await setTheme();
@@ -178,8 +187,8 @@ async function resetSettings() {
 	if (!confirm('Are you sure you want to reset all settings? \nYou can\'t undo this.')) return;
 
 	var defaultOptions = {
-		morning: 9,
-		evening: 18,
+		morning: [9, 0],
+		evening: [18, 0],
 		timeOfDay: 'morning',
 		hourFormat: 12,
 		icons: 'human',
@@ -227,7 +236,7 @@ async function importTabs(e) {
 		json_array = json_array.filter(t => {
 			if (!verifyTab(t)) return false;
 			if (!existing_ids.includes(t.id))return true;
-			var existing = allTabs.find(at => at.id == t.id);
+			var existing = allTabs.find(at => at.id === t.id);
 			if (!existing.opened && (t.opened || (t.modifiedTime && !existing.modifiedTime) || (existing.modifiedTime && t.modifiedTime && dayjs(t.modifiedTime) > dayjs(existing.modifiedTime)))) {
 				needs_update.push(existing.id);
 				return true;
@@ -238,7 +247,7 @@ async function importTabs(e) {
 		await saveTabs(allTabs.filter(at => !needs_update.includes(at.id)).concat(json_array));
 
 		var count = json_array.length;
-		document.querySelector('body > .import-success').innerText = `${count} tab${count == 1 ? ' was' : 's were'} imported from ${e.target.files[0].name}`;
+		document.querySelector('body > .import-success').innerText = `${count} tab${count === 1 ? ' was' : 's were'} imported from ${e.target.files[0].name}`;
 		document.querySelector('body > .import-success').classList.add('toast');
 		setTimeout(_ => document.querySelector('body > .import-success').remove('toast'), 4000)
 	} catch {

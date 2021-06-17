@@ -43,6 +43,7 @@ async function init() {
 	observer.observe();
 
 	if (getBrowser() === 'safari') chrome.runtime.sendMessage({wakeUp: true});
+	checkForUpdates();
 }
 
 function setupClock() {
@@ -199,7 +200,7 @@ function search(t, query) {
 
 function performSearch(searchQuery = '') {
 	var tabs = document.querySelectorAll('.tab');
-	if (tabs) tabs.forEach(t => t.classList.toggle('hidden', !search((CACHED_TABS).find(ct => ct.id == t.id), searchQuery)));
+	if (tabs) tabs.forEach(t => t.classList.toggle('hidden', !search((CACHED_TABS).find(ct => ct.id === t.id), searchQuery)));
 	updateTimeGroups();
 	countSearchItems();
 }
@@ -339,7 +340,7 @@ function deleteTabFromDiv(tabId) {
 }
 
 function closeOnOutsideClick(e) {
-	if (e.which && e.which == 27) closeEditModal();
+	if (e.which && e.which === 27) closeEditModal();
 	if(e.target && e.target.classList.contains('iframe-overlay')) closeEditModal();
 }
 
@@ -387,6 +388,30 @@ async function removeTabsFromHistory(ids) {
 	updateTimeGroups();
 }
 
-debugMode = pretty => document.querySelectorAll('.tab').forEach(t => t.onclick = async _ => console.log(pretty ? await getPrettyTab(t.id) : await getSnoozedTabs([t.id])));
+async function checkForUpdates() {
+	var p = await new Promise(r => chrome.storage.local.get(['updated'], r));
+	if (!p || !p.updated) return;
+
+	var overlay = document.querySelector('body > .changelog-overlay');
+	overlay.querySelector('#v').innerText = `to v${chrome.runtime.getManifest().version}`;
+	overlay.classList.add('open');
+	bodyScrollFreezer.freeze();
+	overlay.addEventListener('click', closeChangelog, {once: true});
+	document.addEventListener('keyup', closeChangelog);
+
+	await new Promise(r => chrome.storage.local.remove(['updated'], r));
+}
+
+function closeChangelog(e) {
+	if (e && ((e.which && e.which === 27) || (e.target && e.target.classList.contains('changelog-overlay')))) {
+		var overlay = document.querySelector('body > .changelog-overlay');
+		overlay.removeEventListener('click', closeChangelog);
+		document.removeEventListener('keyup', closeChangelog);
+		overlay.classList.remove('open');
+		bodyScrollFreezer.unfreeze()
+	}
+}
+
+var debugMode = pretty => document.querySelectorAll('.tab').forEach(t => t.onclick = async _ => console.log(pretty ? await getPrettyTab(t.id) : await getSnoozedTabs([t.id])));
 
 window.onload = init
