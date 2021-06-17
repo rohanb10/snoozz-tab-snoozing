@@ -1,6 +1,6 @@
 var closeDelay = 1000, colorList = [], isInEditMode = false;
 async function init() {
-	isInEditMode = getUrlParam('edit') && getUrlParam('edit') == 'true';
+	isInEditMode = getUrlParam('edit') && getUrlParam('edit') === 'true';
 
 	await fetchHourFormat();
 	await buildChoices();
@@ -16,7 +16,7 @@ async function init() {
 		setTimeout(_ => window.close(), 100);
 	}));
 	document.querySelectorAll('.nap-room-btn, .settings').forEach(btn => btn.onkeyup = e => {
-		if (e.which == 13) {
+		if (e.which === 13) {
 			openExtensionTab(btn.dataset.href);
 			setTimeout(_ => window.close(), 100);
 		}
@@ -30,7 +30,7 @@ async function init() {
 	closeDelay = await getOptions('closeDelay');
 	var tabs = await getSnoozedTabs();
 	if (!isInEditMode && tabs && tabs.length) {
-		var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear() && dayjs(t.wakeUpTime).year() == dayjs().year()).length;
+		var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear() && dayjs(t.wakeUpTime).year() === dayjs().year()).length;
 		if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount);
 	}
 
@@ -65,7 +65,7 @@ async function initEditMode() {
 
 async function buildTargets() {
 	var allTabs = await getTabsInWindow();
-	if (!allTabs || allTabs.length == 0) return;
+	if (!allTabs || !allTabs.length) return;
 	if (allTabs.length === undefined) allTabs = [allTabs];
 
 	var activeTab = allTabs.find(at => at.active);
@@ -73,7 +73,7 @@ async function buildTargets() {
 
 	var isActiveTabValid = validTabs.includes(activeTab);
 	document.getElementById('tab').classList.toggle('disabled', !isActiveTabValid);
-	var isWindowValid = getBrowser() !== 'safari' && (validTabs.length > 1 || validTabs.length == 1 && !isActiveTabValid);
+	var isWindowValid = getBrowser() !== 'safari' && (validTabs.length > 1 || validTabs.length === 1 && !isActiveTabValid);
 	document.getElementById('window').classList.toggle('disabled', !isWindowValid);
 	var isSelectionValid = getBrowser() !== 'safari' && validTabs.length > 1 && activeTab.highlighted && validTabs.filter(t => t.highlighted).length > 1;
 	document.getElementById('selection').classList.toggle('disabled', !isSelectionValid);
@@ -81,7 +81,7 @@ async function buildTargets() {
 	// document.getElementById('group').classList.toggle('disabled', !isGroupValid);
 
 	document.querySelectorAll('.target').forEach(t => t.tabIndex = t.classList.contains('disabled') ? -1 : 0);
-	document.querySelectorAll('.target').forEach(t => t.addEventListener('keyup', e => { if (e.which == 13) t.click() }));
+	document.querySelectorAll('.target').forEach(t => t.addEventListener('keyup', e => { if (e.which === 13) t.click() }));
 
 	// hide groups if not chrome
 	if (getBrowser() !== 'chrome' || true) document.getElementById('group').style.display = 'none';
@@ -115,24 +115,24 @@ async function generatePreview(type) {
 	if (!iconTheme) iconTheme = 'human';
 
 	var allTabs = await getTabsInWindow();
-	if (!allTabs || allTabs.length == 0) return;
+	if (!allTabs || !allTabs.length) return;
 	if (allTabs.length === undefined) allTabs = [allTabs];
 	
-	if (type == 'tab') {
+	if (type === 'tab') {
 		var a = allTabs.find(at => at.active)
 		previewText.innerText = a.title;
 		previewIcon.src = a.favIconUrl ? a.favIconUrl : (getBrowser() === 'safari' ? getFaviconUrl(a.url) : '../icons/unknown.png');
-	} else if (type == 'window') {
+	} else if (type === 'window') {
 		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t));
 		previewText.innerText = `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`;
 		previewIcon.src = `../icons/${iconTheme}/window.png`;
-	} else if (type == 'selection') {
+	} else if (type === 'selection') {
 		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t) && t.highlighted);
 		previewText.innerText = `${validTabs.length} selected tabs from ${getSiteCountLabel(validTabs)}`;
 		previewIcon.src = `../icons/${iconTheme}/selection.png`;
-	// } else if (type == 'group') {
+	// } else if (type === 'group') {
 	// 	var currentTabGroup = allTabs.find(at => at.active).groupId;
-	// 	var validTabs = allTabs.filter(t => currentTabGroup && currentTabGroup != -1 && !isDefault(t) && isValid(t) && t.groupId && t.groupId == currentTabGroup);
+	// 	var validTabs = allTabs.filter(t => currentTabGroup && currentTabGroup !== -1 && !isDefault(t) && isValid(t) && t.groupId && t.groupId === currentTabGroup);
 	// 	previewText.innerText = `${validTabs.length} grouped tabs from ${getSiteCountLabel(validTabs)}`;
 	// 	previewIcon.src = '../icons/octopus.png';
 	} else {
@@ -174,7 +174,7 @@ async function buildCustomChoice() {
 		inline: true,
 		enableTime: true,
 		noCalendar: true,
-		time_24hr: HOUR_FORMAT && HOUR_FORMAT == 24,
+		time_24hr: HOUR_FORMAT && HOUR_FORMAT === 24,
 		defaultDate: dayjs().format('HH:mm'),
 		onChange: validate,
 		onValueUpdate: validate
@@ -195,7 +195,7 @@ async function buildCustomChoice() {
 			action.classList.toggle('disabled', (getDateTime().add(parseInt(action.getAttribute('data-value')), 'm') < now));
 		});
 		if (getDateTime() < now) reset()
-		time.set('minTime', getDateTime().dayOfYear() == now.dayOfYear() ? now.format('HH:mm') : null);
+		time.set('minTime', getDateTime().dayOfYear() === now.dayOfYear() ? now.format('HH:mm') : null);
 		document.querySelector('.date-display').innerText = dayjs(date.selectedDates).format('ddd, D MMM');
 		document.querySelector('.time-display').innerText = dayjs(time.selectedDates).format(getHourFormat(true));
 		document.querySelector('.submit-btn').classList.toggle('disabled', getDateTime() <= now);
@@ -257,7 +257,7 @@ async function buildCustomChoice() {
 	document.querySelectorAll('.form-overlay .time-wrapper input').forEach(i => {
 		i.addEventListener('blur', validate);
 		i.addEventListener('increment', validate);
-		i.addEventListener('keyup', e => {if (e.which && (e.which == 38 || e.which == 40)) validate()})
+		i.addEventListener('keyup', e => {if (e.which && (e.which === 38 || e.which === 40)) validate()})
 	});
 
 	validate();
@@ -278,11 +278,11 @@ async function snooze(time, choice) {
 	if (!['tab', 'window', 'selection', 'group'].includes(target.id)) return;
 
 	var response;
-	if (target.id == 'tab') {
+	if (target.id === 'tab') {
 		response = await snoozeTab(time);
-	} else if (target.id == 'window') {
+	} else if (target.id === 'window') {
 		response = await snoozeWindow(time);
-	} else if (target.id == 'selection') {
+	} else if (target.id === 'selection') {
 		response = await snoozeSelectedTabs(time);
 	}
 	if (response && !(response.tabId || response.windowId)) return;

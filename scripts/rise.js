@@ -27,7 +27,7 @@ async function fetchTabFromStorage() {
 }
 function populate(found) {
 	if (!found && found !== false) return setTimeout(_ => window.close(), 1000);
-	document.querySelector('#when span').innerText = dayjs(found.timeCreated).format(`${getHourFormat()} on dddd, DD MMM YYYY`)
+	document.querySelector('#when span').innerText = dayjs(found.timeCreated).format(`${getHourFormat(true)} on dddd, DD MMM YYYY`)
 	var till = document.querySelector('#till span');
 	till.innerText = found.startUp ? 'the next time you opened ' + capitalize(getBrowser()) : dayjs(found.timeCreated).to(dayjs(found.wakeUpTime),true) + ' later'
 	till.setAttribute('title', dayjs(found.wakeUpTime).format(`${getHourFormat()} on dddd, DD MMM YYYY`))

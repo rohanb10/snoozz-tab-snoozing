@@ -209,7 +209,7 @@ h3 {
 	background-color: #f7f7f7;
 	outline: none;
 	height: 4em;
-	transition: all .3s ease-in-out;
+	/*transition: all .3s ease-in-out;*/
 	justify-content: space-between;
 	cursor: pointer;
 }
@@ -230,7 +230,7 @@ h3 {
 .label {
 	font-weight: bold;
 	white-space: nowrap;
-	transition: color .3s ease-in-out;
+	/*transition: color .3s ease-in-out;*/
 }
 .choice div {
 	pointer-events: none;
@@ -246,7 +246,7 @@ h3 {
 	text-align: right;
 	font-weight: bold;
 	text-transform: uppercase;
-	transition: color .3s ease-in-out;
+	/*transition: color .3s ease-in-out;*/
 }
 .choice .date {
 	color: #777;
