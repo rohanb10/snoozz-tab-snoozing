@@ -24,6 +24,7 @@
 	"background": {
 		"scripts": ["scripts/dayjs.min.js", "scripts/common.js", "scripts/poll.js", "scripts/background.js"]
 	},
+	"offline_enabled": true,
 
 	"permissions": ["alarms", "contextMenus", "idle", "notifications", "storage", "tabs"],
 
