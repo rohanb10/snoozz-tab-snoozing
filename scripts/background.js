@@ -90,7 +90,7 @@ async function setUpContextMenus(cachedMenus) {
 		chrome.contextMenus.create({
 			id: cm[0], 
 			contexts: contexts, 
-			title: `Snoozz - ${choices[cm[0]].label.toLowerCase()}`, 
+			title: `Snoozz ${choices[cm[0]].label.toLowerCase()}`, 
 			documentUrlPatterns: ['<all_urls>'],
 			...(getBrowser() === 'firefox') ? {icons: {32: `../icons/${cm[0]}.png`}} : {}
 		})
@@ -121,6 +121,7 @@ async function snoozeInBackground(item, tab) {
 	if(!isValid({url})) return createNotification(null, `Can't snoozz that :(`, 'icons/logo.svg', 'The link you are trying to snooze is invalid.', true);
 
 	var snoozeTime = c && c.time;
+	if (c && ['weekend', 'monday', 'week', 'month'].includes(item.menuItemId)) snoozeTime = getTimeWithModifier(item.menuItemId);
 	if (!snoozeTime || c.disabled || dayjs().isAfter(dayjs(snoozeTime))) {
 		return createNotification(null, `Can't snoozz that :(`, 'icons/logo.svg', 'The time you have selected is invalid.', true);
 	}
@@ -160,20 +161,22 @@ async function setUpExtension() {
 	var snoozed = await getSnoozedTabs();
 	if (!snoozed || !snoozed.length || snoozed.length === 0) await saveTabs([]);
 	var options = await getOptions();
-	await saveOptions(Object.assign({
+	options = Object.assign({
 		morning: [9, 0],
 		evening: [18, 0],
 		hourFormat: 12,
 		icons: 'human',
-		timeOfDay: 'morning',
 		notifications: 'on',
 		history: 14,
 		theme: 'light',
 		badge: 'today',
 		closeDelay: 1000,
 		polling: 'on',
+		popup: {weekend: options.timeOfDay || 'morning', monday: options.timeOfDay || 'morning', week: options.timeOfDay || 'morning', month: options.timeOfDay || 'morning'},
 		contextMenu: ['startup', 'in-an-hour', 'today-evening', 'tom-morning', 'weekend']
-	}, options));
+	}, options);
+	options = upgradeSettings(options);
+	await saveOptions(options);
 	await init();
 }
 function sendToLogs([which, p1]) {

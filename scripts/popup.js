@@ -130,11 +130,6 @@ async function generatePreview(type) {
 		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t) && t.highlighted);
 		previewText.innerText = `${validTabs.length} selected tabs from ${getSiteCountLabel(validTabs)}`;
 		previewIcon.src = `../icons/${iconTheme}/selection.png`;
-	// } else if (type === 'group') {
-	// 	var currentTabGroup = allTabs.find(at => at.active).groupId;
-	// 	var validTabs = allTabs.filter(t => currentTabGroup && currentTabGroup !== -1 && !isDefault(t) && isValid(t) && t.groupId && t.groupId === currentTabGroup);
-	// 	previewText.innerText = `${validTabs.length} grouped tabs from ${getSiteCountLabel(validTabs)}`;
-	// 	previewIcon.src = '../icons/octopus.png';
 	} else {
 		previewText.innerText = `Can't snooze this tab`;
 	}
@@ -142,15 +137,43 @@ async function generatePreview(type) {
 
 async function buildChoices() {
 	var choices = await getChoices();
+	var config = await getOptions(['popup']);
 	var iconTheme = await getOptions('icons');
 	if (!iconTheme) iconTheme = 'human';
 	colorList = gradientSteps('#F3B845', '#DF4E76', Math.ceil(Object.keys(choices).length / 2) + 1);
 	document.querySelector('.section.choices').append(...(Object.entries(choices).map(([name, o], i) => {
 		var icon = Object.assign(document.createElement('img'), {src: `../icons/${iconTheme}/${name}.png`});
-		var label = wrapInDiv({classList: 'label', innerText: o.label});
+		
+		var selectWrapper = '' 
+		if (['weekend', 'monday', 'week', 'month'].includes(name)) {
+			var s = config.popup && config.popup[name] ? config.popup[name] : 'morning';
+			var morning = Object.assign(document.createElement('option'), {value: 'morning', innerText: 'Morning', selected: s === 'morning'});
+			var evening = Object.assign(document.createElement('option'), {value: 'evening', innerText: 'Evening', selected: s === 'evening'});
+			var now = Object.assign(document.createElement('option'), {value: 'now', innerText: 'Current Time', selected: s === 'now'});
+
+			var select = document.createElement('select');
+			select.addEventListener('change', async e => {
+				await savePopupOptions();
+				// change time
+				var t = await getTimeWithModifier(name);
+				document.querySelector(`#${name} .time`).innerText = t.format(getHourFormat(t.minute() !== 0));
+				// resize dropdown
+				var d = Object.assign(document.createElement('select'), {style: {visibility: 'hidden', position: 'fixed'}});
+				var o = Object.assign(document.createElement('option'), {innerText: e.target.options[e.target.selectedIndex].text});
+				d.append(o);
+				e.target.after(d);
+				e.target.style.width = `${d.getBoundingClientRect().width}px`;
+				d.remove();
+				// save to extension options
+				
+			});
+			select.append(morning, evening, now);
+			selectWrapper = wrapInDiv({classList: 'select-wrapper'}, select);
+		}
+
+		var label = wrapInDiv({classList: 'label'}, wrapInDiv({className: 'text', innerText: o.label}), selectWrapper);
 		var date = wrapInDiv({classList: 'date', innerText: o.timeString});
-		// var time = wrapInDiv({classList: 'time', innerText: dayjs(o.time).format(`h${dayjs(o.time).minute() !== 0 ? ':mm ':''}A`)});
-		var time = wrapInDiv({classList: 'time', innerText: dayjs(o.time).format(`${getHourFormat(dayjs(o.time).minute() !== 0)}`)});
+		var time = wrapInDiv({classList: 'time', innerText: dayjs(o.time).format(getHourFormat(dayjs(o.time).minute() !== 0))});
 
 		var c = wrapInDiv({
 			id: name,
@@ -158,10 +181,13 @@ async function buildChoices() {
 			style: `--bg:${colorList[Math.floor(i / 2)]}`,
 			tabIndex: o.disabled ? -1 : 0,
 		}, wrapInDiv('', icon, label), o.startUp ? wrapInDiv() : wrapInDiv('', date, time));
-		c.onclick = _ => snooze(o.startUp ? 'startup' : o.time, c)
+		c.addEventListener('mouseover', _ => c.classList.add('focused'))
+		c.addEventListener('mouseout', _ => c.classList.remove('focused'))
+		c.onclick = e => {if (!['OPTION', 'SELECT'].includes(e.target.nodeName)) snooze(o.startUp ? 'startup' : o.time, c)}
 		c.onkeyup = e => {if (e.which === 13) snooze(o.startUp ? 'startup' : o.time, c)}
 		return c
 	})));
+	document.querySelectorAll('.section.choices .choice select').forEach(s => s.dispatchEvent(new Event('change')));
 }
 
 async function buildCustomChoice() {
@@ -228,6 +254,8 @@ async function buildCustomChoice() {
 		}
 	}, wrapInDiv('', icon, label), wrapInDiv('custom-info', wrapInDiv('display', wrapInDiv('date-display'), wrapInDiv('time-display')), submitButton));
 	document.querySelector('.section.choices').after(customChoice);
+	customChoice.addEventListener('mouseover', _ => customChoice.classList.add('really-focused'))
+	customChoice.addEventListener('mouseout', _ => customChoice.classList.remove('really-focused'))
 
 
 	// attach listeners
@@ -273,6 +301,7 @@ async function modify(time, choice) {
 }
 
 async function snooze(time, choice) {
+	time = ['weekend', 'monday', 'week', 'month'].includes(choice.id) ? await getTimeWithModifier(choice.id) : time;
 	if (isInEditMode) return modify(time, choice);
 	var target = document.querySelector('.target.active');
 	if (!['tab', 'window', 'selection', 'group'].includes(target.id)) return;
@@ -308,4 +337,15 @@ async function displayPreviewAnimation(choice, text = 'Snoozing') {
 	preview.style.backgroundImage = `linear-gradient(to right, ${getComputedStyle(choice).backgroundColor} 50%, ${getComputedStyle(preview).backgroundColor} 0)`
 	preview.classList.add('animate');
 }
+async function savePopupOptions() {
+	var o = await getOptions();
+	o.popup = {
+		weekend: document.querySelector('#weekend select').value,
+		monday: document.querySelector('#monday select').value,
+		week: document.querySelector('#week select').value,
+		month: document.querySelector('#month select').value
+	}
+	await saveOptions(o);
+}
+
 window.onload = init

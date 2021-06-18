@@ -209,7 +209,6 @@ h3 {
 	background-color: #f7f7f7;
 	outline: none;
 	height: 4em;
-	/*transition: all .3s ease-in-out;*/
 	justify-content: space-between;
 	cursor: pointer;
 }
@@ -230,11 +229,12 @@ h3 {
 .label {
 	font-weight: bold;
 	white-space: nowrap;
-	/*transition: color .3s ease-in-out;*/
+}
+.label .text {
+	padding-left: .25rem;
 }
 .choice div {
-	pointer-events: none;
-	touch-action: none;
+	user-select: none;
 }
 
 .choice > div:first-of-type, .custom-choice > div:first-of-type {
@@ -246,15 +246,40 @@ h3 {
 	text-align: right;
 	font-weight: bold;
 	text-transform: uppercase;
-	/*transition: color .3s ease-in-out;*/
 }
 .choice .date {
 	color: #777;
 }
+.choice select {
+	border: none;
+	outline: none;
+	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	background-color: rgba(0,0,0,.1);
+	background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z' fill='%23777'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+	background-repeat: no-repeat;
+	background-position-x: calc(100%);
+	background-position-y: center;
+	border-radius: .25rem;
+	padding: .1rem 1.5rem .1rem .25rem;
+	cursor: pointer;
+	color: var(--color);
+	/*text-transform: uppercase;*/
+	/*font-size: 1rem;*/
+}
+.choice .select-wrapper {
+	position: relative;
+}
+
+.choice.focused select {
+	background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z' fill='white'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+}
+
 body.dark .choice .date {
 	color: #AAA;
 }
-.choice:hover *, .choice.focused *, .choice:hover .date, .custom-choice:hover *, .custom-choice.focused * {
+.choice:hover *, .choice.focused *, .choice:hover .date, .custom-choice:hover *, .custom-choice.focused *, .custom-choice.really-focused {
 	color: #FFF !important;
 }
 
@@ -306,7 +331,7 @@ body.dark .choice .date {
 	opacity: 0.2;
 }
 
-.choice:hover, .choice.focused, .custom-choice:hover, .custom-choice.focused, .choice:focus-within, .custom-choice:focus-within {
+.choice.focused, .custom-choice.focused, .custom-choice.really-focused {
 	background-color: var(--bg) !important;
 }
 .choice.focused, .custom-choice.focused {

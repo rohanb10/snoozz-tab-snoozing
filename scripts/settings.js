@@ -72,7 +72,7 @@ function updateFormValues(storage) {
 		document.getElementById(`${o}_h`).value = storage[o][0];
 		document.getElementById(`${o}_m`).value = storage[o][1];
 	});
-	['timeOfDay', 'history', 'icons', 'theme', 'notifications', 'badge', 'closeDelay', 'polling'].forEach(o => {
+	['history', 'icons', 'theme', 'notifications', 'badge', 'closeDelay', 'polling'].forEach(o => {
 		if (storage[o] !== undefined && document.querySelector(`#${o} option[value="${storage[o]}"]`)) {
 			document.getElementById(o).value = storage[o].toString()
 			document.getElementById(o).setAttribute('data-orig-value', storage[o]);
@@ -87,6 +87,7 @@ function addListeners() {
 }
 
 async function save(e) {
+	var o = await getOptions(['popup'])
 	if (e && e.target.id === 'history') {
 		var tabs = await getSnoozedTabs();
 		var count = tabs.filter(t => t.opened && dayjs().isAfter(dayjs(t.opened).add(e.target.value, 'd'))).length;
@@ -95,7 +96,7 @@ async function save(e) {
 		}
 	}
 
-	var options = {}
+	var options = {popup: o.popup}
 	if (e && ['morning', 'evening'].includes(e.target.id)) {
 		var tabs = await getSnoozedTabs();
 		var ot = parseInt(e.target.getAttribute('data-orig-value'));
@@ -182,7 +183,6 @@ async function resetSettings() {
 	var defaultOptions = {
 		morning: [9, 0],
 		evening: [18, 0],
-		timeOfDay: 'morning',
 		hourFormat: 12,
 		icons: 'human',
 		theme: 'light',
@@ -191,6 +191,7 @@ async function resetSettings() {
 		badge: 'today',
 		closeDelay: 1000,
 		polling: 'on',
+		popup: {weekend: 'morning', monday: 'morning', week: 'morning', month: 'morning'},
 		contextMenu: ['startup', 'in-an-hour', 'today-evening', 'tom-morning', 'weekend']
 	}
 	await saveOptions(defaultOptions);

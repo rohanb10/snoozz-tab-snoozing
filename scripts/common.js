@@ -261,11 +261,19 @@ async function snoozeSelectedTabs(snoozeTime) {
 	return {tabId: tabsToClose}
 }
 
+async function getTimeWithModifier(choice) {
+	var c = await getChoices([choice])
+	var options = await getOptions(['morning', 'evening', 'popup']);
+	var modifier = options.popup ? options.popup[choice] : '';
+	options = upgradeSettings(options);
+	var m = options[modifier] ?? [dayjs().hour(), dayjs().minute()];
+	return dayjs(c.time).add(m[0], 'h').add(m[1], 'm');
+}
+
 async function getChoices(which) {
 	var NOW = dayjs();
-	var config = await getOptions(['morning', 'evening', 'timeOfDay']);
+	var config = await getOptions(['morning', 'evening']);
 	if (typeof config.morning === 'number' || typeof config.evening === 'number') config = upgradeSettings(config);
-	config.timeOfDay = config.timeOfDay === 'evening' ? config.evening : (config.timeOfDay === 'morning' ? config.morning : NOW.hour() + (NOW.minute() / 60))
 	var all = {
 		'startup': {
 			label: 'On Next Startup',
@@ -308,26 +316,26 @@ async function getChoices(which) {
 		},
 		'weekend': {
 			label: 'Weekend',
-			time: NOW.startOf('d').weekday(6).add(config.timeOfDay[0], 'h').add(config.timeOfDay[1], 'm'),
+			time: NOW.startOf('d').weekday(6),
 			timeString: NOW.weekday(6).format('ddd, D MMM'),
 			disabled: NOW.day() === 6,
 			menuLabel: 'till the weekend'
 		},
 		'monday': {
 			label: 'Next Monday',
-			time: NOW.startOf('d').weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8).add(config.timeOfDay[0], 'h').add(config.timeOfDay[1], 'm'),
+			time: NOW.startOf('d').weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8),
 			timeString: NOW.weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8).format('ddd, D MMM'),
 			menuLabel: 'till next Monday'
 		},
 		'week': {
 			label: 'Next Week',
-			time: NOW.startOf('d').add(1, 'week').add(config.timeOfDay[0], 'h').add(config.timeOfDay[1], 'm'),
+			time: NOW.startOf('d').add(1, 'week'),
 			timeString: NOW.startOf('d').add(1, 'week').format('D MMM'),
 			menuLabel: 'for a week'
 		},
 		'month': {
 			label: 'Next Month',
-			time: NOW.startOf('d').add(1, 'M').add(config.timeOfDay[0], 'h').add(config.timeOfDay[1], 'm'),
+			time: NOW.startOf('d').add(1, 'M'),
 			timeString: NOW.startOf('d').add(1, 'M').format('D MMM'),
 			menuLabel: 'for a month'
 		},
@@ -337,7 +345,8 @@ async function getChoices(which) {
 
 /* END ASYNC FUNCTIONS */
 
-var getFaviconUrl = url => `https://icons.duckduckgo.com/ip3/${getHostname(url)}.ico`
+// var getFaviconUrl = url => `https://icons.duckduckgo.com/ip3/${getHostname(url)}.ico`
+var getFaviconUrl = url => `https://www.google.com/s2/favicons?sz=64&domain_url=${getHostname(url)}`;
 
 var getHostname = url => Object.assign(document.createElement('a'), {href: url}).hostname;
 
@@ -422,6 +431,7 @@ var  upgradeSettings = settings => {
 	if (!settings) return;
 	if (settings.morning && typeof settings.morning === 'number') settings.morning = [settings.morning, 0];
 	if (settings.evening && typeof settings.evening === 'number') settings.evening = [settings.evening, 0];
+	if (settings.popup && settings.timeOfDay) delete settings.timeOfDay;
 	return settings;
 }
 
