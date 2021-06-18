@@ -58,7 +58,6 @@ select, option {
 	border-radius: 0;
 	border: none;
 	outline: none;
-	text-align-last: center;
 	font-size: .9rem;
 	padding: .25em;
 }
@@ -122,7 +121,7 @@ select {
 	background-repeat: no-repeat;
 	background-position-x: 100%;
 	background-position-y: center;
-	padding-right: 20px;
+	padding-right: 1.25rem;
 	color: var(--color);
 }
 .seperator {
@@ -152,11 +151,29 @@ body.dark select {
 	transition: max-height .5s ease-in-out, padding-top .1s linear .4s;
 }
 .choice-list input:disabled + label {
-	opacity: .25
+	opacity: .25;
 }
 .choice-list > div {
-	font-size: 1.1em;
+	font-size: 1.1rem;
 	margin: .5em;
+	display: flex;
+	align-items: center;
+}
+.choice-list > div label {
+	display: flex;
+	align-items: center;
+}
+.choice-list .select-wrapper {
+	margin-left: .5rem;
+}
+.choice-list .select-wrapper:after {
+	height: 0;
+}
+.choice-list select {
+	background-color: rgba(0,0,0,.1);
+	border-radius: .25rem;
+	padding: .1rem 1.5rem .1rem .5rem;
+	color: var(--color);
 }
 #right-click.show .choice-list {
 	padding-top: 1em;

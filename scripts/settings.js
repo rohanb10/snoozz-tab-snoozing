@@ -2,7 +2,7 @@ async function initialize() {
 	document.querySelector('.nap-room').addEventListener('keyup', e => {if (e.which === 13) openExtensionTab('/html/nap-room.html')})
 	document.querySelector('.nap-room').addEventListener('click', _ => openExtensionTab('/html/nap-room.html'));
 	showIconOnScroll();
-	madeWith()
+	fillAbout()
 
 	if (window.location.hash) {
 		if (document.getElementById(window.location.hash.slice(1))) highlightSetting(window.location.hash.slice(1))
@@ -11,39 +11,20 @@ async function initialize() {
 	}
 	var options = await getOptions();
 	options = upgradeSettings(options);
-	updateFormValues(options);
-	// try {updateFormValues(options)} catch(e) {}
 	if (options.icons) document.querySelector('.nap-room img').src = `../icons/${options.icons}/nap-room.png`;
+
+	try {updateFormValues(options)} catch(e) {}
+
+	chrome.storage.onChanged.addListener(async changes => {
+		if (changes.snoozedOptions && changes.snoozedOptions.newValue) updateFormValues(changes.snoozedOptions.newValue);
+	});
+	
 	addListeners();
 	await fetchHourFormat();
 
-	document.querySelector('#shortcut .btn').addEventListener('click', toggleShortcuts);
-	document.querySelector('#shortcut .btn').onkeyup = e => {if (e.which === 13) toggleShortcuts()}
-	document.querySelector('#right-click .btn').addEventListener('click', toggleRightClickOptions);
-	document.querySelector('#right-click .btn').onkeyup = e => {if (e.which === 13) toggleRightClickOptions()}
-	document.addEventListener('visibilitychange', updateKeyBindings);
-
-	calculateStorage();
-	chrome.storage.onChanged.addListener(calculateStorage);
-	document.querySelectorAll('a[data-highlight="history"]').forEach(a => a.addEventListener('click', e => highlightSetting('history')))
-
-	document.getElementById('import').addEventListener('click', _ => document.getElementById('import_hidden').click());
-	document.getElementById('import').onkeyup = e => {if (e.which === 13) document.getElementById('import_hidden').click()}
-
-	document.getElementById('import_hidden').addEventListener('change', importTabs);
-
-	document.getElementById('export').addEventListener('click', exportTabs);
-	document.getElementById('export').onkeyup = e => {if (e.which === 13) exportTabs()}
-
-	document.getElementById('reset').addEventListener('click', resetSettings);
-	document.getElementById('reset').onkeyup = e => {if (e.which === 13) resetSettings()}
-	document.getElementById('version').innerText = `Snoozz v${chrome.runtime.getManifest().version}`;
-
-	document.querySelector('code').addEventListener('click', _ => {
-		clipboard('about:addons')
-		document.querySelector('body > .copied').classList.add('toast');
-		setTimeout(_ => document.querySelector('body > .copied').classList.remove('toast'), 4000)
-	});
+	// calculateStorage();
+	// chrome.storage.onChanged.addListener(calculateStorage);
+	
 
 	if (getBrowser() === 'safari') chrome.runtime.sendMessage({wakeUp: true});
 }
@@ -72,22 +53,51 @@ function updateFormValues(storage) {
 		document.getElementById(`${o}_h`).value = storage[o][0];
 		document.getElementById(`${o}_m`).value = storage[o][1];
 	});
-	['history', 'icons', 'theme', 'notifications', 'badge', 'closeDelay', 'polling'].forEach(o => {
+	['weekend', 'monday', 'week', 'month'].forEach(po => {
+		document.querySelector(`#popup_${po}`).value = storage.popup && storage.popup[po] ? storage.popup[po] : (storage.timeOfDay || 'morning');
+	});
+	['history', 'icons', 'theme', 'notifications', 'badge', 'closeDelay', 'hourFormat', 'polling'].forEach(o => {
 		if (storage[o] !== undefined && document.querySelector(`#${o} option[value="${storage[o]}"]`)) {
 			document.getElementById(o).value = storage[o].toString()
 			document.getElementById(o).setAttribute('data-orig-value', storage[o]);
 		}
 	});
-	if (storage.contextMenu && storage.contextMenu.length > 0) storage.contextMenu.forEach(o => document.getElementById(o).checked = true);
+	if (storage.contextMenu && storage.contextMenu.length) storage.contextMenu.forEach(o => document.getElementById(o).checked = true);
+	resizeDropdowns();
 }
 
 function addListeners() {
 	document.querySelectorAll('select').forEach(s => s.addEventListener('change', save));
 	document.querySelectorAll('#contextMenu input').forEach(c => c.addEventListener('change', e => save))
+
+	document.querySelector('#shortcut .btn').addEventListener('click', toggleShortcuts);
+	document.querySelector('#shortcut .btn').onkeyup = e => {if (e.which === 13) toggleShortcuts()}
+
+	document.querySelector('#right-click .btn').addEventListener('click', toggleRightClickOptions);
+	document.querySelector('#right-click .btn').onkeyup = e => {if (e.which === 13) toggleRightClickOptions()}
+
+	document.addEventListener('visibilitychange', updateKeyBindings);
+
+	document.querySelectorAll('a[data-highlight="history"]').forEach(a => a.addEventListener('click', e => highlightSetting('history')))
+
+	document.getElementById('import').addEventListener('click', _ => document.getElementById('import_hidden').click());
+	document.getElementById('import').onkeyup = e => {if (e.which === 13) document.getElementById('import_hidden').click()}
+	document.getElementById('import_hidden').addEventListener('change', importTabs);
+
+	document.getElementById('export').addEventListener('click', exportTabs);
+	document.getElementById('export').onkeyup = e => {if (e.which === 13) exportTabs()}
+
+	document.getElementById('reset').addEventListener('click', resetSettings);
+	document.getElementById('reset').onkeyup = e => {if (e.which === 13) resetSettings()}
+
+	document.querySelector('code').addEventListener('click', _ => {
+		clipboard('about:addons')
+		document.querySelector('body > .copied').classList.add('toast');
+		setTimeout(_ => document.querySelector('body > .copied').classList.remove('toast'), 4000)
+	});
 }
 
 async function save(e) {
-	var o = await getOptions(['popup'])
 	if (e && e.target.id === 'history') {
 		var tabs = await getSnoozedTabs();
 		var count = tabs.filter(t => t.opened && dayjs().isAfter(dayjs(t.opened).add(e.target.value, 'd'))).length;
@@ -96,13 +106,13 @@ async function save(e) {
 		}
 	}
 
-	var options = {popup: o.popup}
+	var options = {popup: {}}
 	if (e && ['morning', 'evening'].includes(e.target.id)) {
 		var tabs = await getSnoozedTabs();
 		var ot = parseInt(e.target.getAttribute('data-orig-value'));
 		var f = t => !t.opened && dayjs(t.wakeUpTime).hour() === ot && dayjs(t.wakeUpTime).minute() === 0 && dayjs(t.wakeUpTime).second() === 0
 		var tabsToChange = tabs.filter(f);
-		if (tabsToChange.length > 0) {
+		if (tabsToChange.length) {
 			var count = `${tabsToChange.length > 1 ? 'are' : 'is'} ${tabsToChange.length} tab${tabsToChange.length > 1 ? 's' : ''}`
 			if (confirm(`There ${count} scheduled to wake up at ${dayjs().minute(0).hour(ot).format(getHourFormat())}.
 Would you like to update ${tabsToChange.length > 1 ? 'them' : 'it'} to snooze till ${dayjs().minute(0).hour(e.target.value).format(getHourFormat())}?`)) {
@@ -115,6 +125,7 @@ Would you like to update ${tabsToChange.length > 1 ? 'them' : 'it'} to snooze ti
 		}
 	}
 	document.querySelectorAll('select.direct').forEach(s => options[s.id] = isNaN(s.value) ? s.value : parseInt(s.value));
+	document.querySelectorAll('select.popup').forEach(p => options.popup[p.id.replace('popup_', '')] = p.value);
 	// handle morning evening time separately
 	['morning', 'evening'].forEach(o => options[o] = [parseInt(document.getElementById(`${o}_h`).value), parseInt(document.getElementById(`${o}_m`).value)]);
 	options.contextMenu = Array.from(document.querySelectorAll('#contextMenu input:checked')).map(c => c.id);
@@ -250,9 +261,10 @@ async function importTabs(e) {
 	}
 }
 
-function madeWith() {
+function fillAbout() {
 	var emojis = ['🥭', '🌶️', '🍛', '🐅', '🐘', '🦚', '🍄', '☔', '🏏', '🚃', '🛺', '🪁', '🪔'];
 	document.querySelector('.emoji').innerText = emojis[[Math.floor(Math.random() * emojis.length)]];
+	document.getElementById('version').innerText = `Snoozz v${chrome.runtime.getManifest().version}`;
 }
 
 window.onload = initialize

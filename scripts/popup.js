@@ -164,8 +164,6 @@ async function buildChoices() {
 				e.target.after(d);
 				e.target.style.width = `${d.getBoundingClientRect().width}px`;
 				d.remove();
-				// save to extension options
-				
 			});
 			select.append(morning, evening, now);
 			selectWrapper = wrapInDiv({classList: 'select-wrapper'}, select);

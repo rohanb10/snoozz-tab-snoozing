@@ -422,12 +422,26 @@ var getEveningLabel = (hour, isToday) => {
 	return 'Evening';
 }
 
+var resizeDropdowns = _ => {
+	document.querySelectorAll('select').forEach(s => {
+		s.addEventListener('change', e => {
+			var d = Object.assign(document.createElement('select'), {style: {visibility: 'hidden', position: 'fixed'}});
+			var o = Object.assign(document.createElement('option'), {innerText: e.target.options[e.target.selectedIndex].text});
+			d.append(o);
+			e.target.after(d);
+			e.target.style.width = `${d.getBoundingClientRect().width}px`;
+			d.remove();
+		});
+		s.dispatchEvent(new Event('change'));
+	});
+}
+
 var getUrlParam = p => {
 	var url = new URLSearchParams(window.location.search);
 	return url.get(p); 
 }
 
-var  upgradeSettings = settings => {
+var upgradeSettings = settings => {
 	if (!settings) return;
 	if (settings.morning && typeof settings.morning === 'number') settings.morning = [settings.morning, 0];
 	if (settings.evening && typeof settings.evening === 'number') settings.evening = [settings.evening, 0];
