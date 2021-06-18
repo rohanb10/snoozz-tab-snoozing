@@ -1,5 +1,5 @@
 # usage
-# python3 build.py [safaridev]
+# python3 build.py
 
 import json
 import shutil
@@ -98,12 +98,8 @@ with open(FOLDER + '/manifest.json', 'w+') as m:
 	m.write(json.dumps(data, indent=4))
 
 name = 'snoozz-safari-' + VERSION
-if len(argv) > 1 and argv[1] == 'safaridev':
-	shutil.copytree(FOLDER, name)
-	print('Created Safari DEV release: ' + '\x1b[1;32;40m' + name + '\x1b[0m')
-else:
-	shutil.make_archive(name, 'zip', FOLDER)
-	print('Created Safari Release: ' + '\x1b[1;32;40m' + name + '.zip' + '\x1b[0m')
+shutil.make_archive(name, 'zip', FOLDER)
+print('Created Safari Release: ' + '\x1b[1;32;40m' + name + '.zip' + '\x1b[0m')
 
 #
 # Print changelog

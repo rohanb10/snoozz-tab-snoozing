@@ -6,7 +6,7 @@
 
 I'm not paying Apple a hundred bucks a year for the privilege of publishing my free, open source extension in their App Store.
 
-If you want to build your own version of Snoozz for Safari, here's how you do it.
+You can build your own version of Snoozz for Safari. Here's how you do it:
 
 ### Requirements
 - **MacOS 10.14.6+**
@@ -21,8 +21,13 @@ If you want to build your own version of Snoozz for Safari, here's how you do it
 	- The `activeTab` permission is used in place of `tabs` to minimise [access requests](https://developer.apple.com/documentation/safariservices/safari_web_extensions/managing_safari_web_extension_permissions) to the user.
 	- All unsupported WebExtension APIs are removed (`notifications`, `idle`, `commands`).
 
+### Simple Installation
 
-### Instructions
+1. Extract the Snoozz-Safari-x.x.x.zip file, and open the containing folder in terminal
+2. Run `./safari.sh`
+
+
+### Advanced Installation
 
 1. In Terminal, navigate into the downloaded (unzipped) `Snoozz for Safari` directory and [convert the extension]((https://developer.apple.com/documentation/safariservices/safari_web_extensions/converting_a_web_extension_for_safari)) to an Xcode package using this command:
 ```
