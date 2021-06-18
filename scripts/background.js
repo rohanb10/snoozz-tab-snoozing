@@ -90,7 +90,7 @@ async function setUpContextMenus(cachedMenus) {
 		chrome.contextMenus.create({
 			id: cm[0], 
 			contexts: contexts, 
-			title: `Snoozz until ${choices[cm[0]].label.toLowerCase()}`, 
+			title: `Snoozz - ${choices[cm[0]].label.toLowerCase()}`, 
 			documentUrlPatterns: ['<all_urls>'],
 			...(getBrowser() === 'firefox') ? {icons: {32: `../icons/${cm[0]}.png`}} : {}
 		})
@@ -197,7 +197,7 @@ async function init() {
 
 chrome.runtime.onInstalled.addListener(async details => {
 	setUpExtension();
-	if (details && details.reason && details.reason == 'update') {
+	if (details && details.reason && details.reason == 'update' && details.previousVersion && details.previousVersion != chrome.runtime.getManifest().version) {
 		await new Promise(r => chrome.storage.local.set({'updated': true}, r));
 		if (chrome.notifications) createNotification(null, 'Snoozz has been updated', 'icons/logo.svg', 'Click here to see what\'s new.', true);
 	}

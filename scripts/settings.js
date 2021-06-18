@@ -11,7 +11,8 @@ async function initialize() {
 	}
 	var options = await getOptions();
 	options = upgradeSettings(options);
-	try {updateFormValues(options)} catch(e) {}
+	updateFormValues(options);
+	// try {updateFormValues(options)} catch(e) {}
 	if (options.icons) document.querySelector('.nap-room img').src = `../icons/${options.icons}/nap-room.png`;
 	addListeners();
 	await fetchHourFormat();
@@ -70,27 +71,19 @@ function updateFormValues(storage) {
 		if (typeof storage[o] === 'number' || (typeof storage[o] === 'object' && storage[o].length !== 2)) storage[o] = [storage[o], 0];
 		document.getElementById(`${o}_h`).value = storage[o][0];
 		document.getElementById(`${o}_m`).value = storage[o][1];
-	})
+	});
 	['timeOfDay', 'history', 'icons', 'theme', 'notifications', 'badge', 'closeDelay', 'polling'].forEach(o => {
 		if (storage[o] !== undefined && document.querySelector(`#${o} option[value="${storage[o]}"]`)) {
 			document.getElementById(o).value = storage[o].toString()
 			document.getElementById(o).setAttribute('data-orig-value', storage[o]);
 		}
 	});
-	if (storage.contextMenu.length > 0) storage.contextMenu.forEach(o => document.getElementById(o).checked = true);
-	if (storage.contextMenu.length > 4) document.querySelectorAll('#contextMenu input:not(:checked)').forEach(c => c.disabled = true)
+	if (storage.contextMenu && storage.contextMenu.length > 0) storage.contextMenu.forEach(o => document.getElementById(o).checked = true);
 }
 
 function addListeners() {
 	document.querySelectorAll('select').forEach(s => s.addEventListener('change', save));
-	document.querySelectorAll('#contextMenu input').forEach(c => c.addEventListener('change', e => {
-		if (document.querySelectorAll('#contextMenu input:checked').length > 4) {
-			document.querySelectorAll('#contextMenu input:not(:checked)').forEach(c => c.disabled = true)
-		} else {
-			document.querySelectorAll('#contextMenu input').forEach(c => c.disabled = false)
-		}
-		save()
-	}))
+	document.querySelectorAll('#contextMenu input').forEach(c => c.addEventListener('change', e => save))
 }
 
 async function save(e) {
@@ -122,7 +115,7 @@ Would you like to update ${tabsToChange.length > 1 ? 'them' : 'it'} to snooze ti
 	}
 	document.querySelectorAll('select.direct').forEach(s => options[s.id] = isNaN(s.value) ? s.value : parseInt(s.value));
 	// handle morning evening time separately
-	['morning', 'evening'].forEach(o => options[o] = [document.getElementById(`${o}_h`).value, document.getElementById(`${o}_m`).value]);
+	['morning', 'evening'].forEach(o => options[o] = [parseInt(document.getElementById(`${o}_h`).value), parseInt(document.getElementById(`${o}_m`).value)]);
 	options.contextMenu = Array.from(document.querySelectorAll('#contextMenu input:checked')).map(c => c.id);
 	await saveOptions(options);
 	await setTheme();
