@@ -1,5 +1,5 @@
 const TIME_GROUPS = ['Next Startup', 'Today', 'Tomorrow', 'This Week', 'Next Week', 'Later', 'History'];
-var HISTORY = -1, CACHED_TABS = [], ticktock, colorList = [];
+var HISTORY = -1, CACHED_TABS = [], ticktock, colorList = [], observer;
 async function init() {
 	colorList = gradientSteps('#F3B845', '#DF4E76', TIME_GROUPS.length - 1);
 	colorList.push('');
@@ -7,6 +7,8 @@ async function init() {
 	document.querySelector('.settings').addEventListener('click', _ => openExtensionTab('/html/settings.html'), {once:true})
 	showIconOnScroll();
 	setupClock();
+
+	observer = lozad();
 
 	chrome.storage.onChanged.addListener(async changes => {
 		if (changes.snoozed) {
@@ -33,9 +35,15 @@ async function init() {
 	CACHED_TABS = await getSnoozedTabs();
 	HISTORY = await getOptions('history');
 
-	buildTimeGroups();
+	window.addEventListener('error', function(e) {
+	    console.log(e);
+	}, true);
 
-	if (getBrowser() === 'safari') await chrome.runtime.getBackgroundPage(async bg => {await bg.wakeUpTask()});
+	buildTimeGroups();
+	observer.observe();
+
+	if (getBrowser() === 'safari') chrome.runtime.sendMessage({wakeUp: true});
+	checkForUpdates();
 }
 
 function setupClock() {
@@ -76,7 +84,8 @@ function updateTabs() {
 			insertIntoCorrectPosition(t)
 		}
 	})
-	updateTimeGroups()
+	updateTimeGroups();
+	observer.observe();
 }
 function insertIntoCorrectPosition(t, alreadyExists = false) {
 	var tab = alreadyExists ? document.getElementById(t.id) : buildTab(t);
@@ -89,7 +98,7 @@ function insertIntoCorrectPosition(t, alreadyExists = false) {
 		});
 		group.insertBefore(tab, Array.from(allTabs)[index]);
 	} else {
-		group.append(tab);
+		try {group.append(tab)}catch(e){}
 	}
 	buildTabActions(t, tab)
 }
@@ -191,7 +200,7 @@ function search(t, query) {
 
 function performSearch(searchQuery = '') {
 	var tabs = document.querySelectorAll('.tab');
-	if (tabs) tabs.forEach(t => t.classList.toggle('hidden', !search((CACHED_TABS).find(ct => ct.id == t.id), searchQuery)));
+	if (tabs) tabs.forEach(t => t.classList.toggle('hidden', !search((CACHED_TABS).find(ct => ct.id === t.id), searchQuery)));
 	updateTimeGroups();
 	countSearchItems();
 }
@@ -248,11 +257,11 @@ function buildTab(t) {
 	var tab = wrapInDiv({className:`tab${t.tabs ? ' window collapsed':''}`, id: t.id});
 
 	var icon = Object.assign(document.createElement('img'), {
-		className: `icon ${t.tabs ? 'dropdown':''}`,
-		src: getIconForTab(t),
+		className: `icon lozad ${t.tabs ? 'dropdown':''}`,
 		tabIndex: t.tabs ? 0 : -1,
 	});
 	icon.onerror = _ => icon.src = '../icons/unknown.png';
+	icon.setAttribute('data-src', getIconForTab(t));
 	var iconContainer = wrapInDiv('icon-container', icon);
 
 	var title = wrapInDiv({className: 'tab-name', innerText: t.title, title: t.url ?? ''});
@@ -267,8 +276,9 @@ function buildTab(t) {
 	if (t.tabs && t.tabs.length) {
 		littleTabs = wrapInDiv('tabs');
 		t.tabs.forEach(lt => {
-			var littleIcon = Object.assign(document.createElement('img'), {className: 'little-icon', src: getIconForTab(lt)});
+			var littleIcon = Object.assign(document.createElement('img'), {className: 'little-icon'});
 			littleIcon.onerror = _ => littleIcon.src = '../icons/unknown.png';
+			littleIcon.src = getIconForTab(lt);
 			var littleTitle = wrapInDiv({className: 'tab-name', innerText: lt.title});
 			var littleTab = wrapInDiv({className: 'little-tab', tabIndex: 0}, littleIcon, littleTitle);
 			littleTab.onclick = _ => openTab(lt);
@@ -292,7 +302,7 @@ function buildTab(t) {
 	return tab;
 }
 
-var getIconForTab = t => t.tabs && t.tabs.length ? '../icons/dropdown.svg': (t.favicon && t.favicon !== '' ? t.favicon : getFaviconUrl(t.url));
+var getIconForTab = t => t.tabs && t.tabs.length ? '../icons/dropdown.svg' : getFaviconUrl(t.url);
 
 function getTimeGroup(tab, timeType = 'wakeUpTime', searchQuery = false) {
 	if (!searchQuery && tab.opened) return 'history';
@@ -320,7 +330,7 @@ function openEditModal(tabId) {
 	iframe.setAttribute('scrolling', 'no');
 	overlay.append(iframe);
 	overlay.classList.add('open');
-	setTimeout(_ => iframe.contentWindow.focus(), 100);
+	setTimeout(_ => {try {iframe.contentWindow.focus()} catch(e){}}, 200);
 	bodyScrollFreezer.freeze();
 	overlay.addEventListener('click', closeOnOutsideClick, {once: true});
 	document.addEventListener('keyup', closeOnOutsideClick);
@@ -330,7 +340,7 @@ function deleteTabFromDiv(tabId) {
 }
 
 function closeOnOutsideClick(e) {
-	if (e.which && e.which == 27) closeEditModal();
+	if (e.which && e.which === 27) closeEditModal();
 	if(e.target && e.target.classList.contains('iframe-overlay')) closeEditModal();
 }
 
@@ -378,6 +388,30 @@ async function removeTabsFromHistory(ids) {
 	updateTimeGroups();
 }
 
-debugMode = pretty => document.querySelectorAll('.tab').forEach(t => t.onclick = async _ => console.log(pretty ? await getPrettyTab(t.id) : await getSnoozedTabs([t.id])));
+async function checkForUpdates() {
+	var p = await new Promise(r => chrome.storage.local.get(['updated'], r));
+	if (!p || !p.updated) return;
+
+	var overlay = document.querySelector('body > .changelog-overlay');
+	overlay.querySelector('#v').innerText = `to v${chrome.runtime.getManifest().version}`;
+	overlay.classList.add('open');
+	bodyScrollFreezer.freeze();
+	overlay.addEventListener('click', closeChangelog, {once: true});
+	document.addEventListener('keyup', closeChangelog);
+
+	await new Promise(r => chrome.storage.local.remove(['updated'], r));
+}
+
+function closeChangelog(e) {
+	if (e && ((e.which && e.which === 27) || (e.target && e.target.classList.contains('changelog-overlay')))) {
+		var overlay = document.querySelector('body > .changelog-overlay');
+		overlay.removeEventListener('click', closeChangelog);
+		document.removeEventListener('keyup', closeChangelog);
+		overlay.classList.remove('open');
+		bodyScrollFreezer.unfreeze()
+	}
+}
+
+var debugMode = pretty => document.querySelectorAll('.tab').forEach(t => t.onclick = async _ => console.log(pretty ? await getPrettyTab(t.id) : await getSnoozedTabs([t.id])));
 
 window.onload = init

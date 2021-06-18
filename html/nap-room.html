@@ -10,12 +10,26 @@
 	<link rel="stylesheet" href="../styles/clock.css" />
 </head>
 <body>
-	<div class="scroll-logo hidden"><img src="../icons/main-icon.png"></div>
+	<div class="scroll-logo hidden"><img src="../icons/logo.svg"></div>
 	<div class="flex center">
-		<img class="snoozz-logo hoverable" src="../icons/main-icon.png">
+		<img class="snoozz-logo hoverable" src="../icons/logo.svg">
 		<img class="snoozz-text" src="../icons/snoozz.png">
 	</div>
-	<div tabindex="0" data-hover="Settings" class="settings"><img src="../icons/settings.svg"></div>
+	<div tabindex="0" data-hover="Settings" class="settings"><img src="../icons/settings.png"></div>
+	<div class="changelog-overlay">
+		<div id="changelog">
+			<div class="changelog-container">
+				<h2 class="center">Snoozz has been updated <span id="v"></span>&nbsp;🎉</h2>
+				<h3>What's new?</h3>
+				<ul>
+					<li>Use minutes in your <b>morning</b> and <b>evening</b> snooze times!</li>
+					<p>Go to the settings page to change your <b>morning</b> time to 8:45am.</p>
+					<li>Icon Packs!</li>
+					<p>Hate humans that are destroying our planet? Switch to the newly introduced <b>Animal</b> pack.</p>
+				</ul>
+			</div>
+		</div>
+	</div>
 	<div class="iframe-overlay"></div>
 	<div class="instructions hidden">
 		<img class="up-arrow" src="../icons/up-arrow.svg">
@@ -59,6 +73,7 @@
 	<script type="text/javascript" src="../scripts/common.js"></script>
 	<script type="text/javascript" src="../scripts/bodyScrollFreezer.js"></script>
 	<script type="text/javascript" src="../scripts/gradientStep.js"></script>
+	<script type="text/javascript" src="../scripts/lozad.js"></script>
 	<script type="text/javascript" src="../scripts/nap_room.js"></script>
 </body>
 </html>

@@ -66,8 +66,8 @@ async function saveOptions(o) {
 async function saveTab(t) {
 	if (!t) return;
 	var tabs = await getSnoozedTabs();
-	if (tabs.some(tab => tab.id == t.id)) {
-		tabs[tabs.findIndex(tab => tab.id == t.id)] = t;
+	if (tabs.some(tab => tab.id === t.id)) {
+		tabs[tabs.findIndex(tab => tab.id === t.id)] = t;
 	} else {
 		tabs.push(t);
 	}
@@ -82,8 +82,9 @@ async function createAlarm(when, willWakeUpATab) {
 	bgLog(['Next Alarm at', dayjs(when).format('HH:mm:ss DD/MM/YY')], ['', willWakeUpATab ? 'yellow':'white'])
 	await chrome.alarms.create('wakeUpTabs', {when});
 }
-async function createNotification(id, title, imgUrl, message) {
-	if (!chrome.notifications) return;
+async function createNotification(id, title, imgUrl, message, force) {
+	var n = typeof SAVED_OPTIONS !== 'undefined' && SAVED_OPTIONS.notifications ? SAVED_OPTIONS.notifications : await getOptions('notifications');
+	if (!chrome.notifications || (n && n === 'off' && !force)) return;
 	await chrome.notifications.create(id, {type: 'basic', iconUrl: chrome.extension.getURL(imgUrl), title, message});
 }
 async function createWindow(tabId) {
@@ -143,7 +144,7 @@ async function openTab(tab, windowId, automatic = false) {
 	}
 	if (!automatic) return;
 	var msg = `${tab.title} -- snoozed ${dayjs(tab.timeCreated).fromNow()}`;
-	createNotification(tab.id, 'A tab woke up!', 'icons/main-icon.png', msg);
+	createNotification(tab.id, 'A tab woke up!', 'icons/logo.svg', msg);
 }
 
 async function openWindow(t, automatic = false) {
@@ -171,7 +172,7 @@ async function openWindow(t, automatic = false) {
 	
 	if (!automatic) return;
 	var msg = `This window was put to sleep ${dayjs(t.timeCreated).fromNow()}`;
-	createNotification(t.id, 'A window woke up!', 'icons/main-icon.png', msg);
+	createNotification(t.id, 'A window woke up!', 'icons/logo.svg', msg);
 	return;
 }
 
@@ -180,9 +181,9 @@ async function editSnoozeTime(tabId, snoozeTime) {
 	delete t.startUp;
 	delete t.opened;
 	delete t.deleted;
-	t.wakeUpTime = snoozeTime == 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
+	t.wakeUpTime = snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
 	t.modifiedTime = dayjs().valueOf();
-	if (snoozeTime == 'startup') t.startUp = true;
+	if (snoozeTime === 'startup') t.startUp = true;
 	await saveTab(t);
 	return {edited: true}
 }
@@ -195,12 +196,11 @@ async function snoozeTab(snoozeTime, overrideTab) {
 		id: [...Array(16)].map(() => Math.random().toString(36)[2]).join(''),
 		title: activeTab.title ?? getBetterUrl(activeTab.url),
 		url: activeTab.url,
-		favicon: activeTab.favIconUrl && activeTab.favIconUrl.length < 150 ? activeTab.favIconUrl : '',
 		...activeTab.pinned ? {pinned: true} : {},
-		wakeUpTime: snoozeTime == 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
+		wakeUpTime: snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
 	}
-	if (snoozeTime == 'startup') sleepyTab.startUp = true;
+	if (snoozeTime === 'startup') sleepyTab.startUp = true;
 	await saveTab(sleepyTab);
 	chrome.runtime.sendMessage({logOptions: ['tab', sleepyTab, snoozeTime]});
 	var tabId = activeTab.id || await getTabId(activeTab.url);
@@ -218,10 +218,10 @@ async function snoozeWindow(snoozeTime, isAGroup) {
 
 	var sleepyGroup = {
 		id: Math.random().toString(36).slice(-10),
-		wakeUpTime: snoozeTime == 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
+		wakeUpTime: snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
 	}
-	if (snoozeTime == 'startup') sleepyGroup.startUp = true;
+	if (snoozeTime === 'startup') sleepyGroup.startUp = true;
 
 	if (isAGroup && false) {
 	// if (isAGroup && chrome.tabGroups) {
@@ -236,14 +236,13 @@ async function snoozeWindow(snoozeTime, isAGroup) {
 		tabs: validTabs.map(t => ({
 			title: t.title,
 			url: t.url,
-			favicon: t.favIconUrl && t.favIconUrl.length < 150 ? t.favIconUrl : '',
 			...t.pinned ? {pinned: true} : {}
 		}))
 	});
 	await saveTab(sleepyGroup);
 	if (isAGroup) {
 		chrome.runtime.sendMessage({logOptions: ['group', sleepyGroup, snoozeTime]});	
-		return {tabId: tabsInWindow.filter(t => t.groupId && t.groupId == active.groupId).map(t => t.id)}
+		return {tabId: tabsInWindow.filter(t => t.groupId && t.groupId === active.groupId).map(t => t.id)}
 	} else {
 		chrome.runtime.sendMessage({logOptions: ['window', sleepyGroup, snoozeTime]});	
 		return {windowId: tabsInWindow.find(w => w.active).windowId};
@@ -262,10 +261,19 @@ async function snoozeSelectedTabs(snoozeTime) {
 	return {tabId: tabsToClose}
 }
 
+async function getTimeWithModifier(choice) {
+	var c = await getChoices([choice])
+	var options = await getOptions(['morning', 'evening', 'popup']);
+	var modifier = options.popup ? options.popup[choice] : '';
+	options = upgradeSettings(options);
+	var m = options[modifier] ?? [dayjs().hour(), dayjs().minute()];
+	return dayjs(c.time).add(m[0], 'h').add(m[1], 'm');
+}
+
 async function getChoices(which) {
 	var NOW = dayjs();
-	var config = await getOptions(['morning', 'evening', 'timeOfDay']);
-	config.timeOfDay = config.timeOfDay === 'evening' ? config.evening : (config.timeOfDay === 'morning' ? config.morning : NOW.hour() + (NOW.minute() / 60))
+	var config = await getOptions(['morning', 'evening']);
+	if (typeof config.morning === 'number' || typeof config.evening === 'number') config = upgradeSettings(config);
 	var all = {
 		'startup': {
 			label: 'On Next Startup',
@@ -290,74 +298,76 @@ async function getChoices(which) {
 		'today-morning': {
 			label: 'This Morning',
 			repeatLabel: '-',
-			time: NOW.startOf('d').add(config.morning, 'h'),
+			time: NOW.startOf('d').add(config.morning[0], 'h').add(config.morning[1], 'm'),
 			timeString: 'Today',
 			repeatTime: '',
 			repeatTimeString: '',
-			disabled: NOW.startOf('d').add(config.morning, 'h').valueOf() < dayjs(),
+			disabled: NOW.startOf('d').add(config.morning[0], 'h').add(config.morning[1], 'm').valueOf() < dayjs(),
 			repeatDisabled: true,
 			menuLabel: 'till this morning'
 		},
 		'today-evening': {
-			label: 'This Evening',
-			repeatLabel: 'Everyday',
-			time: NOW.startOf('d').add(config.evening, 'h'),
+			label: `Today ${getEveningLabel(config.evening[0])}`,
+			repeatLabel: `Everyday`,
+			time: NOW.startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm'),
 			timeString: 'Today',
 			repeatTime: NOW.format(getHourFormat(true)),
 			repeatTimeString: 'Starts Tom At',
 			repeat: {operation: 'add', amount: 1, type: 'h'},
-			disabled: NOW.startOf('d').add(config.evening, 'h').valueOf() < dayjs(),
+			disabled: NOW.startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm').valueOf() < dayjs(),
 			menuLabel: 'till this evening'
 		},
 		'tom-morning': {
 			label: 'Tomorrow Morning',
 			repeatLabel: 'Every Morning',
-			time: NOW.startOf('d').add(1,'d').add(config.morning, 'h'),
+			time: NOW.startOf('d').add(1,'d').add(config.morning[0], 'h').add(config.morning[1], 'm'),
 			timeString: NOW.add(1,'d').format('ddd, D MMM'),
-			repeatTime: NOW.startOf('d').add(config.morning, 'h').format(getHourFormat(true)),
+			repeatTime: NOW.startOf('d').add(config.morning[0], 'h').add(config.morning[1], 'm').format(getHourFormat(true)),
+			repeatTimeString: `Starts ${NOW < NOW.startOf('d').add(config.morning[0], 'h').add(config.morning[1], 'm') ? 'Today' : 'Tom'} at`,
 			menuLabel: 'till tomorrow morning'
 		},
 		'tom-evening': {
-			label: 'Tomorrow Evening',
-			repeatLabel: 'Every Evening',
-			time: NOW.startOf('d').add(1,'d').add(config.evening, 'h'),
+			label: `Tomorrow ${getEveningLabel(config.evening[0])}`,
+			repeatLabel: `Every ${getEveningLabel(config.evening[0])}`,
+			time: NOW.startOf('d').add(1,'d').add(config.evening[0], 'h').add(config.evening[1], 'm'),
 			timeString: NOW.add(1,'d').format('ddd, D MMM'),
-			repeatTime: NOW.startOf('d').add(config.evening, 'h').format(getHourFormat(true)),
+			repeatTime: NOW.startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm').format(getHourFormat(true)),
+			repeatTimeString: `Starts ${NOW < NOW.startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm') ? 'Today' : 'Tom'} at`,
 			menuLabel: 'till tomorrow evening'
 		},
 		'weekend': {
 			label: 'Weekend',
 			repeatLabel: 'Every Weekend',
-			time: NOW.startOf('d').weekday(6).add(config.timeOfDay, 'h'),
+			time: NOW.startOf('d').weekday(6),
 			timeString: NOW.weekday(6).format('ddd, D MMM'),
-			repeatTime: NOW.startOf('d').add(config.timeOfDay, 'h').format(getHourFormat(true)),
-			repeatTimeString: `${NOW.weekday(6).format('ddd')} at`,
+			repeatTime: NOW.startOf('d').format(getHourFormat(true)),
+			repeatTimeString: `${NOW.weekday(6).format('dddd')}s at`,
 			disabled: NOW.day() === 5,
 			menuLabel: 'till the weekend'
 		},
 		'monday': {
 			label: 'Next Monday',
 			repeatLabel: 'Every Monday',
-			time: NOW.startOf('d').weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8).add(config.timeOfDay, 'h'),
+			time: NOW.startOf('d').weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8),
 			timeString: NOW.weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8).format('ddd, D MMM'),
-			repeatTime: NOW.startOf('d').add(config.timeOfDay, 'h').format(getHourFormat(true)),
-			repeatTimeString: `${NOW.weekday(1).format('ddd')} at`,
+			repeatTime: NOW.startOf('d').format(getHourFormat(true)),
+			repeatTimeString: `${NOW.weekday(1).format('dddd')}s at`,
 			menuLabel: 'till next Monday'
 		},
 		'week': {
 			label: 'Next Week',
 			repeatLabel: 'Every week',
-			time: NOW.startOf('d').add(1, 'week').add(config.timeOfDay, 'h'),
-			timeString: NOW.startOf('d').add(1, 'week').add(config.timeOfDay, 'h').format('D MMM'),
+			time: NOW.startOf('d').add(1, 'week'),
+			timeString: NOW.startOf('d').add(1, 'week').format('D MMM'),
 			repeatTime: NOW.format(getHourFormat(true)),
-			repeatTimeString: `${NOW.format('ddd')} at` ,
+			repeatTimeString: `${NOW.format('dddd')}s at` ,
 			menuLabel: 'for a week'
 		},
 		'month': {
 			label: 'Next Month',
 			repeatLabel: 'Every Month',
-			time: NOW.startOf('d').add(1, 'M').add(config.timeOfDay, 'h'),
-			timeString: NOW.startOf('d').add(1, 'M').add(config.timeOfDay, 'h').format('D MMM'),
+			time: NOW.startOf('d').add(1, 'M'),
+			timeString: NOW.startOf('d').add(1, 'M').format('D MMM'),
 			repeatTime: NOW.format(getHourFormat(true)),
 			repeatTimeString: `${NOW.format('Do')} of Month`,
 			menuLabel: 'for a month'
@@ -372,7 +382,8 @@ async function calculateNextSnoozeTime(choice, startTime) {
 
 /* END ASYNC FUNCTIONS */
 
-var getFaviconUrl = url => `https://www.google.com/s2/favicons?sz=32&domain=${getHostname(url)}`
+// var getFaviconUrl = url => `https://icons.duckduckgo.com/ip3/${getHostname(url)}.ico`
+var getFaviconUrl = url => `https://www.google.com/s2/favicons?sz=64&domain_url=${getHostname(url)}`;
 
 var getHostname = url => Object.assign(document.createElement('a'), {href: url}).hostname;
 
@@ -400,7 +411,7 @@ var verifyTab = tab => {
 
 var sleeping = tabs => tabs.filter(t => !t.opened);
 
-var today = tabs => tabs.filter(t => t.wakeUpTime && dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear() && dayjs(t.wakeUpTime).year() == dayjs().year())
+var today = tabs => tabs.filter(t => t.wakeUpTime && dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear() && dayjs(t.wakeUpTime).year() === dayjs().year())
 
 var isDefault = tabs => tabs.title && ['nap room | snoozz', 'settings | snoozz', 'rise and shine | snoozz', 'New Tab', 'Start Page'].includes(tabs.title);
 
@@ -436,15 +447,43 @@ var formatSnoozedUntil = t => {
 	var date = dayjs(ts);
 	if (date.dayOfYear() === dayjs().dayOfYear()) return (date.hour() > 17 ? 'Tonight' : 'Today') + date.format(` [@] ${getHourFormat(date.minute() !== 0)}`);
 	if (date.dayOfYear() === dayjs().add(1,'d').dayOfYear()) return 'Tomorrow' + date.format(` [@] ${getHourFormat(date.minute() !== 0)}`);
-	if (date.week() === dayjs().week()) return date.format(`ddd [@] ${getHourFormat(date.minute() !== 0)}`);
+	if (date.week() === dayjs().week()) return date.format(`dddd [@] ${getHourFormat(date.minute() !== 0)}`);
 	return date.format(`ddd, MMM D [@] ${getHourFormat(date.minute() !== 0)}`);
 }
 
-var getHourFormat = showZeros => (HOUR_FORMAT && HOUR_FORMAT == 24) ? 'HH:mm' : `h${showZeros ? ':mm' : ''} A`;
+var getHourFormat = showZeros => (HOUR_FORMAT && HOUR_FORMAT === 24) ? 'HH:mm' : `h${showZeros ? ':mm' : ''} A`;
+
+var getEveningLabel = (hour, isToday) => {
+	if (hour && hour <= 16) return 'Afternoon';
+	if (hour && hour >= 20) return 'Night';
+	return 'Evening';
+}
+
+var resizeDropdowns = _ => {
+	document.querySelectorAll('select').forEach(s => {
+		s.addEventListener('change', e => {
+			var d = Object.assign(document.createElement('select'), {style: {visibility: 'hidden', position: 'fixed'}});
+			var o = Object.assign(document.createElement('option'), {innerText: e.target.options[e.target.selectedIndex].text});
+			d.append(o);
+			e.target.after(d);
+			e.target.style.width = `${d.getBoundingClientRect().width}px`;
+			d.remove();
+		});
+		s.dispatchEvent(new Event('change'));
+	});
+}
 
 var getUrlParam = p => {
 	var url = new URLSearchParams(window.location.search);
 	return url.get(p); 
+}
+
+var upgradeSettings = settings => {
+	if (!settings) return;
+	if (settings.morning && typeof settings.morning === 'number') settings.morning = [settings.morning, 0];
+	if (settings.evening && typeof settings.evening === 'number') settings.evening = [settings.evening, 0];
+	if (settings.popup && settings.timeOfDay) delete settings.timeOfDay;
+	return settings;
 }
 
 var bgLog = (logs, colors, timestampColor = 'grey') => {

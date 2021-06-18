@@ -27,6 +27,7 @@ body {
 #time-container {
 	max-width: 80em;
 	margin: 0 auto;
+	padding-bottom: 1rem;
 }
 h2.time-name {
 	padding: 0 .25em;
@@ -317,12 +318,12 @@ body.dark .tabs .little-tab:hover {
 	}
 }
 
-p {
+body > p {
 	text-align: center;
 	font-size: 1.2em;
 	margin: 2.5em 0;
 }
-body:not(.dark) p {
+body:not(.dark) > p {
 	opacity: .75;
 }
 .settings img {
@@ -436,7 +437,7 @@ body:not(.dark) p {
 		display: none;
 	}
 }
-.iframe-overlay {
+.iframe-overlay, .changelog-overlay {
 	z-index: 3;
 	position: absolute;
 	overflow: hidden;
@@ -450,18 +451,36 @@ body:not(.dark) p {
 	flex-direction: column;
 	display: none;
 }
-.iframe-overlay.open {
+.iframe-overlay.open, .changelog-overlay.open {
 	display: flex;
 }
-.iframe-overlay.open ~ div {
+.iframe-overlay.open ~ div, .changelog-overlay.open ~ div {
 	filter: blur(5px);
 }
 .iframe-overlay iframe {
-	width: 673px;
+	width: 50em;
 	border: 0;
+	border-radius: .5rem;
 	transform: translateY(100vh);
 	transition: transform .5s ease-in-out;
 }
 .iframe-overlay.open iframe {
 	transform: translateY(0);
+}
+#changelog {
+	padding: .25rem;
+	background: linear-gradient(-45deg, rgba(223,78,118,1) 0%, rgba(243,184,69,1) 100%);
+}
+.changelog-container {
+	background-color: var(--bg-color);
+	width: 36rem;
+	min-height: 10rem;
+	padding: 1rem 1.5rem;
+}
+.changelog-container h2 {
+	padding-bottom: 1rem;
+}
+.changelog-container li + p {
+	margin-top: 0;
+	color: #888;
 }

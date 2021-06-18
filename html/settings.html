@@ -9,72 +9,98 @@
 	<link rel="stylesheet" href="../styles/settings.css" />
 </head>
 <body>
-	<div class="scroll-logo hidden"><img src="../icons/main-icon.png"></div>
+	<div class="scroll-logo hidden"><img src="../icons/logo.svg"></div>
 	<div class="flex center">
-		<img class="snoozz-logo hoverable" src="../icons/main-icon.png">
+		<img class="snoozz-logo hoverable" src="../icons/logo.svg">
 		<img class="snoozz-text" src="../icons/snoozz.png">
 	</div>
 	<div tabindex="0" class="nap-room" data-href="/html/nap-room.html" data-hover="See your sleeping tabs"><img data-href="/html/nap-room.html" src="../icons/human/nap-room.png"></div>
 	<div class="settings-container">
-		<h2><span>Settings</span></h2><br>
+		<h2 class="center"><span>Settings</span></h2><br>
 		<div class="input-container flex">
 			<div>
 				<h4>Morning time</h4>
 				<p>Choose the default hour to display for the morning.</p>
 			</div>
-			<div class="select-wrapper"><select id="morning">
-				<option value="0">12 AM</option>
-				<option value="1">1 AM</option>
-				<option value="2">2 AM</option>
-				<option value="3">3 AM</option>
-				<option value="4">4 AM</option>
-				<option value="5">5 AM</option>
-				<option value="6">6 AM</option>
-				<option value="7">7 AM</option>
-				<option value="8">8 AM</option>
-				<option value="9">9 AM</option>
-				<option value="10">10 AM</option>
-				<option value="11">11 AM</option>
-			</select></div>
+			<div class="flex">
+				<div class="select-wrapper"><select class="am-pm" id="morning_h">
+					<option value="0">12</option>
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+					<option value="6">6</option>
+					<option value="7">7</option>
+					<option value="8">8</option>
+					<option value="9">9</option>
+					<option value="10">10</option>
+					<option value="11">11</option>
+				</select></div>
+				<span class="seperator">:</span> 
+				<div class="select-wrapper"><select class="am-pm" id="morning_m">
+					<option value="0">00</option>
+					<option value="5">05</option>
+					<option value="10">10</option>
+					<option value="15">15</option>
+					<option value="20">20</option>
+					<option value="25">25</option>
+					<option value="30">30</option>
+					<option value="35">35</option>
+					<option value="40">40</option>
+					<option value="45">45</option>
+					<option value="50">50</option>
+					<option value="55">55</option>
+				</select></div>
+				<span class="am-pm">AM</span>
+			</div>
 		</div>
 		<div class="input-container flex">
 			<div>
 				<h4>Evening time</h4>
 				<p>Choose the default hour to display for the evening.</p>
 			</div>
-			<div class="select-wrapper"><select id="evening">
-				<option value="12">12 PM</option>
-				<option value="13">1 PM</option>
-				<option value="14">2 PM</option>
-				<option value="15">3 PM</option>
-				<option value="16">4 PM</option>
-				<option value="17">5 PM</option>
-				<option value="18">6 PM</option>
-				<option value="19">7 PM</option>
-				<option value="20">8 PM</option>
-				<option value="21">9 PM</option>
-				<option value="22">10 PM</option>
-				<option value="23">11 PM</option>
-			</select></div>
+			<div class="flex">
+				<div class="select-wrapper"><select class="am-pm" id="evening_h">
+					<option value="12">12</option>
+					<option value="13">1</option>
+					<option value="14">2</option>
+					<option value="15">3</option>
+					<option value="16">4</option>
+					<option value="17">5</option>
+					<option value="18">6</option>
+					<option value="19">7</option>
+					<option value="20">8</option>
+					<option value="21">9</option>
+					<option value="22">10</option>
+					<option value="23">11</option>
+				</select></div>
+				<span class="seperator">:</span> 
+				<div class="select-wrapper"><select class="am-pm" id="evening_m">
+					<option value="0">00</option>
+					<option value="5">05</option>
+					<option value="10">10</option>
+					<option value="15">15</option>
+					<option value="20">20</option>
+					<option value="25">25</option>
+					<option value="30">30</option>
+					<option value="35">35</option>
+					<option value="40">40</option>
+					<option value="45">45</option>
+					<option value="50">50</option>
+					<option value="55">55</option>
+				</select></div>
+				<span class="am-pm">PM</span>
+			</div>
 		</div>
 		<div class="input-container flex">
 			<div>
 				<h4>Time Format</h4>
+				<p><i>"Thank you for your service."</i></p>
 			</div>
-			<div class="select-wrapper"><select id="hourFormat">
+			<div class="select-wrapper"><select class="direct" id="hourFormat">
 				<option value="12">12 Hour</option>
 				<option value="24">24 Hour</option>
-			</select></div>
-		</div>
-		<div class="input-container flex">
-			<div>
-				<h4>Default time of day</h4>
-				<p>Choose the default time to snooze tabs for these choices:<br>weekend, monday, next week, next month.</p>
-			</div>
-			<div class="select-wrapper"><select id="timeOfDay">
-				<option value="morning">Morning</option>
-				<option value="evening">Evening</option>
-				<option value="now">Current Time</option>
 			</select></div>
 		</div>
 		<div class="input-container flex">
@@ -83,7 +109,7 @@
 				<p>Choose to see an animation before closing the Snoozz popup.</p>
 				<p>You may close the popup at any time. Changes will always be saved.</p>
 			</div>
-			<div class="select-wrapper"><select id="closeDelay">
+			<div class="select-wrapper"><select class="direct" id="closeDelay">
 				<option value="1">0 seconds</option>
 				<option value="1000">1 second</option>
 				<option value="2000">2 seconds</option>
@@ -93,7 +119,7 @@
 			<div>
 				<h4>Icon Theme</h4>
 			</div>
-			<div class="select-wrapper"><select id="icons">
+			<div class="select-wrapper"><select class="direct" id="icons">
 				<option value="human">Humans</option>
 				<option value="animal">Animals</option>
 			</select></div>
@@ -102,9 +128,19 @@
 			<div>
 				<h4>Extension Theme</h4>
 			</div>
-			<div class="select-wrapper"><select id="theme">
+			<div class="select-wrapper"><select class="direct" id="theme">
 				<option value="light">Light</option>
 				<option value="dark">Dark</option>
+			</select></div>
+		</div>
+		<div class="input-container flex">
+			<div>
+				<h4>Snoozz Notifications</h4>
+				<p>Choose to see browser notifcations for tabs and windows waking up.</p>
+			</div>
+			<div class="select-wrapper"><select class="direct" id="notifications">
+				<option value="on">Yes, please</option>
+				<option value="off">No way</option>
 			</select></div>
 		</div>
 		<div class="input-container flex">
@@ -112,7 +148,7 @@
 				<h4>Show badge on Snoozz icon</h4>
 				<p>Choose if you want to see the number of snoozzed tabs<br> on top of the extension icon.</p>
 			</div>
-			<div class="select-wrapper"><select id="badge">
+			<div class="select-wrapper"><select class="direct" id="badge">
 				<option value="disabled">None</option>
 				<option value="today">Waking Up Today</option>
 				<option value="all">All Snoozed Tabs</option>
@@ -126,16 +162,52 @@
 			</div>
 			<div tabindex="0" class="btn"><div></div></div>
 			<div id="contextMenu" class="choice-list">
-				<div><input type="checkbox" id="startup"><label for="startup">On Browser Launch</label></div>
-				<div><input type="checkbox" id="in-an-hour"><label for="in-an-hour">In One Hour</label></div>
-				<div><input type="checkbox" id="today-morning"><label for="today-morning">This Morning</label></div>
-				<div><input type="checkbox" id="today-evening"><label for="today-evening">This Evening</label></div>
-				<div><input type="checkbox" id="tom-morning"><label for="tom-morning">Tomorrow Morning</label></div>
-				<div><input type="checkbox" id="tom-evening"><label for="tom-evening">Tomorrow Evening</label></div>
-				<div><input type="checkbox" id="weekend"><label for="weekend">Weekend</label></div>
-				<div><input type="checkbox" id="monday"><label for="monday">Next Monday</label></div>
-				<div><input type="checkbox" id="week"><label for="week">Next Week</label></div>
-				<div><input type="checkbox" id="month"><label for="month">Next Month</label></div>
+				<div><input type="checkbox" id="startup"><label for="startup"><span>On Browser Launch</span></label></div>
+				<div><input type="checkbox" id="in-an-hour"><label for="in-an-hour"><span>In One Hour</span></label></div>
+				<div><input type="checkbox" id="today-morning"><label for="today-morning"><span>This Morning</span></label></div>
+				<div><input type="checkbox" id="today-evening"><label for="today-evening"><span>This Evening</span></label></div>
+				<div><input type="checkbox" id="tom-morning"><label for="tom-morning"><span>Tomorrow Morning</span></label></div>
+				<div><input type="checkbox" id="tom-evening"><label for="tom-evening"><span>Tomorrow Evening</span></label></div>
+				<div><input type="checkbox" id="weekend"><label for="weekend">
+					<span>Weekend</span>
+					<div class="select-wrapper">
+						<select class="popup" id="popup_weekend">
+							<option value="morning">Morning</option>
+							<option value="evening">Evening</option>
+							<option value="now">Current Time</option>
+						</select>
+					</div>
+				</label></div>
+				<div><input type="checkbox" id="monday"><label for="monday">
+					<span>Next Monday</span>
+					<div class="select-wrapper">
+						<select class="popup" id="popup_monday">
+							<option value="morning">Morning</option>
+							<option value="evening">Evening</option>
+							<option value="now">Current Time</option>
+						</select>
+					</div>
+				</label></div>
+				<div><input type="checkbox" id="week"><label for="week">
+					<span>Next Week</span>
+					<div class="select-wrapper">
+						<select class="popup" id="popup_week">
+							<option value="morning">Morning</option>
+							<option value="evening">Evening</option>
+							<option value="now">Current Time</option>
+						</select>
+					</div>
+				</label></div>
+				<div><input type="checkbox" id="month"><label for="month">
+					<span>Next Month</span>
+					<div class="select-wrapper">
+						<select class="popup" id="popup_month">
+							<option value="morning">Morning</option>
+							<option value="evening">Evening</option>
+							<option value="now">Current Time</option>
+						</select>
+					</div>
+				</label></div>
 			</div>
 		</div>
 		<div class="input-container flex" id="shortcut">
@@ -188,7 +260,7 @@
 				<p>Woken up tabs will be individually cleared after hanging around for this much time.</p>
 				<p>This setting <strong>only</strong> applies to Snoozz and <strong>will not</strong> modify your browser history.</p>
 			</div>
-			<div class="select-wrapper"><select id="history">
+			<div class="select-wrapper"><select class="direct" id="history">
 				<option value="1">24 Hours</option>
 				<option value="2">48 Hours</option>
 				<option value="3">72 Hours</option>
@@ -206,10 +278,21 @@
 		</div>
 		<div class="input-container flex">
 			<div>
+				<h4>Help make Snoozz better</h4>
+				<p>Snoozz <a target="_blank" href="https://snoozz.me/stats.html">collects</a> anonymous click data in the popup.</p>
+				<p>You can learn more about this on the <a target="_blank" href="https://snoozz.me/privacy.html">our website</a></p>
+			</div>
+			<div class="select-wrapper"><select class="direct" id="polling">
+				<option value="on">Sure</option>
+				<option value="off">Nope</option>
+			</select></div>
+		</div>
+		<div class="input-container flex">
+			<div>
 				<h4>Manage Snoozz Data</h4>
 				<p>Import or Export tabs from this device.</p>
-				<p>No data will be lost during data transfer.</p>
-				<p>Any duplicate tabs will be combined with your existing data.</p>
+				<p>No data will be deleted when you peform this action.</p>
+				<p>Any duplicate tabs will be intelligently combined with your existing data.</p>
 			</div>
 			<div class="flex">
 				<input type="file" accept="text/plain" id="import_hidden">
@@ -218,13 +301,13 @@
 			</div>
 		</div>
 		<div class="reset-container center">
-			<a tabindex="0" id="reset">reset settings</a>
+			<a tabindex="0" id="reset">reset settings to default</a>
 		</div>
 	</div><br>
-	<div class="about-container">
+	<div class="about-container center">
 		<h2><span>About</span></h2>
 		<p id="version"></p>
-		<div class="flex">
+		<div class="flex links">
 			<span><a target='_blank' href="https://snoozz.me/">snooozz.me</a></span>
 			<span><a target='_blank' href="https://github.com/rohanb10/snoozz-tab-snoozing/">github</a></span>
 			<span><a target='_blank' href="https://snoozz.me/changelog.html">changelog</a></span>
@@ -233,9 +316,10 @@
 			<span><a target='_blank' href="https://snoozz.me/attribution.html">attribution</a></span>
 			<span><a target='_blank' href="https://github.com/rohanb10/snoozz-tab-snoozing/blob/master/LICENSE">license</a></span>
 		</div>
-		<div>
-			<span>Built by <a target='blank' href="https://rohan.xyz">rohan</a> in 2020/21.</span>
-			<span><a target="_blank" href="https://www.buymeacoffee.com/rohanb10">Buy me a beer</a><big>🍺</big></span>
+		<div class="flex me">
+			<span><span class="fake-emoji">&nbsp;</span>Developed by <a target='blank' href="https://rohan.xyz">rohan</a></span>
+			<span>Built with <span class="emoji"></span> in Mumbai</span>
+			<span><a target="_blank" href="https://www.buymeacoffee.com/rohanb10">Donate</a> to Snoozz<span class="fake-emoji">&nbsp;</span></span>
 		</div>
 	</div>
 	<div class="copied">Copied to clipboard</div>

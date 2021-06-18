@@ -1,6 +1,10 @@
-var SAVED_OPTIONS;
-chrome.runtime.onMessage.addListener(msg => {
-	if (msg.logOptions) sendToLogs(msg.logOptions)
+chrome.runtime.onMessage.addListener(async msg => {
+	if (msg.logOptions) sendToLogs(msg.logOptions);
+	if (msg.poll && (navigator && navigator.onLine)) {
+		var p = await getOptions('polling');
+		if (p !== 'off') poll(msg.poll);
+	}
+	if (msg.wakeUp) await wakeUpTask();
 	if (msg.close) setTimeout(_ => {
 		if (msg.tabId) chrome.tabs.remove(msg.tabId);
 		if (msg.windowId) chrome.windows.remove(msg.windowId);
@@ -11,7 +15,6 @@ chrome.storage.onChanged.addListener(async changes => {
 	if (changes.snoozedOptions) {
 		await setUpContextMenus(changes.snoozedOptions.newValue.contextMenu);
 		updateBadge(null, changes.snoozedOptions.newValue.badge);
-		SAVED_OPTIONS = changes.snoozedOptions.newValue;
 		if (changes.snoozedOptions.oldValue && changes.snoozedOptions.newValue.history !== changes.snoozedOptions.oldValue.history) await wakeUpTask();
 	}
 	if (changes.snoozed) {
@@ -20,7 +23,7 @@ chrome.storage.onChanged.addListener(async changes => {
 	}
 });
 
-chrome.notifications.onClicked.addListener(async id => {
+if (chrome.notifications) chrome.notifications.onClicked.addListener(async id => {
 	await chrome.notifications.clear(id)
 	var t = await getSnoozedTabs(id);
 	if (t && t.id && id && id.length) {
@@ -87,7 +90,7 @@ async function setUpContextMenus(cachedMenus) {
 		chrome.contextMenus.create({
 			id: cm[0], 
 			contexts: contexts, 
-			title: `Snoozz until ${choices[cm[0]].label.toLowerCase()}`, 
+			title: `Snoozz ${choices[cm[0]].label.toLowerCase()}`, 
 			documentUrlPatterns: ['<all_urls>'],
 			...(getBrowser() === 'firefox') ? {icons: {32: `../icons/${cm[0]}.png`}} : {}
 		})
@@ -115,24 +118,24 @@ async function snoozeInBackground(item, tab) {
 	
 	var isHref = item.linkUrl && item.linkUrl.length;
 	var url = isHref ? item.linkUrl : item.pageUrl;
-	if(!isValid({url})) return createNotification(null, `Can't snoozz that :(`, 'icons/main-icon.png', 'The link you are trying to snooze is invalid.');
+	if(!isValid({url})) return createNotification(null, `Can't snoozz that :(`, 'icons/logo.svg', 'The link you are trying to snooze is invalid.', true);
 
 	var snoozeTime = c && c.time;
+	if (c && ['weekend', 'monday', 'week', 'month'].includes(item.menuItemId)) snoozeTime = await getTimeWithModifier(item.menuItemId);
 	if (!snoozeTime || c.disabled || dayjs().isAfter(dayjs(snoozeTime))) {
-		return createNotification(null, `Can't snoozz that :(`, 'icons/main-icon.png', 'The time you have selected is invalid.');
+		return createNotification(null, `Can't snoozz that :(`, 'icons/logo.svg', 'The time you have selected is invalid.', true);
 	}
 	// add attributes
-	var startUp = item.menuItemId == 'startup' ? true : undefined;
+	var startUp = item.menuItemId === 'startup' ? true : undefined;
 	var title = !isHref ? tab.title : (item.linkText ? item.linkText : item.selectionText);
-	var favIconUrl = !isHref ? tab.favIconUrl : undefined;
 	var wakeUpTime = snoozeTime.valueOf();
 	var pinned = !isHref && tab.pinned ? tab.pinned : undefined;
-	var assembledTab = Object.assign(item, {url, title, favIconUrl, pinned, startUp, wakeUpTime})
+	var assembledTab = Object.assign(item, {url, title, pinned, startUp, wakeUpTime})
 
-	var snoozed = await snoozeTab(item.menuItemId == 'startup' ? 'startup' : snoozeTime.valueOf(), assembledTab);
+	var snoozed = await snoozeTab(item.menuItemId === 'startup' ? 'startup' : snoozeTime.valueOf(), assembledTab);
 	
 	var msg = `${!isHref ? tab.title : getHostname(url)} will wake up ${formatSnoozedUntil(assembledTab)}.`
-	createNotification(snoozed.tabDBId, 'A new tab is now napping :)', 'icons/main-icon.png', msg);
+	createNotification(snoozed.tabDBId, 'A new tab is now napping :)', 'icons/logo.svg', msg, true);
 
 	if (!isHref) await chrome.tabs.remove(tab.id);
 	await chrome.runtime.sendMessage({updateDash: true});
@@ -147,7 +150,7 @@ async function contextMenuUpdater(menu) {
 }
 
 async function cleanUpHistory(tabs) {
-	var h = SAVED_OPTIONS && SAVED_OPTIONS.history ? SAVED_OPTIONS.history : await getOptions('history');
+	var h = await getOptions('history') || 365;
 	var tabsToDelete = tabs.filter(t => h && t.opened && dayjs().isAfter(dayjs(t.opened).add(h, 'd')));
 	if (tabsToDelete.length === 0) return;
 	bgLog(['Deleting old tabs automatically:',tabsToDelete.map(t => t.id)],['','red'], 'red')
@@ -158,18 +161,22 @@ async function setUpExtension() {
 	var snoozed = await getSnoozedTabs();
 	if (!snoozed || !snoozed.length || snoozed.length === 0) await saveTabs([]);
 	var options = await getOptions();
-	await saveOptions(Object.assign({
-		morning: 9,
-		evening: 18,
+	options = Object.assign({
+		morning: [9, 0],
+		evening: [18, 0],
 		hourFormat: 12,
 		icons: 'human',
-		timeOfDay: 'morning',
+		notifications: 'on',
 		history: 14,
 		theme: 'light',
 		badge: 'today',
 		closeDelay: 1000,
+		polling: 'on',
+		popup: {weekend: options.timeOfDay || 'morning', monday: options.timeOfDay || 'morning', week: options.timeOfDay || 'morning', month: options.timeOfDay || 'morning'},
 		contextMenu: ['startup', 'in-an-hour', 'today-evening', 'tom-morning', 'weekend']
-	}, options));
+	}, options);
+	options = upgradeSettings(options);
+	await saveOptions(options);
 	await init();
 }
 function sendToLogs([which, p1]) {
@@ -191,7 +198,13 @@ async function init() {
 	await setUpContextMenus();
 }
 
-chrome.runtime.onInstalled.addListener(setUpExtension);
+chrome.runtime.onInstalled.addListener(async details => {
+	setUpExtension();
+	if (details && details.reason && details.reason == 'update' && details.previousVersion && details.previousVersion != chrome.runtime.getManifest().version) {
+		await new Promise(r => chrome.storage.local.set({'updated': true}, r));
+		if (chrome.notifications) createNotification(null, 'Snoozz has been updated', 'icons/logo.svg', 'Click here to see what\'s new.', true);
+	}
+});
 chrome.runtime.onStartup.addListener(init);
 chrome.alarms.onAlarm.addListener(async a => { if (a.name === 'wakeUpTabs') await wakeUpTask()});
 if (chrome.idle) chrome.idle.onStateChanged.addListener(async s => {if (s === 'active' || getBrowser() === 'firefox') await wakeUpTask()});

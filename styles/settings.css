@@ -58,7 +58,6 @@ select, option {
 	border-radius: 0;
 	border: none;
 	outline: none;
-	text-align-last: center;
 	font-size: .9rem;
 	padding: .25em;
 }
@@ -122,8 +121,16 @@ select {
 	background-repeat: no-repeat;
 	background-position-x: 100%;
 	background-position-y: center;
-	padding-right: 20px;
+	padding-right: 1.25rem;
 	color: var(--color);
+}
+.seperator {
+	display: inline-block;
+	margin: 0 .5rem;
+}
+span.am-pm {
+	font-size: .8em;
+	margin-left: .5rem;
 }
 body.dark select {
 	background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path fill='white' d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
@@ -144,11 +151,29 @@ body.dark select {
 	transition: max-height .5s ease-in-out, padding-top .1s linear .4s;
 }
 .choice-list input:disabled + label {
-	opacity: .25
+	opacity: .25;
 }
 .choice-list > div {
-	font-size: 1.1em;
+	font-size: 1.1rem;
 	margin: .5em;
+	display: flex;
+	align-items: center;
+}
+.choice-list > div label {
+	display: flex;
+	align-items: center;
+}
+.choice-list .select-wrapper {
+	margin-left: .5rem;
+}
+.choice-list .select-wrapper:after {
+	height: 0;
+}
+.choice-list select {
+	background-color: rgba(0,0,0,.1);
+	border-radius: .25rem;
+	padding: .1rem 1.5rem .1rem .5rem;
+	color: var(--color);
 }
 #right-click.show .choice-list {
 	padding-top: 1em;
@@ -254,21 +279,27 @@ p.storage-text, p.storage-low, p.storage-full {
 }
 #reset {
 	display: inline-block;
-	margin: 3em 0 0;
+	margin: 3em 0 1em;
 	cursor: pointer;
 	text-decoration: underline;
 	opacity: .75;
 }
-.about-container .flex {
-	justify-content: flex-start;
-}
 #version {
-	margin-top: 2.5em;
+	margin-top: 1.5em;
 }
 .about-container p, .about-container div span {
-	padding-left: 1.25em;
-	padding-right: .5em;
 	margin-bottom: 1em;
+}
+.about-container .flex.links span {
+	width: 115px;
+}
+.about-container .flex.me span {
+	width: 200px;
+}
+.about-container span.emoji, .about-container span.fake-emoji {
+	font-size: 1.75rem;
+	padding: 0 .25rem;
+	transform: scale(1) translateY(10%);
 }
 big {
 	font-size: 1.25em;
