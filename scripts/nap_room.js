@@ -230,8 +230,8 @@ function buildTabActions(t, tabDiv) {
 
 		// using new wakeup button as snooze again button for layout purposes
 		var newEditBtn = Object.assign(document.createElement('img'), {className:'edit-button', src: '../icons/ext-icon-128.png', tabIndex: 0});
-		newEditBtn.onclick = _ => openEditModal(t.id);
-		newEditBtn.onkeyup = e => {if (e.which === 13) openEditModal(t.id)}
+		newEditBtn.onclick = _ => openEditModal(t.id, tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
+		newEditBtn.onkeyup = e => {if (e.which === 13) openEditModal(t.id, tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png')}
 		tabDiv.querySelector('.wakeup-btn-container').classList.add('again')
 		tabDiv.querySelector('.wakeup-btn-container').append(newEditBtn);
 
@@ -240,8 +240,8 @@ function buildTabActions(t, tabDiv) {
 		newRemoveBtn.onkeyup = async e => {if (e.which === 13) await removeTabsFromHistory([t.id])}
 		tabDiv.querySelector('.remove-btn-container').append(newRemoveBtn)
 	} else {
-		editBtn.onclick = _ => openEditModal(t.id);
-		editBtn.onkeyup = e => {if (e.which === 13) openEditModal(t.id)}
+		editBtn.onclick = _ => openEditModal(t.id, tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
+		editBtn.onkeyup = e => {if (e.which === 13) openEditModal(t.id, tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png')}
 		wakeUpBtn.onclick = async _ => await wakeUpTabsAbruptly([t.id]);
 		wakeUpBtn.onkeyup = async e => {if (e.which === 13) await wakeUpTabsAbruptly([t.id])}
 		removeBtn.onclick = async _ => await sendTabsToHistory([t.id])
@@ -321,17 +321,17 @@ function getTimeGroup(tab, timeType = 'wakeUpTime', searchQuery = false) {
 	return searchQuery ? group : group[0];
 }
 
-function openEditModal(tabId) {
+function openEditModal(tabId, imgMissing) {
 	var overlay = document.querySelector('body > .iframe-overlay');
 	overlay.style.top = window.scrollY + 'px';
 	var iframe = document.createElement('iframe');
 	iframe.setAttribute('tabIndex', '-1');
-	iframe.src = './popup.html?edit=true&tabId=' + tabId;
+	iframe.src = './popup.html?edit=true&tabId=' + tabId + (imgMissing ? '&noImg=true' : '');
 	iframe.setAttribute('scrolling', 'no');
 	overlay.append(iframe);
 	overlay.classList.add('open');
 	setTimeout(_ => {try {iframe.contentWindow.focus()} catch(e){}}, 200);
-	bodyScrollFreezer.freeze();
+	bsf.freeze();
 	overlay.addEventListener('click', closeOnOutsideClick, {once: true});
 	document.addEventListener('keyup', closeOnOutsideClick);
 }
@@ -356,7 +356,7 @@ function closeEditModal() {
 	overlay.classList.remove('open');
 	overlay.querySelector('iframe').remove();
 	overlay.style.top = '';
-	bodyScrollFreezer.unfreeze()
+	bsf.unfreeze()
 }
 
 async function wakeUpTabsAbruptly(ids) {
@@ -395,7 +395,7 @@ async function checkForUpdates() {
 	var overlay = document.querySelector('body > .changelog-overlay');
 	overlay.querySelector('#v').innerText = `to v${chrome.runtime.getManifest().version}`;
 	overlay.classList.add('open');
-	bodyScrollFreezer.freeze();
+	bsf.freeze();
 	overlay.addEventListener('click', closeChangelog, {once: true});
 	document.addEventListener('keyup', closeChangelog);
 
@@ -408,7 +408,7 @@ function closeChangelog(e) {
 		overlay.removeEventListener('click', closeChangelog);
 		document.removeEventListener('keyup', closeChangelog);
 		overlay.classList.remove('open');
-		bodyScrollFreezer.unfreeze()
+		bsf.unfreeze()
 	}
 }
 

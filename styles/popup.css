@@ -210,7 +210,7 @@ h3 {
 	outline: none;
 	height: 4em;
 	justify-content: space-between;
-	cursor: pointer;
+	cursor: pointer !important;
 }
 
 .choice.disabled, .choice.always-disabled, .custom-choice.disabled, h3.disabled,  div[data-preview].disabled .preview {
@@ -265,6 +265,9 @@ h3 {
 	padding: .1rem 1rem .1rem .25rem;
 	cursor: pointer;
 	color: var(--color);
+}
+.choice select:hover {
+	background-color: rgba(0, 0, 0, .25);
 }
 .choice .select-wrapper {
 	position: relative;
