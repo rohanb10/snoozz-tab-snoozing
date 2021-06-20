@@ -25,6 +25,7 @@ chrome.storage.onChanged.addListener(async changes => {
 
 if (chrome.notifications) chrome.notifications.onClicked.addListener(async id => {
 	await chrome.notifications.clear(id)
+	if (id === '_wakeUpNow') return await wakeUpTask();
 	var t = await getSnoozedTabs(id);
 	if (t && t.id && id && id.length) {
 		var found = t.tabs ? await findTabAnywhere(null, t.id) : await findTabAnywhere(t.url);
@@ -210,7 +211,6 @@ chrome.alarms.onAlarm.addListener(async a => { if (a.name === 'wakeUpTabs') awai
 if (chrome.idle) chrome.idle.onStateChanged.addListener(async s => {
 	if (s === 'active' || getBrowser() === 'firefox') {
 		if (navigator && navigator.onLine === false) {
-			console.log('waiting');
 			window.addEventListener('online', async _ => {await wakeUpTask()}, {once: true});
 		} else {
 			await wakeUpTask();	
