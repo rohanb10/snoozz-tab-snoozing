@@ -14,10 +14,6 @@ async function initialize() {
 	if (options.icons) document.querySelector('.nap-room img').src = `../icons/${options.icons}/nap-room.png`;
 
 	try {updateFormValues(options)} catch(e) {}
-
-	chrome.storage.onChanged.addListener(async changes => {
-		if (changes.snoozedOptions && changes.snoozedOptions.newValue) updateFormValues(changes.snoozedOptions.newValue);
-	});
 	
 	addListeners();
 	await fetchHourFormat();
@@ -98,6 +94,7 @@ function addListeners() {
 }
 
 async function save(e) {
+	e.stopPropagation();
 	if (e && e.target.id === 'history') {
 		var tabs = await getSnoozedTabs();
 		var count = tabs.filter(t => t.opened && dayjs().isAfter(dayjs(t.opened).add(e.target.value, 'd'))).length;
