@@ -59,6 +59,12 @@ async function getStorageSize() {
 }
 
 /*	SAVE 	*/
+async function saveOption(key, val) {
+	if (!key || !val) return;
+	var o = await getOptions();
+	o[key] = val;
+	await saveOptions(o);
+}
 async function saveOptions(o) {
 	if (!o) return;
 	return new Promise(r => chrome.storage.local.set({'snoozedOptions': o}, r));
@@ -283,6 +289,7 @@ async function getChoices(which) {
 			timeString: '',
 			repeatTime: '',
 			repeatTimeString: '',
+			repeat: 'startup',
 			menuLabel: 'till next startup'
 		},
 		'in-an-hour': {
@@ -292,7 +299,7 @@ async function getChoices(which) {
 			timeString: NOW.add(1, 'h').dayOfYear() == NOW.dayOfYear() ? 'Today' : 'Tomorrow',
 			repeatTime: NOW.add(1, 'h').format(getHourFormat(true)),
 			repeatTimeString: `Starts at`,
-			repeat: {operation: 'add', amount: 1, type: 'h'},
+			repeat: 'hourly',
 			menuLabel: 'for an hour'
 		},
 		'today-morning': {
@@ -312,8 +319,8 @@ async function getChoices(which) {
 			time: NOW.startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm'),
 			timeString: 'Today',
 			repeatTime: NOW.format(getHourFormat(true)),
-			repeatTimeString: 'Starts Tom At',
-			repeat: {operation: 'add', amount: 1, type: 'h'},
+			repeatTimeString: 'Starts Tom at',
+			repeat: 'daily',
 			disabled: NOW.startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm').valueOf() < dayjs(),
 			menuLabel: 'till this evening'
 		},
@@ -324,6 +331,7 @@ async function getChoices(which) {
 			timeString: NOW.add(1,'d').format('ddd, D MMM'),
 			repeatTime: NOW.startOf('d').add(config.morning[0], 'h').add(config.morning[1], 'm').format(getHourFormat(true)),
 			repeatTimeString: `Starts ${NOW < NOW.startOf('d').add(config.morning[0], 'h').add(config.morning[1], 'm') ? 'Today' : 'Tom'} at`,
+			repeat: 'daily_morning',
 			menuLabel: 'till tomorrow morning'
 		},
 		'tom-evening': {
@@ -333,6 +341,7 @@ async function getChoices(which) {
 			timeString: NOW.add(1,'d').format('ddd, D MMM'),
 			repeatTime: NOW.startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm').format(getHourFormat(true)),
 			repeatTimeString: `Starts ${NOW < NOW.startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm') ? 'Today' : 'Tom'} at`,
+			repeat: 'daily_evening',
 			menuLabel: 'till tomorrow evening'
 		},
 		'weekend': {
@@ -342,6 +351,7 @@ async function getChoices(which) {
 			timeString: NOW.weekday(6).format('ddd, D MMM'),
 			repeatTime: NOW.startOf('d').format(getHourFormat(true)),
 			repeatTimeString: `${NOW.weekday(6).format('dddd')}s at`,
+			repeat: 'weekends',
 			disabled: NOW.day() === 5,
 			menuLabel: 'till the weekend'
 		},
@@ -352,6 +362,7 @@ async function getChoices(which) {
 			timeString: NOW.weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8).format('ddd, D MMM'),
 			repeatTime: NOW.startOf('d').format(getHourFormat(true)),
 			repeatTimeString: `${NOW.weekday(1).format('dddd')}s at`,
+			repeat: 'mondays',
 			menuLabel: 'till next Monday'
 		},
 		'week': {
@@ -360,7 +371,8 @@ async function getChoices(which) {
 			time: NOW.startOf('d').add(1, 'week'),
 			timeString: NOW.startOf('d').add(1, 'week').format('D MMM'),
 			repeatTime: NOW.format(getHourFormat(true)),
-			repeatTimeString: `${NOW.format('dddd')}s at` ,
+			repeatTimeString: `${NOW.format('dddd')}s at`,
+			repeat: 'weekly',
 			menuLabel: 'for a week'
 		},
 		'month': {
@@ -370,14 +382,30 @@ async function getChoices(which) {
 			timeString: NOW.startOf('d').add(1, 'M').format('D MMM'),
 			repeatTime: NOW.format(getHourFormat(true)),
 			repeatTimeString: `${NOW.format('Do')} of Month`,
+			repeat: 'monthly',
 			menuLabel: 'for a month'
 		},
 	}
 	return which && all[which] ? all[which] : all;
 }
 
-async function calculateNextSnoozeTime(choice, startTime) {
-	console.log(choice, startTime);
+function calculateNextSnoozeTime(repeat, start) {
+	var NOW = dayjs(), start = dayjs(start);
+	if (repeat === 'startup') {
+		return NOW.add(20, 'y');
+	} else if (repeat === 'hourly') {
+		var isNextHour = NOW.minute() >= start.minute()
+		return dayjs().startOf('h').add(isNextHour ? 1 : 0, 'h').add(start.minute(), 'm')
+	} else if (repeat === 'daily' || repeat === 'daily_morning' || repeat === 'daily_evening') {
+		var isTomorrow = (NOW.hour() === start.hour() && NOW.minute() >= start.minute()) || NOW.hour() > start.hour();
+		return dayjs().startOf('d').add(isTomorrow ? 1 : 0, 'd').add(start.hour(), 'h').add(start.minute(), 'm')
+	} else if (repeat === 'weekly' || repeat === 'weekends' || repeat === 'mondays') {
+		var isNextWeek = NOW.weekday() === start.weekday() && ((NOW.hour() === start.hour() && NOW.minute() >= start.minute()) || (NOW.hour() > start.hour()));
+		return dayjs().startOf('w').add(start.weekday(), 'd').add(isNextWeek ? 1 : 0, 'w').add(start.hour(), 'h').add(start.minute(), 'm')
+	}  else if (repeat === 'monthly') {
+		var isNextMonth = NOW.date() > start.date() || (NOW.date() === start.date() && ((NOW.hour() > start.hour()) || (NOW.hour() === start.hour() && NOW.minute() >= start.minute())));
+		return dayjs().startOf('M').add(start.date() - 1, 'd').add(isNextMonth ? 1 : 0, 'M').add(start.hour(), 'h').add(start.minute(), 'm')
+	}
 }
 
 /* END ASYNC FUNCTIONS */

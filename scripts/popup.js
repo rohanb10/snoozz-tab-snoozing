@@ -68,13 +68,12 @@ async function toggleRepeat(e) {
 	var choices = await getChoices();
 	Object.entries(choices).forEach(([name, o]) => {
 		var c = document.getElementById(name);
-
 		c.classList.toggle('disabled', ((!repeat && !!o.disabled) || (repeat && !!o.repeatDisabled)))
 		c.classList.toggle('always-disabled', ((!repeat && !!o.disabled) || (repeat && !!o.repeatDisabled)))
 
 		c.querySelector('.label .text').innerText = repeat ? o.repeatLabel : o.label;
-		if (!o.startUp) c.querySelector('.date').innerText = repeat ? (o.repeatTimeString || '') : o.timeString;
-		if (!o.startUp) c.querySelector('.time').innerText = repeat ? (o.repeatTime || '') : dayjs(o.time).format(`${getHourFormat(dayjs(o.time).minute() !== 0)}`);
+		if (name !== 'startup') c.querySelector('.date').innerText = repeat ? o.repeatTimeString : o.timeString;
+		if (name !== 'startup') c.querySelector('.time').innerText = repeat ? o.repeatTime : dayjs(o.time).format(`${getHourFormat(dayjs(o.time).minute() !== 0)}`);
 	});
 }
 
@@ -193,6 +192,7 @@ async function buildChoices() {
 			style: `--bg:${colorList[Math.floor(i / 2)]}`,
 			tabIndex: o.disabled ? -1 : 0,
 		}, wrapInDiv('', icon, label), o.startUp ? wrapInDiv() : wrapInDiv('', date, time));
+		c.setAttribute('data-repeat', o.repeat);
 		c.addEventListener('mouseover', _ => c.classList.add('focused'))
 		c.addEventListener('mouseout', _ => c.classList.remove('focused'))
 		c.onclick = e => {if (!['OPTION', 'SELECT'].includes(e.target.nodeName)) snooze(o.startUp ? 'startup' : o.time, c)}
@@ -314,7 +314,9 @@ async function modify(time, choice) {
 async function snooze(time, choice) {
 	time = ['weekend', 'monday', 'week', 'month'].includes(choice.id) ? await getTimeWithModifier(choice.id) : time;
 	if (document.getElementById('repeat').checked) {
-		var time = await calculateRepeatSnoozeTime(choice.id, time)
+		if (choice.getAttribute('data-repeat') === 'daily') time = dayjs();
+		var t = calculateNextSnoozeTime(choice.getAttribute('data-repeat'), time);
+		console.log(t.format('HH:mm:ss DD/MM/YY'));
 		return 
 	}
 	if (isInEditMode) return modify(time, choice);

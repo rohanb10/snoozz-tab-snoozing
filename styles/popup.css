@@ -1,6 +1,6 @@
 body {
 	position: relative;
-	width: 50em;
+	width: 48em;
 	padding: .5em;
 	background-image: none;
 }
@@ -307,7 +307,7 @@ body.dark .choice .date {
 	opacity: 0;
 }
 .custom-choice.active, .custom-choice.focused {
-	max-width: 50em;
+	max-width: 48em;
 	color: #FFF;
 }
 .custom-choice.active .custom-info, .custom-choice.focused .custom-info {

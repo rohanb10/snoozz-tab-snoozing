@@ -202,6 +202,7 @@ async function resetSettings() {
 		badge: 'today',
 		closeDelay: 1000,
 		polling: 'on',
+		napCollapsed: [],
 		popup: {weekend: 'morning', monday: 'morning', week: 'morning', month: 'morning'},
 		contextMenu: ['startup', 'in-an-hour', 'today-evening', 'tom-morning', 'weekend']
 	}

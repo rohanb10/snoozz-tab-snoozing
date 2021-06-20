@@ -27,6 +27,7 @@ async function init() {
 	await fetchHourFormat();
 	var search = document.getElementById('search');
 	search.addEventListener('input', _ => {
+		document.body.classList.toggle('searching', search.value.length > 0)
 		search.parentElement.classList.toggle('searching', search.value.length > 0);
 		search.parentElement.parentElement.classList.toggle('valid-search', search.value.length > 2);
 		performSearch(search.value.toLowerCase())
@@ -40,6 +41,7 @@ async function init() {
 	}, true);
 
 	buildTimeGroups();
+	await initializeExpandos();
 	observer.observe();
 
 	if (getBrowser() === 'safari') chrome.runtime.sendMessage({wakeUp: true});
@@ -110,6 +112,7 @@ function buildTimeGroups() {
 		var tID = t.replace(/ /g,'_').toLowerCase();
 		var timeGroup = Object.assign(document.createElement('div'), {className: 'time-group', id: tID});
 		var header = Object.assign(document.createElement('div'), {className: 'flex time-header'});
+		var expando = Object.assign(document.createElement('img'), {className: 'expanded', src: '../icons/collapse.png'});
 		var name = Object.assign(document.createElement('h2'), {className: 'time-name', innerText: t, style: `border-color:${colorList[i]}`});
 		var timeAction = Object.assign(document.createElement('div'), {
 			className: `time-action`,
@@ -125,7 +128,7 @@ function buildTimeGroups() {
 			var ids = Array.from(document.querySelectorAll(`#${tID} .tab`)).map(t =>t.id);
 			tID === 'history' ? await removeTabsFromHistory(ids) : await wakeUpTabsAbruptly(ids);
 		}
-		header.append(name, timeAction);
+		header.append(wrapInDiv('flex', name, wrapInDiv('expando', expando)), timeAction);
 		timeGroup.append(header);
 		container.append(timeGroup);
 	});
@@ -357,6 +360,32 @@ function closeEditModal() {
 	overlay.querySelector('iframe').remove();
 	overlay.style.top = '';
 	bsf.unfreeze()
+}
+async function initializeExpandos() {
+	var o = await getOptions('napCollapsed');
+	document.querySelectorAll('.expando').forEach(e => {
+		var group = e.closest('.time-group');
+		var img = e.querySelector('img');
+
+		e.addEventListener('click', async _ => {
+			var nc = await getOptions('napCollapsed') || [];
+			if (img.classList.contains('collapsed')) {
+				img.src = '../icons/collapse.png';
+				img.classList.remove('collapsed');
+				img.classList.add('expanded');
+				group.classList.remove('group-collapsed');
+				await saveOption('napCollapsed', nc.filter(id => id !== group.id));
+			} else if (img.classList.contains('expanded')) {
+				img.src = '../icons/expand.png';
+				img.classList.remove('expanded');
+				img.classList.add('collapsed');
+				group.classList.add('group-collapsed');
+				nc.push(group.id);
+				await saveOption('napCollapsed', nc);
+			}
+		});
+		if (o && o.length && o.includes(group.id)) e.click();
+	})
 }
 
 async function wakeUpTabsAbruptly(ids) {
