@@ -61,7 +61,7 @@ async function initEditMode() {
 	document.querySelector('.footer').remove();
 	var t = await getSnoozedTabs(getUrlParam('tabId'));
 	document.getElementById('preview-text').innerText = t.title;
-	document.getElementById('preview-favicon').src = t.tabs ? '../icons/window.png' : getFaviconUrl(t.url);
+	document.getElementById('preview-favicon').src = t.tabs ? '../icons/window.png' : (getUrlParam('noImg') ? '../icons/unknown.png' : getFaviconUrl(t.url));
 }
 async function toggleRepeat(e) {
 	var repeat = e.target.checked;
@@ -92,8 +92,6 @@ async function buildTargets() {
 	document.getElementById('window').classList.toggle('disabled', !isWindowValid);
 	var isSelectionValid = getBrowser() !== 'safari' && validTabs.length > 1 && activeTab.highlighted && validTabs.filter(t => t.highlighted).length > 1;
 	document.getElementById('selection').classList.toggle('disabled', !isSelectionValid);
-	// var isGroupValid = false && getBrowser() === 'chrome' && validTabs.length > 1 && activeTab.groupId && activeTab.groupId != -1 && validTabs.filter(vt => vt.groupId && vt.groupId != activeTab.groupId).length > 1
-	// document.getElementById('group').classList.toggle('disabled', !isGroupValid);
 
 	document.querySelectorAll('.target').forEach(t => t.tabIndex = t.classList.contains('disabled') ? -1 : 0);
 	document.querySelectorAll('.target').forEach(t => t.addEventListener('keyup', e => { if (e.which === 13) t.click() }));
@@ -136,6 +134,7 @@ async function generatePreview(type) {
 	if (type === 'tab') {
 		var a = allTabs.find(at => at.active)
 		previewText.innerText = a.title;
+		previewIcon.onload = _ => {if (previewIcon && previewIcon.height === 16 && previewIcon.width === 16) previewIcon.src = '../icons/unknown.png';}
 		previewIcon.src = a.favIconUrl ? a.favIconUrl : (getBrowser() === 'safari' ? getFaviconUrl(a.url) : '../icons/unknown.png');
 	} else if (type === 'window') {
 		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t));

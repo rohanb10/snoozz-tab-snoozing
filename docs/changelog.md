@@ -10,6 +10,12 @@ PRs and other ideas are welcome.
 ## Changes ##
 
 **June 2021**
+#### 2.4.4
+- Use minutes in your 'Morning' and 'Evening' times (Can set as 8:45am instead of 9:00am)
+- Choose 'Morning', 'Evening' or 'Now' times directly from the Snoozz popup, right click menu, and key bindings
+- Update Animal icons to be more consistent
+- Snoozz will now wait for a network connection before reopening tabs after your device wakes up
+
 #### 2.4.3
 - Enable / Disable notifications from the settings page
 - Stop saving favicons in storage and lazily fetch them instead via DuckDuckGo when displaying in the Nap Room
