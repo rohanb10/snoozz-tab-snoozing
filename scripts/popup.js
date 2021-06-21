@@ -188,10 +188,12 @@ async function buildChoices() {
 }
 
 async function buildCustomChoice() {
+	var firstDayOfWeek = await getOptions('weekStart') || 0;
 	var date = flatpickr('#date', {
 		inline: true,
 		defaultDate: dayjs().format('YYYY-MM-DD'),
 		minDate: dayjs().format('YYYY-MM-DD'),
+		locale: {firstDayOfWeek}
 	});
 	var time = flatpickr('#time', {
 		inline: true,

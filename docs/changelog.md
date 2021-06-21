@@ -10,6 +10,10 @@ PRs and other ideas are welcome.
 ## Changes ##
 
 **June 2021**
+#### 2.4.4.1
+- New setting to specify what day the week starts on
+- Fix missing "Mon", "Tue" etc in the popup calendar
+
 #### 2.4.4
 - Use minutes in your 'Morning' and 'Evening' times (Can set as 8:45am instead of 9:00am)
 - Choose 'Morning', 'Evening' or 'Now' times directly from the Snoozz popup, right click menu, and key bindings

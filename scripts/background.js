@@ -173,6 +173,7 @@ async function setUpExtension() {
 		badge: 'today',
 		closeDelay: 1000,
 		polling: 'on',
+		weekStart: 0,
 		popup: {weekend: options.timeOfDay || 'morning', monday: options.timeOfDay || 'morning', week: options.timeOfDay || 'morning', month: options.timeOfDay || 'morning'},
 		contextMenu: ['startup', 'in-an-hour', 'today-evening', 'tom-morning', 'weekend']
 	}, options);
