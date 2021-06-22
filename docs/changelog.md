@@ -10,8 +10,14 @@ PRs and other ideas are welcome.
 ## Changes ##
 
 **June 2021**
-#### 2.4.4.1
+#### 2.4.4.2
 - New setting to specify what day the week starts on
+- Fix keybindings + keyboard navigation in the popup (inlcuding new morning/evening/now dropdowns)
+	- `12345567890` - each of the 10 preset choices
+	- `c` - custom
+	- `t` - tab
+	- `w` - window
+	- `s` - selected
 - Fix missing "Mon", "Tue" etc in the popup calendar
 
 #### 2.4.4
