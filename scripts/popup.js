@@ -35,18 +35,23 @@ async function init() {
 	}
 
 	document.addEventListener('keyup', e => {
-		if (e.which >= 48 && e.which <= 56 && !document.querySelector('.form-overlay').classList.contains('show')) {
+		if (e.which >= 49 && e.which <= 58 && !document.querySelector('.form-overlay').classList.contains('show')) {
 			var choices = document.querySelectorAll('.choice');
 			var selectedChoice = choices && choices.length > 0 ? choices[e.which - 48 - 1] : false;
 			if (!selectedChoice || selectedChoice.classList.contains('disabled')) return;
 			choices.forEach(c => c.classList.remove('focused'));
 			selectedChoice.focus();
 		}
+		if (e.which === 48) {
+			document.querySelectorAll('.choice').forEach(c => c.classList.remove('focused'))
+			document.querySelector('.choice:last-of-type').focus();
+		}
 		if (e.which === 13 && !document.querySelector('.form-overlay').classList.contains('show')) {
 			var selectedChoice = document.querySelector('.choice.focused');
 			if (!selectedChoice) return;
 			snooze(o.time, c)
 		}
+		if (e.which === 67) document.querySelector('.custom-choice').click();
 		if (e.which === 84) document.getElementById('tab').click();
 		if (e.which === 87) document.getElementById('window').click();
 		if (e.which === 83) document.getElementById('selection').click();
@@ -151,6 +156,7 @@ async function buildChoices() {
 			var now = Object.assign(document.createElement('option'), {value: 'now', innerText: 'Current Time', selected: s === 'now'});
 
 			var select = document.createElement('select');
+			select.tabIndex = -1;
 			select.addEventListener('change', async e => {
 				await savePopupOptions();
 				// change time
@@ -179,7 +185,15 @@ async function buildChoices() {
 			tabIndex: o.disabled ? -1 : 0,
 		}, wrapInDiv('', icon, label), o.startUp ? wrapInDiv() : wrapInDiv('', date, time));
 		c.addEventListener('mouseover', _ => c.classList.add('focused'))
-		c.addEventListener('mouseout', _ => c.classList.remove('focused'))
+		c.addEventListener('mouseout', _ => c.classList.remove('focused'));
+		if (['weekend', 'monday', 'week', 'month'].includes(name)) c.addEventListener('keydown', e => {
+			if (!e || e.which !== 38 && e.which !== 40) return;
+			var options = select.querySelectorAll('option');
+			var current = Array.from(options).findIndex(o => o.selected);
+			if (e.which === 38 && current > 0) options[current - 1].selected = true;
+			if (e.which === 40 && current < options.length - 1) options[current + 1].selected = true;
+			select.dispatchEvent(new Event('change'));
+		})
 		c.onclick = e => {if (!['OPTION', 'SELECT'].includes(e.target.nodeName)) snooze(o.startUp ? 'startup' : o.time, c)}
 		c.onkeyup = e => {if (e.which === 13) snooze(o.startUp ? 'startup' : o.time, c)}
 		return c
@@ -248,7 +262,12 @@ async function buildCustomChoice() {
 		onclick: _ => {
 			customChoice.classList.add('focused');
 			document.querySelectorAll('.choice').forEach(c => {c.classList.add('disabled');c.setAttribute('tabindex','-1')});
-			// document.querySelector('.popup-checkbox input').setAttribute('tabindex', '-1');
+			document.querySelector('.form-overlay').classList.add('show')
+		},
+		onkeydown: e => {
+			if (!e || e.which !== 13 && e.which !== 32) return;
+			customChoice.classList.add('focused');
+			document.querySelectorAll('.choice').forEach(c => {c.classList.add('disabled');c.setAttribute('tabindex','-1')});
 			document.querySelector('.form-overlay').classList.add('show')
 		}
 	}, wrapInDiv('', icon, label), wrapInDiv('custom-info', wrapInDiv('display', wrapInDiv('date-display'), wrapInDiv('time-display')), submitButton));

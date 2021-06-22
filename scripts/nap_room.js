@@ -249,7 +249,7 @@ function buildTabActions(t, tabDiv) {
 	}
 	tabDiv.querySelector('.wakeup-label').innerText = t.deleted ? 'Deleted on' : (t.opened ? `Woke up ${t.opened < t.wakeUpTime ? 'manually' : 'automatically'} on` : 'Waking up')
 	tabDiv.querySelector('.wakeup-time').innerText = t.opened ? dayjs(t.opened).format('dddd, D MMM') : formatSnoozedUntil(t)
-	tabDiv.querySelector('.wakeup-time').title = dayjs(t.opened ? t.opened : t.wakeUpTime).format(`${getHourFormat()} [on] ddd, D MMMM YYYY`);
+	tabDiv.querySelector('.wakeup-time').title = dayjs(t.opened ? t.opened : t.wakeUpTime).format(`${getHourFormat(true)} [on] ddd, D MMMM YYYY`);
 	return tabDiv;
 }
 
