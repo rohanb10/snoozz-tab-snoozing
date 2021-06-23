@@ -47,6 +47,7 @@ Available on [Chrome](https://chrome.google.com/webstore/detail/snoozz-snooze-ta
 
 [Latest Release](https://github.com/rohanb10/snoozz-tab-snoozing/releases/latest/) | [Changelog](https://snoozz.me/changelog.html) | [Browser Compatibility](https://snoozz.me/compatibility.html) | [Privacy](https://snoozz.me/privacy.html)
 
+Related repos: [Snoozz Website](https://github.com/rohanb10/snoozz-web) | [Snoozz Stats](https://github.com/rohanb10/snoozz-stats)
 
 
 ## Colours
