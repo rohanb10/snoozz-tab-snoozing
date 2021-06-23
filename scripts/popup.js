@@ -314,7 +314,7 @@ async function modify(time, choice) {
 	if (parent && parent.deleteTabFromDiv) parent.deleteTabFromDiv(getUrlParam('tabId'))
 	var response = await editSnoozeTime(getUrlParam('tabId'), time);
 	if (!response || !response.edited) return;
-	await displayPreviewAnimation(choice, time.format('HHmm'), 'Going back to sleep');
+	await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', 'Going back to sleep');
 	if (parent && parent.closeEditModal) setTimeout(_ => parent.closeEditModal(), closeDelay);
 }
 
@@ -323,7 +323,6 @@ async function snooze(time, choice) {
 	if (isInEditMode) return modify(time, choice);
 	var target = document.querySelector('.target.active');
 	if (!['tab', 'window', 'selection', 'group'].includes(target.id)) return;
-	debugger;
 	var response;
 	if (target.id === 'tab') {
 		response = await snoozeTab(time);
@@ -334,11 +333,11 @@ async function snooze(time, choice) {
 	}
 	if (response && !(response.tabId || response.windowId)) return;
 	await chrome.runtime.sendMessage(Object.assign(response, {close: true, delay: closeDelay}));
-	await displayPreviewAnimation(choice, time.format('HHmm'), `Snoozing ${target.id}`)
+	await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', `Snoozing ${target.id}`)
 }
 
 async function displayPreviewAnimation(choice, time, text = 'Snoozing') {
-	await chrome.runtime.sendMessage({poll: `${choice.id}.${time}`});
+	await chrome.runtime.sendMessage({poll: `${choice.id}${time}`});
 	document.body.style.pointerEvents = 'none';
 	choice.classList.add('focused');
 	var preview = document.getElementById('preview');
