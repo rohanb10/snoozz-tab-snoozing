@@ -10,6 +10,9 @@ PRs and other ideas are welcome.
 ## Changes ##
 
 **June 2021**
+#### 2.4.4.3 
+- Start sending snooze times to analytics server.
+
 #### 2.4.4.2
 - New setting to specify what day the week starts on
 - Fix keybindings + keyboard navigation in the popup (inlcuding new morning/evening/now dropdowns)
