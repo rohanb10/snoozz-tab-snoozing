@@ -1,6 +1,6 @@
 ## Roadmap
 *In no particular order*
-- Snooze again + recurring snoozes
+- Recurring snoozes
 - Cloud sync
 - Make contextMenu + allTabs permissions optional
 - Make accessibile

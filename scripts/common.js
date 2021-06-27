@@ -85,7 +85,7 @@ async function createAlarm(when, willWakeUpATab) {
 async function createNotification(id, title, imgUrl, message, force) {
 	var n = typeof SAVED_OPTIONS !== 'undefined' && SAVED_OPTIONS.notifications ? SAVED_OPTIONS.notifications : await getOptions('notifications');
 	if (!chrome.notifications || (n && n === 'off' && !force)) return;
-	await chrome.notifications.create(id, {type: 'basic', iconUrl: chrome.extension.getURL(imgUrl), title, message});
+	await chrome.notifications.create(id, {type: 'basic', iconUrl: chrome.runtime.getURL(imgUrl), title, message});
 }
 async function createWindow(tabId) {
 	return new Promise(r => chrome.windows.create({url: `/html/rise-and-shine.html#${tabId}`}, r));

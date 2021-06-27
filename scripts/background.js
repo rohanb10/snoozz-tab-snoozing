@@ -82,31 +82,32 @@ async function wakeMeUp(tabs) {
 }
 
 async function setUpContextMenus(cachedMenus) {
-	await chrome.contextMenus.removeAll();
 	var cm = cachedMenus || await getOptions('contextMenu');
 	if (!cm || !cm.length || cm.length === 0) return;
 	var choices = await getChoices();
 	var contexts = getBrowser() === 'firefox' ? ['link', 'tab'] : ['link'];
 	if (cm.length === 1) {
-		chrome.contextMenus.create({
+		await chrome.contextMenus.removeAll();
+		await chrome.contextMenus.create({
 			id: cm[0], 
 			contexts: contexts, 
 			title: `Snoozz ${choices[cm[0]].label.toLowerCase()}`, 
 			documentUrlPatterns: ['<all_urls>'],
 			...(getBrowser() === 'firefox') ? {icons: {32: `../icons/${cm[0]}.png`}} : {}
-		})
+		});
 	} else {
-		chrome.contextMenus.create({id: 'snoozz', contexts: contexts, title: 'Snoozz', documentUrlPatterns: ['<all_urls>']})
-		cm.forEach(o => chrome.contextMenus.create({
+		await chrome.contextMenus.removeAll();
+		await chrome.contextMenus.create({id: 'snoozz', contexts: contexts, title: 'Snoozz', documentUrlPatterns: ['<all_urls>']})
+		for (var o of cm) await chrome.contextMenus.create({
 			parentId: 'snoozz',
 			id: o, 
 			contexts: contexts,
 			title: choices[o].menuLabel,
 			...(getBrowser() === 'firefox') ? {icons: {32: `../icons/${o}.png`}} : {}
-		}));
+		});
 	}
-	chrome.contextMenus.onClicked.addListener(snoozeInBackground)
-	if (getBrowser() === 'firefox') chrome.contextMenus.onShown.addListener(contextMenuUpdater)
+	chrome.contextMenus.onClicked.addListener(snoozeInBackground);
+	if (getBrowser() === 'firefox') chrome.contextMenus.onShown.addListener(contextMenuUpdater);
 }
 if (chrome.commands) chrome.commands.onCommand.addListener(async (command, tab) => {
 	if (command === 'nap-room') return openExtensionTab('/html/nap-room.html');
