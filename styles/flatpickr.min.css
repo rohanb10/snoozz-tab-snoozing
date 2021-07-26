@@ -184,6 +184,10 @@
   flex: 1;
   justify-content: space-around;
 }
+.f-weekday {
+  width: 1.5rem;
+  text-align: center;
+}
 
 .dayContainer,
 .f-weeks {

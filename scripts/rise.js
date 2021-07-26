@@ -30,7 +30,7 @@ function populate(found) {
 	document.querySelector('#when span').innerText = dayjs(found.timeCreated).format(`${getHourFormat(true)} on dddd, DD MMM YYYY`)
 	var till = document.querySelector('#till span');
 	till.innerText = found.startUp ? 'the next time you opened ' + capitalize(getBrowser()) : dayjs(found.timeCreated).to(dayjs(found.wakeUpTime),true) + ' later'
-	till.setAttribute('title', dayjs(found.wakeUpTime).format(`${getHourFormat()} on dddd, DD MMM YYYY`))
+	till.setAttribute('title', dayjs(found.wakeUpTime).format(`${getHourFormat(true)} on dddd, DD MMM YYYY`))
 	var tabList = document.querySelector('.tab-list');
 	found.tabs.forEach((t, i) => {
 		var iconImg = Object.assign(document.createElement('img'), {src: getFaviconUrl(t.url)});

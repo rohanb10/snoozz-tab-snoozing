@@ -273,14 +273,14 @@ h3 {
 	position: relative;
 }
 
-.choice.focused select {
+.choice.focused select, select:focus:hover, .choice:focus-visible select {
 	background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z' fill='white'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
 }
 
 body.dark .choice .date {
 	color: #AAA;
 }
-.choice:hover *, .choice.focused *, .choice:hover .date, .custom-choice:hover *, .custom-choice.focused *, .custom-choice.really-focused, .custom-choice.focused + .repeat-container span {
+.choice:hover *, .choice.focused *, .choice:hover .date, .custom-choice:hover *, .custom-choice.focused *, .custom-choice.really-focused, .choice:focus-visible *, .custom-choice:focus-visible *, .custom-choice.focused + .repeat-container span {
 	color: #FFF !important;
 }
 
@@ -349,7 +349,7 @@ body.dark .choice .date {
 	touch-action: initial;
 }
 
-.choice.focused, .custom-choice.focused, .custom-choice.really-focused {
+.choice.focused, .choice:focus-visible, .choice:focus-within:hover, .custom-choice.focused, .custom-choice:focus-visible, .custom-choice.really-focused {
 	background-color: var(--bg) !important;
 }
 .choice.focused, .custom-choice.focused {
@@ -357,6 +357,10 @@ body.dark .choice .date {
 }
 .choice.focused {
 	transition: background-color 0s linear;
+}
+.choice select:focus:hover {
+	color: var(--color);
+	background-color: rgba(0,0,0,.5);
 }
 
 body.dark #preview, body.dark .choice, body.dark .custom-choice, body.dark .form-overlay {

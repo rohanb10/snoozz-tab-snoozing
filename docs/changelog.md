@@ -1,6 +1,6 @@
 ## Roadmap
 *In no particular order*
-- Snooze again + recurring snoozes
+- Recurring snoozes
 - Cloud sync
 - Make contextMenu + allTabs permissions optional
 - Make accessibile
@@ -10,6 +10,19 @@ PRs and other ideas are welcome.
 ## Changes ##
 
 **June 2021**
+#### 2.4.4.3 
+- Start sending snooze times to analytics server.
+
+#### 2.4.4.2
+- New setting to specify what day the week starts on
+- Fix keybindings + keyboard navigation in the popup (inlcuding new morning/evening/now dropdowns)
+	- `12345567890` - each of the 10 preset choices
+	- `c` - custom
+	- `t` - tab
+	- `w` - window
+	- `s` - selected
+- Fix missing "Mon", "Tue" etc in the popup calendar
+
 #### 2.4.4
 - Use minutes in your 'Morning' and 'Evening' times (Can set as 8:45am instead of 9:00am)
 - Choose 'Morning', 'Evening' or 'Now' times directly from the Snoozz popup, right click menu, and key bindings

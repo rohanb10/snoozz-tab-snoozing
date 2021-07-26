@@ -14,10 +14,6 @@ async function initialize() {
 	if (options.icons) document.querySelector('.nap-room img').src = `../icons/${options.icons}/nap-room.png`;
 
 	try {updateFormValues(options)} catch(e) {}
-
-	chrome.storage.onChanged.addListener(async changes => {
-		if (changes.snoozedOptions && changes.snoozedOptions.newValue) updateFormValues(changes.snoozedOptions.newValue);
-	});
 	
 	addListeners();
 	await fetchHourFormat();
@@ -56,7 +52,7 @@ function updateFormValues(storage) {
 	['weekend', 'monday', 'week', 'month'].forEach(po => {
 		document.querySelector(`#popup_${po}`).value = storage.popup && storage.popup[po] ? storage.popup[po] : (storage.timeOfDay || 'morning');
 	});
-	['history', 'icons', 'theme', 'notifications', 'badge', 'closeDelay', 'hourFormat', 'polling'].forEach(o => {
+	['history', 'icons', 'theme', 'notifications', 'badge', 'closeDelay', 'hourFormat', 'polling', 'weekStart'].forEach(o => {
 		if (storage[o] !== undefined && document.querySelector(`#${o} option[value="${storage[o]}"]`)) {
 			document.getElementById(o).value = storage[o].toString()
 			document.getElementById(o).setAttribute('data-orig-value', storage[o]);
@@ -98,6 +94,7 @@ function addListeners() {
 }
 
 async function save(e) {
+	e.stopPropagation();
 	if (e && e.target.id === 'history') {
 		var tabs = await getSnoozedTabs();
 		var count = tabs.filter(t => t.opened && dayjs().isAfter(dayjs(t.opened).add(e.target.value, 'd'))).length;
@@ -203,6 +200,7 @@ async function resetSettings() {
 		closeDelay: 1000,
 		polling: 'on',
 		napCollapsed: [],
+		weekStart: 0,
 		popup: {weekend: 'morning', monday: 'morning', week: 'morning', month: 'morning'},
 		contextMenu: ['startup', 'in-an-hour', 'today-evening', 'tom-morning', 'weekend']
 	}
