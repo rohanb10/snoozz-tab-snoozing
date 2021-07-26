@@ -203,6 +203,7 @@ async function init() {
 
 chrome.runtime.onInstalled.addListener(async details => {
 	setUpExtension();
+	if (chrome.runtime.setUninstallURL) chrome.runtime.setUninstallURL('https://tally.so/r/mO5GYw');
 	if (details && details.reason && details.reason == 'update' && details.previousVersion && details.previousVersion != chrome.runtime.getManifest().version) {
 		if (chrome.runtime.getManifest().version.search(/^\d\.\d\.\d$/) !== 0) return;		// skip if minor version
 		await new Promise(r => chrome.storage.local.set({'updated': true}, r));
