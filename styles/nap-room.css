@@ -92,14 +92,15 @@ body.dark .expando img {
 	align-items: center;
 	justify-content: space-between;
 	border-radius: 1em;
-	background-color: rgba(240, 240, 240, .6);
+	background-color: rgba(240, 240, 240, .85);
 	margin: .5em 1em;
 	box-sizing: border-box;
 	flex-wrap: wrap;
 	border: 2px dashed transparent;
 }
 body.dark .tab {
-	background-color: rgba(35, 35, 35, .7);
+	/*background-color: rgba(35, 35, 35, .7);*/
+	background-color: rgb(68, 68, 68, .85);
 }
 .tab:focus-visible {
 	border-color: #808080;
@@ -221,17 +222,10 @@ body.dark .nap-time, body.dark .wakeup-label {
 .search-container.valid-search + #time-container .tab .nap-time, .search-container.valid-search + #time-container .tab .wakeup-label {
 	opacity: 1;
 }
-.edit-btn-container {
-	width: 5%;
-	align-items: center;
-}
-.edit-btn-container:not(:empty):hover:after, .edit-btn-container:not(:empty):focus-within:after,
 .wakeup-btn-container:not(:empty):hover:after, .wakeup-btn-container:not(:empty):focus-within:after,
+.overflow-btn-container:not(:empty):hover:after, .overflow-btn-container:not(:empty):focus-within:after,
 .remove-btn-container:not(:empty):hover:after, .remove-btn-container:not(:empty):focus-within:after {
 	transform: translateX(calc(-50%));
-}
-.edit-btn-container:not(:empty):hover:after, .edit-btn-container:not(:empty):focus-within:after {
-	content: 'Edit Time';
 }
 .wakeup-btn-container.again:not(:empty):hover:after, .wakeup-btn-container.again:not(:empty):focus-within:after {
 	content: 'Snooze Again';
@@ -240,7 +234,7 @@ body.dark .nap-time, body.dark .wakeup-label {
 	width: calc(25% - 5em);
 	margin-left: 5em;
 }
-.edit-btn-container, .wakeup-btn-container, .remove-btn-container {
+.wakeup-btn-container, .remove-btn-container, .overflow-btn-container {
 	width: 5%;
 	align-items: center;
 }
@@ -257,7 +251,7 @@ body.dark .nap-time, body.dark .wakeup-label {
 	padding: .5em;
 	border: 2px dashed #DF4E76;
 	white-space: nowrap;
-	z-index: 8;
+	z-index: 3;
 }
 .wakeup-btn-container:not(:empty):hover:after, .wakeup-btn-container:not(:empty):focus-within:after {
 	content: 'Wake Up Now';
@@ -274,12 +268,36 @@ body.dark .tooltip:focus-within:after, body.dark .tooltip:hover:after {
 	border: 2px dashed transparent;
 	filter: grayscale(1);
 }
-.edit-button:focus-within, .wakeup-button:focus-within, .remove-btn-container img:focus-within, .little-tab:focus-within {
+.wakeup-button:focus-within, .remove-btn-container img:focus-within, .overflow-btn-container img:focus-within, .little-tab:focus-within {
 	outline: none;
 	border-color: #DF4E76;
 }
 .edit-button:hover, .edit-button:focus-within, .wakeup-button:hover, .wakeup-button:focus-within {
 	filter: grayscale(0);
+}
+.overflow-btn-container:not(:empty):hover:after, .overflow-btn-container:not(:empty):focus-within:after {
+	content: 'More Actions';
+}
+.overflow-menu {
+	display: none;
+	position: absolute;
+	right: 7.5%;
+	top: 90%;
+	transform: translateX(50%);
+	background-color: var(--bg-color);
+	z-index: 3;
+	border-radius: .25rem;
+	box-shadow: 0 1px 1px rgba(0,0,0,0.12), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.12), 0 8px 8px rgba(0,0,0,0.12),0 16px 16px rgba(0,0,0,0.12);
+}
+.overflow-menu.show {
+	display: block;
+}
+.overflow-menu-item {
+	padding: .75rem 1.5rem;
+	cursor: pointer;
+}
+.overflow-menu-item:hover {
+	background-color: rgba(0, 0, 0, .2);
 }
 .remove-btn-container:hover:after, .remove-btn-container:focus-within:after {
 	content: 'Send to History';
@@ -287,7 +305,7 @@ body.dark .tooltip:focus-within:after, body.dark .tooltip:hover:after {
 #history .remove-btn-container:hover:after, #history .remove-btn-container:focus-within:after{
 	content: 'Remove';
 }
-.remove-btn-container img {
+.remove-btn-container img, .overflow-btn-container img {
 	opacity: .3;
 	max-height: 38px;
 	max-width: 38px;
@@ -295,19 +313,18 @@ body.dark .tooltip:focus-within:after, body.dark .tooltip:hover:after {
 	border-radius: 38px;
 	border: 2px dashed transparent;
 }
-body.dark .remove-btn-container img:focus-within {
+body.dark .remove-btn-container img:focus-within, body.dark .overflow-btn-container img:focus-within {
 	filter: invert(16%) sepia(73%) saturate(4860%) hue-rotate(339deg) brightness(87%) contrast(97%);
 }
-.remove-btn-container img:focus-within, .remove-btn-container img:hover {
+.remove-btn-container img:focus-within, .remove-btn-container img:hover, .overflow-btn-container img:focus-within, .overflow-btn-container img:hover {
 	opacity: 1;
 }
-.edit-button, .wakeup-button, .remove-button {
+.edit-button, .wakeup-button, .overflow-button, .remove-button {
 	cursor: pointer;
 }
-body.dark .remove-btn-container img, body.dark .icon.dropdown, body.dark .up-arrow {
+body.dark .remove-btn-container img, body.dark .overflow-btn-container img, body.dark .icon.dropdown, body.dark .up-arrow {
 	filter: invert(1);
 }
-
 .tab:not(.window) .tab-name:hover, .tab:not(.window) .tab-name:focus-within {
 	outline: none;
 	text-decoration: underline;
@@ -329,6 +346,9 @@ body.dark .tabs .little-tab:hover {
 	.tab > div:nth-child(-n+6) {
 		height: 3.5em;
 	}
+	.icon-container {
+		width: 10%;
+	}
 	.title-container {
 		width: 90%;
 	}
@@ -336,7 +356,7 @@ body.dark .tabs .little-tab:hover {
 		width: calc(60%);
 		margin-left: 10%;
 	}
-	.remove-btn-container, .edit-btn-container, .wakeup-btn-container {
+	.remove-btn-container, .wakeup-btn-container, .overflow-btn-container {
 		width: 10%;
 	}
 }
@@ -460,7 +480,7 @@ body:not(.dark) > p {
 		display: none;
 	}
 }
-.iframe-overlay, .changelog-overlay {
+.iframe-overlay, .changelog-overlay, .overflow-overlay {
 	z-index: 3;
 	position: absolute;
 	overflow: hidden;
@@ -474,8 +494,14 @@ body:not(.dark) > p {
 	flex-direction: column;
 	display: none;
 }
-.iframe-overlay.open, .changelog-overlay.open {
+.iframe-overlay.open, .changelog-overlay.open, .overflow-overlay.open {
 	display: flex;
+}
+.overflow-overlay.open {
+	background-color: transparent;
+	position: fixed;
+	bottom: 0;
+	height: unset;
 }
 .iframe-overlay.open ~ div, .changelog-overlay.open ~ div {
 	filter: blur(5px);

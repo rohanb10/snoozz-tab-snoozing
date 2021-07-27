@@ -1,12 +1,13 @@
-var closeDelay = 1000, colorList = [], isInEditMode = false;
+var closeDelay = 1000, colorList = [], isInEditMode = false, isInDupeMode = false, r_validate, dragDatesInitiated = false, debounce;
 async function init() {
-	isInEditMode = getUrlParam('edit') && getUrlParam('edit') === 'true';
+	isInEditMode = getUrlParam('type') && getUrlParam('type') === 'edit';
+	isInDupeMode = getUrlParam('type') && getUrlParam('type') === 'dupe';
 
 	await fetchHourFormat();
 	await buildChoices();
 	await buildCustomChoice();
 	await buildRepeatCustomChoice();
-	if (isInEditMode) {
+	if (isInEditMode || isInDupeMode) {
 		initEditMode();
 	} else {
 		await buildTargets();
@@ -30,12 +31,12 @@ async function init() {
 
 	closeDelay = await getOptions('closeDelay');
 	var tabs = await getSnoozedTabs();
-	if (!isInEditMode && tabs && tabs.length) {
+	if (!(isInEditMode || isInDupeMode) && tabs && tabs.length) {
 		var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear() && dayjs(t.wakeUpTime).year() === dayjs().year()).length;
 		if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount);
 	}
 	document.getElementById('repeat').addEventListener('change', toggleRepeat);
-	document.getElementById('repeat').click();
+	// document.getElementById('repeat').click();
 
 	document.addEventListener('keyup', e => {
 		if (e.which >= 49 && e.which <= 58 && !document.querySelector('.form-overlay').classList.contains('show')) {
@@ -58,10 +59,9 @@ async function init() {
 		if (e.which === 84) document.getElementById('tab').click();
 		if (e.which === 87) document.getElementById('window').click();
 		if (e.which === 83) document.getElementById('selection').click();
-		if (isInEditMode && parent && parent.closeOnOutsideClick) parent.closeOnOutsideClick(e);
-		// if (e.which === 71) document.getElementById('group').click();
+		if ((isInEditMode || isInDupeMode) && parent && parent.closeModalOnOutsideClick) parent.closeModalOnOutsideClick(e);
 	});
-	if (isInEditMode && parent && parent.resizeIframe) parent.resizeIframe();
+	if ((isInEditMode || isInDupeMode) && parent && parent.resizeIframe) parent.resizeIframe();
 }
 async function initEditMode() {
 	document.getElementById('targets').remove();
@@ -107,7 +107,6 @@ async function buildTargets() {
 	document.querySelectorAll('.target').forEach(t => t.tabIndex = t.classList.contains('disabled') ? -1 : 0);
 	document.querySelectorAll('.target').forEach(t => t.addEventListener('keyup', e => { if (e.which === 13) t.click() }));
 
-	// hide groups if not chrome
 	if (getBrowser() !== 'chrome' || true) document.getElementById('group').style.display = 'none';
 
 	if (isSelectionValid) {
@@ -229,8 +228,8 @@ async function buildRepeatCustomChoice() {
 		mode: 'multiple',
 		minDate: '2020-03-01',
 		maxDate: '2020-03-31',
-		onChange: validate,
-		onValueUpdate: validate
+		onChange: r_validate,
+		onValueUpdate: r_validate
 	});
 	var time = flatpickr('#repeat-time', {
 		inline: true,
@@ -238,8 +237,8 @@ async function buildRepeatCustomChoice() {
 		noCalendar: true,
 		time_24hr: HOUR_FORMAT && HOUR_FORMAT === 24,
 		defaultDate: dayjs().add(1, 'd').format('HH:mm'),
-		onChange: validate,
-		onValueUpdate: validate
+		onChange: r_validate,
+		onValueUpdate: r_validate
 	});
 	var dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 	var firstDayOfWeek = await getOptions('weekStart') || 0;
@@ -248,7 +247,7 @@ async function buildRepeatCustomChoice() {
 		span.setAttribute('data-value', dayNames.indexOf(day));
 		span.addEventListener('click', _ => {
 			span.classList.toggle('active')
-			validate();
+			r_validate();
 		});
 		document.querySelector('.repeat-week-wrapper div').append(wrapInDiv({className: 'day-choice'}, span));
 	});
@@ -257,10 +256,10 @@ async function buildRepeatCustomChoice() {
 		date.setDate([]);
 		time.setDate(dayjs().format('HH:mm'));
 		document.querySelectorAll('.day-choice span.active').forEach(s => s.classList.remove('active'));
-		validate();
+		r_validate();
 	}
 
-	var validate = async _ => {
+	r_validate = async _ => {
 		await new Promise(r => setTimeout(r, 50));
 		var isWeekly = document.querySelector('.repeat-interval.active').getAttribute('data-type') === 'weekly';
 		document.querySelector('.date-display').innerText = `Select ${isWeekly ? 'days' : 'dates'}`;
@@ -286,19 +285,19 @@ async function buildRepeatCustomChoice() {
 		} 
 	}
 
-	if (document.querySelector('.repeat-time-wrapper .f-am-pm')) document.querySelector('.repeat-time-wrapper .f-am-pm').addEventListener('click', validate);
-	document.querySelector('.repeat-time-wrapper .reset-action').addEventListener('click', _ => {reset();validate()});
+	if (document.querySelector('.repeat-time-wrapper .f-am-pm')) document.querySelector('.repeat-time-wrapper .f-am-pm').addEventListener('click', r_validate);
+	document.querySelector('.repeat-time-wrapper .reset-action').addEventListener('click', _ => {reset();r_validate()});
 
-	document.querySelector('.repeat-month-wrapper .f-days').addEventListener('click', validate);
+	document.querySelector('.repeat-month-wrapper .f-days').addEventListener('click', r_validate);
 	document.querySelectorAll('.repeat-time-wrapper input').forEach(i => {
-		i.addEventListener('blur', validate);
-		i.addEventListener('increment', validate);
+		i.addEventListener('blur', r_validate);
+		i.addEventListener('increment', r_validate);
 		i.addEventListener('increment', _ => date.clear());
 		
-		i.addEventListener('keyup', e => {if (e.which && (e.which === 38 || e.which === 40)) validate()});
+		i.addEventListener('keyup', e => {if (e.which && (e.which === 38 || e.which === 40)) r_validate()});
 	});
 
-	document.getElementById('repeat').addEventListener('change', e => {if (e.target.checked) validate()});
+	document.getElementById('repeat').addEventListener('change', e => {if (e.target.checked) r_validate()});
 	document.querySelectorAll('.repeat-interval').forEach(ri => ri.addEventListener('click', e => {
 		if (e.target.classList.contains('active')) return;
 
@@ -307,9 +306,40 @@ async function buildRepeatCustomChoice() {
 
 		document.querySelectorAll('.repeat-section > div.r-section').forEach(rdw => rdw.classList.add('hidden'));
 		if (e.target.getAttribute('data-type') == 'weekly') document.querySelector('.repeat-week-wrapper').classList.remove('hidden');
-		if (e.target.getAttribute('data-type') == 'monthly') document.querySelector('.repeat-month-wrapper').classList.remove('hidden');
-		validate();
+		if (e.target.getAttribute('data-type') == 'monthly') {
+			document.querySelector('.repeat-month-wrapper').classList.remove('hidden');
+			dragToSelectDates();
+		}
+		r_validate();
 	}));
+}
+
+function dragToSelectDates() {
+	if (dragDatesInitiated) return;
+	var pickr = document.getElementById('monthly')._flatpickr;
+	var m = document.querySelector('.repeat-month-wrapper'), days = Array.from(m.querySelectorAll('.dayContainer .f-day:not(.f-disabled):not(.nextMonthDay)'));
+	var bounds = days.map((d, i) => {
+		var b = d.getBoundingClientRect();
+		return {index: i, left: Math.round(b.left), right: Math.round(b.right), top: Math.round(b.top), bottom: Math.round(b.bottom)};
+	});
+	if (bounds.every(b => b.bottom === 0)) return;
+	dragDatesInitiated = true;
+	var isInBounds = (x, y, b) => b.left <= x && x <= b.right && b.top <= y && y <= b.bottom;
+	var func = e => {
+		var x = Math.round(e.clientX), y = Math.round(e.clientY);
+		bounds.filter(b => isInBounds(x, y, b)).forEach(b => {
+			pickr.setDate([...new Set(pickr.selectedDates.map(d => dayjs(d).format('YYYY-MM-DD')).concat(`2020-03-${days[b.index].innerText}`))])
+		});
+		r_validate();
+	}
+	var selectMultipleDates = e => {
+		e.preventDefault();
+		clearTimeout(debounce);
+		debounce = setTimeout(_ => func(e), 30);
+	}
+	m.addEventListener('mousedown', e => {e.preventDefault(); selectMultipleDates(e); m.addEventListener('mouseover', selectMultipleDates)});
+	m.addEventListener('mouseup', e => {e.preventDefault(); selectMultipleDates(e); m.removeEventListener('mouseover', selectMultipleDates)});
+	m.addEventListener('mouseleave', e => {m.removeEventListener('mouseover', selectMultipleDates)});
 }
 
 async function buildCustomChoice() {
@@ -375,13 +405,13 @@ async function buildCustomChoice() {
 			customChoice.classList.add('focused');
 			document.querySelectorAll('.choice').forEach(c => {c.classList.add('disabled');c.setAttribute('tabindex','-1')});
 			document.querySelector('.popup-checkbox input').setAttribute('tabindex', '-1');
-			document.querySelector('.form-overlay').classList.add('show')
+			document.querySelector('.form-overlay').classList.add('show');
 		},
 		onkeydown: e => {
 			if (!e || e.which !== 13 && e.which !== 32) return;
 			customChoice.classList.add('focused');
 			document.querySelectorAll('.choice').forEach(c => {c.classList.add('disabled');c.setAttribute('tabindex','-1')});
-			document.querySelector('.form-overlay').classList.add('show')
+			document.querySelector('.form-overlay').classList.add('show');
 		}
 	}, wrapInDiv('', icon, label), wrapInDiv('custom-info', wrapInDiv('display', wrapInDiv('date-display'), wrapInDiv('time-display')), submitButton));
 	document.querySelector('.section.special-choices').prepend(customChoice);
@@ -424,12 +454,14 @@ async function buildCustomChoice() {
 }
 
 async function modify(time, choice) {
-	if (!isInEditMode || !getUrlParam('tabId')) return;
+	if (!(isInEditMode || isInDupeMode) || !getUrlParam('tabId')) return;
 	if (parent && parent.deleteTabFromDiv) parent.deleteTabFromDiv(getUrlParam('tabId'))
-	var response = await editSnoozeTime(getUrlParam('tabId'), time);
-	if (!response || !response.edited) return;
+	var response = {};
+	if (isInEditMode && !isInDupeMode) response = await editSnoozeTime(getUrlParam('tabId'), time);
+	if (!isInEditMode && isInDupeMode) response = await dupeSnoozedTab(getUrlParam('tabId'), time);
+	if (!response.edited && !response.duped) return;
 	await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', 'Going back to sleep');
-	if (parent && parent.closeEditModal) setTimeout(_ => parent.closeEditModal(), closeDelay);
+	if (parent && parent.closePopupModal) setTimeout(_ => parent.closePopupModal(), closeDelay);
 }
 
 async function snooze(time, choice) {
@@ -440,7 +472,7 @@ async function snooze(time, choice) {
 		console.log(t.format('HH:mm:ss DD/MM/YY'));
 		return 
 	}
-	if (isInEditMode) return modify(time, choice);
+	if (isInEditMode || isInDupeMode) return modify(time, choice);
 	var target = document.querySelector('.target.active');
 	if (!['tab', 'window', 'selection', 'group'].includes(target.id)) return;
 	var response;

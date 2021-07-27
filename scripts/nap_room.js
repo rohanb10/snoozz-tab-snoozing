@@ -218,8 +218,8 @@ function buildTabActions(t, tabDiv) {
 	tabDiv = tabDiv || document.getElementById(t.id);
 
 	var tabName = tabDiv.querySelector('.tab-name');
-	var editBtn = tabDiv.querySelector('img.edit-button');
 	var wakeUpBtn = tabDiv.querySelector('img.wakeup-button');
+	var menuBtn = tabDiv.querySelector('img.overflow-button');
 	var removeBtn = tabDiv.querySelector('img.remove-button');
 
 	tabName.setAttribute('tabIndex', 0);
@@ -228,29 +228,29 @@ function buildTabActions(t, tabDiv) {
 
 	if (t.opened) {
 		wakeUpBtn.remove();
-		editBtn.remove();
+		menuBtn.remove();
 		removeBtn.remove();
 
 		// using new wakeup button as snooze again button for layout purposes
 		var newEditBtn = Object.assign(document.createElement('img'), {className:'edit-button', src: '../icons/ext-icon-128.png', tabIndex: 0});
-		newEditBtn.onclick = _ => openEditModal(t.id, tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
-		newEditBtn.onkeyup = e => {if (e.which === 13) openEditModal(t.id, tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png')}
+		newEditBtn.onclick = _ => openPopupModal(t.id, 'edit', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
+		newEditBtn.onkeyup = e => {if (e.which === 13) openPopupModal(t.id, 'edit', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png')}
 		tabDiv.querySelector('.wakeup-btn-container').classList.add('again')
 		tabDiv.querySelector('.wakeup-btn-container').append(newEditBtn);
 
-		var newRemoveBtn = Object.assign(document.createElement('img'), {className:'remove-button', src: '../icons/close.svg', tabIndex: 0});
+		var newRemoveBtn = Object.assign(document.createElement('img'), {className:'remove-button', src: '../icons/close.png', tabIndex: 0});
 		newRemoveBtn.onclick = async _ => await removeTabsFromHistory([t.id])
 		newRemoveBtn.onkeyup = async e => {if (e.which === 13) await removeTabsFromHistory([t.id])}
 		tabDiv.querySelector('.remove-btn-container').append(newRemoveBtn)
 	} else {
-		editBtn.onclick = _ => openEditModal(t.id, tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
-		editBtn.onkeyup = e => {if (e.which === 13) openEditModal(t.id, tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png')}
 		wakeUpBtn.onclick = async _ => await wakeUpTabsAbruptly([t.id]);
 		wakeUpBtn.onkeyup = async e => {if (e.which === 13) await wakeUpTabsAbruptly([t.id])}
+		menuBtn.onclick = _ => openOverflowForDiv(tabDiv);
+		menuBtn.onkeyup = e => {if (e.which === 13) openOverflowForDiv(tabDiv)}
 		removeBtn.onclick = async _ => await sendTabsToHistory([t.id])
 		removeBtn.onkeyup = async e => {if (e.which === 13) await sendTabsToHistory([t.id])}
 	}
-	tabDiv.querySelector('.wakeup-label').innerText = t.deleted ? 'Deleted on' : (t.opened ? `Woke up ${t.opened < t.wakeUpTime ? 'manually' : 'automatically'} on` : 'Waking up')
+	tabDiv.querySelector('.wakeup-label').innerText = t.deleted ? 'Deleted on' : (t.opened ? `Woke up ${t.opened < t.wakeUpTime ? 'manually' : ''} on` : 'Waking up')
 	tabDiv.querySelector('.wakeup-time').innerText = t.opened ? dayjs(t.opened).format('dddd, D MMM') : formatSnoozedUntil(t)
 	tabDiv.querySelector('.wakeup-time').title = dayjs(t.opened ? t.opened : t.wakeUpTime).format(`${getHourFormat(true)} [on] ddd, D MMMM YYYY`);
 	return tabDiv;
@@ -275,7 +275,7 @@ function buildTab(t) {
 
 	var wakeUpTimeContainer = wrapInDiv('wakeup-time-container', wrapInDiv('wakeup-label'), wrapInDiv('wakeup-time'));
 
-	var littleTabs = '';
+	var littleTabs = '', editMenuItem = '', dupeMenuItem = '', pauseMenuItem = '';
 	if (t.tabs && t.tabs.length) {
 		littleTabs = wrapInDiv('tabs');
 		t.tabs.forEach(lt => {
@@ -292,16 +292,27 @@ function buildTab(t) {
 		[iconContainer, titleContainer].forEach(c => c.addEventListener('click', _ => tab.classList.toggle('collapsed')))
 		iconContainer.onkeyup = e => {if (e.which === 13) tab.classList.toggle('collapsed')}
 	}
-	var editBtn = Object.assign(document.createElement('img'), {className:'edit-button', src: '../icons/edit.png', tabIndex: 0});
-	var editBtnContainer = wrapInDiv('edit-btn-container tooltip', editBtn)
 
 	var wakeUpBtn = Object.assign(document.createElement('img'), {className:'wakeup-button', src: '../icons/sun.png', tabIndex: 0});
-	var wakeUpBtnContainer = wrapInDiv('wakeup-btn-container tooltip', wakeUpBtn)
+	var wakeUpBtnContainer = wrapInDiv('wakeup-btn-container tooltip', wakeUpBtn);
 
-	var removeBtn = Object.assign(document.createElement('img'), {className:'remove-button', src: '../icons/close.svg', tabIndex: 0});
-	var removeBtnContainer = wrapInDiv('remove-btn-container tooltip', removeBtn)
+	var overflowBtn = Object.assign(document.createElement('img'), {className:'overflow-button', src: '../icons/menu.png', tabIndex: 0});
+	var overflowBtnContainer = wrapInDiv('overflow-btn-container tooltip', overflowBtn);
 
-	tab.append(iconContainer, titleContainer, wakeUpTimeContainer, editBtnContainer, wakeUpBtnContainer, removeBtnContainer, littleTabs);
+	if (!t.opened) {
+		editMenuItem = wrapInDiv({className: 'overflow-menu-item edit', innerText: 'Edit Snooze Time', tabIndex: 0});
+		editMenuItem.onclick = _ => openPopupModal(t.id, 'edit', icon.getAttribute('src') === '../icons/unknown.png');
+		dupeMenuItem = wrapInDiv({className: 'overflow-menu-item duplicate', innerText: 'Duplicate & Change Time', tabIndex: 0});
+		dupeMenuItem.onclick = _ => openPopupModal(t.id, 'dupe', icon.getAttribute('src') === '../icons/unknown.png');
+		pauseMenuItem = wrapInDiv({className: 'overflow-menu-item pause play', innerText: 'Pause Wakeups', tabIndex: 0});
+		pauseMenuItem = wrapInDiv({className: 'overflow-menu-item pause play', innerText: 'Resume Wakeups', tabIndex: 0});
+	}
+	var overflowMenuContainer = wrapInDiv({className: 'overflow-menu'}, editMenuItem, dupeMenuItem, pauseMenuItem);
+
+	var removeBtn = Object.assign(document.createElement('img'), {className:'remove-button', src: '../icons/close.png', tabIndex: 0});
+	var removeBtnContainer = wrapInDiv('remove-btn-container tooltip', removeBtn);
+
+	tab.append(iconContainer, titleContainer, wakeUpTimeContainer, wakeUpBtnContainer, overflowBtnContainer, removeBtnContainer, overflowMenuContainer, littleTabs);
 	return tab;
 }
 
@@ -324,27 +335,32 @@ function getTimeGroup(tab, timeType = 'wakeUpTime', searchQuery = false) {
 	return searchQuery ? group : group[0];
 }
 
-function openEditModal(tabId, imgMissing) {
+function openPopupModal(tabId, type, imgMissing) {
+	closeOverflows()
 	var overlay = document.querySelector('body > .iframe-overlay');
 	overlay.style.top = window.scrollY + 'px';
 	var iframe = document.createElement('iframe');
 	iframe.setAttribute('tabIndex', '-1');
-	iframe.src = './popup.html?edit=true&tabId=' + tabId + (imgMissing ? '&noImg=true' : '');
+	iframe.src = './popup.html?type=' + type + '&tabId=' + tabId + (imgMissing ? '&noImg=true' : '');
 	iframe.setAttribute('scrolling', 'no');
 	overlay.append(iframe);
 	overlay.classList.add('open');
 	setTimeout(_ => {try {iframe.contentWindow.focus()} catch(e){}}, 200);
 	bsf.freeze();
-	overlay.addEventListener('click', closeOnOutsideClick, {once: true});
-	document.addEventListener('keyup', closeOnOutsideClick);
+	overlay.addEventListener('click', closeModalOnOutsideClick, {once: true});
+	document.addEventListener('keyup', closeModalOnOutsideClick);
 }
 function deleteTabFromDiv(tabId) {
 	document.getElementById(tabId).outerHTML = '';
 }
 
-function closeOnOutsideClick(e) {
-	if (e.which && e.which === 27) closeEditModal();
-	if(e.target && e.target.classList.contains('iframe-overlay')) closeEditModal();
+function closeModalOnOutsideClick(e) {
+	if (e.which && e.which === 27) {
+		closePopupModal();
+		closeOverflows();
+	}
+	if (e.target && (e.target.classList.contains('iframe-overlay'))) closePopupModal();
+	if (e.target && (e.target.classList.contains('overflow-overlay'))) closeOverflows();
 }
 
 function resizeIframe() {
@@ -352,15 +368,32 @@ function resizeIframe() {
 	frame.style.height = frame.contentWindow.document.documentElement.scrollHeight + 'px';
 }
 
-function closeEditModal() {
+function closePopupModal() {
 	var overlay = document.querySelector('body > .iframe-overlay');
-	overlay.removeEventListener('click', closeOnOutsideClick);
-	document.removeEventListener('keyup', closeOnOutsideClick);
+	overlay.removeEventListener('click', closeModalOnOutsideClick);
+	document.removeEventListener('keyup', closeModalOnOutsideClick);
 	overlay.classList.remove('open');
-	overlay.querySelector('iframe').remove();
+	if (overlay.querySelector('iframe')) overlay.querySelector('iframe').remove();
 	overlay.style.top = '';
 	bsf.unfreeze()
 }
+
+function openOverflowForDiv(div) {
+	div.querySelector('.overflow-menu').classList.add('show');
+	div.querySelector('.overflow-menu').querySelector('.overflow-menu-item').focus();
+	var overlay = document.querySelector('body > .overflow-overlay');
+	overlay.classList.add('open');
+	overlay.addEventListener('click', closeModalOnOutsideClick, {once: true});
+	document.addEventListener('keyup', closeModalOnOutsideClick);
+}
+function closeOverflows() {
+	document.querySelectorAll('.overflow-menu.show').forEach(m => m.classList.remove('show'));
+	var overlay = document.querySelector('body > .overflow-overlay');
+	overlay.classList.remove('open');
+	overlay.removeEventListener('click', closeModalOnOutsideClick);
+	document.removeEventListener('keyup', closeModalOnOutsideClick);
+}
+
 async function initializeExpandos() {
 	var o = await getOptions('napCollapsed');
 	document.querySelectorAll('.expando').forEach(e => {

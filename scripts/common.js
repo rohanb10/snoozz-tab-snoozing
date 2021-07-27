@@ -182,6 +182,19 @@ async function openWindow(t, automatic = false) {
 	return;
 }
 
+async function dupeSnoozedTab(tabId, snoozeTime) {
+	var t = await getSnoozedTabs(tabId);
+	delete t.startUp;
+	delete t.opened;
+	delete t.deleted;
+	t.wakeUpTime = snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
+	t.timeCreated = dayjs().valueOf();
+	t.id = getRandomId();
+	if (snoozeTime === 'startup') t.startUp = true;
+	await saveTab(t);
+	return {duped: true}
+}
+
 async function editSnoozeTime(tabId, snoozeTime) {
 	var t = await getSnoozedTabs(tabId);
 	delete t.startUp;
@@ -199,7 +212,7 @@ async function snoozeTab(snoozeTime, overrideTab) {
 	var activeTab = overrideTab || await getTabsInWindow(true);
 	if (!activeTab || !activeTab.url) return {};
 	var sleepyTab = {
-		id: [...Array(16)].map(() => Math.random().toString(36)[2]).join(''),
+		id: getRandomId(),
 		title: activeTab.title ?? getBetterUrl(activeTab.url),
 		url: activeTab.url,
 		...activeTab.pinned ? {pinned: true} : {},
@@ -223,7 +236,7 @@ async function snoozeWindow(snoozeTime, isAGroup) {
 	}
 
 	var sleepyGroup = {
-		id: Math.random().toString(36).slice(-10),
+		id: getRandomId(),
 		wakeUpTime: snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
 	}
@@ -442,8 +455,10 @@ var sleeping = tabs => tabs.filter(t => !t.opened);
 var today = tabs => tabs.filter(t => t.wakeUpTime && dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear() && dayjs(t.wakeUpTime).year() === dayjs().year())
 
 var isDefault = tabs => tabs.title && ['nap room | snoozz', 'settings | snoozz', 'rise and shine | snoozz', 'New Tab', 'Start Page'].includes(tabs.title);
+// var isDefault = tabs => false;
 
-var isValid = tabs => tabs.url && ['http', 'https', 'ftp'].includes(tabs.url.substring(0, tabs.url.indexOf(':')));
+var isValid = tabs => tabs.url && ['http', 'https', 'ftp', 'chrome-extension', 'web-extension', 'moz-extension', 'extension'].includes(tabs.url.substring(0, tabs.url.indexOf(':')));
+// var isValid = tabs => true;
 
 var capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -452,6 +467,8 @@ var wrapInDiv = (attr, ...nodes) => {
 	div.append(...nodes)
 	return div;
 }
+
+var getRandomId = _ => [...Array(16)].map(_ => Math.random().toString(36)[2][Math.random() < .5 ? 'toLowerCase' : 'toUpperCase']()).join('');
 
 var SIZES = {
 	undefined: _ => 0,
