@@ -5,6 +5,7 @@ async function init() {
 	await fetchHourFormat();
 	await buildChoices();
 	await buildCustomChoice();
+	await buildRepeatCustomChoice();
 	if (isInEditMode) {
 		initEditMode();
 	} else {
@@ -34,6 +35,7 @@ async function init() {
 		if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount);
 	}
 	document.getElementById('repeat').addEventListener('change', toggleRepeat);
+	document.getElementById('repeat').click();
 
 	document.addEventListener('keyup', e => {
 		if (e.which >= 49 && e.which <= 58 && !document.querySelector('.form-overlay').classList.contains('show')) {
@@ -71,15 +73,20 @@ async function initEditMode() {
 async function toggleRepeat(e) {
 	var repeat = e.target.checked;
 	var choices = await getChoices();
-	Object.entries(choices).forEach(([name, o]) => {
+	var config = await getOptions(['popup']);
+	Object.entries(choices).forEach(async ([name, o]) => {
 		var c = document.getElementById(name);
 		c.classList.toggle('disabled', ((!repeat && !!o.disabled) || (repeat && !!o.repeatDisabled)))
 		c.classList.toggle('always-disabled', ((!repeat && !!o.disabled) || (repeat && !!o.repeatDisabled)))
-
+		o.time = await getTimeWithModifier('name');
 		c.querySelector('.label .text').innerText = repeat ? o.repeatLabel : o.label;
 		if (name !== 'startup') c.querySelector('.date').innerText = repeat ? o.repeatTimeString : o.timeString;
 		if (name !== 'startup') c.querySelector('.time').innerText = repeat ? o.repeatTime : dayjs(o.time).format(`${getHourFormat(dayjs(o.time).minute() !== 0)}`);
+		if (['weekend', 'monday', 'week', 'month'].includes(name)) c.querySelector('select').dispatchEvent(new Event('change'));
 	});
+	var custom = document.getElementById('custom');
+	custom.querySelector('.label').innerText = repeat ? 'Choose a custom interval' : 'Choose your own time';
+	document.querySelector('.repeat-container').classList.toggle('hidden', !repeat);
 }
 
 async function buildTargets() {
@@ -216,6 +223,95 @@ async function buildChoices() {
 	document.querySelectorAll('.section.choices .choice select').forEach(s => s.dispatchEvent(new Event('change')));
 }
 
+async function buildRepeatCustomChoice() {
+	var date = flatpickr('#monthly', {
+		inline: true,
+		mode: 'multiple',
+		minDate: '2020-03-01',
+		maxDate: '2020-03-31',
+		onChange: validate,
+		onValueUpdate: validate
+	});
+	var time = flatpickr('#repeat-time', {
+		inline: true,
+		enableTime: true,
+		noCalendar: true,
+		time_24hr: HOUR_FORMAT && HOUR_FORMAT === 24,
+		defaultDate: dayjs().add(1, 'd').format('HH:mm'),
+		onChange: validate,
+		onValueUpdate: validate
+	});
+	var dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+	var firstDayOfWeek = await getOptions('weekStart') || 0;
+	dayNames.slice(firstDayOfWeek).concat(dayNames.slice(0, firstDayOfWeek)).forEach(day => {
+		var span = Object.assign(document.createElement('span'), {innerText: day});
+		span.setAttribute('data-value', dayNames.indexOf(day));
+		span.addEventListener('click', _ => {
+			span.classList.toggle('active')
+			validate();
+		});
+		document.querySelector('.repeat-week-wrapper div').append(wrapInDiv({className: 'day-choice'}, span));
+	});
+
+	var reset = _ => {
+		date.setDate([]);
+		time.setDate(dayjs().format('HH:mm'));
+		document.querySelectorAll('.day-choice span.active').forEach(s => s.classList.remove('active'));
+		validate();
+	}
+
+	var validate = async _ => {
+		await new Promise(r => setTimeout(r, 50));
+		var isWeekly = document.querySelector('.repeat-interval.active').getAttribute('data-type') === 'weekly';
+		document.querySelector('.date-display').innerText = `Select ${isWeekly ? 'days' : 'dates'}`;
+		document.querySelector('.time-display').innerText = dayjs(time.selectedDates).format(getHourFormat(true));
+		document.querySelector('.submit-btn').classList.toggle('disabled', true);
+		if (isWeekly) {
+			var selectedDays = Array.from(document.querySelectorAll('.day-choice span.active')).map(s => parseInt(s.getAttribute('data-value')));
+			if (selectedDays.length) {
+				if (selectedDays.length <= 2) {
+					document.querySelector('.date-display').innerText = `${selectedDays.map(d => dayNames[d].substring(0,3 )).join(', ')} every week`;
+				} else {
+					document.querySelector('.date-display').innerText = `${selectedDays.length} days every week`;
+				}
+			}
+		} else {
+			if (date.selectedDates && date.selectedDates.length) {
+				if (date.selectedDates.length === 1) {
+					document.querySelector('.date-display').innerText = `${date.selectedDates.map(d => getOrdinal(dayjs(d).format('D'))).join(', ')} of every month`;
+				} else {
+					document.querySelector('.date-display').innerText = `${date.selectedDates.length} days every month`;
+				}
+			}
+		} 
+	}
+
+	if (document.querySelector('.repeat-time-wrapper .f-am-pm')) document.querySelector('.repeat-time-wrapper .f-am-pm').addEventListener('click', validate);
+	document.querySelector('.repeat-time-wrapper .reset-action').addEventListener('click', _ => {reset();validate()});
+
+	document.querySelector('.repeat-month-wrapper .f-days').addEventListener('click', validate);
+	document.querySelectorAll('.repeat-time-wrapper input').forEach(i => {
+		i.addEventListener('blur', validate);
+		i.addEventListener('increment', validate);
+		i.addEventListener('increment', _ => date.clear());
+		
+		i.addEventListener('keyup', e => {if (e.which && (e.which === 38 || e.which === 40)) validate()});
+	});
+
+	document.getElementById('repeat').addEventListener('change', e => {if (e.target.checked) validate()});
+	document.querySelectorAll('.repeat-interval').forEach(ri => ri.addEventListener('click', e => {
+		if (e.target.classList.contains('active')) return;
+
+		document.querySelectorAll('.repeat-interval').forEach(rs => rs.classList.remove('active'));
+		e.target.classList.add('active');
+
+		document.querySelectorAll('.repeat-section > div.r-section').forEach(rdw => rdw.classList.add('hidden'));
+		if (e.target.getAttribute('data-type') == 'weekly') document.querySelector('.repeat-week-wrapper').classList.remove('hidden');
+		if (e.target.getAttribute('data-type') == 'monthly') document.querySelector('.repeat-month-wrapper').classList.remove('hidden');
+		validate();
+	}));
+}
+
 async function buildCustomChoice() {
 	var firstDayOfWeek = await getOptions('weekStart') || 0;
 	var date = flatpickr('#date', {
@@ -233,6 +329,7 @@ async function buildCustomChoice() {
 		onChange: validate,
 		onValueUpdate: validate
 	});
+	
 
 	var getDateTime = _ => dayjs(dayjs(date.selectedDates).format('YYYY-MM-DD') + dayjs(time.selectedDates).format('HH:mm'));
 
@@ -311,16 +408,18 @@ async function buildCustomChoice() {
 		}
 		validate();
 	}));
-	if (document.querySelector('.f-am-pm')) document.querySelector('.f-am-pm').addEventListener('click', validate);
+	if (document.querySelector('.time-wrapper .f-am-pm')) document.querySelector('.time-wrapper .f-am-pm').addEventListener('click', validate);
 	
-	document.querySelector('.reset-action').addEventListener('click', _ => {reset();validate()});
-	document.querySelector('.form-overlay .f-days').addEventListener('click', e => {if (e.target.classList.contains('f-day')) validate()});
-	document.querySelectorAll('.form-overlay .time-wrapper input').forEach(i => {
+	document.querySelector('.time-wrapper .reset-action').addEventListener('click', _ => {reset();validate()});
+
+	document.querySelector('.date-wrapper .f-days').addEventListener('click', e => {if (e.target.classList.contains('f-day')) validate()});
+	document.querySelectorAll('.time-wrapper input').forEach(i => {
 		i.addEventListener('blur', validate);
 		i.addEventListener('increment', validate);
-		i.addEventListener('keyup', e => {if (e.which && (e.which === 38 || e.which === 40)) validate()})
+		i.addEventListener('keyup', e => {if (e.which && (e.which === 38 || e.which === 40)) validate()});
 	});
 
+	document.getElementById('repeat').addEventListener('change', e => {if (!e.target.checked) validate()});
 	validate();
 }
 

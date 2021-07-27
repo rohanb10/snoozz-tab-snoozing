@@ -486,6 +486,14 @@ var getEveningLabel = (hour, isToday) => {
 	if (hour && hour >= 20) return 'Night';
 	return 'Evening';
 }
+var getOrdinal = num => {
+	num = parseInt(num);
+	if (num % 100 >= 11 && num % 100 <= 13) return `${num}th`;
+	if (num % 10 === 1) return `${num}st`;
+	if (num % 10 === 2) return `${num}nd`;
+	if (num % 10 === 3) return `${num}rd`;
+	return `${num}th`;
+}
 
 var resizeDropdowns = _ => {
 	document.querySelectorAll('select').forEach(s => {

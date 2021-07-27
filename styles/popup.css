@@ -136,7 +136,7 @@ h3 {
 .form-overlay.show {
 	display: flex;
 }
-.form-overlay > div {
+.form-overlay > div, .repeat-time-wrapper, .repeat-section {
 	width: 50%;
 }
 .overlay-close-btn {
@@ -151,19 +151,100 @@ h3 {
 .overlay-close-btn:hover {
 	opacity: .5;
 }
+.form-overlay > .repeat-container {
+	display: flex;
+	width: 100%;
+}
+.repeat-interval-picker {
+	margin: 1.5rem 0 .5rem;
+	width: 100%;
+	justify-content: space-evenly;
+}
+.repeat-interval {
+	padding: .25rem .25rem .15rem;
+	font-size: 1.2rem;
+	cursor: pointer;
+	border-bottom: 3px solid rgba(0, 0, 0, .2);
+}
+.repeat-interval.active {
+	border-color: #DF4E76;
+}
+.hidden, .repeat-container:not(.hidden) ~ .date-wrapper, .repeat-container:not(.hidden) ~ .time-wrapper {
+	display: none !important;
+}
 .date-wrapper {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	padding: .25rem;
+	height: 100%;
 }
-.time-wrapper {
+.time-wrapper, .repeat-time-wrapper, .repeat-month-wrapper, .repeat-week-wrapper {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 }
-.time-wrapper .f-calendar {
+.repeat-month-wrapper, .repeat-week-wrapper, .repeat-week-wrapper > div {
+	height: calc(100% - 4rem);
+}
+.repeat-container .f-months, .repeat-container .f-weekdays {
+	display: none;
+}
+.day-choice {
+	margin: .5rem;
+	position: relative;
+	font-size: 1.1rem;
+}
+.day-choice span {
+	padding: .25rem .75rem .25rem 2.25rem;
+	border-radius: 0;
+	background-position: 0 100%;
+	background-size: 0 100%;
+	background-repeat: no-repeat;
+	background-image: linear-gradient(#DF4E76, #DF4E76);
+	background-position: left;
+	transition: background-size .3s ease-in-out .2s, border-radius .2s ease-in-out, color .2s ease-in-out .3s;
+	cursor: pointer;
+}
+.day-choice span.active {
+	background-size: 100% 100%;
+	border-radius: .25rem;
+	color: #FFF;
+}
+.day-choice span:before {
+	content: '';
+	position: absolute;
+	top: .1rem;
+	left: .4rem;
+	display: inline-block;
+	transform: rotate(45deg);
+	height: .8rem;
+	width: .8rem;
+	border: 3px solid var(--color);
+	border-radius: 100%;
+	transition: all .1s ease-in-out, border-color .2s ease-in-out .3s;
+}
+.day-choice span.active:before {
+	left: .75rem;
+	width: .33rem;
+	border-color: #FFF;
+	border-left: 0;
+	border-top: 0;
+	border-radius: 0;
+}
+.repeat-container .f-day.f-disabled.nextMonthDay, .repeat-container .f-day.f-disabled.nextMonthDay:hover {
+	opacity: 0;
+	height: 0;
+	cursor: default;
+}
+#repeat-time ~ .f-calendar{
+	margin-top: 3rem;
+}
+#repeat-time ~ .reset-container {
+	margin-bottom: 3rem;
+}
+.time-wrapper .f-calendar, .repeat-time-wrapper .f-calendar {
 	width: 150px;
 	transform: scale(1.25);
 	background: rgba(0,0,0,0.1);
@@ -334,7 +415,7 @@ body.dark .choice .date {
 	touch-action: none;
 	opacity: 0.2;
 }
-.repeat-container {
+.repeat-choice-overlay {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -355,6 +436,9 @@ body.dark .choice .date {
 .choice.focused, .custom-choice.focused {
 	cursor: default;
 }
+.custom-choice.focused ~ .repeat-choice-overlay .checkbox span {
+	color: #FFF;
+}
 .choice.focused {
 	transition: background-color 0s linear;
 }
@@ -364,7 +448,7 @@ body.dark .choice .date {
 }
 
 body.dark #preview, body.dark .choice, body.dark .custom-choice, body.dark .form-overlay {
-	background-color: #444
+	background-color: #444;
 }
 .footer a {
 	text-decoration: none;
