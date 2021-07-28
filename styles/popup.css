@@ -230,7 +230,7 @@ h3 {
 	width: .6rem;
 	border: 3px solid rgba(0,0,0,0.2);
 	border-radius: .25rem;
-	transition: all .2s ease-in-out;
+	transition: all .25s ease-in-out;
 }
 .day-choice span.active:before {
 	left: .9rem;
@@ -252,8 +252,12 @@ h3 {
 #repeat-time ~ .f-calendar{
 	margin-top: 3rem;
 }
-#repeat-time ~ .reset-container {
-	margin-bottom: 3rem;
+.quick-actions ~ h3 {
+	margin-top: 2.5rem;
+}
+#next-wakeup {
+	margin-bottom: .5rem;
+	line-height: 1;
 }
 .time-wrapper .f-calendar, .repeat-time-wrapper .f-calendar {
 	width: 150px;
@@ -325,7 +329,7 @@ h3 {
 .label .text {
 	padding-left: .25rem;
 }
-.choice div {
+.choice div, .custom-choice div {
 	user-select: none;
 }
 

@@ -78,7 +78,7 @@ async function wakeMeUp(tabs) {
 	tabs.filter(wakingUp).forEach(t => t.opened = now);
 	await saveTabs(tabs);
 
-	for (var s of tabsToWakeUp) s.tabs ? await openWindow(s, true) : await openTab(s, null, true);
+	for (var s of tabsToWakeUp) s.tabs ? (s.selection ? await openSelection(s, true) : await openWindow(s, true)) : await openTab(s, null, true);
 }
 
 async function setUpContextMenus(cachedMenus) {

@@ -1,7 +1,10 @@
-var closeDelay = 1000, colorList = [], isInEditMode = false, isInDupeMode = false, r_validate, dragDatesInitiated = false, debounce;
+var closeDelay = 1000, colorList = [], isInEditMode = false, isInDupeMode = false, iconTheme, debounce;
 async function init() {
 	isInEditMode = getUrlParam('type') && getUrlParam('type') === 'edit';
 	isInDupeMode = getUrlParam('type') && getUrlParam('type') === 'dupe';
+
+	iconTheme = await getOptions('icons');
+	if (!iconTheme) iconTheme = 'human';
 
 	await fetchHourFormat();
 	await buildChoices();
@@ -39,14 +42,14 @@ async function init() {
 	// document.getElementById('repeat').click();
 
 	document.addEventListener('keyup', e => {
-		if (e.which >= 49 && e.which <= 58 && !document.querySelector('.form-overlay').classList.contains('show')) {
+		if (e.keyCode >= 49 && e.keyCode <= 58 && !document.querySelector('.form-overlay').classList.contains('show')) {
 			var choices = document.querySelectorAll('.choice');
-			var selectedChoice = choices && choices.length > 0 ? choices[e.which - 48 - 1] : false;
+			var selectedChoice = choices && choices.length > 0 ? choices[e.keyCode - 48 - 1] : false;
 			if (!selectedChoice || selectedChoice.classList.contains('disabled')) return;
 			choices.forEach(c => c.classList.remove('focused'));
 			selectedChoice.focus();
 		}
-		if (e.which === 48) {
+		if (e.keyCode === 48) {
 			document.querySelectorAll('.choice').forEach(c => c.classList.remove('focused'))
 			document.querySelector('.choice:last-of-type').focus();
 		}
@@ -55,10 +58,12 @@ async function init() {
 			if (!selectedChoice) return;
 			snooze(o.time, c)
 		}
-		if (e.which === 67) document.querySelector('.custom-choice').click();
-		if (e.which === 84) document.getElementById('tab').click();
-		if (e.which === 87) document.getElementById('window').click();
-		if (e.which === 83) document.getElementById('selection').click();
+		if (e.keyCode === 67) document.querySelector('.custom-choice').click();
+		if (e.keyCode === 84) document.getElementById('tab').click();
+		if (e.keyCode === 87) document.getElementById('window').click();
+		if (e.keyCode === 83) document.getElementById('selection').click();
+		if (e.keyCode === 82) document.getElementById('repeat').click();
+		console.log(e);
 		if ((isInEditMode || isInDupeMode) && parent && parent.closeModalOnOutsideClick) parent.closeModalOnOutsideClick(e);
 	});
 	if ((isInEditMode || isInDupeMode) && parent && parent.resizeIframe) parent.resizeIframe();
@@ -68,7 +73,7 @@ async function initEditMode() {
 	document.querySelector('.footer').remove();
 	var t = await getSnoozedTabs(getUrlParam('tabId'));
 	document.getElementById('preview-text').innerText = t.title;
-	document.getElementById('preview-favicon').src = t.tabs ? '../icons/window.png' : (getUrlParam('noImg') ? '../icons/unknown.png' : getFaviconUrl(t.url));
+	document.getElementById('preview-favicon').src = t.tabs ? `../icons/${iconTheme}/${t.selection ? 'selection' : 'window'}.png` : (getUrlParam('noImg') ? '../icons/unknown.png' : getFaviconUrl(t.url));
 }
 async function toggleRepeat(e) {
 	var repeat = e.target.checked;
@@ -134,9 +139,6 @@ async function generatePreview(type) {
 	var previewText = document.getElementById('preview-text');
 	var previewIcon = document.getElementById('preview-favicon');
 
-	var iconTheme = await getOptions('icons');
-	if (!iconTheme) iconTheme = 'human';
-
 	var allTabs = await getTabsInWindow();
 	if (!allTabs || !allTabs.length) return;
 	if (allTabs.length === undefined) allTabs = [allTabs];
@@ -148,7 +150,7 @@ async function generatePreview(type) {
 		previewIcon.src = a.favIconUrl ? a.favIconUrl : (getBrowser() === 'safari' ? getFaviconUrl(a.url) : '../icons/unknown.png');
 	} else if (type === 'window') {
 		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t));
-		previewText.innerText = `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`;
+		previewText.innerText = `${getTabCountLabel(validTabs).replace(' tab', ' selected tab')} from ${getSiteCountLabel(validTabs)}`;
 		previewIcon.src = `../icons/${iconTheme}/window.png`;
 	} else if (type === 'selection') {
 		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t) && t.highlighted);
@@ -162,8 +164,6 @@ async function generatePreview(type) {
 async function buildChoices() {
 	var choices = await getChoices();
 	var config = await getOptions(['popup']);
-	var iconTheme = await getOptions('icons');
-	if (!iconTheme) iconTheme = 'human';
 	colorList = gradientSteps('#F3B845', '#DF4E76', Math.ceil(Object.keys(choices).length / 2) + 1);
 	document.querySelector('.section.choices').append(...(Object.entries(choices).map(([name, o], i) => {
 		var icon = Object.assign(document.createElement('img'), {src: `../icons/${iconTheme}/${name}.png`});
@@ -228,8 +228,8 @@ async function buildRepeatCustomChoice() {
 		mode: 'multiple',
 		minDate: '2020-03-01',
 		maxDate: '2020-03-31',
-		onChange: r_validate,
-		onValueUpdate: r_validate
+		onChange: validate,
+		onValueUpdate: validate
 	});
 	var time = flatpickr('#repeat-time', {
 		inline: true,
@@ -237,17 +237,18 @@ async function buildRepeatCustomChoice() {
 		noCalendar: true,
 		time_24hr: HOUR_FORMAT && HOUR_FORMAT === 24,
 		defaultDate: dayjs().add(1, 'd').format('HH:mm'),
-		onChange: r_validate,
-		onValueUpdate: r_validate
+		onChange: validate,
+		onValueUpdate: validate
 	});
 	var dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 	var firstDayOfWeek = await getOptions('weekStart') || 0;
+	var config = await getOptions(['morning', 'evening']);
 	dayNames.slice(firstDayOfWeek).concat(dayNames.slice(0, firstDayOfWeek)).forEach(day => {
 		var span = Object.assign(document.createElement('span'), {innerText: day});
 		span.setAttribute('data-value', dayNames.indexOf(day));
 		span.addEventListener('click', _ => {
 			span.classList.toggle('active')
-			r_validate();
+			validate();
 		});
 		document.querySelector('.repeat-week-wrapper div').append(wrapInDiv({className: 'day-choice'}, span));
 	});
@@ -256,48 +257,54 @@ async function buildRepeatCustomChoice() {
 		date.setDate([]);
 		time.setDate(dayjs().format('HH:mm'));
 		document.querySelectorAll('.day-choice span.active').forEach(s => s.classList.remove('active'));
-		r_validate();
+		validate();
 	}
 
-	r_validate = async _ => {
+	var validate = async _ => {
 		await new Promise(r => setTimeout(r, 50));
-		var isWeekly = document.querySelector('.repeat-interval.active').getAttribute('data-type') === 'weekly';
+		var isValid = false, isWeekly = document.querySelector('.repeat-interval.active').getAttribute('data-type') === 'weekly';
 		document.querySelector('.date-display').innerText = `Select ${isWeekly ? 'days' : 'dates'}`;
 		document.querySelector('.time-display').innerText = dayjs(time.selectedDates).format(getHourFormat(true));
 		document.querySelector('.submit-btn').classList.toggle('disabled', true);
 		if (isWeekly) {
-			var selectedDays = Array.from(document.querySelectorAll('.day-choice span.active')).map(s => parseInt(s.getAttribute('data-value')));
-			if (selectedDays.length) {
-				if (selectedDays.length <= 2) {
-					document.querySelector('.date-display').innerText = `${selectedDays.map(d => dayNames[d].substring(0,3 )).join(', ')} every week`;
-				} else {
-					document.querySelector('.date-display').innerText = `${selectedDays.length} days every week`;
-				}
+			var days = Array.from(document.querySelectorAll('.day-choice span.active')).map(s => parseInt(s.getAttribute('data-value')));
+			if (days.length) {
+				document.querySelector('.date-display').innerText = days.length <= 2 ? `${days.map(d => dayNames[d].substring(0,3 )).join(', ')} every week` : `${days.length} days every week`;
+				isValid = true;
 			}
-		} else {
-			if (date.selectedDates && date.selectedDates.length) {
-				if (date.selectedDates.length === 1) {
-					document.querySelector('.date-display').innerText = `${date.selectedDates.map(d => getOrdinal(dayjs(d).format('D'))).join(', ')} of every month`;
-				} else {
-					document.querySelector('.date-display').innerText = `${date.selectedDates.length} days every month`;
-				}
-			}
+		} else if (date.selectedDates.length) {
+			var dates = date.selectedDates, isValid = true;
+			document.querySelector('.date-display').innerText = dates.length === 1 ? `${dates.map(d => getOrdinal(dayjs(d).format('D'))).join(', ')} of every month` : `${dates.length} days every month`;
 		} 
+		document.querySelectorAll('.repeat-time-wrapper .action').forEach(a => {
+			var action = a.getAttribute('data-value'), actionValue = dayjs();
+			if (action == 'morning') actionValue = dayjs().startOf('d').add(config.morning[0], 'h').add(config.morning[1], 'm');
+			if (action == 'evening') actionValue = dayjs().startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm');
+			a.classList.toggle('disabled', dayjs(time.selectedDates).format('HHmm') === actionValue.format('HHmm'))
+		});
 	}
 
-	if (document.querySelector('.repeat-time-wrapper .f-am-pm')) document.querySelector('.repeat-time-wrapper .f-am-pm').addEventListener('click', r_validate);
-	document.querySelector('.repeat-time-wrapper .reset-action').addEventListener('click', _ => {reset();r_validate()});
+	if (document.querySelector('.repeat-time-wrapper .f-am-pm')) document.querySelector('.repeat-time-wrapper .f-am-pm').addEventListener('click', validate);
+	document.querySelector('.repeat-time-wrapper .reset-action').addEventListener('click', _ => {reset();validate()});
 
-	document.querySelector('.repeat-month-wrapper .f-days').addEventListener('click', r_validate);
+	document.querySelector('.repeat-month-wrapper .f-days').addEventListener('click', validate);
 	document.querySelectorAll('.repeat-time-wrapper input').forEach(i => {
-		i.addEventListener('blur', r_validate);
-		i.addEventListener('increment', r_validate);
+		i.addEventListener('blur', validate);
+		i.addEventListener('increment', validate);
 		i.addEventListener('increment', _ => date.clear());
-		
-		i.addEventListener('keyup', e => {if (e.which && (e.which === 38 || e.which === 40)) r_validate()});
+		i.addEventListener('keyup', e => {if (e.which && (e.which === 38 || e.which === 40)) validate()});
 	});
+	document.querySelectorAll('.repeat-time-wrapper .action').forEach(a => a.addEventListener('click', _ => {
+		if (a.classList.contains('disabled')) return;
+		var action = a.getAttribute('data-value'), actionValue = dayjs();
+		if (action == 'morning') actionValue = dayjs().startOf('d').add(config.morning[0], 'h').add(config.morning[1], 'm');
+		if (action == 'evening') actionValue = dayjs().startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm');
+		console.log(a.innerText, dayjs(time.selectedDates).format('HHmm'), actionValue.format('HHmm'));
+		time.setDate(actionValue.toDate());
+		validate();
+	}));
 
-	document.getElementById('repeat').addEventListener('change', e => {if (e.target.checked) r_validate()});
+	document.getElementById('repeat').addEventListener('change', e => {if (e.target.checked) validate()});
 	document.querySelectorAll('.repeat-interval').forEach(ri => ri.addEventListener('click', e => {
 		if (e.target.classList.contains('active')) return;
 
@@ -308,38 +315,25 @@ async function buildRepeatCustomChoice() {
 		if (e.target.getAttribute('data-type') == 'weekly') document.querySelector('.repeat-week-wrapper').classList.remove('hidden');
 		if (e.target.getAttribute('data-type') == 'monthly') {
 			document.querySelector('.repeat-month-wrapper').classList.remove('hidden');
-			dragToSelectDates();
+			// dragToSelectDates();
+			var m = document.querySelector('.repeat-month-wrapper'), days = Array.from(m.querySelectorAll('.dayContainer .f-day:not(.f-disabled):not(.nextMonthDay)'));
+			var bounds = days.map(d => d.getBoundingClientRect()).map((b, i) => ({index: i, left: b.left, right: b.right, top: b.top, bottom: b.bottom}));
+			var func = (x, y) => {
+				bounds.filter(b => b.left <= x && x <= b.right && b.top <= y && y <= b.bottom).forEach(b => {
+					date.setDate([...new Set(date.selectedDates.map(d => dayjs(d).format('YYYY-MM-DD')).concat(`2020-03-${days[b.index].innerText}`))])
+				});
+				validate();
+			}
+			var selectMultipleDates = e => {
+				clearTimeout(debounce);
+				debounce = setTimeout(_ => func(e.clientX, e.clientY), 30);
+			}
+			m.addEventListener('mousedown', e => {e.preventDefault(); selectMultipleDates(e); m.addEventListener('mouseover', selectMultipleDates)});
+			m.addEventListener('mouseup', e => {e.preventDefault(); selectMultipleDates(e); m.removeEventListener('mouseover', selectMultipleDates)});
+			m.addEventListener('mouseleave', e => {m.removeEventListener('mouseover', selectMultipleDates)});
 		}
-		r_validate();
+		validate();
 	}));
-}
-
-function dragToSelectDates() {
-	if (dragDatesInitiated) return;
-	var pickr = document.getElementById('monthly')._flatpickr;
-	var m = document.querySelector('.repeat-month-wrapper'), days = Array.from(m.querySelectorAll('.dayContainer .f-day:not(.f-disabled):not(.nextMonthDay)'));
-	var bounds = days.map((d, i) => {
-		var b = d.getBoundingClientRect();
-		return {index: i, left: Math.round(b.left), right: Math.round(b.right), top: Math.round(b.top), bottom: Math.round(b.bottom)};
-	});
-	if (bounds.every(b => b.bottom === 0)) return;
-	dragDatesInitiated = true;
-	var isInBounds = (x, y, b) => b.left <= x && x <= b.right && b.top <= y && y <= b.bottom;
-	var func = e => {
-		var x = Math.round(e.clientX), y = Math.round(e.clientY);
-		bounds.filter(b => isInBounds(x, y, b)).forEach(b => {
-			pickr.setDate([...new Set(pickr.selectedDates.map(d => dayjs(d).format('YYYY-MM-DD')).concat(`2020-03-${days[b.index].innerText}`))])
-		});
-		r_validate();
-	}
-	var selectMultipleDates = e => {
-		e.preventDefault();
-		clearTimeout(debounce);
-		debounce = setTimeout(_ => func(e), 30);
-	}
-	m.addEventListener('mousedown', e => {e.preventDefault(); selectMultipleDates(e); m.addEventListener('mouseover', selectMultipleDates)});
-	m.addEventListener('mouseup', e => {e.preventDefault(); selectMultipleDates(e); m.removeEventListener('mouseover', selectMultipleDates)});
-	m.addEventListener('mouseleave', e => {m.removeEventListener('mouseover', selectMultipleDates)});
 }
 
 async function buildCustomChoice() {
@@ -372,7 +366,7 @@ async function buildCustomChoice() {
 	var validate = async _ => {
 		await new Promise(r => setTimeout(r, 50));
 		var now = dayjs();
-		document.querySelectorAll('.action').forEach(action => {
+		document.querySelectorAll('.time-wrapper .action').forEach(action => {
 			action.classList.toggle('disabled', (getDateTime().add(parseInt(action.getAttribute('data-value')), 'm') < now));
 		});
 		if (getDateTime() < now) reset()
@@ -392,8 +386,6 @@ async function buildCustomChoice() {
 		}
 	});
 
-	var iconTheme = await getOptions('icons');
-	if (!iconTheme) iconTheme = 'human';
 	var icon = Object.assign(document.createElement('img'), {src: `../icons/${iconTheme}/custom.png`})
 	var label = wrapInDiv({classList: 'label', innerText: 'Choose your own time'})
 	var customChoice = wrapInDiv({
@@ -425,9 +417,9 @@ async function buildCustomChoice() {
 		document.querySelector('.popup-checkbox input').setAttribute('tabindex', '0');
 		document.querySelector('.form-overlay').classList.remove('show');
 	})
-	document.querySelectorAll('.action').forEach(action => action.addEventListener('click', function(e) {
+	document.querySelectorAll('.time-wrapper .action').forEach(action => action.addEventListener('click', _ => {
 		if (action.classList.contains('disabled')) return;
-		var amount = parseInt(e.target.getAttribute('data-value'));
+		var amount = parseInt(action.getAttribute('data-value'));
 		if (Math.abs(amount) > 1000) {
 			date.setDate(dayjs(date.selectedDates).add(amount, 'm').toDate());
 		} else {
@@ -481,7 +473,7 @@ async function snooze(time, choice) {
 	} else if (target.id === 'window') {
 		response = await snoozeWindow(time);
 	} else if (target.id === 'selection') {
-		response = await snoozeSelectedTabs(time);
+		response = await snoozeWindow(time, true);
 	}
 	if (response && !(response.tabId || response.windowId)) return;
 	await chrome.runtime.sendMessage(Object.assign(response, {close: true, delay: closeDelay}));

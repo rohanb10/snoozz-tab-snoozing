@@ -94,7 +94,8 @@ async function createNotification(id, title, imgUrl, message, force) {
 	await chrome.notifications.create(id, {type: 'basic', iconUrl: chrome.runtime.getURL(imgUrl), title, message});
 }
 async function createWindow(tabId) {
-	return new Promise(r => chrome.windows.create({url: `/html/rise-and-shine.html#${tabId}`}, r));
+	if (tabId) return new Promise(r => chrome.windows.create({url: `/html/rise-and-shine.html#${tabId}`}, r));
+	return new Promise(r => chrome.windows.create({}, r));
 }
 
 /*	CONFIGURE	*/
@@ -151,6 +152,18 @@ async function openTab(tab, windowId, automatic = false) {
 	if (!automatic) return;
 	var msg = `${tab.title} -- snoozed ${dayjs(tab.timeCreated).fromNow()}`;
 	createNotification(tab.id, 'A tab woke up!', 'icons/logo.svg', msg);
+}
+
+async function openSelection(t, automatic = false) {
+	var targetWindowID = null, windows = await getAllWindows();
+	if (!windows || !windows.length) {
+		var window = await createWindow();
+		targetWindowID = window.id;
+	}
+	for (var s of t.tabs) await openTab(s, targetWindowID);
+	if (!automatic) return;
+	var msg = `These tabs were put to sleep ${dayjs(t.timeCreated).fromNow()}`;
+	createNotification(t.id, `${t.title.split(' ')[0]} tabs woke up!`, 'icons/logo.svg', msg);
 }
 
 async function openWindow(t, automatic = false) {
@@ -226,9 +239,10 @@ async function snoozeTab(snoozeTime, overrideTab) {
 	return {tabId, tabDBId: sleepyTab.id}
 }
 
-async function snoozeWindow(snoozeTime, isAGroup) {
+async function snoozeWindow(snoozeTime, isASelection) {
 	var tabsInWindow = await getTabsInWindow();
 	var validTabs = tabsInWindow.filter(t => !isDefault(t) && isValid(t));
+	if (isASelection) validTabs = validTabs.filter(t => t.highlighted);
 	if (validTabs.length === 0) return {};
 	if (validTabs.length === 1) {
 		await snoozeTab(snoozeTime, validTabs[0])
@@ -239,17 +253,13 @@ async function snoozeWindow(snoozeTime, isAGroup) {
 		id: getRandomId(),
 		wakeUpTime: snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
+		title: `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`,
+	}
+	if (isASelection) {
+		sleepyGroup.title = sleepyGroup.title.replace(' tab', ' selected tab');
+		sleepyGroup.selection = true;
 	}
 	if (snoozeTime === 'startup') sleepyGroup.startUp = true;
-
-	if (isAGroup && false) {
-	// if (isAGroup && chrome.tabGroups) {
-		var active = tabsInWindow.find(t => t.active && t.groupId);
-	} else {
-		sleepyGroup = Object.assign(sleepyGroup, {
-			title: `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`,
-		});
-	}
 
 	sleepyGroup = Object.assign(sleepyGroup, {
 		tabs: validTabs.map(t => ({
@@ -259,13 +269,8 @@ async function snoozeWindow(snoozeTime, isAGroup) {
 		}))
 	});
 	await saveTab(sleepyGroup);
-	if (isAGroup) {
-		chrome.runtime.sendMessage({logOptions: ['group', sleepyGroup, snoozeTime]});	
-		return {tabId: tabsInWindow.filter(t => t.groupId && t.groupId === active.groupId).map(t => t.id)}
-	} else {
-		chrome.runtime.sendMessage({logOptions: ['window', sleepyGroup, snoozeTime]});	
-		return {windowId: tabsInWindow.find(w => w.active).windowId};
-	}	
+	chrome.runtime.sendMessage({logOptions: [isASelection ? 'selection' : 'window', sleepyGroup, snoozeTime]});	
+	return isASelection ? {tabId: tabsInWindow.filter(t => t.highlighted).map(t => t.id)} : {windowId: tabsInWindow.find(w => w.active).windowId};
 }
 
 async function snoozeSelectedTabs(snoozeTime) {
@@ -394,7 +399,7 @@ async function getChoices(which) {
 			time: NOW.startOf('d').add(1, 'M'),
 			timeString: NOW.startOf('d').add(1, 'M').format('D MMM'),
 			repeatTime: NOW.format(getHourFormat(true)),
-			repeatTimeString: `${NOW.format('Do')} of Month`,
+			repeatTimeString: `${getOrdinal(NOW.format('D'))} of Month`,
 			repeat: 'monthly',
 			menuLabel: 'for a month'
 		},

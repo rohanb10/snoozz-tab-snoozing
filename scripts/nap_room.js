@@ -3,7 +3,7 @@ var HISTORY = -1, CACHED_TABS = [], ticktock, colorList = [], observer;
 async function init() {
 	colorList = gradientSteps('#F3B845', '#DF4E76', TIME_GROUPS.length - 1);
 	colorList.push('');
-	document.querySelector('.settings').onkeyup = e => {if (e.which === 13) openExtensionTab('/html/settings.html')}
+	document.querySelector('.settings').onkeyup = e => {if (e.keyCode === 13) openExtensionTab('/html/settings.html')}
 	document.querySelector('.settings').addEventListener('click', _ => openExtensionTab('/html/settings.html'), {once:true})
 	showIconOnScroll();
 	setupClock();
@@ -13,32 +13,28 @@ async function init() {
 	chrome.storage.onChanged.addListener(async changes => {
 		if (changes.snoozed) {
 			CACHED_TABS = changes.snoozed.newValue;
-			updateTabs()
+			updateTabs();
 		}
 	});
 
 	chrome.runtime.onMessage.addListener(async msg => {
 		if (msg.updateDash) {
-			CACHED_TABS = await getSnoozedTabs();;
-			updateTabs()
+			CACHED_TABS = await getSnoozedTabs();
+			updateTabs();
 		}
 	});
 	document.addEventListener('visibilitychange', _ => {setupClock();updateTabs()});
 	await fetchHourFormat();
 	var search = document.getElementById('search');
 	search.addEventListener('input', _ => {
-		document.body.classList.toggle('searching', search.value.length > 0)
+		document.body.classList.toggle('searching', search.value.length > 0);
 		search.parentElement.classList.toggle('searching', search.value.length > 0);
 		search.parentElement.parentElement.classList.toggle('valid-search', search.value.length > 2);
-		performSearch(search.value.toLowerCase())
+		performSearch(search.value.toLowerCase());
 	});
 
 	CACHED_TABS = await getSnoozedTabs();
 	HISTORY = await getOptions('history');
-
-	window.addEventListener('error', function(e) {
-	    console.log(e);
-	}, true);
 
 	buildTimeGroups();
 	await initializeExpandos();
@@ -124,7 +120,7 @@ function buildTimeGroups() {
 			tID === 'history' ? await removeTabsFromHistory(ids) : await wakeUpTabsAbruptly(ids);
 		}
 		timeAction.onkeyup = async e => {
-			if (e.which !== 13) return;
+			if (e.keyCode !== 13) return;
 			var ids = Array.from(document.querySelectorAll(`#${tID} .tab`)).map(t =>t.id);
 			tID === 'history' ? await removeTabsFromHistory(ids) : await wakeUpTabsAbruptly(ids);
 		}
@@ -224,7 +220,7 @@ function buildTabActions(t, tabDiv) {
 
 	tabName.setAttribute('tabIndex', 0);
 	if (!t.tabs) tabName.onclick = _ => openTab(t);
-	if (!t.tabs) tabName.onkeyup = e => { if (e.which === 13) openTab(t)};
+	if (!t.tabs) tabName.onkeyup = e => { if (e.keyCode === 13) openTab(t)};
 
 	if (t.opened) {
 		wakeUpBtn.remove();
@@ -234,21 +230,21 @@ function buildTabActions(t, tabDiv) {
 		// using new wakeup button as snooze again button for layout purposes
 		var newEditBtn = Object.assign(document.createElement('img'), {className:'edit-button', src: '../icons/ext-icon-128.png', tabIndex: 0});
 		newEditBtn.onclick = _ => openPopupModal(t.id, 'edit', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
-		newEditBtn.onkeyup = e => {if (e.which === 13) openPopupModal(t.id, 'edit', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png')}
+		newEditBtn.onkeyup = e => {if (e.keyCode === 13) openPopupModal(t.id, 'edit', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png')}
 		tabDiv.querySelector('.wakeup-btn-container').classList.add('again')
 		tabDiv.querySelector('.wakeup-btn-container').append(newEditBtn);
 
 		var newRemoveBtn = Object.assign(document.createElement('img'), {className:'remove-button', src: '../icons/close.png', tabIndex: 0});
 		newRemoveBtn.onclick = async _ => await removeTabsFromHistory([t.id])
-		newRemoveBtn.onkeyup = async e => {if (e.which === 13) await removeTabsFromHistory([t.id])}
+		newRemoveBtn.onkeyup = async e => {if (e.keyCode === 13) await removeTabsFromHistory([t.id])}
 		tabDiv.querySelector('.remove-btn-container').append(newRemoveBtn)
 	} else {
 		wakeUpBtn.onclick = async _ => await wakeUpTabsAbruptly([t.id]);
-		wakeUpBtn.onkeyup = async e => {if (e.which === 13) await wakeUpTabsAbruptly([t.id])}
+		wakeUpBtn.onkeyup = async e => {if (e.keyCode === 13) await wakeUpTabsAbruptly([t.id])}
 		menuBtn.onclick = _ => openOverflowForDiv(tabDiv);
-		menuBtn.onkeyup = e => {if (e.which === 13) openOverflowForDiv(tabDiv)}
+		menuBtn.onkeyup = e => {if (e.keyCode === 13) openOverflowForDiv(tabDiv)}
 		removeBtn.onclick = async _ => await sendTabsToHistory([t.id])
-		removeBtn.onkeyup = async e => {if (e.which === 13) await sendTabsToHistory([t.id])}
+		removeBtn.onkeyup = async e => {if (e.keyCode === 13) await sendTabsToHistory([t.id])}
 	}
 	tabDiv.querySelector('.wakeup-label').innerText = t.deleted ? 'Deleted on' : (t.opened ? `Woke up ${t.opened < t.wakeUpTime ? 'manually' : ''} on` : 'Waking up')
 	tabDiv.querySelector('.wakeup-time').innerText = t.opened ? dayjs(t.opened).format('dddd, D MMM') : formatSnoozedUntil(t)
@@ -285,12 +281,12 @@ function buildTab(t) {
 			var littleTitle = wrapInDiv({className: 'tab-name', innerText: lt.title});
 			var littleTab = wrapInDiv({className: 'little-tab', tabIndex: 0}, littleIcon, littleTitle);
 			littleTab.onclick = _ => openTab(lt);
-			littleTab.onkeyup = e => {if (e.which === 13) openTab(lt)};
+			littleTab.onkeyup = e => {if (e.keyCode === 13) openTab(lt)};
 			littleTabs.append(littleTab);
 		});
 
 		[iconContainer, titleContainer].forEach(c => c.addEventListener('click', _ => tab.classList.toggle('collapsed')))
-		iconContainer.onkeyup = e => {if (e.which === 13) tab.classList.toggle('collapsed')}
+		iconContainer.onkeyup = e => {if (e.keyCode === 13) tab.classList.toggle('collapsed')}
 	}
 
 	var wakeUpBtn = Object.assign(document.createElement('img'), {className:'wakeup-button', src: '../icons/sun.png', tabIndex: 0});
@@ -355,7 +351,7 @@ function deleteTabFromDiv(tabId) {
 }
 
 function closeModalOnOutsideClick(e) {
-	if (e.which && e.which === 27) {
+	if (e.keyCode && e.keyCode === 27) {
 		closePopupModal();
 		closeOverflows();
 	}
@@ -465,7 +461,7 @@ async function checkForUpdates() {
 }
 
 function closeChangelog(e) {
-	if (e && ((e.which && e.which === 27) || (e.target && e.target.classList.contains('changelog-overlay')))) {
+	if (e && ((e.keyCode && e.keyCode === 27) || (e.target && e.target.classList.contains('changelog-overlay')))) {
 		var overlay = document.querySelector('body > .changelog-overlay');
 		overlay.removeEventListener('click', closeChangelog);
 		document.removeEventListener('keyup', closeChangelog);
