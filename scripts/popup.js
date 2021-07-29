@@ -80,7 +80,7 @@ async function initEditMode(isDupe) {
 	document.getElementById('preview-favicon').src = t.tabs ? `../icons/${iconTheme}/${t.selection ? 'selection' : 'window'}.png` : (getUrlParam('noImg') ? '../icons/unknown.png' : getFaviconUrl(t.url));
 }
 async function toggleRepeat(e) {
-	if (document.querySelector('.repeat-choice.disabled').length) return;
+	if (document.querySelector('.repeat-choice.disabled')) return;
 	var repeat = e.target.checked;
 	var choices = await getChoices();
 	var config = await getOptions(['popup']);
@@ -271,6 +271,7 @@ async function buildRepeatCustomChoice() {
 		document.querySelector('.date-display').innerText = `Select ${isWeekly ? 'days' : 'dates'}`;
 		document.querySelector('.time-display').innerText = dayjs(time.selectedDates).format(getHourFormat(true));
 		document.querySelector('.submit-btn').classList.toggle('disabled', true);
+		document.getElementById('next-wakeup').innerText = '-';
 		if (isWeekly) {
 			var days = Array.from(document.querySelectorAll('.day-choice span.active')).map(s => parseInt(s.getAttribute('data-value')));
 			if (days.length) {
@@ -285,8 +286,21 @@ async function buildRepeatCustomChoice() {
 			var action = a.getAttribute('data-value'), actionValue = dayjs();
 			if (action == 'morning') actionValue = dayjs().startOf('d').add(config.morning[0], 'h').add(config.morning[1], 'm');
 			if (action == 'evening') actionValue = dayjs().startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm');
-			a.classList.toggle('disabled', dayjs(time.selectedDates).format('HHmm') === actionValue.format('HHmm'))
+			a.classList.toggle('disabled', dayjs(time.selectedDates).format('HHmm') === actionValue.format('HHmm'));
 		});
+		if (isValid) {
+			var data = {}, start = dayjs(time.selectedDates);
+			if (document.querySelector('.repeat-interval.active').getAttribute('data-type') === 'weekly') {
+				data.type = 'weekly';
+				data.gap = Array.from(document.querySelectorAll('.day-choice span.active')).map(d => parseInt(d.getAttribute('data-value'))).sort(desc);
+			} else {
+				data.type = 'monthly';
+				data.gap = document.getElementById('monthly')._flatpickr.selectedDates.map(d => dayjs(d).date()).sort(desc);
+			}
+			document.getElementById('next-wakeup').innerText = formatSnoozedUntil({wakeUpTime: calculateNextSnoozeTime('custom', start, data)});
+			// document.getElementById('next-wakeup').innerText = calculateNextSnoozeTime('custom', time, data).format('HH:mm:ss DD/MM/YY')
+			document.querySelector('.submit-btn').classList.toggle('disabled', false);
+		}
 	}
 
 	if (document.querySelector('.repeat-time-wrapper .f-am-pm')) document.querySelector('.repeat-time-wrapper .f-am-pm').addEventListener('click', validate);
@@ -304,7 +318,6 @@ async function buildRepeatCustomChoice() {
 		var action = a.getAttribute('data-value'), actionValue = dayjs();
 		if (action == 'morning') actionValue = dayjs().startOf('d').add(config.morning[0], 'h').add(config.morning[1], 'm');
 		if (action == 'evening') actionValue = dayjs().startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm');
-		console.log(a.innerText, dayjs(time.selectedDates).format('HHmm'), actionValue.format('HHmm'));
 		time.setDate(actionValue.toDate());
 		validate();
 	}));
@@ -320,7 +333,6 @@ async function buildRepeatCustomChoice() {
 		if (e.target.getAttribute('data-type') == 'weekly') document.querySelector('.repeat-week-wrapper').classList.remove('hidden');
 		if (e.target.getAttribute('data-type') == 'monthly') {
 			document.querySelector('.repeat-month-wrapper').classList.remove('hidden');
-			// dragToSelectDates();
 			var m = document.querySelector('.repeat-month-wrapper'), days = Array.from(m.querySelectorAll('.dayContainer .f-day:not(.f-disabled):not(.nextMonthDay)'));
 			var bounds = days.map(d => d.getBoundingClientRect()).map((b, i) => ({index: i, left: b.left, right: b.right, top: b.top, bottom: b.bottom}));
 			var func = (x, y) => {
@@ -331,10 +343,10 @@ async function buildRepeatCustomChoice() {
 			}
 			var selectMultipleDates = e => {
 				clearTimeout(debounce);
-				debounce = setTimeout(_ => func(e.clientX, e.clientY), 30);
+				debounce = setTimeout(_ => func(e.clientX, e.clientY), 15);
 			}
-			m.addEventListener('mousedown', e => {e.preventDefault(); selectMultipleDates(e); m.addEventListener('mouseover', selectMultipleDates)});
-			m.addEventListener('mouseup', e => {e.preventDefault(); selectMultipleDates(e); m.removeEventListener('mouseover', selectMultipleDates)});
+			m.addEventListener('mousedown', e => {e.preventDefault(); m.addEventListener('mouseover', selectMultipleDates)});
+			m.addEventListener('mouseup', e => {e.preventDefault(); m.removeEventListener('mouseover', selectMultipleDates)});
 			m.addEventListener('mouseleave', e => {m.removeEventListener('mouseover', selectMultipleDates)});
 		}
 		validate();
@@ -467,8 +479,21 @@ async function modify(time, choice) {
 async function snooze(time, choice) {
 	time = ['weekend', 'monday', 'week', 'month'].includes(choice.id) ? await getTimeWithModifier(choice.id) : time;
 	if (document.getElementById('repeat').checked) {
-		if (choice.getAttribute('data-repeat') === 'daily') time = dayjs();
-		var t = calculateNextSnoozeTime(choice.getAttribute('data-repeat'), time);
+		var t;
+		if (choice.id === 'custom') {
+			var data = {};
+			if (document.querySelector('.repeat-interval.active').getAttribute('data-type') === 'weekly') {
+				data.type = 'weekly';
+				data.gap = Array.from(document.querySelectorAll('.day-choice span.active')).map(d => parseInt(d.getAttribute('data-value'))).sort(desc);
+			} else {
+				data.type = 'monthly';
+				data.gap = document.getElementById('monthly')._flatpickr.selectedDates.map(d => dayjs(d).date()).sort(desc);
+			}
+			t = calculateNextSnoozeTime(choice.id, time, data);
+		} else {
+			if (choice.getAttribute('data-repeat') === 'daily') time = dayjs();
+			t = calculateNextSnoozeTime(choice.getAttribute('data-repeat'), time);
+		}
 		console.log(t.format('HH:mm:ss DD/MM/YY'));
 		return 
 	}

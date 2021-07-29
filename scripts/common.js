@@ -273,16 +273,24 @@ async function snoozeWindow(snoozeTime, isASelection) {
 	return isASelection ? {tabId: tabsInWindow.filter(t => t.highlighted).map(t => t.id)} : {windowId: tabsInWindow.find(w => w.active).windowId};
 }
 
-async function snoozeSelectedTabs(snoozeTime) {
-	var tabsInSelection = await getTabsInWindow();
-	tabsInSelection = tabsInSelection.filter(t => t.highlighted && !isDefault(t) && isValid(t));
-	if (tabsInSelection.length === 0) return {};
-	var tabsToClose = []
-	for (var t of tabsInSelection) {
-		var response = await snoozeTab(snoozeTime, t);
-		if (response && response.tabId) tabsToClose.push(response.tabId);
+async function snoozeRecurring(type, interval, intervalData) {
+	var t = {
+		id: getRandomId(),
+		timeCreated: dayjs().valueOf(),
+		repeat: interval,
+		paused: false
 	}
-	return {tabId: tabsToClose}
+	if (interval === 'custom' && intervalData) repeat.repeatData = interval;
+	var wakeUpTime
+	if (type === 'tab') {
+		var activeTab = overrideTab || await getTabsInWindow(true);
+		if (!activeTab || !activeTab.url) return {};
+		Object.assign(t, {
+			title: activeTab.title ?? getBetterUrl(activeTab.url),
+			...activeTab.pinned ? {pinned: true} : {},
+			url: activeTab.url,
+		});
+	}
 }
 
 async function getTimeWithModifier(choice) {
@@ -407,9 +415,22 @@ async function getChoices(which) {
 	return which && all[which] ? all[which] : all;
 }
 
-function calculateNextSnoozeTime(repeat, start) {
+function calculateNextSnoozeTime(repeat, start, repeatData) {
 	var NOW = dayjs(), start = dayjs(start);
-	if (repeat === 'startup') {
+	if (repeat === 'custom' && repeatData) {
+		var days = [];
+		if (repeatData.type === 'weekly') {
+			var thisWeek = repeatData.gap, nextWeek = repeatData.gap.map(day => day + 7);
+			days = nextWeek.concat(thisWeek).map(day => dayjs().startOf('w').add(day, 'd').add(start.hour(), 'h').add(start.minute(), 'm'));
+		} else if (repeatData.type === 'monthly') {
+			console.log(repeatData.gap, repeatData.gap.filter(d => d <= dayjs().daysInMonth()));
+			var thisMonth = repeatData.gap.filter(d => d <= dayjs().daysInMonth()).map(d => dayjs().startOf('M').date(d).add(start.hour(), 'h').add(start.minute(), 'm'));
+			var nextMonth = repeatData.gap.filter(d => d <= dayjs().add(1, 'M').daysInMonth()).map(d => dayjs().startOf('M').add(1, 'M').date(d).add(start.hour(), 'h').add(start.minute(), 'm'));
+			days = nextMonth.concat(thisMonth);
+		}
+		console.log(repeatData.gap, days);
+		return days.filter(d => d > NOW).pop();
+	} else if (repeat === 'startup') {
 		return NOW.add(20, 'y');
 	} else if (repeat === 'hourly') {
 		var isNextHour = NOW.minute() >= start.minute()
@@ -474,6 +495,9 @@ var wrapInDiv = (attr, ...nodes) => {
 }
 
 var getRandomId = _ => [...Array(16)].map(_ => Math.random().toString(36)[2][Math.random() < .5 ? 'toLowerCase' : 'toUpperCase']()).join('');
+
+var asc = (a, b) => a - b;
+var desc = (a, b) => b - a;
 
 var SIZES = {
 	undefined: _ => 0,
