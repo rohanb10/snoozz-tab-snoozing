@@ -69,7 +69,7 @@ body.dark {
 	margin-left: 1.5em;
 	max-height: 2.5em;
 }
-body.dark .snoozz-text, body.dark img[src="../icons/unknown.png"], body.dark .settings img {
+body.dark .snoozz-text, body.dark img[src="../icons/unknown.png"], body.dark .settings img, body.dark .keyboard img {
 	filter: invert(1);
 }
 .scroll-logo {
@@ -116,7 +116,7 @@ a:hover {
 	right: 0.5em;
 	cursor: pointer;
 }
-.settings:focus-visible, .nap-room:focus-visible {
+.settings:focus-visible, .nap-room:focus-visible, .keyboard:focus-visible {
 	outline: 2px dashed crimson;
 }
 .settings img, .nap-room img {
@@ -149,9 +149,4 @@ a:hover {
 @keyframes spin {
 	from {transform: rotate(0deg)}
 	to {transform: rotate(360deg)}
-}
-@keyframes flow {
-	0%{background-position: 0 50%}
-	50%{background-position: 100% 50%}
-	100%{background-position: 0 50%}
 }

@@ -11,7 +11,7 @@ async function init() {
 	await buildCustomChoice();
 	await buildRepeatCustomChoice();
 	if (isInEditMode || isInDupeMode) {
-		initEditMode();
+		initEditMode(isInDupeMode);
 	} else {
 		await buildTargets();
 	}
@@ -21,7 +21,7 @@ async function init() {
 		setTimeout(_ => window.close(), 100);
 	}));
 	document.querySelectorAll('.nap-room-btn, .settings').forEach(btn => btn.onkeyup = e => {
-		if (e.which === 13) {
+		if (e.which === 13 || e.which === 32) {
 			openExtensionTab(btn.dataset.href);
 			setTimeout(_ => window.close(), 100);
 		}
@@ -42,40 +42,45 @@ async function init() {
 	// document.getElementById('repeat').click();
 
 	document.addEventListener('keyup', e => {
-		if (e.keyCode >= 49 && e.keyCode <= 58 && !document.querySelector('.form-overlay').classList.contains('show')) {
+		var isOverlayOpen = document.querySelector('.form-overlay').classList.contains('show');
+		if (e.keyCode >= 49 && e.keyCode <= 58 && !isOverlayOpen) {
 			var choices = document.querySelectorAll('.choice');
 			var selectedChoice = choices && choices.length > 0 ? choices[e.keyCode - 48 - 1] : false;
 			if (!selectedChoice || selectedChoice.classList.contains('disabled')) return;
 			choices.forEach(c => c.classList.remove('focused'));
 			selectedChoice.focus();
 		}
-		if (e.keyCode === 48) {
+		if (e.keyCode === 48 && !isOverlayOpen) {
 			document.querySelectorAll('.choice').forEach(c => c.classList.remove('focused'))
 			document.querySelector('.choice:last-of-type').focus();
 		}
-		if (e.which === 13 && !document.querySelector('.form-overlay').classList.contains('show')) {
+		if ((e.which === 13 || e.which === 32) && !isOverlayOpen) {
 			var selectedChoice = document.querySelector('.choice.focused');
 			if (!selectedChoice) return;
 			snooze(o.time, c)
 		}
-		if (e.keyCode === 67) document.querySelector('.custom-choice').click();
-		if (e.keyCode === 84) document.getElementById('tab').click();
-		if (e.keyCode === 87) document.getElementById('window').click();
-		if (e.keyCode === 83) document.getElementById('selection').click();
+		if (e.keyCode === 67 && !isOverlayOpen) document.querySelector('.custom-choice').click();
+		if (e.keyCode === 67 && isOverlayOpen) document.querySelector('.overlay-close-btn').click();
+		if (e.keyCode === 84 && !isOverlayOpen) document.getElementById('tab').click();
+		if (e.keyCode === 87 && !isOverlayOpen) document.getElementById('window').click();
+		if (e.keyCode === 83 && !isOverlayOpen) document.getElementById('selection').click();
 		if (e.keyCode === 82) document.getElementById('repeat').click();
-		console.log(e);
 		if ((isInEditMode || isInDupeMode) && parent && parent.closeModalOnOutsideClick) parent.closeModalOnOutsideClick(e);
 	});
+	['mouseover', 'focus'].forEach(e => document.querySelector('.keyboard').addEventListener(e, _ => document.body.classList.add('show-shortcuts')));
+	['mouseout', 'blur'].forEach(e => document.querySelector('.keyboard').addEventListener(e, _ => document.body.classList.remove('show-shortcuts')));
 	if ((isInEditMode || isInDupeMode) && parent && parent.resizeIframe) parent.resizeIframe();
 }
-async function initEditMode() {
-	document.getElementById('targets').remove();
-	document.querySelector('.footer').remove();
+async function initEditMode(isDupe) {
+	document.querySelector('h3').innerText = isDupe ? 'Duplicating What?' : 'Editing What?'
+	document.getElementById('targets').classList.add('hidden');
+	document.querySelector('.footer').classList.add('hidden');
 	var t = await getSnoozedTabs(getUrlParam('tabId'));
 	document.getElementById('preview-text').innerText = t.title;
 	document.getElementById('preview-favicon').src = t.tabs ? `../icons/${iconTheme}/${t.selection ? 'selection' : 'window'}.png` : (getUrlParam('noImg') ? '../icons/unknown.png' : getFaviconUrl(t.url));
 }
 async function toggleRepeat(e) {
+	if (document.querySelector('.repeat-choice.disabled').length) return;
 	var repeat = e.target.checked;
 	var choices = await getChoices();
 	var config = await getOptions(['popup']);
@@ -121,17 +126,17 @@ async function buildTargets() {
 	} else if (isWindowValid) {
 		document.getElementById('window').classList.add('active');
 	} else {
-		document.querySelectorAll('.choice, .custom-choice, h3').forEach(c => {c.classList.add('disabled');c.setAttribute('tabindex','-1')});
+		document.querySelectorAll('.choice, .custom-choice, h3, .repeat-choice, #repeat').forEach(c => {c.classList.add('disabled');c.setAttribute('tabindex','-1')});
 		return document.getElementById('preview-text').innerText = `Can't snooze this tab`;
 	}
 	await generatePreview(document.querySelector('.target.active').id)
 
 	document.querySelectorAll('.target').forEach(t => t.addEventListener('click', async e => {
-		if (e.target.classList.contains('disabled') || e.target.classList.contains('active')) return;
+		if (t.classList.contains('disabled') || t.classList.contains('active')) return;
 		document.querySelectorAll('.target').forEach(s => s.classList.remove('active'));
-		e.target.classList.add('active');
+		t.classList.add('active');
 		document.getElementById('icon').classList.toggle('flipped');
-		await generatePreview(e.target.id);
+		await generatePreview(t.id);
 	}));
 }
 
@@ -150,7 +155,7 @@ async function generatePreview(type) {
 		previewIcon.src = a.favIconUrl ? a.favIconUrl : (getBrowser() === 'safari' ? getFaviconUrl(a.url) : '../icons/unknown.png');
 	} else if (type === 'window') {
 		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t));
-		previewText.innerText = `${getTabCountLabel(validTabs).replace(' tab', ' selected tab')} from ${getSiteCountLabel(validTabs)}`;
+		previewText.innerText = `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`;
 		previewIcon.src = `../icons/${iconTheme}/window.png`;
 	} else if (type === 'selection') {
 		var validTabs = allTabs.filter(t => !isDefault(t) && isValid(t) && t.highlighted);
@@ -216,7 +221,7 @@ async function buildChoices() {
 			select.dispatchEvent(new Event('change'));
 		})
 		c.onclick = e => {if (!['OPTION', 'SELECT'].includes(e.target.nodeName)) snooze(o.startUp ? 'startup' : o.time, c)}
-		c.onkeyup = e => {if (e.which === 13) snooze(o.startUp ? 'startup' : o.time, c)}
+		c.onkeyup = e => {if (e.which === 13 || e.which === 32) snooze(o.startUp ? 'startup' : o.time, c)}
 		return c
 	})));
 	document.querySelectorAll('.section.choices .choice select').forEach(s => s.dispatchEvent(new Event('change')));
@@ -398,12 +403,14 @@ async function buildCustomChoice() {
 			document.querySelectorAll('.choice').forEach(c => {c.classList.add('disabled');c.setAttribute('tabindex','-1')});
 			document.querySelector('.popup-checkbox input').setAttribute('tabindex', '-1');
 			document.querySelector('.form-overlay').classList.add('show');
+			document.querySelector('.keyboard').classList.remove('show');
 		},
 		onkeydown: e => {
 			if (!e || e.which !== 13 && e.which !== 32) return;
 			customChoice.classList.add('focused');
 			document.querySelectorAll('.choice').forEach(c => {c.classList.add('disabled');c.setAttribute('tabindex','-1')});
 			document.querySelector('.form-overlay').classList.add('show');
+			document.querySelector('.keyboard').classList.remove('show');
 		}
 	}, wrapInDiv('', icon, label), wrapInDiv('custom-info', wrapInDiv('display', wrapInDiv('date-display'), wrapInDiv('time-display')), submitButton));
 	document.querySelector('.section.special-choices').prepend(customChoice);
@@ -416,6 +423,7 @@ async function buildCustomChoice() {
 		document.querySelectorAll('.choice').forEach(c => {c.classList.remove('disabled');c.setAttribute('tabindex','0')});
 		document.querySelector('.popup-checkbox input').setAttribute('tabindex', '0');
 		document.querySelector('.form-overlay').classList.remove('show');
+		document.querySelector('.keyboard').classList.add('show');
 	})
 	document.querySelectorAll('.time-wrapper .action').forEach(action => action.addEventListener('click', _ => {
 		if (action.classList.contains('disabled')) return;
@@ -452,7 +460,7 @@ async function modify(time, choice) {
 	if (isInEditMode && !isInDupeMode) response = await editSnoozeTime(getUrlParam('tabId'), time);
 	if (!isInEditMode && isInDupeMode) response = await dupeSnoozedTab(getUrlParam('tabId'), time);
 	if (!response.edited && !response.duped) return;
-	await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', 'Going back to sleep');
+	await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', isInDupeMode ? 'Cloning sheep' : 'Going back to sleep');
 	if (parent && parent.closePopupModal) setTimeout(_ => parent.closePopupModal(), closeDelay);
 }
 

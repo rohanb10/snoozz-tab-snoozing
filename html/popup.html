@@ -10,13 +10,13 @@
 	<link rel="stylesheet" href="../styles/flatpickr.min.css" />
 </head>
 <body>
-	<h3 class="center">What?</h3>
+	<h3 class="center">Snooze What?</h3>
 	<div class="flex header">
 		<div id="targets" class="flex">
-			<div id="tab" class="target disabled">Tab</div>
-			<div id="window" class="target disabled">Window</div>
-			<div id="selection" class="target disabled">Selected</div>
-			<div id="group" class="target disabled">Group</div>
+			<div id="tab" class="target disabled"><span>This Tab</span></div>
+			<div id="window" class="target disabled"><span>Window</span></div>
+			<div id="selection" class="target disabled"><span>Selected</span></div>
+			<div id="group" class="target disabled"><span>Group</span></div>
 		</div>
 		<div id="preview" class="flex">
 			<img id="preview-favicon" src="../icons/unknown.png"><div id="preview-text">¿ ?</div>
@@ -84,13 +84,20 @@
 		</div>
 	</div>
 	<div class="footer flex">
-		<div class="center"><img id="icon" src="../icons/logo.svg"></div>
+		<div class="flex">
+			<div class="center"><img id="icon" src="../icons/logo.svg"></div>
+			<div class="empty"><img src="../icons/transparent.png"></div>
+		</div>
 		<div>
 			<a><span tabindex="0" class="nap-room-btn" data-href="/html/nap-room.html">See Sleeping Tabs</span></a>
 			<span class="upcoming" data-today=""></span>
 		</div>
-		<div class="settings" tabindex="0" data-href="/html/settings.html" data-hover="Settings">
-			<img data-href="/html/settings.html" src="../icons/settings.png">
+		<div class="flex">
+			<div class="keyboard show" tabindex="0"><img src="../icons/keyboard.png"></div>
+			<div class="shortcut-overlay"><div class="shortcuts"><div class="borders"></div><div class="keys"></div></div></div>
+			<div class="settings" tabindex="0" data-href="/html/settings.html" data-hover="Settings">
+				<img data-href="/html/settings.html" src="../icons/settings.png">
+			</div>
 		</div>
 	</div>
 	<script type="text/javascript" src="../scripts/dayjs.min.js"></script>
