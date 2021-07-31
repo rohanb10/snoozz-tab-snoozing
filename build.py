@@ -53,6 +53,7 @@ def minifyFilesInDirectory(directory, ext, url):
 				f2.write(response.text)
 				f2.close()
 				replaceInHTMLFiles(name, name[:-chars] + '.min' + ext)
+				print('Minifying ' + '\x1b[1;32;34m' + name + '\x1b[0m')
 
 def replaceInHTMLFiles(original, replacement):
 	for root, dirs, files in os.walk(FOLDER + '/html'):
@@ -73,7 +74,7 @@ minifyFilesInDirectory('styles', '.css', 'https://cssminifier.com/raw')
 #
 name = 'snoozz-chrome-' + VERSION
 shutil.make_archive(name, 'zip', FOLDER)
-print('Created Chrome Release: ' + '\x1b[1;32;40m' + name + '.zip' + '\x1b[0m')
+print('\nCreated Chrome Release: ' + '\x1b[1;32;40m' + name + '.zip' + '\x1b[0m')
 
 
 #
