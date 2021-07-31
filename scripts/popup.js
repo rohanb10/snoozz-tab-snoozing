@@ -86,12 +86,14 @@ async function toggleRepeat(e) {
 	var config = await getOptions(['popup']);
 	Object.entries(choices).forEach(async ([name, o]) => {
 		var c = document.getElementById(name);
-		c.classList.toggle('disabled', ((!repeat && !!o.disabled) || (repeat && !!o.repeatDisabled)))
-		c.classList.toggle('always-disabled', ((!repeat && !!o.disabled) || (repeat && !!o.repeatDisabled)))
+		c.classList.toggle('disabled', ((!repeat && !!o.disabled) || (repeat && !!o.repeatDisabled)));
+		c.classList.toggle('always-disabled', ((!repeat && !!o.disabled) || (repeat && !!o.repeatDisabled)));
 		o.time = await getTimeWithModifier('name');
 		c.querySelector('.label .text').innerText = repeat ? o.repeatLabel : o.label;
-		if (name !== 'startup') c.querySelector('.date').innerText = repeat ? o.repeatTimeString : o.timeString;
-		if (name !== 'startup') c.querySelector('.time').innerText = repeat ? o.repeatTime : dayjs(o.time).format(`${getHourFormat(dayjs(o.time).minute() !== 0)}`);
+		if (name !== 'startup') {
+			c.querySelector('.date').innerText = repeat ? o.repeatTimeString : o.timeString;
+			c.querySelector('.time').innerText = repeat ? o.repeatTime : dayjs(o.time).format(`${getHourFormat(dayjs(o.time).minute() !== 0)}`);
+		}
 		if (['weekend', 'monday', 'week', 'month'].includes(name)) c.querySelector('select').dispatchEvent(new Event('change'));
 	});
 	var custom = document.getElementById('custom');
@@ -209,7 +211,7 @@ async function buildChoices() {
 			style: `--bg:${colorList[Math.floor(i / 2)]}`,
 			tabIndex: o.disabled ? -1 : 0,
 		}, wrapInDiv('', icon, label), o.startUp ? wrapInDiv() : wrapInDiv('', date, time));
-		c.setAttribute('data-repeat', o.repeat);
+		c.setAttribute('data-repeat-id', o.repeat_id);
 		c.addEventListener('mouseover', _ => c.classList.add('focused'))
 		c.addEventListener('mouseout', _ => c.classList.remove('focused'));
 		if (['weekend', 'monday', 'week', 'month'].includes(name)) c.addEventListener('keydown', e => {
@@ -291,14 +293,12 @@ async function buildRepeatCustomChoice() {
 		if (isValid) {
 			var data = {}, start = dayjs(time.selectedDates);
 			if (document.querySelector('.repeat-interval.active').getAttribute('data-type') === 'weekly') {
-				data.type = 'weekly';
-				data.gap = Array.from(document.querySelectorAll('.day-choice span.active')).map(d => parseInt(d.getAttribute('data-value'))).sort(desc);
+				data.weekly = Array.from(document.querySelectorAll('.day-choice span.active')).map(d => parseInt(d.getAttribute('data-value'))).sort(desc);
 			} else {
-				data.type = 'monthly';
-				data.gap = document.getElementById('monthly')._flatpickr.selectedDates.map(d => dayjs(d).date()).sort(desc);
+				data.monthly = document.getElementById('monthly')._flatpickr.selectedDates.map(d => dayjs(d).date()).sort(desc);
 			}
-			document.getElementById('next-wakeup').innerText = formatSnoozedUntil({wakeUpTime: calculateNextSnoozeTime('custom', start, data)});
-			// document.getElementById('next-wakeup').innerText = calculateNextSnoozeTime('custom', time, data).format('HH:mm:ss DD/MM/YY')
+			var wakeUpTime = await calculateNextSnoozeTime('custom', start, data);
+			document.getElementById('next-wakeup').innerText = formatSnoozedUntil({wakeUpTime});
 			document.querySelector('.submit-btn').classList.toggle('disabled', false);
 		}
 	}
@@ -426,6 +426,7 @@ async function buildCustomChoice() {
 		}
 	}, wrapInDiv('', icon, label), wrapInDiv('custom-info', wrapInDiv('display', wrapInDiv('date-display'), wrapInDiv('time-display')), submitButton));
 	document.querySelector('.section.special-choices').prepend(customChoice);
+	customChoice.setAttribute('data-repeat-id', 'custom');
 	customChoice.addEventListener('mouseover', _ => customChoice.classList.add('really-focused'))
 	customChoice.addEventListener('mouseout', _ => customChoice.classList.remove('really-focused'))
 
@@ -478,35 +479,30 @@ async function modify(time, choice) {
 
 async function snooze(time, choice) {
 	time = ['weekend', 'monday', 'week', 'month'].includes(choice.id) ? await getTimeWithModifier(choice.id) : time;
-	if (document.getElementById('repeat').checked) {
-		var t;
-		if (choice.id === 'custom') {
-			var data = {};
-			if (document.querySelector('.repeat-interval.active').getAttribute('data-type') === 'weekly') {
-				data.type = 'weekly';
-				data.gap = Array.from(document.querySelectorAll('.day-choice span.active')).map(d => parseInt(d.getAttribute('data-value'))).sort(desc);
-			} else {
-				data.type = 'monthly';
-				data.gap = document.getElementById('monthly')._flatpickr.selectedDates.map(d => dayjs(d).date()).sort(desc);
-			}
-			t = calculateNextSnoozeTime(choice.id, time, data);
-		} else {
-			if (choice.getAttribute('data-repeat') === 'daily') time = dayjs();
-			t = calculateNextSnoozeTime(choice.getAttribute('data-repeat'), time);
-		}
-		console.log(t.format('HH:mm:ss DD/MM/YY'));
-		return 
-	}
 	if (isInEditMode || isInDupeMode) return modify(time, choice);
-	var target = document.querySelector('.target.active');
+	var response, target = document.querySelector('.target.active');
 	if (!['tab', 'window', 'selection', 'group'].includes(target.id)) return;
-	var response;
-	if (target.id === 'tab') {
-		response = await snoozeTab(time);
-	} else if (target.id === 'window') {
-		response = await snoozeWindow(time);
-	} else if (target.id === 'selection') {
-		response = await snoozeWindow(time, true);
+
+	if (document.getElementById('repeat').checked) {
+		var t, data = {}, id = choice.getAttribute('data-repeat-id');
+		if (id === 'custom' && document.querySelector('.repeat-interval.active').getAttribute('data-type') === 'weekly') {
+			data.weekly = Array.from(document.querySelectorAll('.day-choice span.active')).map(d => parseInt(d.getAttribute('data-value'))).sort(desc);
+		}
+		if (id === 'custom' && document.querySelector('.repeat-interval.active').getAttribute('data-type') === 'monthly') {
+			data.monthly = document.getElementById('monthly')._flatpickr.selectedDates.map(d => dayjs(d).date()).sort(desc);
+		}
+		if (id === 'weekly') time = time.subtract(1, 'w')
+		if (id === 'monthly') time = time.subtract(1, 'M').subtract(2, 'd');
+		response = await snoozeRecurring(target.id, time, id, data);
+		return;
+	} else {
+		if (target.id === 'tab') {
+			response = await snoozeTab(time);
+		} else if (target.id === 'window') {
+			response = await snoozeWindow(time);
+		} else if (target.id === 'selection') {
+			response = await snoozeWindow(time, true);
+		}
 	}
 	if (response && !(response.tabId || response.windowId)) return;
 	await chrome.runtime.sendMessage(Object.assign(response, {close: true, delay: closeDelay}));

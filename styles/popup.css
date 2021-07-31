@@ -530,6 +530,7 @@ body.dark .upcoming {
 	cursor: pointer;
 	max-width: 3em;
 	padding: .5em .25em;
+	transition: filter .2s ease-in-out;
 }
 .empty img {
 	max-width: 3em;
