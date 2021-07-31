@@ -5,6 +5,8 @@ import json
 import shutil
 import re
 import os
+import io
+import requests
 from sys import argv
 
 FOLDER = 'build_temp'
@@ -17,36 +19,54 @@ print('\n\x1b[1;31;40m' + 'Building Snoozz v' + VERSION + '\x1b[0m\n');
 #
 #	delete old files if they exist
 #
-if os.path.exists(FOLDER):
-	shutil.rmtree(FOLDER)
-if os.path.exists('snoozz-chrome-' + VERSION + '.zip'):
-	os.remove('snoozz-chrome-' + VERSION + '.zip')
-if os.path.exists('snoozz-chrome-' + VERSION):
-	shutil.rmtree('snoozz-chrome-' + VERSION)
-if os.path.exists('snoozz-ff-' + VERSION + '.zip'):
-	os.remove('snoozz-ff-' + VERSION + '.zip')
-if os.path.exists('snoozz-ff-' + VERSION):
-	shutil.rmtree('snoozz-ff-' + VERSION)
-if os.path.exists('snoozz-' + VERSION + '.zip'):
-	os.remove('snoozz-' + VERSION + '.zip')
-if os.path.exists('snoozz-' + VERSION):
-	shutil.rmtree('snoozz-' + VERSION)
-if os.path.exists('snoozz-safari-' + VERSION + '.zip'):
-	os.remove('snoozz-safari-' + VERSION + '.zip')
-if os.path.exists('snoozz-safari-' + VERSION):
-	shutil.rmtree('snoozz-safari-' + VERSION)
-
+old = [FOLDER, 'snoozz-chrome-' + VERSION, 'snoozz-ff-' + VERSION, 'snoozz-' + VERSION, 'snoozz-safari-' + VERSION]
+for file in old:
+	if os.path.exists(file):
+		shutil.rmtree(file)
+oldzip = ['snoozz-chrome-' + VERSION + '.zip', 'snoozz-ff-' + VERSION + '.zip', 'snoozz-' + VERSION + '.zip', 'snoozz-safari-' + VERSION + '.zip']
+for zippy in oldzip:
+	if (os.path.exists(zippy)) :
+		os.remove(zippy)
 #
 # Copy essential files only
 #
 shitfiles = shutil.ignore_patterns('.DS_Store', '.git', '.Trashes', '.Spotlight-V100', '.github')
-
 shutil.copytree('html', FOLDER + '/html', ignore = shitfiles)
-shutil.copytree('scripts', FOLDER + '/scripts', ignore = shitfiles)
-shutil.copytree('styles', FOLDER + '/styles', ignore = shitfiles)
 shutil.copytree('icons', FOLDER + '/icons', dirs_exist_ok=True, ignore = shitfiles)
 with open(FOLDER + '/manifest.json', 'w+') as m:
 	m.write(json.dumps(data, indent=4))
+
+#
+# Minify Files (JS + CSS)
+#
+def minifyFilesInDirectory(directory, ext, url):
+	os.mkdir(FOLDER + '/' + directory)
+	for root, dirs, files in os.walk(directory):
+		for name in files:
+			chars = len(ext)
+			if name.endswith('.min.' + ext):
+				shutil.copyfile(os.path.join(root, name), FOLDER + '/' + directory + '/' + name)
+			elif name.endswith(ext):
+				data = {'input': open(os.path.join(root, name), 'rb').read()}
+				response = requests.post(url, data=data)
+				f2 = open(FOLDER + '/' + directory + '/' + name[:-chars] + '.min' + ext, 'w')
+				f2.write(response.text)
+				f2.close()
+				replaceInHTMLFiles(name, name[:-chars] + '.min' + ext)
+
+def replaceInHTMLFiles(original, replacement):
+	for root, dirs, files in os.walk(FOLDER + '/html'):
+		for name in files:
+			file = open(os.path.join(root, name), 'rt')
+			data = file.read()
+			data = data.replace(original, replacement)
+			file.close()
+			file = open(os.path.join(root, name), 'wt')
+			file.write(data)
+			file.close()
+
+minifyFilesInDirectory('scripts', '.js', 'https://javascript-minifier.com/raw')
+minifyFilesInDirectory('styles', '.css', 'https://cssminifier.com/raw')
 
 #
 # Build release for chrome
