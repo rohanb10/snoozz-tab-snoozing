@@ -14,7 +14,7 @@ with open('manifest.json') as m:
 	data = json.load(m)
 VERSION = data['version']
 
-print('\n\x1b[1;31;40m' + 'Building Snoozz v' + VERSION + '\x1b[0m\n');
+print('\nBuilding \x1b[1;31;34mSnoozz v' + VERSION + '\x1b[0m\n');
 
 #
 #	delete old files if they exist
@@ -44,16 +44,17 @@ def minifyFilesInDirectory(directory, ext, url):
 	for root, dirs, files in os.walk(directory):
 		for name in files:
 			chars = len(ext)
-			if name.endswith('.min.' + ext):
+			if name.endswith('.min' + ext):
 				shutil.copyfile(os.path.join(root, name), FOLDER + '/' + directory + '/' + name)
 			elif name.endswith(ext):
+				print('\n⧖ Minifying ' + '\x1b[1;32;33m' + name + '\x1b[0m ...', end='')
 				data = {'input': open(os.path.join(root, name), 'rb').read()}
 				response = requests.post(url, data=data)
 				f2 = open(FOLDER + '/' + directory + '/' + name[:-chars] + '.min' + ext, 'w')
 				f2.write(response.text)
 				f2.close()
 				replaceInHTMLFiles(name, name[:-chars] + '.min' + ext)
-				print('Minifying ' + '\x1b[1;32;34m' + name + '\x1b[0m')
+				print('\r✓ Minified ' + '\x1b[1;32;33m' + name + '\x1b[0m -> \x1b[1;32;32m' + name[:-chars] + '.min' + ext + '\x1b[0m', end='', flush=True)
 
 def replaceInHTMLFiles(original, replacement):
 	for root, dirs, files in os.walk(FOLDER + '/html'):
@@ -74,7 +75,7 @@ minifyFilesInDirectory('styles', '.css', 'https://cssminifier.com/raw')
 #
 name = 'snoozz-chrome-' + VERSION
 shutil.make_archive(name, 'zip', FOLDER)
-print('\nCreated Chrome Release: ' + '\x1b[1;32;40m' + name + '.zip' + '\x1b[0m')
+print('\n\nCreated Chrome Release: ' + '\x1b[1;31;40m' + name + '.zip' + '\x1b[0m')
 
 
 #
@@ -93,7 +94,7 @@ with open(FOLDER + '/manifest.json', 'w+') as m:
 #
 name = 'snoozz-ff-' + VERSION
 shutil.make_archive(name, 'zip', FOLDER)
-print('Created Firefox Release: ' + '\x1b[1;32;40m' + name + '.zip' + '\x1b[0m')
+print('Created Firefox Release: ' + '\x1b[1;31;40m' + name + '.zip' + '\x1b[0m')
 
 #
 # Build release for github
@@ -102,7 +103,7 @@ shutil.copy('LICENSE', FOLDER)
 
 name = 'snoozz-' + VERSION
 shutil.make_archive(name, 'zip', FOLDER)
-print('Created GH Release: ' + '\x1b[1;32;40m' + name + '.zip' + '\x1b[0m')
+print('Created GH Release: ' + '\x1b[1;31;40m' + name + '.zip' + '\x1b[0m')
 
 #
 # Modify manifest file for safari and build
@@ -120,7 +121,7 @@ with open(FOLDER + '/manifest.json', 'w+') as m:
 
 name = 'snoozz-safari-' + VERSION
 shutil.make_archive(name, 'zip', FOLDER)
-print('Created Safari Release: ' + '\x1b[1;32;40m' + name + '.zip' + '\x1b[0m')
+print('Created Safari Release: ' + '\x1b[1;31;40m' + name + '.zip' + '\x1b[0m')
 
 #
 # Print changelog
