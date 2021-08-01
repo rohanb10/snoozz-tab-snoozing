@@ -213,7 +213,7 @@ h3 {
 	cursor: pointer;
 }
 .day-choice:hover {
-	background-color: rgba(0,0,0,0.1);
+	background-color: rgba(0, 0, 0, .1);
 }
 .day-choice span:before {
 	content: '';
@@ -224,9 +224,12 @@ h3 {
 	
 	height: .6rem;
 	width: .6rem;
-	border: 3px solid rgba(0,0,0,0.2);
+	border: 3px solid rgba(0, 0, 0, .2);
 	border-radius: .25rem;
 	transition: all .25s ease-in-out;
+}
+body.dark .day-choice span:before {
+	border: 3px solid rgba(255, 255, 255, .2);
 }
 .day-choice span.active:before {
 	left: .9rem;
@@ -258,7 +261,7 @@ h3 {
 .time-wrapper .f-calendar, .repeat-time-wrapper .f-calendar {
 	width: 150px;
 	transform: scale(1.25);
-	background: rgba(0,0,0,0.1);
+	background: rgba(0, 0, 0, .1);
 }
 .quick-actions {
 	margin-top: 3rem;
@@ -278,10 +281,10 @@ h3 {
 	cursor: pointer;
 	text-align: center;
 	min-width: 70px;
-	background: rgba(0,0,0,0.1);
+	background: rgba(0, 0, 0, .1);
 }
 .action:not(.disabled):hover {
-	background: rgba(0,0,0,0.2);
+	background: rgba(0, 0, 0, .2);
 }
 .action.disabled {
 	cursor: not-allowed;
@@ -415,15 +418,15 @@ body.dark .choice .date {
 	padding: .5rem;
 	color: #FFF;
 	border-radius: .25rem;
-	background: rgba(0,0,0,.25);
+	background: rgba(0, 0, 0, .25);
 }
 .submit-btn:hover {
-	background: rgba(0,0,0,.4);
+	background: rgba(0, 0, 0, .4);
 }
 .submit-btn.disabled {
 	pointer-events: none;
 	touch-action: none;
-	opacity: 0.2;
+	opacity: .2;
 }
 .repeat-choice-overlay {
 	position: absolute;
@@ -454,7 +457,7 @@ body.dark .choice .date {
 }
 .choice select:focus:hover {
 	color: var(--color);
-	background-color: rgba(0,0,0,.5);
+	background-color: rgba(0, 0, 0, .5);
 }
 
 body.dark #preview, body.dark .choice, body.dark .custom-choice, body.dark .form-overlay {
@@ -507,7 +510,7 @@ body.dark .upcoming {
 	width: 1.75em;
 }
 .settings:before {
-	top: -0.15em;
+	top: -.15em;
 	line-height: 1.4;
 	font-size: unset;
 	border-radius: .25em;

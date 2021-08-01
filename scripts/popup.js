@@ -492,7 +492,7 @@ async function snooze(time, choice) {
 			data.monthly = document.getElementById('monthly')._flatpickr.selectedDates.map(d => dayjs(d).date()).sort(desc);
 		}
 		if (id === 'weekly') time = time.subtract(1, 'w')
-		if (id === 'monthly') time = time.subtract(1, 'M').subtract(2, 'd');
+		if (id === 'monthly') time = time.subtract(1, 'M');
 		response = await snoozeRecurring(target.id, time, id, data);
 		return;
 	} else {

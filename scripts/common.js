@@ -274,7 +274,6 @@ async function snoozeWindow(snoozeTime, isASelection) {
 }
 
 async function snoozeRecurring(target, time, repeat, repeatData) {
-	var next = 
 	var sleepyObj = {
 		id: getRandomId(),
 		timeCreated: dayjs().valueOf(),
@@ -291,8 +290,11 @@ async function snoozeRecurring(target, time, repeat, repeatData) {
 	}
 
 	if (repeat === 'startup') sleepyObj.startUp = true;
-	if (repeatData) sleepyObj.gap = repeatData;
-	sleepyObj.wakeUpTime = await calculateNextSnoozeTime(repeat, time, repeatData);
+	if (Object.keys(repeatData).length) sleepyObj.gap = repeatData;
+
+	var next = await calculateNextSnoozeTime(repeat, time, repeatData);
+	sleepyObj.wakeUpTime = next.valueOf();
+	console.log(next.format('DD/MM/YY HH:mm'));
 
 	if (validTabs.length === 0) return {};
 	if (validTabs.length === 1 || target === 'tab') {
@@ -448,7 +450,7 @@ async function getChoices(which) {
 }
 
 async function calculateNextSnoozeTime(repeat, start, data) {
-	var NOW = dayjs().add(1, 'M'), start = dayjs(start);
+	var NOW = dayjs(), start = dayjs(start);
 	if (repeat === 'custom' && data) {
 		var days = [];
 		if (data.weekly) {
@@ -483,7 +485,6 @@ async function calculateNextSnoozeTime(repeat, start, data) {
 		return NOW.startOf('w').add(isThisWeek ? 0 : 1, 'w').day(1).hour(start.hour()).minute(start.minute());
 	} else if (repeat === 'weekly') {
 		var isThisWeek = NOW.day() < start.day() || (NOW.day() === start.day() && (NOW.hour() < start.hour() || (NOW.hour() === start.hour() && NOW.minute() < start.minute())));
-		console.log(isThisWeek);
 		return NOW.startOf('w').add(isThisWeek ? 0 : 1, 'w').day(start.day()).hour(start.hour()).minute(start.minute());
 	} else if (repeat === 'monthly') {
 		var isThisMonth = NOW.date() < start.date() || (NOW.date() === start.date() && (NOW.hour() < start.hour() ||( NOW.hour() === start.hour() && NOW.minute() < start.minute()))) ? 0 : 1;
@@ -491,19 +492,6 @@ async function calculateNextSnoozeTime(repeat, start, data) {
 		return NOW.startOf('M').add(isThisMonth + isMonthValid, 'M').date(start.date()).hour(start.hour()).minute(start.minute());
 	}
 	return false;
-	// } else if (repeat === 'hourly') {
-	// 	var isNextHour = NOW.minute() >= start.minute()
-	// 	return dayjs().startOf('h').add(isNextHour ? 1 : 0, 'h').add(start.minute(), 'm')
-	// } else if (repeat === 'daily' || repeat === 'daily_morning' || repeat === 'daily_evening') {
-	// 	var isTomorrow = (NOW.hour() === start.hour() && NOW.minute() >= start.minute()) || NOW.hour() > start.hour();
-	// 	return dayjs().startOf('d').add(isTomorrow ? 1 : 0, 'd').add(start.hour(), 'h').add(start.minute(), 'm')
-	// } else if (repeat === 'weekly' || repeat === 'weekends' || repeat === 'mondays') {
-	// 	var isNextWeek = NOW.weekday() === start.weekday() && ((NOW.hour() === start.hour() && NOW.minute() >= start.minute()) || (NOW.hour() > start.hour()));
-	// 	return dayjs().startOf('w').add(start.weekday(), 'd').add(isNextWeek ? 1 : 0, 'w').add(start.hour(), 'h').add(start.minute(), 'm')
-	// }  else if (repeat === 'monthly') {
-	// 	var isNextMonth = NOW.date() > start.date() || (NOW.date() === start.date() && ((NOW.hour() > start.hour()) || (NOW.hour() === start.hour() && NOW.minute() >= start.minute())));
-	// 	return dayjs().startOf('M').add(start.date() - 1, 'd').add(isNextMonth ? 1 : 0, 'M').add(start.hour(), 'h').add(start.minute(), 'm')
-	// }
 }
 
 /* END ASYNC FUNCTIONS */

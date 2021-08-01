@@ -78,10 +78,10 @@
   cursor: pointer;
 }
 .numInputWrapper span:hover {
-  background: rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, .1);
 }
 .numInputWrapper span:active {
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, .2);
 }
 .numInputWrapper span:after {
   display: block;
@@ -107,7 +107,7 @@
   top: 40%;
 }
 .numInputWrapper:hover {
-  background: rgba(0,0,0,0.05);
+  background: rgba(0, 0, 0, .05);
 }
 .numInputWrapper:hover span {
   opacity: 1;
@@ -166,7 +166,7 @@
   outline: none;
 }
 .f-current-month .f-monthDropdown-months:hover {
-  background: rgba(0,0,0,0.05);
+  background: rgba(0, 0, 0, .05);
 }
 .f-current-month .f-monthDropdown-months .f-monthDropdown-month {
   color: #000;
@@ -255,7 +255,7 @@
 .f-day.notAllowed,
 .f-day.notAllowed.prevMonthDay,
 .f-day.notAllowed.nextMonthDay {
-  color: rgba(57,57,57,0.3);
+  color: rgba(57, 57, 57, .3);
   background: transparent;
   border-color: transparent;
   cursor: default;
@@ -267,7 +267,7 @@ body.dark .f-day.nextMonthDay,
 body.dark .f-day.notAllowed,
 body.dark .f-day.notAllowed.prevMonthDay,
 body.dark .f-day.notAllowed.nextMonthDay {
-  color: rgba(204, 204, 204, 0.3);
+  color: rgba(204, 204, 204, .3);
 }
 .f-day.f-disabled,
 .f-day.f-disabled:hover {

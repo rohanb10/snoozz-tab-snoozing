@@ -450,12 +450,14 @@ async function checkForUpdates() {
 	var p = await new Promise(r => chrome.storage.local.get(['updated'], r));
 	if (!p || !p.updated) return;
 
-	var overlay = document.querySelector('body > .changelog-overlay');
-	overlay.querySelector('#v').innerText = `to v${chrome.runtime.getManifest().version}`;
-	overlay.classList.add('open');
-	bsf.freeze();
-	overlay.addEventListener('click', closeChangelog, {once: true});
-	document.addEventListener('keyup', closeChangelog);
+	if (!document.getElementById('changelog').classList.contains('disabled')) {
+		var overlay = document.querySelector('body > .changelog-overlay');
+		overlay.querySelector('#v').innerText = `to v${chrome.runtime.getManifest().version}`;
+		overlay.classList.add('open');
+		bsf.freeze();
+		overlay.addEventListener('click', closeChangelog, {once: true});
+		document.addEventListener('keyup', closeChangelog);
+	}
 
 	await new Promise(r => chrome.storage.local.remove(['updated'], r));
 }

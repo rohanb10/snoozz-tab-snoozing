@@ -8,19 +8,22 @@
 PRs and other ideas are welcome.
 
 ## Changes ##
+**August 2021**
+#### 2.5.0
+- Recurring Snooze Times!
+- Duplicate Sleeping Tabs
+- Selected Tabs grouped together
+- Keyboard Shortcuts in the Popup
+- Hide sections in the Nap Room
+- Snooze other extension / add-on pages
 
 **June 2021**
-#### 2.4.4.3 
-- Start sending snooze times to analytics server.
+#### 2.4.4.3
+- Start sending snooze times to analytics server
 
 #### 2.4.4.2
 - New setting to specify what day the week starts on
-- Fix keybindings + keyboard navigation in the popup (inlcuding new morning/evening/now dropdowns)
-	- `12345567890` - each of the 10 preset choices
-	- `c` - custom
-	- `t` - tab
-	- `w` - window
-	- `s` - selected
+- Fix keyboard navigation in the popup (inlcuding new morning/evening/now dropdowns)
 - Fix missing "Mon", "Tue" etc in the popup calendar
 
 #### 2.4.4
