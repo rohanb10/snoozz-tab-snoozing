@@ -529,7 +529,7 @@ body:not(.dark) > p {
 .changelog-container h2 {
 	padding-bottom: 1rem;
 }
-.changelog-container li + p {
+.changelog-container li + p, .changelog-container li + p * {
 	margin-top: 0;
 	color: #888;
 }

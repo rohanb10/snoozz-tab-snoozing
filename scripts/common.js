@@ -102,6 +102,7 @@ async function createWindow(tabId) {
 
 async function setTheme() {
 	var t = await getOptions('theme');
+	if (t === 'system') t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 	document.body.classList.toggle('dark', t === 'dark');
 }
 setTheme();

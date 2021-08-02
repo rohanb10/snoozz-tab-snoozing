@@ -16,6 +16,7 @@ PRs and other ideas are welcome.
 - Keyboard Shortcuts in the Popup
 - Hide sections in the Nap Room
 - Snooze other extension / add-on pages
+- "System" option for selecting a dark/light theme
 
 **June 2021**
 #### 2.4.4.3
