@@ -70,7 +70,7 @@ async function saveOptions(o) {
 	return new Promise(r => chrome.storage.local.set({'snoozedOptions': o}, r));
 }
 async function saveTab(t) {
-	if (!t) return;
+	if (!t || !t.id) return;
 	var tabs = await getSnoozedTabs();
 	if (tabs.some(tab => tab.id === t.id)) {
 		tabs[tabs.findIndex(tab => tab.id === t.id)] = t;
@@ -198,9 +198,7 @@ async function openWindow(t, automatic = false) {
 
 async function dupeSnoozedTab(tabId, snoozeTime) {
 	var t = await getSnoozedTabs(tabId);
-	delete t.startUp;
-	delete t.opened;
-	delete t.deleted;
+	['startUp', 'opened', 'deleted', 'repeat', 'paused', 'gap'].forEach(prop => delete t[prop]);
 	t.wakeUpTime = snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
 	t.timeCreated = dayjs().valueOf();
 	t.id = getRandomId();
@@ -211,9 +209,7 @@ async function dupeSnoozedTab(tabId, snoozeTime) {
 
 async function editSnoozeTime(tabId, snoozeTime) {
 	var t = await getSnoozedTabs(tabId);
-	delete t.startUp;
-	delete t.opened;
-	delete t.deleted;
+	['startUp', 'opened', 'deleted', 'repeat', 'paused', 'gap'].forEach(prop => delete t[prop]);
 	t.wakeUpTime = snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
 	t.modifiedTime = dayjs().valueOf();
 	if (snoozeTime === 'startup') t.startUp = true;
@@ -285,9 +281,9 @@ async function snoozeRecurring(target, time, repeat, repeatData) {
 	var validTabs, activeTab, tabsInWindow = await getTabsInWindow();
 	validTabs = tabsInWindow.filter(t => !isDefault(t) && isValid(t));
 	if (target === 'tab') validTabs = validTabs.filter(t => t.active);
-	if (target === 'selected') {
+	if (target === 'selection') {
 		validTabs = validTabs.filter(t => t.highlighted);
-		sleepyTab.selection = true;
+		sleepyObj.selection = true;
 	}
 
 	if (repeat === 'startup') sleepyObj.startUp = true;
@@ -308,7 +304,7 @@ async function snoozeRecurring(target, time, repeat, repeatData) {
 		});
 	} else {
 		Object.assign(sleepyObj, {
-			title: `${getTabCountLabel(validTabs).replace(' tab', target === 'selected' ? ' selected tab' : ' tab')} from ${getSiteCountLabel(validTabs)}`,
+			title: `${getTabCountLabel(validTabs).replace(' tab', target === 'selection' ? ' selected tab' : ' tab')} from ${getSiteCountLabel(validTabs)}`,
 			tabs: validTabs.map(t => ({
 				title: t.title,
 				url: t.url,
@@ -317,12 +313,12 @@ async function snoozeRecurring(target, time, repeat, repeatData) {
 		})
 	}
 	console.log(sleepyObj);
-	return;
+	// return;
 	await saveTab(sleepyObj);
-	chrome.runtime.sendMessage({logOptions: [target === 'selected' ? 'selection' : target, sleepyObj, snoozeTime]});
-	if (target === 'tab') return {tabId: activeTab.id, tabDBId: sleepyObj.id};
+	chrome.runtime.sendMessage({logOptions: [target, sleepyObj, next.valueOf()]});
+	if (target === 'tab') return {tabId: activeTab.id};
 	if (target === 'window') return {windowId: validTabs.find(w => w.active).windowId};
-	if (target === 'tab') return {tabId: validTabs.map(t => t.id)};
+	if (target === 'selection') return {tabId: validTabs.map(t => t.id)};
 
 }
 
@@ -498,7 +494,8 @@ async function calculateNextSnoozeTime(repeat, start, data) {
 /* END ASYNC FUNCTIONS */
 
 // var getFaviconUrl = url => `https://icons.duckduckgo.com/ip3/${getHostname(url)}.ico`
-var getFaviconUrl = url => `https://www.google.com/s2/favicons?sz=64&domain_url=${getHostname(url)}`;
+// var getFaviconUrl = url => `https://www.google.com/s2/favicons?sz=64&domain_url=${getHostname(url)}`;
+var getFaviconUrl = url => `https://besticon.herokuapp.com/icon?url=${getHostname(url)}&size=32..64..128`;
 
 var getHostname = url => Object.assign(document.createElement('a'), {href: url}).hostname;
 

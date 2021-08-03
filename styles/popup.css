@@ -231,7 +231,7 @@ h3 {
 body.dark .day-choice span:before {
 	border: 3px solid rgba(255, 255, 255, .2);
 }
-.day-choice span.active:before {
+.day-choice span.active:before, body.dark .day-choice span.active:before {
 	left: .9rem;
 	width: .33rem;
 	height: .8rem;

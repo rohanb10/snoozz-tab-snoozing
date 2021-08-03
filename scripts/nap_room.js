@@ -1,4 +1,4 @@
-const TIME_GROUPS = ['Next Startup', 'Today', 'Tomorrow', 'This Week', 'Next Week', 'Later', 'History'];
+const TIME_GROUPS = ['Recurring', 'Next Startup', 'Today', 'Tomorrow', 'This Week', 'Next Week', 'Later', 'History'];
 var HISTORY = -1, CACHED_TABS = [], ticktock, colorList = [], observer;
 async function init() {
 	colorList = gradientSteps('#F3B845', '#DF4E76', TIME_GROUPS.length - 1);
@@ -71,17 +71,18 @@ function updateTabs() {
 	var allTabIds = Array.from(document.querySelectorAll('.tab') ?? []).map(at => at.id);
 
 	// if (allTabIds.filter(at => !cachedTabIds.includes(at)).length === 0) return;
-	allTabIds.filter(at => !cachedTabIds.includes(at)).forEach(t => document.getElementById(t).remove())
+	allTabIds.filter(at => !cachedTabIds.includes(at)).forEach(t => document.getElementById(t).remove());
 
 	// add any remaining tabs from cache
 	cachedTabIds.forEach(tid => {
 		var t = CACHED_TABS.find(ct => ct.id === tid)
+
 		if (document.getElementById(tid)) {
 			if (!document.getElementById(tid).closest(`#${getTimeGroup(t)}`)) insertIntoCorrectPosition(t, true)
 		} else {
 			insertIntoCorrectPosition(t)
 		}
-	})
+	});
 	updateTimeGroups();
 	observer.observe();
 }
@@ -98,6 +99,7 @@ function insertIntoCorrectPosition(t, alreadyExists = false) {
 	} else {
 		try {group.append(tab)}catch(e){}
 	}
+	console.log('taActions', t, tab);
 	buildTabActions(t, tab)
 }
 
@@ -183,6 +185,7 @@ function search(t, query) {
 	if (t.url && t.url.toLowerCase().indexOf(query) > -1) return true;
 	if (t.title && t.title.toLowerCase().indexOf(query) > -1) return true;
 	// relative time
+	if (t.repeat && !t.opened && ('recurring repeated interval every').indexOf(query) > -1) return true;
 	if (t.startUp && !t.opened && ('start starting launch launching next time open opening').indexOf(query) > -1) return true;
 	if (!t.opened && ('snoozed sleeping asleep napping snoozzed snoozing snoozzing').indexOf(query) > -1) return true;
 	if (t.opened && ('manually deleted removed woke awake history').indexOf(query) > -1) return true;
@@ -245,9 +248,29 @@ function buildTabActions(t, tabDiv) {
 		menuBtn.onkeyup = e => {if (e.keyCode === 13) openOverflowForDiv(tabDiv)}
 		removeBtn.onclick = async _ => await sendTabsToHistory([t.id])
 		removeBtn.onkeyup = async e => {if (e.keyCode === 13) await sendTabsToHistory([t.id])}
+
+		// menu items
+		var editMenuItem = '', dupeMenuItem = '', pauseMenuItem = '', resumeMenuItem = ''
+		editMenuItem = wrapInDiv({className: 'overflow-menu-item edit', innerText: 'Edit Snooze Time', tabIndex: 0});
+		editMenuItem.onclick = _ => openPopupModal(t.id, 'edit', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
+		dupeMenuItem = wrapInDiv({className: 'overflow-menu-item duplicate', innerText: 'Duplicate & Change Time', tabIndex: 0});
+		dupeMenuItem.onclick = _ => openPopupModal(t.id, 'dupe', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
+		if (t.repeat) {
+			if (!t.paused) {
+				pauseMenuItem = wrapInDiv({className: 'overflow-menu-item pause', innerText: 'Pause Wakeups', tabIndex: 0});
+				pauseMenuItem.onclick = _ => togglePause(t, 'pause');
+			}
+			if (t.paused) {
+				resumeMenuItem = wrapInDiv({className: 'overflow-menu-item resume', innerText: 'Resume Wakeups', tabIndex: 0});
+				resumeMenuItem.onclick = _ => togglePause(t, 'resume');
+			}
+		}
+		var menu = tabDiv.querySelector('.overflow-menu');
+		while (menu.firstChild) menu.removeChild(menu.firstChild);
+		menu.append(editMenuItem, dupeMenuItem, pauseMenuItem, resumeMenuItem);
 	}
-	tabDiv.querySelector('.wakeup-label').innerText = t.deleted ? 'Deleted on' : (t.opened ? `Woke up ${t.opened < t.wakeUpTime ? 'manually' : ''} on` : 'Waking up')
-	tabDiv.querySelector('.wakeup-time').innerText = t.opened ? dayjs(t.opened).format('dddd, D MMM') : formatSnoozedUntil(t)
+	tabDiv.querySelector('.wakeup-label').innerText = t.deleted ? 'Deleted on' : (t.opened ? `Woke up ${t.opened < t.wakeUpTime ? 'manually' : ''} on` : t.repeat ? 'Next Wake Up' : 'Waking up')
+	tabDiv.querySelector('.wakeup-time').innerText = t.opened ? dayjs(t.opened).format('dddd, D MMM') : t.paused ? 'Paused' : formatSnoozedUntil(t);
 	tabDiv.querySelector('.wakeup-time').title = dayjs(t.opened ? t.opened : t.wakeUpTime).format(`${getHourFormat(true)} [on] ddd, D MMMM YYYY`);
 	return tabDiv;
 }
@@ -271,7 +294,7 @@ function buildTab(t) {
 
 	var wakeUpTimeContainer = wrapInDiv('wakeup-time-container', wrapInDiv('wakeup-label'), wrapInDiv('wakeup-time'));
 
-	var littleTabs = '', editMenuItem = '', dupeMenuItem = '', pauseMenuItem = '';
+	var littleTabs = '', editMenuItem = '', dupeMenuItem = '', pauseMenuItem = '', resumeMenuItem = '';
 	if (t.tabs && t.tabs.length) {
 		littleTabs = wrapInDiv('tabs');
 		t.tabs.forEach(lt => {
@@ -295,15 +318,7 @@ function buildTab(t) {
 	var overflowBtn = Object.assign(document.createElement('img'), {className:'overflow-button', src: '../icons/menu.png', tabIndex: 0});
 	var overflowBtnContainer = wrapInDiv('overflow-btn-container tooltip', overflowBtn);
 
-	if (!t.opened) {
-		editMenuItem = wrapInDiv({className: 'overflow-menu-item edit', innerText: 'Edit Snooze Time', tabIndex: 0});
-		editMenuItem.onclick = _ => openPopupModal(t.id, 'edit', icon.getAttribute('src') === '../icons/unknown.png');
-		dupeMenuItem = wrapInDiv({className: 'overflow-menu-item duplicate', innerText: 'Duplicate & Change Time', tabIndex: 0});
-		dupeMenuItem.onclick = _ => openPopupModal(t.id, 'dupe', icon.getAttribute('src') === '../icons/unknown.png');
-		pauseMenuItem = wrapInDiv({className: 'overflow-menu-item pause play', innerText: 'Pause Wakeups', tabIndex: 0});
-		pauseMenuItem = wrapInDiv({className: 'overflow-menu-item pause play', innerText: 'Resume Wakeups', tabIndex: 0});
-	}
-	var overflowMenuContainer = wrapInDiv({className: 'overflow-menu'}, editMenuItem, dupeMenuItem, pauseMenuItem);
+	var overflowMenuContainer = wrapInDiv({className: 'overflow-menu'});
 
 	var removeBtn = Object.assign(document.createElement('img'), {className:'remove-button', src: '../icons/close.png', tabIndex: 0});
 	var removeBtnContainer = wrapInDiv('remove-btn-container tooltip', removeBtn);
@@ -316,6 +331,7 @@ var getIconForTab = t => t.tabs && t.tabs.length ? '../icons/dropdown.svg' : get
 
 function getTimeGroup(tab, timeType = 'wakeUpTime', searchQuery = false) {
 	if (!searchQuery && tab.opened) return 'history';
+	if (!searchQuery && tab.repeat) return 'recurring';
 	if (!searchQuery && tab.startUp) return 'next_startup';
 
 	var group = [];
@@ -374,6 +390,12 @@ function closePopupModal() {
 	bsf.unfreeze()
 }
 
+function overflowMenuKeyboardNav(e) {
+	if (e.which && e.which === 38) console.log('up');
+	if (e.which && e.which === 40) console.log('down');
+	if (e.which && (e.which === 13 || e.which === 32)) console.log('enter');
+}
+
 function openOverflowForDiv(div) {
 	div.querySelector('.overflow-menu').classList.add('show');
 	div.querySelector('.overflow-menu').querySelector('.overflow-menu-item').focus();
@@ -381,6 +403,7 @@ function openOverflowForDiv(div) {
 	overlay.classList.add('open');
 	overlay.addEventListener('click', closeModalOnOutsideClick, {once: true});
 	document.addEventListener('keyup', closeModalOnOutsideClick);
+	document.addEventListener('keyup', overflowMenuKeyboardNav);
 }
 function closeOverflows() {
 	document.querySelectorAll('.overflow-menu.show').forEach(m => m.classList.remove('show'));
@@ -388,6 +411,17 @@ function closeOverflows() {
 	overlay.classList.remove('open');
 	overlay.removeEventListener('click', closeModalOnOutsideClick);
 	document.removeEventListener('keyup', closeModalOnOutsideClick);
+	document.removeEventListener('keyup', overflowMenuKeyboardNav);
+}
+async function togglePause(t, state) {
+	t.paused = state === 'pause'
+	if (state === 'resume') {
+		var next = await calculateNextSnoozeTime(t.repeat, t.timeCreated, t.gap)
+		t.wakeUpTime = next.valueOf();
+	}
+	await saveTab(t);
+	closeOverflows();
+	buildTabActions(t, document.getElementById(t.id))
 }
 
 async function initializeExpandos() {
@@ -419,16 +453,20 @@ async function initializeExpandos() {
 
 async function wakeUpTabsAbruptly(ids) {
 	if (!ids) return;
-	CACHED_TABS.filter(t => ids.includes(t.id)).forEach(t => t.opened = dayjs().valueOf())
+	CACHED_TABS.filter(t => ids.includes(t.id) && !t.repeat).forEach(t => t.opened = dayjs().valueOf())
 	chrome.runtime.sendMessage({logOptions: ['manually', ids]});
 	await saveTabs(CACHED_TABS);
-	for (var t of CACHED_TABS.filter(n => ids.includes(n.id))) t.tabs && t.tabs.length ? await openWindow(t) : await openTab(t);
+	for (var t of CACHED_TABS.filter(n => ids.includes(n.id))) {
+		t.tabs && t.tabs.length ? (t.selection ? await openSelection(t) : await openWindow(t)) : await openTab(t);
+	}
 	updateTimeGroups();
 }
 
 async function sendTabsToHistory(ids) {
+	console.log('hi');
 	if (!ids) return;
 	CACHED_TABS.filter(t => ids.includes(t.id)).forEach(t => {
+		['startUp', 'repeat', 'paused', 'gap'].forEach(prop => delete t[prop]);
 		t.opened = dayjs().valueOf();
 		t.deleted = true;
 	});

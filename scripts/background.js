@@ -71,11 +71,15 @@ async function setNextAlarm(tabs) {
 
 async function wakeMeUp(tabs) {
 	var now = dayjs().valueOf();
-	var wakingUp = t => !t.opened && (t.url || (t.tabs && t.tabs.length && t.tabs.length > 0)) && t.wakeUpTime && t.wakeUpTime <= now;
+	var wakingUp = t => !t.paused && !t.opened && (t.url || (t.tabs && t.tabs.length && t.tabs.length > 0)) && t.wakeUpTime && t.wakeUpTime <= now;
 	var tabsToWakeUp = tabs.filter(wakingUp);
 	if (tabsToWakeUp.length === 0) return;
 	bgLog(['Waking up tabs', tabsToWakeUp.map(t => t.id).join(', ')], ['', 'green'], 'yellow');
-	tabs.filter(wakingUp).forEach(t => t.opened = now);
+	tabs.filter(wakingUp).filter(t => !t.repeat).forEach(t => t.opened = now);
+	for (var s of tabs.filter(wakingUp).filter(t => t.repeat)) {
+		var next = await calculateNextSnoozeTime(s.repeat, s.timeCreated, s.gap);
+		s.wakeUpTime = next.valueOf();
+	}
 	await saveTabs(tabs);
 
 	for (var s of tabsToWakeUp) s.tabs ? (s.selection ? await openSelection(s, true) : await openWindow(s, true)) : await openTab(s, null, true);

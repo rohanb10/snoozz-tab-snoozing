@@ -72,7 +72,7 @@ async function init() {
 	if ((isInEditMode || isInDupeMode) && parent && parent.resizeIframe) parent.resizeIframe();
 }
 async function initEditMode(isDupe) {
-	document.querySelector('h3').innerText = isDupe ? 'Duplicating What?' : 'Editing What?'
+	document.querySelector('h3').innerText = isDupe ? 'Duplicate What?' : 'Edit What?'
 	document.getElementById('targets').classList.add('hidden');
 	document.querySelector('.footer').classList.add('hidden');
 	var t = await getSnoozedTabs(getUrlParam('tabId'));
@@ -310,7 +310,6 @@ async function buildRepeatCustomChoice() {
 	document.querySelectorAll('.repeat-time-wrapper input').forEach(i => {
 		i.addEventListener('blur', validate);
 		i.addEventListener('increment', validate);
-		i.addEventListener('increment', _ => date.clear());
 		i.addEventListener('keyup', e => {if (e.which && (e.which === 38 || e.which === 40)) validate()});
 	});
 	document.querySelectorAll('.repeat-time-wrapper .action').forEach(a => a.addEventListener('click', _ => {
@@ -372,7 +371,9 @@ async function buildCustomChoice() {
 	});
 	
 
-	var getDateTime = _ => dayjs(dayjs(date.selectedDates).format('YYYY-MM-DD') + dayjs(time.selectedDates).format('HH:mm'));
+	var getDateTime = _ => {
+		return dayjs(dayjs(date.selectedDates).format('YYYY-MM-DD') + dayjs(time.selectedDates).format('HH:mm'))
+	};
 
 	var reset = _ => {
 		var now = dayjs();
@@ -484,17 +485,19 @@ async function snooze(time, choice) {
 	if (!['tab', 'window', 'selection', 'group'].includes(target.id)) return;
 
 	if (document.getElementById('repeat').checked) {
-		var t, data = {}, id = choice.getAttribute('data-repeat-id');
-		if (id === 'custom' && document.querySelector('.repeat-interval.active').getAttribute('data-type') === 'weekly') {
-			data.weekly = Array.from(document.querySelectorAll('.day-choice span.active')).map(d => parseInt(d.getAttribute('data-value'))).sort(desc);
+		var t, data = {}, repeat = choice.getAttribute('data-repeat-id');
+		if (repeat === 'custom') {
+			var pickr = dayjs(document.getElementById('repeat-time')._flatpickr.selectedDates), time = time.second(0).minute(pickr.minute()).hour(pickr.hour());
+			if (document.querySelector('.repeat-interval.active').getAttribute('data-type') === 'weekly') {
+				data.weekly = Array.from(document.querySelectorAll('.day-choice span.active')).map(d => parseInt(d.getAttribute('data-value'))).sort(desc);
+			}
+			if (document.querySelector('.repeat-interval.active').getAttribute('data-type') === 'monthly') {
+				data.monthly = document.getElementById('monthly')._flatpickr.selectedDates.map(d => dayjs(d).date()).sort(desc);
+			}
 		}
-		if (id === 'custom' && document.querySelector('.repeat-interval.active').getAttribute('data-type') === 'monthly') {
-			data.monthly = document.getElementById('monthly')._flatpickr.selectedDates.map(d => dayjs(d).date()).sort(desc);
-		}
-		if (id === 'weekly') time = time.subtract(1, 'w')
-		if (id === 'monthly') time = time.subtract(1, 'M');
-		response = await snoozeRecurring(target.id, time, id, data);
-		return;
+		if (repeat === 'weekly') time = time.subtract(1, 'w')
+		if (repeat === 'monthly') time = time.subtract(1, 'M');
+		response = await snoozeRecurring(target.id, time, repeat, data);
 	} else {
 		if (target.id === 'tab') {
 			response = await snoozeTab(time);
@@ -504,7 +507,7 @@ async function snooze(time, choice) {
 			response = await snoozeWindow(time, true);
 		}
 	}
-	if (response && !(response.tabId || response.windowId)) return;
+	if (!response.tabId && !response.windowId) return;
 	await chrome.runtime.sendMessage(Object.assign(response, {close: true, delay: closeDelay}));
 	await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', `Snoozing ${target.id}`)
 }

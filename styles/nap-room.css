@@ -287,6 +287,7 @@ body.dark .tooltip:focus-within:after, body.dark .tooltip:hover:after {
 	background-color: var(--bg-color);
 	z-index: 3;
 	border-radius: .25rem;
+	overflow: hidden;
 	box-shadow: 0 1px 1px rgba(0, 0, 0, .12), 0 2px 2px rgba(0, 0, 0, .12), 0 4px 4px rgba(0, 0, 0, .12), 0 8px 8px rgba(0, 0, 0, .12),0 16px 16px rgba(0, 0, 0, .12);
 }
 .overflow-menu.show {
@@ -297,7 +298,11 @@ body.dark .tooltip:focus-within:after, body.dark .tooltip:hover:after {
 	cursor: pointer;
 }
 .overflow-menu-item:hover {
-	background-color: rgba(0, 0, 0, .2);
+	background-color: #F3B84570;
+}
+.overflow-menu-item:focus-visible {
+	outline: 0;
+	background-color: #DF4E7651;
 }
 .remove-btn-container:hover:after, .remove-btn-container:focus-within:after {
 	content: 'Send to History';
