@@ -67,11 +67,9 @@ select, option, label {
 }
 option {
 	color: var(--color);
-	background-color: var(--bg-color);
 }
 select:focus:hover {
 	color: var(--color);
-	background-color: rgba(0,0,0,.5);
 }
 .select-wrapper, .btn {
 	position: relative;

@@ -1,3 +1,4 @@
+var colours = window.gradientSteps ? gradientSteps('#F3B845', '#DF4E76', 100) : [];
 function getBrowser() {
 	if (!!navigator.userAgent.match(/safari/i) && !navigator.userAgent.match(/chrome/i) && typeof document.body.style.webkitFilter !== 'undefined') return 'safari';
 	if (!!window.sidebar) return 'firefox';
@@ -495,7 +496,8 @@ async function calculateNextSnoozeTime(repeat, start, data) {
 
 // var getFaviconUrl = url => `https://icons.duckduckgo.com/ip3/${getHostname(url)}.ico`
 // var getFaviconUrl = url => `https://www.google.com/s2/favicons?sz=64&domain_url=${getHostname(url)}`;
-var getFaviconUrl = url => `https://besticon.herokuapp.com/icon?url=${getHostname(url)}&size=32..64..128`;
+var getFaviconUrl = url => `https://besticon.herokuapp.com/icon?url=${getHostname(url)}&size=32..48..64&fallback_icon_color=${getColorForUrl(getHostname(url)).replace('#', '')}`;
+var getColorForUrl = url => colours[url.split('').map(c => c.charCodeAt(0)).reduce((a, b) => a + b) % 100];
 
 var getHostname = url => Object.assign(document.createElement('a'), {href: url}).hostname;
 

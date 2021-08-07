@@ -1,8 +1,6 @@
 const TIME_GROUPS = ['Recurring', 'Next Startup', 'Today', 'Tomorrow', 'This Week', 'Next Week', 'Later', 'History'];
-var HISTORY = -1, CACHED_TABS = [], ticktock, colorList = [], observer;
+var HISTORY = -1, CACHED_TABS = [], ticktock, observer;
 async function init() {
-	colorList = gradientSteps('#F3B845', '#DF4E76', TIME_GROUPS.length - 1);
-	colorList.push('');
 	document.querySelector('.settings').onkeyup = e => {if (e.keyCode === 13) openExtensionTab('/html/settings.html')}
 	document.querySelector('.settings').addEventListener('click', _ => openExtensionTab('/html/settings.html'), {once:true})
 	showIconOnScroll();
@@ -105,7 +103,8 @@ function insertIntoCorrectPosition(t, alreadyExists = false) {
 
 function buildTimeGroups() {
 	var container = document.getElementById('time-container');
-	
+	var colorList = gradientSteps('#F3B845', '#DF4E76', TIME_GROUPS.length - 1);
+	colorList.push('');
 	TIME_GROUPS.forEach((t, i) => {
 		var tID = t.replace(/ /g,'_').toLowerCase();
 		var timeGroup = Object.assign(document.createElement('div'), {className: 'time-group', id: tID});
@@ -279,12 +278,16 @@ function buildTab(t) {
 	var tab = wrapInDiv({className:`tab${t.tabs ? ' window collapsed':''}`, id: t.id});
 
 	var icon = Object.assign(document.createElement('img'), {
-		className: `icon lozad ${t.tabs ? 'dropdown':''}`,
+		className: `icon ${t.tabs ? 'dropdown':'hidden lozad'}`,
 		tabIndex: t.tabs ? 0 : -1,
+		src: '../icons/unknown.png'
 	});
+	var loadingIcon = wrapInDiv('loading-icon');
+	loadingIcon.style.setProperty('--loader-color', getColorForUrl(getHostname(t.url)));
 	icon.onerror = _ => icon.src = '../icons/unknown.png';
-	icon.setAttribute('data-src', getIconForTab(t));
-	var iconContainer = wrapInDiv('icon-container', icon);
+	if (t.tabs) icon.src = '../icons/dropdown.svg';
+	if (!t.tabs) icon.setAttribute('data-src', getFaviconUrl(t.url));
+	var iconContainer = wrapInDiv('icon-container', icon, t.tabs ? '' : loadingIcon);
 
 	var title = wrapInDiv({className: 'tab-name', innerText: t.title, title: t.url ?? ''});
 
@@ -298,10 +301,10 @@ function buildTab(t) {
 	if (t.tabs && t.tabs.length) {
 		littleTabs = wrapInDiv('tabs');
 		t.tabs.forEach(lt => {
-			var littleIcon = Object.assign(document.createElement('img'), {className: 'little-icon'});
+			var littleIcon = Object.assign(document.createElement('img'), {className: 'little-icon lozad'});
 			littleIcon.onerror = _ => littleIcon.src = '../icons/unknown.png';
-			littleIcon.src = getIconForTab(lt);
-			var littleTitle = wrapInDiv({className: 'tab-name', innerText: lt.title});
+			littleIcon.setAttribute('data-src', getFaviconUrl(lt.url))
+			var littleTitle = wrapInDiv({className: 'tab-name', innerText: lt.title, src: '../icons/unknown.png'});
 			var littleTab = wrapInDiv({className: 'little-tab', tabIndex: 0}, littleIcon, littleTitle);
 			littleTab.onclick = _ => openTab(lt);
 			littleTab.onkeyup = e => {if (e.keyCode === 13) openTab(lt)};
@@ -326,8 +329,6 @@ function buildTab(t) {
 	tab.append(iconContainer, titleContainer, wakeUpTimeContainer, wakeUpBtnContainer, overflowBtnContainer, removeBtnContainer, overflowMenuContainer, littleTabs);
 	return tab;
 }
-
-var getIconForTab = t => t.tabs && t.tabs.length ? '../icons/dropdown.svg' : getFaviconUrl(t.url);
 
 function getTimeGroup(tab, timeType = 'wakeUpTime', searchQuery = false) {
 	if (!searchQuery && tab.opened) return 'history';
