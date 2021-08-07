@@ -291,13 +291,13 @@ async function buildRepeatCustomChoice() {
 			a.classList.toggle('disabled', dayjs(time.selectedDates).format('HHmm') === actionValue.format('HHmm'));
 		});
 		if (isValid) {
-			var data = {}, start = dayjs(time.selectedDates);
+			var data = {type: 'custom', time: [dayjs(time.selectedDates).hour(), dayjs(time.selectedDates).minute()]};
 			if (document.querySelector('.repeat-interval.active').getAttribute('data-type') === 'weekly') {
 				data.weekly = Array.from(document.querySelectorAll('.day-choice span.active')).map(d => parseInt(d.getAttribute('data-value'))).sort(desc);
 			} else {
 				data.monthly = document.getElementById('monthly')._flatpickr.selectedDates.map(d => dayjs(d).date()).sort(desc);
 			}
-			var wakeUpTime = await calculateNextSnoozeTime('custom', start, data);
+			var wakeUpTime = await calculateNextSnoozeTime(data);
 			document.getElementById('next-wakeup').innerText = formatSnoozedUntil({wakeUpTime});
 			document.querySelector('.submit-btn').classList.toggle('disabled', false);
 		}
@@ -485,9 +485,16 @@ async function snooze(time, choice) {
 	if (!['tab', 'window', 'selection', 'group'].includes(target.id)) return;
 
 	if (document.getElementById('repeat').checked) {
-		var t, data = {}, repeat = choice.getAttribute('data-repeat-id');
-		if (repeat === 'custom') {
-			var pickr = dayjs(document.getElementById('repeat-time')._flatpickr.selectedDates), time = time.second(0).minute(pickr.minute()).hour(pickr.hour());
+		var t, data = {type: choice.getAttribute('data-repeat-id'), time: [time.hour(), time.minute()]};
+		if (data.type === 'daily') data.time = [dayjs().hour(), dayjs().minute()];
+		if (data.type === 'weekends') data.weekly = [6];
+		if (data.type === 'mondays') data.weekly = [1];
+		if (data.type === 'weekly') data.weekly = [dayjs().day()];
+		if (data.type === 'monthly') data.monthly = [dayjs().date()];
+		if (data.type === 'custom') {
+			var pickr = dayjs(document.getElementById('repeat-time')._flatpickr.selectedDates);
+			data.time = [pickr.hour(), pickr.minute()];
+			console.log(data, document.querySelector('.repeat-interval.active').getAttribute('data-type'));
 			if (document.querySelector('.repeat-interval.active').getAttribute('data-type') === 'weekly') {
 				data.weekly = Array.from(document.querySelectorAll('.day-choice span.active')).map(d => parseInt(d.getAttribute('data-value'))).sort(desc);
 			}
@@ -495,9 +502,8 @@ async function snooze(time, choice) {
 				data.monthly = document.getElementById('monthly')._flatpickr.selectedDates.map(d => dayjs(d).date()).sort(desc);
 			}
 		}
-		if (repeat === 'weekly') time = time.subtract(1, 'w')
-		if (repeat === 'monthly') time = time.subtract(1, 'M');
-		response = await snoozeRecurring(target.id, time, repeat, data);
+		response = await snoozeRecurring(target.id, data);
+		// response = await snoozeRecurring(target.id, time, repeat, data);
 	} else {
 		if (target.id === 'tab') {
 			response = await snoozeTab(time);
@@ -507,7 +513,7 @@ async function snooze(time, choice) {
 			response = await snoozeWindow(time, true);
 		}
 	}
-	if (!response.tabId && !response.windowId) return;
+	if (!response || (!response.tabId && !response.windowId)) return;
 	await chrome.runtime.sendMessage(Object.assign(response, {close: true, delay: closeDelay}));
 	await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', `Snoozing ${target.id}`)
 }

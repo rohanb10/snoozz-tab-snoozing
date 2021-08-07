@@ -417,8 +417,7 @@ function closeOverflows() {
 async function togglePause(t, state) {
 	t.paused = state === 'pause'
 	if (state === 'resume') {
-		var next = await calculateNextSnoozeTime(t.repeat, t.timeCreated, t.gap)
-		t.wakeUpTime = next.valueOf();
+		t.wakeUpTime = await calculateNextSnoozeTime(t.repeat)
 	}
 	await saveTab(t);
 	closeOverflows();
@@ -467,7 +466,7 @@ async function sendTabsToHistory(ids) {
 	console.log('hi');
 	if (!ids) return;
 	CACHED_TABS.filter(t => ids.includes(t.id)).forEach(t => {
-		['startUp', 'repeat', 'paused', 'gap'].forEach(prop => delete t[prop]);
+		['startUp', 'paused'].forEach(prop => delete t[prop]);
 		t.opened = dayjs().valueOf();
 		t.deleted = true;
 	});

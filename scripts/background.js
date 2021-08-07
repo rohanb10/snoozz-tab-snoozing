@@ -77,7 +77,7 @@ async function wakeMeUp(tabs) {
 	bgLog(['Waking up tabs', tabsToWakeUp.map(t => t.id).join(', ')], ['', 'green'], 'yellow');
 	tabs.filter(wakingUp).filter(t => !t.repeat).forEach(t => t.opened = now);
 	for (var s of tabs.filter(wakingUp).filter(t => t.repeat)) {
-		var next = await calculateNextSnoozeTime(s.repeat, s.timeCreated, s.gap);
+		var next = await calculateNextSnoozeTime(s.repeat);
 		s.wakeUpTime = next.valueOf();
 	}
 	await saveTabs(tabs);
