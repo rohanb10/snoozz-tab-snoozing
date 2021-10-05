@@ -253,7 +253,7 @@ function buildTabActions(t, tabDiv) {
 		editMenuItem = wrapInDiv({className: 'overflow-menu-item edit', innerText: 'Edit Snooze Time', tabIndex: 0});
 		editMenuItem.onclick = _ => openPopupModal(t.id, 'edit', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
 		dupeMenuItem = wrapInDiv({className: 'overflow-menu-item duplicate', innerText: 'Duplicate & Change Time', tabIndex: 0});
-		dupeMenuItem.onclick = _ => openPopupModal(t.id, 'dupe', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
+		dupeMenuItem.onclick = _ => openPopupModal(t.id, 'clone', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
 		if (t.repeat) {
 			if (!t.paused) {
 				pauseMenuItem = wrapInDiv({className: 'overflow-menu-item pause', innerText: 'Pause Wakeups', tabIndex: 0});

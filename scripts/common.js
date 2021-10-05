@@ -197,23 +197,37 @@ async function openWindow(t, automatic = false) {
 	return;
 }
 
-async function dupeSnoozedTab(tabId, snoozeTime) {
+async function editSnoozed(tabId, snoozeTime, duplicating) {
 	var t = await getSnoozedTabs(tabId);
 	['startUp', 'opened', 'deleted', 'repeat', 'paused'].forEach(prop => delete t[prop]);
 	t.wakeUpTime = snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
 	t.timeCreated = dayjs().valueOf();
-	t.id = getRandomId();
+	t.id = duplicating ? getRandomId() : t.id;
 	if (snoozeTime === 'startup') t.startUp = true;
 	await saveTab(t);
-	return {duped: true}
+	return duplicating ? {duped: true} : {edited: true}
 }
 
-async function editSnoozeTime(tabId, snoozeTime) {
+async function editRecurringSnoozed(tabId, data, duplicating) {
+	var t = await getSnoozedTabs(tabId);
+	['startUp', 'opened', 'deleted', 'paused'].forEach(prop => delete t[prop]);
+	t.wakeUpTime = await calculateNextSnoozeTime(data);
+	t.timeCreated = dayjs().valueOf();
+	if (data.repeat === 'startup') t.startUp = true;
+	t.repeat = data;
+	t.id = duplicating ? getRandomId() : t.id;
+	await saveTab(t);
+	return duplicating ? {duped: true} : {edited: true}
+}
+
+async function editSnoozeRecurring(tabId, data, ) {
 	var t = await getSnoozedTabs(tabId);
 	['startUp', 'opened', 'deleted', 'repeat', 'paused'].forEach(prop => delete t[prop]);
-	t.wakeUpTime = snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
+	if (data.repeat === 'startup') t.startUp = true;
+	t.wakeUpTime = await calculateNextSnoozeTime(data);
 	t.modifiedTime = dayjs().valueOf();
-	if (snoozeTime === 'startup') t.startUp = true;
+	t.repeat = data;
+	t.paused = false;
 	await saveTab(t);
 	return {edited: true}
 }
@@ -290,7 +304,7 @@ async function snoozeRecurring(target, data) {
 	if (data.repeat === 'startup') sleepyObj.startUp = true;
 
 	sleepyObj.wakeUpTime = await calculateNextSnoozeTime(data);
-	console.log(dayjs(sleepyObj.wakeUpTime).format('DD/MM/YY HH:mm'));
+	// console.log(dayjs(sleepyObj.wakeUpTime).format('DD/MM/YY HH:mm'));
 
 	if (validTabs.length === 0) return {};
 	if (validTabs.length === 1 || target === 'tab') {

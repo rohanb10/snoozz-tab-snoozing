@@ -1,7 +1,8 @@
 var closeDelay = 1000, colorList = [], isInEditMode = false, isInDupeMode = false, iconTheme, debounce;
 async function init() {
+	document.getElementById('repeat').addEventListener('change', toggleRepeat);
 	isInEditMode = getUrlParam('type') && getUrlParam('type') === 'edit';
-	isInDupeMode = getUrlParam('type') && getUrlParam('type') === 'dupe';
+	isInDupeMode = getUrlParam('type') && getUrlParam('type') === 'clone';
 
 	iconTheme = await getOptions('icons');
 	if (!iconTheme) iconTheme = 'human';
@@ -38,8 +39,6 @@ async function init() {
 		var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear() && dayjs(t.wakeUpTime).year() === dayjs().year()).length;
 		if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount);
 	}
-	document.getElementById('repeat').addEventListener('change', toggleRepeat);
-	// document.getElementById('repeat').click();
 
 	document.addEventListener('keyup', e => {
 		var isOverlayOpen = document.querySelector('.form-overlay').classList.contains('show');
@@ -74,10 +73,16 @@ async function init() {
 async function initEditMode(isDupe) {
 	document.querySelector('h3').innerText = isDupe ? 'Duplicate What?' : 'Edit What?'
 	document.getElementById('targets').classList.add('hidden');
+	document.querySelectorAll('target').forEach(t => t.classList.remove('active'));
 	document.querySelector('.footer').classList.add('hidden');
 	var t = await getSnoozedTabs(getUrlParam('tabId'));
+	if (t.repeat) {
+		document.getElementById('repeat').checked = true;
+		document.getElementById('repeat').dispatchEvent(new Event('change'));
+	}
 	document.getElementById('preview-text').innerText = t.title;
 	document.getElementById('preview-favicon').src = t.tabs ? `../icons/${iconTheme}/${t.selection ? 'selection' : 'window'}.png` : (getUrlParam('noImg') ? '../icons/unknown.png' : getFaviconUrl(t.url));
+	document.getElementById(t.tabs ? (t.selection ? 'selection' : 'window') : 'tab').classList.add('active');
 }
 async function toggleRepeat(e) {
 	if (document.querySelector('.repeat-choice.disabled')) return;
@@ -468,13 +473,10 @@ async function buildCustomChoice() {
 }
 
 async function modify(time, choice) {
-	if (!(isInEditMode || isInDupeMode) || !getUrlParam('tabId')) return;
-	if (parent && parent.deleteTabFromDiv) parent.deleteTabFromDiv(getUrlParam('tabId'))
-	var response = {};
-	if (isInEditMode && !isInDupeMode) response = await editSnoozeTime(getUrlParam('tabId'), time);
-	if (!isInEditMode && isInDupeMode) response = await dupeSnoozedTab(getUrlParam('tabId'), time);
+	if (parent && parent.deleteTabFromDiv) parent.deleteTabFromDiv(getUrlParam('tabId'));
+	var response = await editSnoozed(getUrlParam('tabId'), time, isInDupeMode);
 	if (!response.edited && !response.duped) return;
-	await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', isInDupeMode ? 'Cloning sheep' : 'Going back to sleep');
+	await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', response.duped ? 'Welcome to the clone zone' : 'Going back to sleep');
 	if (parent && parent.closePopupModal) setTimeout(_ => parent.closePopupModal(), closeDelay);
 }
 
@@ -501,10 +503,16 @@ async function snooze(time, choice) {
 				data.monthly = document.getElementById('monthly')._flatpickr.selectedDates.map(d => dayjs(d).date()).sort(desc);
 			}
 		}
-		return response = await snoozeRecurring(target.id, data);
-		// response = await snoozeRecurring(target.id, time, repeat, data);
-	}
-	if (isInEditMode || isInDupeMode) {
+		if ((isInEditMode || isInDupeMode) && getUrlParam('tabId')) {
+			if (parent && parent.deleteTabFromDiv) parent.deleteTabFromDiv(getUrlParam('tabId'));
+			response = await editRecurringSnoozed(getUrlParam('tabId'), data, isInDupeMode);
+			if (!response.edited && !response.duped) return;
+			await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', response.duped ? 'Welcome to the clone zone' : 'Going back to sleep');
+			if (parent && parent.closePopupModal) setTimeout(_ => parent.closePopupModal(), closeDelay);
+		} else {
+			response = await snoozeRecurring(target.id, data);
+		}
+	} else if ((isInEditMode || isInDupeMode) && getUrlParam('tabId')) {
 		return modify(time, choice);
 	} else if (target.id === 'tab') {
 		response = await snoozeTab(time);
