@@ -224,7 +224,7 @@ async function snoozeTab(snoozeTime, overrideTab) {
 	if (!activeTab || !activeTab.url) return {};
 	var sleepyTab = {
 		id: getRandomId(),
-		title: activeTab.title ?? getBetterUrl(activeTab.url),
+		title: activeTab.title || getBetterUrl(activeTab.url),
 		url: activeTab.url,
 		...activeTab.pinned ? {pinned: true} : {},
 		wakeUpTime: snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
@@ -297,7 +297,7 @@ async function snoozeRecurring(target, data) {
 		var activeTab = validTabs && validTabs.length ? validTabs[0] : await getTabsInWindow(true);
 		if (!activeTab || !activeTab.url) return {};
 		Object.assign(sleepyObj, {
-			title: activeTab.title ?? getBetterUrl(activeTab.url),
+			title: activeTab.title || getBetterUrl(activeTab.url),
 			url: activeTab.url,
 			...activeTab.pinned ? {pinned: true} : {},
 		});
@@ -325,7 +325,7 @@ async function getTimeWithModifier(choice) {
 	var options = await getOptions(['morning', 'evening', 'popup']);
 	var modifier = options.popup ? options.popup[choice] : '';
 	options = upgradeSettings(options);
-	var m = options[modifier] ?? [dayjs().hour(), dayjs().minute()];
+	var m = options[modifier] || [dayjs().hour(), dayjs().minute()];
 	return dayjs(c.time).add(m[0], 'h').add(m[1], 'm');
 }
 
@@ -445,7 +445,6 @@ async function getChoices(which) {
 }
 
 async function calculateNextSnoozeTime(data) {
-	console.log(data);
 	var NOW = dayjs(), TYPE = data.type, [HOUR, MINUTE] = data.time;
 	if (TYPE === 'hourly') {
 		var isNextHour = NOW.minute() >= MINUTE ? 1 : 0;
@@ -650,7 +649,7 @@ var bgLog = (logs, colors, timestampColor = 'grey') => {
 	colors.unshift(timestampColor);
 	colors = colors.flatMap((v,i,a)=>i !== a.length ? [v, ''] : v).map(c => {
 		var colors = {green:'limegreen', red:'crimson', blue:'dodgerblue', yellow:'gold', pink:'violet', grey:'slategrey', white: 'navajowhite'}
-		return 'color:' + (colors[c] ?? 'unset')
+		return 'color:' + (colors[c] || 'unset')
 	})
 	console.log(timestamp + logs, ...colors)
 }

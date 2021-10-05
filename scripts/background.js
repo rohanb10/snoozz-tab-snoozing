@@ -58,8 +58,10 @@ async function wakeUpTask(cachedTabs) {
 
 var debounce;
 async function setNextAlarm(tabs) {
-	var next = sleeping(tabs).filter(t => t.wakeUpTime && !t.paused).reduce((t1,t2) => t1.wakeUpTime < t2.wakeUpTime ? t1 : t2);
-	if (next && next.wakeUpTime <= dayjs().valueOf()) {
+	var next = sleeping(tabs).filter(t => t.wakeUpTime && !t.paused);
+	next = next.length ? next.reduce((t1,t2) => t1.wakeUpTime < t2.wakeUpTime ? t1 : t2) : undefined;
+	if (!next) return;
+	if (next.wakeUpTime <= dayjs().valueOf()) {
 		clearTimeout(debounce)
 		debounce = setTimeout(_ => wakeMeUp(tabs), 3000)
 	} else {

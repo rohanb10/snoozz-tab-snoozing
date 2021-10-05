@@ -480,7 +480,6 @@ async function modify(time, choice) {
 
 async function snooze(time, choice) {
 	time = ['weekend', 'monday', 'week', 'month'].includes(choice.id) ? await getTimeWithModifier(choice.id) : time;
-	if (isInEditMode || isInDupeMode) return modify(time, choice);
 	var response, target = document.querySelector('.target.active');
 	if (!['tab', 'window', 'selection', 'group'].includes(target.id)) return;
 
@@ -502,16 +501,17 @@ async function snooze(time, choice) {
 				data.monthly = document.getElementById('monthly')._flatpickr.selectedDates.map(d => dayjs(d).date()).sort(desc);
 			}
 		}
-		response = await snoozeRecurring(target.id, data);
+		return response = await snoozeRecurring(target.id, data);
 		// response = await snoozeRecurring(target.id, time, repeat, data);
-	} else {
-		if (target.id === 'tab') {
-			response = await snoozeTab(time);
-		} else if (target.id === 'window') {
-			response = await snoozeWindow(time);
-		} else if (target.id === 'selection') {
-			response = await snoozeWindow(time, true);
-		}
+	}
+	if (isInEditMode || isInDupeMode) {
+		return modify(time, choice);
+	} else if (target.id === 'tab') {
+		response = await snoozeTab(time);
+	} else if (target.id === 'window') {
+		response = await snoozeWindow(time);
+	} else if (target.id === 'selection') {
+		response = await snoozeWindow(time, true);
 	}
 	if (!response || (!response.tabId && !response.windowId)) return;
 	await chrome.runtime.sendMessage(Object.assign(response, {close: true, delay: closeDelay}));
