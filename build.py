@@ -44,7 +44,8 @@ def minifyFilesInDirectory(directory, ext, url):
 	for root, dirs, files in os.walk(directory):
 		for name in files:
 			chars = len(ext)
-			if name.endswith('.min' + ext):
+			if ext == '.js' or name.endswith('.min' + ext):
+			# if name.endswith(ext):
 				shutil.copyfile(os.path.join(root, name), FOLDER + '/' + directory + '/' + name)
 			elif name.endswith(ext):
 				print('\n⧖ Minifying ' + '\x1b[1;32;33m' + name + '\x1b[0m ...', end='')
@@ -67,7 +68,7 @@ def replaceInHTMLFiles(original, replacement):
 			file.write(data)
 			file.close()
 
-minifyFilesInDirectory('scripts', '.js', 'https://javascript-minifier.com/raw')
+minifyFilesInDirectory('scripts', '.js', 'https://www.toptal.com/developers/javascript-minifier/raw')
 minifyFilesInDirectory('styles', '.css', 'https://cssminifier.com/raw')
 
 #
