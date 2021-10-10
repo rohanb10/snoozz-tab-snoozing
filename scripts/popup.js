@@ -505,7 +505,7 @@ async function snooze(time, choice) {
 			if (parent && parent.deleteTabFromDiv) parent.deleteTabFromDiv(getUrlParam('tabId'));
 			response = await editRecurringSnoozed(getUrlParam('tabId'), data, isInDupeMode);
 			if (!response.edited && !response.duped) return;
-			await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', response.duped ? 'Welcome to the clone zone' : 'Going back to sleep');
+			await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', response.duped ? 'Duplicating...' : 'Going back to sleep');
 			if (parent && parent.closePopupModal) setTimeout(_ => parent.closePopupModal(), closeDelay);
 		} else {
 			response = await snoozeRecurring(target.id, data);
