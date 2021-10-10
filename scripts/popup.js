@@ -1,6 +1,5 @@
 var closeDelay = 1000, colorList = [], isInEditMode = false, isInDupeMode = false, iconTheme, debounce;
 async function init() {
-	document.getElementById('repeat').addEventListener('change', toggleRepeat);
 	isInEditMode = getUrlParam('type') && getUrlParam('type') === 'edit';
 	isInDupeMode = getUrlParam('type') && getUrlParam('type') === 'clone';
 
@@ -11,11 +10,6 @@ async function init() {
 	await buildChoices();
 	await buildCustomChoice();
 	await buildRepeatCustomChoice();
-	if (isInEditMode || isInDupeMode) {
-		initEditMode(isInDupeMode);
-	} else {
-		await buildTargets();
-	}
 
 	document.querySelectorAll('.nap-room-btn, .settings').forEach(btn => btn.addEventListener('click', el => {
 		openExtensionTab(el.target.dataset.href);
@@ -39,6 +33,7 @@ async function init() {
 		var todayCount = sleeping(tabs).filter(t => dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear() && dayjs(t.wakeUpTime).year() === dayjs().year()).length;
 		if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount);
 	}
+	document.getElementById('repeat').addEventListener('change', toggleRepeat);
 
 	document.addEventListener('keyup', e => {
 		var isOverlayOpen = document.querySelector('.form-overlay').classList.contains('show');
@@ -68,6 +63,11 @@ async function init() {
 	});
 	['mouseover', 'focus'].forEach(e => document.querySelector('.keyboard').addEventListener(e, _ => document.body.classList.add('show-shortcuts')));
 	['mouseout', 'blur'].forEach(e => document.querySelector('.keyboard').addEventListener(e, _ => document.body.classList.remove('show-shortcuts')));
+	if (isInEditMode || isInDupeMode) {
+		initEditMode(isInDupeMode);
+	} else {
+		await buildTargets();
+	}
 	if ((isInEditMode || isInDupeMode) && parent && parent.resizeIframe) parent.resizeIframe();
 }
 async function initEditMode(isDupe) {
@@ -76,10 +76,7 @@ async function initEditMode(isDupe) {
 	document.querySelectorAll('target').forEach(t => t.classList.remove('active'));
 	document.querySelector('.footer').classList.add('hidden');
 	var t = await getSnoozedTabs(getUrlParam('tabId'));
-	if (t.repeat) {
-		document.getElementById('repeat').checked = true;
-		document.getElementById('repeat').dispatchEvent(new Event('change'));
-	}
+	if (t.repeat) document.getElementById('repeat').click();
 	document.getElementById('preview-text').innerText = t.title;
 	document.getElementById('preview-favicon').src = t.tabs ? `../icons/${iconTheme}/${t.selection ? 'selection' : 'window'}.png` : (getUrlParam('noImg') ? '../icons/unknown.png' : getFaviconUrl(t.url));
 	document.getElementById(t.tabs ? (t.selection ? 'selection' : 'window') : 'tab').classList.add('active');
@@ -93,10 +90,11 @@ async function toggleRepeat(e) {
 		var c = document.getElementById(name);
 		c.classList.toggle('disabled', ((!repeat && !!o.disabled) || (repeat && !!o.repeatDisabled)));
 		c.classList.toggle('always-disabled', ((!repeat && !!o.disabled) || (repeat && !!o.repeatDisabled)));
-		o.time = await getTimeWithModifier('name');
+		if (['weekend', 'monday', 'week', 'month'].includes(name)) o.time = await getTimeWithModifier(name);
 		c.querySelector('.label .text').innerText = repeat ? o.repeatLabel : o.label;
 		if (name !== 'startup') {
 			c.querySelector('.date').innerText = repeat ? o.repeatTimeString : o.timeString;
+			if (!repeat) console.log(o.label, o.time);
 			c.querySelector('.time').innerText = repeat ? o.repeatTime : dayjs(o.time).format(`${getHourFormat(dayjs(o.time).minute() !== 0)}`);
 		}
 		if (['weekend', 'monday', 'week', 'month'].includes(name)) c.querySelector('select').dispatchEvent(new Event('change'));
