@@ -371,7 +371,7 @@ async function getChoices(which) {
 		},
 		'today-morning': {
 			label: 'This Morning',
-			repeatLabel: '-',
+			repeatLabel: '',
 			time: NOW.startOf('d').add(config.morning[0], 'h').add(config.morning[1], 'm'),
 			timeString: 'Today',
 			repeatTime: '',
@@ -382,7 +382,7 @@ async function getChoices(which) {
 		},
 		'today-evening': {
 			label: `Today ${getEveningLabel(config.evening[0])}`,
-			repeatLabel: `Everyday`,
+			repeatLabel: `Everyday, Now`,
 			time: NOW.startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm'),
 			timeString: 'Today',
 			repeatTime: NOW.format(getHourFormat(true)),
@@ -460,7 +460,9 @@ async function getChoices(which) {
 
 async function calculateNextSnoozeTime(data) {
 	var NOW = dayjs(), TYPE = data.type, [HOUR, MINUTE] = data.time;
-	if (TYPE === 'hourly') {
+	if (TYPE === 'startup') {
+		return NOW.add(20, 'y');
+	} else if (TYPE === 'hourly') {
 		var isNextHour = NOW.minute() >= MINUTE ? 1 : 0;
 		return NOW.startOf('h').add(isNextHour, 'h').minute(MINUTE).valueOf();
 	} else if (TYPE === 'daily') {
@@ -605,7 +607,7 @@ var clipboard = text => {
 }
 
 var formatSnoozedUntil = t => {
-	if (t.startUp) return `Next ${capitalize(getBrowser())} Launch`;
+	if (t.startUp || (t.repeat && t.repeat.type === 'startup')) return `Next ${capitalize(getBrowser())} Launch`;
 	var ts = t.wakeUpTime;
 	var date = dayjs(ts);
 	if (date.dayOfYear() === dayjs().dayOfYear()) return (date.hour() > 17 ? 'Tonight' : 'Today') + date.format(` [@] ${getHourFormat(date.minute() !== 0)}`);

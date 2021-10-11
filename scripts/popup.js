@@ -484,7 +484,8 @@ async function snooze(time, choice) {
 	if (!['tab', 'window', 'selection', 'group'].includes(target.id)) return;
 
 	if (document.getElementById('repeat').checked) {
-		var t, data = {type: choice.getAttribute('data-repeat-id'), time: [time.hour(), time.minute()]};
+		var t, data = {type: choice.getAttribute('data-repeat-id')}
+		data.time = data.type === 'startup' ? [0, 0] : [time.hour(), time.minute()];
 		if (data.type === 'daily') data.time = [dayjs().hour(), dayjs().minute()];
 		if (data.type === 'weekends') data.weekly = [6];
 		if (data.type === 'mondays') data.weekly = [1];
