@@ -58,8 +58,10 @@ async function wakeUpTask(cachedTabs) {
 
 var debounce;
 async function setNextAlarm(tabs) {
-	var next = sleeping(tabs).filter(t => t.wakeUpTime && !t.paused).reduce((t1,t2) => t1.wakeUpTime < t2.wakeUpTime ? t1 : t2);
-	if (next && next.wakeUpTime <= dayjs().valueOf()) {
+	var next = sleeping(tabs).filter(t => t.wakeUpTime && !t.paused);
+	next = next.length ? next.reduce((t1,t2) => t1.wakeUpTime < t2.wakeUpTime ? t1 : t2) : undefined;
+	if (!next) return;
+	if (next.wakeUpTime <= dayjs().valueOf()) {
 		clearTimeout(debounce)
 		debounce = setTimeout(_ => wakeMeUp(tabs), 3000)
 	} else {
@@ -198,8 +200,8 @@ function sendToLogs([which, p1]) {
 
 async function init() {
 	var allTabs = await getSnoozedTabs();
-	if (allTabs && allTabs.length && allTabs.some(t => t.startUp && !t.opened)) {
-		allTabs.filter(t => t.startUp && !t.opened).forEach(t => t.wakeUpTime = dayjs().subtract(10, 's').valueOf());
+	if (allTabs && allTabs.length && allTabs.some(t => (t.startUp || (t.repeat && t.repeat.type === 'startup')) && !t.opened)) {
+		allTabs.filter(t => (t.startUp || (t.repeat && t.repeat.type === 'startup')) && !t.opened).forEach(t => t.wakeUpTime = dayjs().subtract(10, 's').valueOf());
 		await saveTabs(allTabs);
 	}
 	await wakeUpTask();
@@ -210,7 +212,7 @@ chrome.runtime.onInstalled.addListener(async details => {
 	setUpExtension();
 	if (chrome.runtime.setUninstallURL) chrome.runtime.setUninstallURL('https://tally.so/r/mO5GYw');
 	if (details && details.reason && details.reason == 'update' && details.previousVersion && details.previousVersion != chrome.runtime.getManifest().version) {
-		if (chrome.runtime.getManifest().version.search(/^\d\.\d\.\d$/) !== 0) return;		// skip if minor version
+		if (chrome.runtime.getManifest().version.search(/^\d{1,3}(\.\d{1,3}){1,2}$/) !== 0) return;		// skip if minor version
 		await new Promise(r => chrome.storage.local.set({'updated': true}, r));
 		if (chrome.notifications) createNotification(null, 'Snoozz has been updated', 'icons/logo.svg', 'Click here to see what\'s new.', true);
 	}

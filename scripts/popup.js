@@ -1,7 +1,7 @@
 var closeDelay = 1000, colorList = [], isInEditMode = false, isInDupeMode = false, iconTheme, debounce;
 async function init() {
 	isInEditMode = getUrlParam('type') && getUrlParam('type') === 'edit';
-	isInDupeMode = getUrlParam('type') && getUrlParam('type') === 'dupe';
+	isInDupeMode = getUrlParam('type') && getUrlParam('type') === 'clone';
 
 	iconTheme = await getOptions('icons');
 	if (!iconTheme) iconTheme = 'human';
@@ -10,11 +10,6 @@ async function init() {
 	await buildChoices();
 	await buildCustomChoice();
 	await buildRepeatCustomChoice();
-	if (isInEditMode || isInDupeMode) {
-		initEditMode(isInDupeMode);
-	} else {
-		await buildTargets();
-	}
 
 	document.querySelectorAll('.nap-room-btn, .settings').forEach(btn => btn.addEventListener('click', el => {
 		openExtensionTab(el.target.dataset.href);
@@ -39,7 +34,6 @@ async function init() {
 		if (todayCount > 0) document.querySelector('.upcoming').setAttribute('data-today', todayCount);
 	}
 	document.getElementById('repeat').addEventListener('change', toggleRepeat);
-	// document.getElementById('repeat').click();
 
 	document.addEventListener('keyup', e => {
 		var isOverlayOpen = document.querySelector('.form-overlay').classList.contains('show');
@@ -69,15 +63,23 @@ async function init() {
 	});
 	['mouseover', 'focus'].forEach(e => document.querySelector('.keyboard').addEventListener(e, _ => document.body.classList.add('show-shortcuts')));
 	['mouseout', 'blur'].forEach(e => document.querySelector('.keyboard').addEventListener(e, _ => document.body.classList.remove('show-shortcuts')));
+	if (isInEditMode || isInDupeMode) {
+		initEditMode(isInDupeMode);
+	} else {
+		await buildTargets();
+	}
 	if ((isInEditMode || isInDupeMode) && parent && parent.resizeIframe) parent.resizeIframe();
 }
 async function initEditMode(isDupe) {
 	document.querySelector('h3').innerText = isDupe ? 'Duplicate What?' : 'Edit What?'
 	document.getElementById('targets').classList.add('hidden');
+	document.querySelectorAll('target').forEach(t => t.classList.remove('active'));
 	document.querySelector('.footer').classList.add('hidden');
 	var t = await getSnoozedTabs(getUrlParam('tabId'));
+	if (t.repeat) document.getElementById('repeat').click();
 	document.getElementById('preview-text').innerText = t.title;
 	document.getElementById('preview-favicon').src = t.tabs ? `../icons/${iconTheme}/${t.selection ? 'selection' : 'window'}.png` : (getUrlParam('noImg') ? '../icons/unknown.png' : getFaviconUrl(t.url));
+	document.getElementById(t.tabs ? (t.selection ? 'selection' : 'window') : 'tab').classList.add('active');
 }
 async function toggleRepeat(e) {
 	if (document.querySelector('.repeat-choice.disabled')) return;
@@ -88,10 +90,11 @@ async function toggleRepeat(e) {
 		var c = document.getElementById(name);
 		c.classList.toggle('disabled', ((!repeat && !!o.disabled) || (repeat && !!o.repeatDisabled)));
 		c.classList.toggle('always-disabled', ((!repeat && !!o.disabled) || (repeat && !!o.repeatDisabled)));
-		o.time = await getTimeWithModifier('name');
+		if (['weekend', 'monday', 'week', 'month'].includes(name)) o.time = await getTimeWithModifier(name);
 		c.querySelector('.label .text').innerText = repeat ? o.repeatLabel : o.label;
 		if (name !== 'startup') {
 			c.querySelector('.date').innerText = repeat ? o.repeatTimeString : o.timeString;
+			if (!repeat) console.log(o.label, o.time);
 			c.querySelector('.time').innerText = repeat ? o.repeatTime : dayjs(o.time).format(`${getHourFormat(dayjs(o.time).minute() !== 0)}`);
 		}
 		if (['weekend', 'monday', 'week', 'month'].includes(name)) c.querySelector('select').dispatchEvent(new Event('change'));
@@ -468,24 +471,21 @@ async function buildCustomChoice() {
 }
 
 async function modify(time, choice) {
-	if (!(isInEditMode || isInDupeMode) || !getUrlParam('tabId')) return;
-	if (parent && parent.deleteTabFromDiv) parent.deleteTabFromDiv(getUrlParam('tabId'))
-	var response = {};
-	if (isInEditMode && !isInDupeMode) response = await editSnoozeTime(getUrlParam('tabId'), time);
-	if (!isInEditMode && isInDupeMode) response = await dupeSnoozedTab(getUrlParam('tabId'), time);
+	if (parent && parent.deleteTabFromDiv) parent.deleteTabFromDiv(getUrlParam('tabId'));
+	var response = await editSnoozed(getUrlParam('tabId'), time, isInDupeMode);
 	if (!response.edited && !response.duped) return;
-	await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', isInDupeMode ? 'Cloning sheep' : 'Going back to sleep');
+	await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', response.duped ? 'Welcome to the clone zone' : 'Going back to sleep');
 	if (parent && parent.closePopupModal) setTimeout(_ => parent.closePopupModal(), closeDelay);
 }
 
 async function snooze(time, choice) {
 	time = ['weekend', 'monday', 'week', 'month'].includes(choice.id) ? await getTimeWithModifier(choice.id) : time;
-	if (isInEditMode || isInDupeMode) return modify(time, choice);
 	var response, target = document.querySelector('.target.active');
 	if (!['tab', 'window', 'selection', 'group'].includes(target.id)) return;
 
 	if (document.getElementById('repeat').checked) {
-		var t, data = {type: choice.getAttribute('data-repeat-id'), time: [time.hour(), time.minute()]};
+		var t, data = {type: choice.getAttribute('data-repeat-id')}
+		data.time = data.type === 'startup' ? [0, 0] : [time.hour(), time.minute()];
 		if (data.type === 'daily') data.time = [dayjs().hour(), dayjs().minute()];
 		if (data.type === 'weekends') data.weekly = [6];
 		if (data.type === 'mondays') data.weekly = [1];
@@ -502,16 +502,23 @@ async function snooze(time, choice) {
 				data.monthly = document.getElementById('monthly')._flatpickr.selectedDates.map(d => dayjs(d).date()).sort(desc);
 			}
 		}
-		response = await snoozeRecurring(target.id, data);
-		// response = await snoozeRecurring(target.id, time, repeat, data);
-	} else {
-		if (target.id === 'tab') {
-			response = await snoozeTab(time);
-		} else if (target.id === 'window') {
-			response = await snoozeWindow(time);
-		} else if (target.id === 'selection') {
-			response = await snoozeWindow(time, true);
+		if ((isInEditMode || isInDupeMode) && getUrlParam('tabId')) {
+			if (parent && parent.deleteTabFromDiv) parent.deleteTabFromDiv(getUrlParam('tabId'));
+			response = await editRecurringSnoozed(getUrlParam('tabId'), data, isInDupeMode);
+			if (!response.edited && !response.duped) return;
+			await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', response.duped ? 'Duplicating...' : 'Going back to sleep');
+			if (parent && parent.closePopupModal) setTimeout(_ => parent.closePopupModal(), closeDelay);
+		} else {
+			response = await snoozeRecurring(target.id, data);
 		}
+	} else if ((isInEditMode || isInDupeMode) && getUrlParam('tabId')) {
+		return modify(time, choice);
+	} else if (target.id === 'tab') {
+		response = await snoozeTab(time);
+	} else if (target.id === 'window') {
+		response = await snoozeWindow(time);
+	} else if (target.id === 'selection') {
+		response = await snoozeWindow(time, true);
 	}
 	if (!response || (!response.tabId && !response.windowId)) return;
 	await chrome.runtime.sendMessage(Object.assign(response, {close: true, delay: closeDelay}));

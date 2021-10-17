@@ -188,6 +188,10 @@ function search(t, query) {
 	if (t.startUp && !t.opened && ('start starting launch launching next time open opening').indexOf(query) > -1) return true;
 	if (!t.opened && ('snoozed sleeping asleep napping snoozzed snoozing snoozzing').indexOf(query) > -1) return true;
 	if (t.opened && ('manually deleted removed woke awake history').indexOf(query) > -1) return true;
+	if (t.tabs && t.tabs.length) {
+		if (t.tabs.map(tt => tt.url.toLowerCase()).some(url => url.indexOf(query) > -1)) return true;
+		if (t.tabs.map(tt => tt.title.toLowerCase()).some(title => title.indexOf(query) > -1)) return true;
+	}
 	// categories
 	if (matchQuery(query, getTimeGroup(t, 'wakeUpTime', true).map(tg => tg.replace(/_/g, ' ')))) return true;
 	if (matchQuery(query, getTimeGroup(t, 'timeCreated', true).map(tg => tg.replace(/_/g, ' ')))) return true;
@@ -253,7 +257,7 @@ function buildTabActions(t, tabDiv) {
 		editMenuItem = wrapInDiv({className: 'overflow-menu-item edit', innerText: 'Edit Snooze Time', tabIndex: 0});
 		editMenuItem.onclick = _ => openPopupModal(t.id, 'edit', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
 		dupeMenuItem = wrapInDiv({className: 'overflow-menu-item duplicate', innerText: 'Duplicate & Change Time', tabIndex: 0});
-		dupeMenuItem.onclick = _ => openPopupModal(t.id, 'dupe', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
+		dupeMenuItem.onclick = _ => openPopupModal(t.id, 'clone', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
 		if (t.repeat) {
 			if (!t.paused) {
 				pauseMenuItem = wrapInDiv({className: 'overflow-menu-item pause', innerText: 'Pause Wakeups', tabIndex: 0});
@@ -338,13 +342,13 @@ function getTimeGroup(tab, timeType = 'wakeUpTime', searchQuery = false) {
 	var group = [];
 	if (!tab.opened && !tab[timeType]) return group;
 	var now = dayjs(), time = searchQuery && tab.opened ? dayjs(tab.opened) : dayjs(tab[timeType]);
-	if (time.week() === now.subtract(1, 'week').week()) 						group.push('last_week');
-	if (time.dayOfYear() === now.subtract(1, 'd').dayOfYear()) 					group.push('yesterday');
-	if (time.dayOfYear() === now.dayOfYear() && time.year() == now.year()) 		group.push('today');
-	if (time.dayOfYear() === now.add(1, 'd').dayOfYear()) 						group.push('tomorrow');
-	if (time.week() === now.week()) 											group.push('this_week');
-	if (time.week() === now.add(1, 'week').week()) 								group.push('next_week');
-	if (time.valueOf() > now.add(1, 'week').valueOf())							group.push('later');
+	if (time.week() === now.subtract(1, 'week').week() && isSameYear(now, time)) 							group.push('last_week');
+	if (time.dayOfYear() === now.subtract(1, 'd').dayOfYear() && isSameYear(now, time)) 					group.push('yesterday');
+	if (time.dayOfYear() === now.dayOfYear() && time.year() == now.year() && isSameYear(now, time)) 		group.push('today');
+	if (time.dayOfYear() === now.add(1, 'd').dayOfYear() && isSameYear(now, time)) 							group.push('tomorrow');
+	if (time.week() === now.week() && isSameYear(now, time)) 												group.push('this_week');
+	if (time.week() === now.add(1, 'week').week() && isSameYear(now, time)) 								group.push('next_week');
+	if (time.valueOf() > now.add(1, 'week').valueOf())														group.push('later');
 	return searchQuery ? group : group[0];
 }
 

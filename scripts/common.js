@@ -197,23 +197,37 @@ async function openWindow(t, automatic = false) {
 	return;
 }
 
-async function dupeSnoozedTab(tabId, snoozeTime) {
+async function editSnoozed(tabId, snoozeTime, duplicating) {
 	var t = await getSnoozedTabs(tabId);
 	['startUp', 'opened', 'deleted', 'repeat', 'paused'].forEach(prop => delete t[prop]);
 	t.wakeUpTime = snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
 	t.timeCreated = dayjs().valueOf();
-	t.id = getRandomId();
+	t.id = duplicating ? getRandomId() : t.id;
 	if (snoozeTime === 'startup') t.startUp = true;
 	await saveTab(t);
-	return {duped: true}
+	return duplicating ? {duped: true} : {edited: true}
 }
 
-async function editSnoozeTime(tabId, snoozeTime) {
+async function editRecurringSnoozed(tabId, data, duplicating) {
+	var t = await getSnoozedTabs(tabId);
+	['startUp', 'opened', 'deleted', 'paused'].forEach(prop => delete t[prop]);
+	t.wakeUpTime = await calculateNextSnoozeTime(data);
+	t.timeCreated = dayjs().valueOf();
+	if (data.repeat === 'startup') t.startUp = true;
+	t.repeat = data;
+	t.id = duplicating ? getRandomId() : t.id;
+	await saveTab(t);
+	return duplicating ? {duped: true} : {edited: true}
+}
+
+async function editSnoozeRecurring(tabId, data, ) {
 	var t = await getSnoozedTabs(tabId);
 	['startUp', 'opened', 'deleted', 'repeat', 'paused'].forEach(prop => delete t[prop]);
-	t.wakeUpTime = snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
+	if (data.repeat === 'startup') t.startUp = true;
+	t.wakeUpTime = await calculateNextSnoozeTime(data);
 	t.modifiedTime = dayjs().valueOf();
-	if (snoozeTime === 'startup') t.startUp = true;
+	t.repeat = data;
+	t.paused = false;
 	await saveTab(t);
 	return {edited: true}
 }
@@ -224,7 +238,7 @@ async function snoozeTab(snoozeTime, overrideTab) {
 	if (!activeTab || !activeTab.url) return {};
 	var sleepyTab = {
 		id: getRandomId(),
-		title: activeTab.title ?? getBetterUrl(activeTab.url),
+		title: activeTab.title || getBetterUrl(activeTab.url),
 		url: activeTab.url,
 		...activeTab.pinned ? {pinned: true} : {},
 		wakeUpTime: snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
@@ -290,14 +304,14 @@ async function snoozeRecurring(target, data) {
 	if (data.repeat === 'startup') sleepyObj.startUp = true;
 
 	sleepyObj.wakeUpTime = await calculateNextSnoozeTime(data);
-	console.log(dayjs(sleepyObj.wakeUpTime).format('DD/MM/YY HH:mm'));
+	// console.log(dayjs(sleepyObj.wakeUpTime).format('DD/MM/YY HH:mm'));
 
 	if (validTabs.length === 0) return {};
 	if (validTabs.length === 1 || target === 'tab') {
 		var activeTab = validTabs && validTabs.length ? validTabs[0] : await getTabsInWindow(true);
 		if (!activeTab || !activeTab.url) return {};
 		Object.assign(sleepyObj, {
-			title: activeTab.title ?? getBetterUrl(activeTab.url),
+			title: activeTab.title || getBetterUrl(activeTab.url),
 			url: activeTab.url,
 			...activeTab.pinned ? {pinned: true} : {},
 		});
@@ -325,7 +339,7 @@ async function getTimeWithModifier(choice) {
 	var options = await getOptions(['morning', 'evening', 'popup']);
 	var modifier = options.popup ? options.popup[choice] : '';
 	options = upgradeSettings(options);
-	var m = options[modifier] ?? [dayjs().hour(), dayjs().minute()];
+	var m = options[modifier] || [dayjs().hour(), dayjs().minute()];
 	return dayjs(c.time).add(m[0], 'h').add(m[1], 'm');
 }
 
@@ -357,7 +371,7 @@ async function getChoices(which) {
 		},
 		'today-morning': {
 			label: 'This Morning',
-			repeatLabel: '-',
+			repeatLabel: '',
 			time: NOW.startOf('d').add(config.morning[0], 'h').add(config.morning[1], 'm'),
 			timeString: 'Today',
 			repeatTime: '',
@@ -368,7 +382,7 @@ async function getChoices(which) {
 		},
 		'today-evening': {
 			label: `Today ${getEveningLabel(config.evening[0])}`,
-			repeatLabel: `Everyday`,
+			repeatLabel: `Everyday, Now`,
 			time: NOW.startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm'),
 			timeString: 'Today',
 			repeatTime: NOW.format(getHourFormat(true)),
@@ -445,9 +459,10 @@ async function getChoices(which) {
 }
 
 async function calculateNextSnoozeTime(data) {
-	console.log(data);
 	var NOW = dayjs(), TYPE = data.type, [HOUR, MINUTE] = data.time;
-	if (TYPE === 'hourly') {
+	if (TYPE === 'startup') {
+		return NOW.add(20, 'y');
+	} else if (TYPE === 'hourly') {
 		var isNextHour = NOW.minute() >= MINUTE ? 1 : 0;
 		return NOW.startOf('h').add(isNextHour, 'h').minute(MINUTE).valueOf();
 	} else if (TYPE === 'daily') {
@@ -475,51 +490,6 @@ async function calculateNextSnoozeTime(data) {
 	}
 	return false;
 }
-
-// async function calculateNextSnoozeTime(repeat, start, data) {
-// 	var NOW = dayjs(), start = dayjs(start);
-// 	if (repeat === 'custom' && data) {
-// 		var days = [];
-// 		if (data.weekly) {
-// 			var thisWeek = data.weekly, nextWeek = data.weekly.map(day => day + 7);
-// 			days = nextWeek.concat(thisWeek).map(day => dayjs().startOf('w').add(day, 'd').add(start.hour(), 'h').add(start.minute(), 'm'));
-// 		} else if (data.monthly) {
-// 			var thisMonth = data.monthly.filter(d => d <= dayjs().daysInMonth()).map(d => dayjs().startOf('M').date(d).add(start.hour(), 'h').add(start.minute(), 'm'));
-// 			var nextMonth = data.monthly.filter(d => d <= dayjs().add(1, 'M').daysInMonth()).map(d => dayjs().startOf('M').add(1, 'M').date(d).add(start.hour(), 'h').add(start.minute(), 'm'));
-// 			days = nextMonth.concat(thisMonth);
-// 		}
-// 		return days.filter(d => d > NOW).pop();
-// 	} else if (repeat === 'startup') {
-// 		return NOW.add(20, 'y');
-// 	} else if (repeat === 'hourly') {
-// 		var isThisHour = NOW.minute() < start.minute();
-// 		return NOW.startOf('h').add(isThisHour ? 0 : 1, 'h').minute(start.minute());
-// 	} else if (repeat === 'daily') {
-// 		return dayjs().startOf('d').add(1, 'd').hour(NOW.hour()).minute(NOW.minute());
-// 	} else if (repeat === 'daily_morning') {
-// 		var morning = await getOptions('morning');
-// 		var isToday = NOW.hour() < morning[0] || (NOW.hour() === morning[0] && NOW.minute() < morning[1]);
-// 		return NOW.startOf('d').add(isToday ? 0 : 1, 'd').hour(morning[0]).minute(morning[1]);
-// 	} else if (repeat === 'daily_evening') {
-// 		var evening = await getOptions('evening');
-// 		var isToday = NOW.hour() < evening[0] || (NOW.hour() === evening[0] && NOW.minute() < evening[1]);
-// 		return NOW.startOf('d').add(isToday ? 0 : 1, 'd').hour(evening[0]).minute(evening[1]);
-// 	} else if (repeat === 'weekends') {
-// 		var isThisWeek = NOW.day() < 6 || (NOW.day() === 6 && (NOW.hour() < start.hour() || (NOW.hour() === start.hour() && NOW.minute() < start.minute())));
-// 		return NOW.startOf('w').add(isThisWeek ? 0 : 1, 'w').day(6).hour(start.hour()).minute(start.minute());
-// 	} else if (repeat === 'mondays') {
-// 		var isThisWeek = NOW.day() < 1 || (NOW.day() === 1 && (NOW.hour() < start.hour() || (NOW.hour() === start.hour() && NOW.minute() < start.minute())));
-// 		return NOW.startOf('w').add(isThisWeek ? 0 : 1, 'w').day(1).hour(start.hour()).minute(start.minute());
-// 	} else if (repeat === 'weekly') {
-// 		var isThisWeek = NOW.day() < start.day() || (NOW.day() === start.day() && (NOW.hour() < start.hour() || (NOW.hour() === start.hour() && NOW.minute() < start.minute())));
-// 		return NOW.startOf('w').add(isThisWeek ? 0 : 1, 'w').day(start.day()).hour(start.hour()).minute(start.minute());
-// 	} else if (repeat === 'monthly') {
-// 		var isThisMonth = NOW.date() < start.date() || (NOW.date() === start.date() && (NOW.hour() < start.hour() ||( NOW.hour() === start.hour() && NOW.minute() < start.minute()))) ? 0 : 1;
-// 		var isMonthValid = start.date() <= NOW.daysInMonth(isThisMonth, 'M') ? 0 : 1;
-// 		return NOW.startOf('M').add(isThisMonth + isMonthValid, 'M').date(start.date()).hour(start.hour()).minute(start.minute());
-// 	}
-// 	return false;
-// }
 
 /* END ASYNC FUNCTIONS */
 
@@ -557,10 +527,10 @@ var sleeping = tabs => tabs.filter(t => !t.opened);
 var today = tabs => tabs.filter(t => t.wakeUpTime && dayjs(t.wakeUpTime).dayOfYear() === dayjs().dayOfYear() && dayjs(t.wakeUpTime).year() === dayjs().year())
 
 var isDefault = tabs => tabs.title && ['nap room | snoozz', 'settings | snoozz', 'rise and shine | snoozz', 'New Tab', 'Start Page'].includes(tabs.title);
-// var isDefault = tabs => false;
 
 var isValid = tabs => tabs.url && ['http', 'https', 'ftp', 'chrome-extension', 'web-extension', 'moz-extension', 'extension'].includes(tabs.url.substring(0, tabs.url.indexOf(':')));
-// var isValid = tabs => true;
+
+var isSameYear = (a, b) => dayjs(a).year() === dayjs(b).year();
 
 var capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -592,12 +562,13 @@ var clipboard = text => {
 }
 
 var formatSnoozedUntil = t => {
-	if (t.startUp) return `Next ${capitalize(getBrowser())} Launch`;
+	if (t.startUp || (t.repeat && t.repeat.type === 'startup')) return `Next ${capitalize(getBrowser())} Launch`;
 	var ts = t.wakeUpTime;
 	var date = dayjs(ts);
 	if (date.dayOfYear() === dayjs().dayOfYear()) return (date.hour() > 17 ? 'Tonight' : 'Today') + date.format(` [@] ${getHourFormat(date.minute() !== 0)}`);
 	if (date.dayOfYear() === dayjs().add(1,'d').dayOfYear()) return 'Tomorrow' + date.format(` [@] ${getHourFormat(date.minute() !== 0)}`);
 	if (date.week() === dayjs().week()) return date.format(`dddd [@] ${getHourFormat(date.minute() !== 0)}`);
+	if (date.year() !== dayjs().year()) return date.format(`ddd, MMM D, YYYY`);
 	return date.format(`ddd, MMM D [@] ${getHourFormat(date.minute() !== 0)}`);
 }
 
@@ -650,7 +621,7 @@ var bgLog = (logs, colors, timestampColor = 'grey') => {
 	colors.unshift(timestampColor);
 	colors = colors.flatMap((v,i,a)=>i !== a.length ? [v, ''] : v).map(c => {
 		var colors = {green:'limegreen', red:'crimson', blue:'dodgerblue', yellow:'gold', pink:'violet', grey:'slategrey', white: 'navajowhite'}
-		return 'color:' + (colors[c] ?? 'unset')
+		return 'color:' + (colors[c] || 'unset')
 	})
 	console.log(timestamp + logs, ...colors)
 }
