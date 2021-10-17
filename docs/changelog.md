@@ -8,8 +8,8 @@
 PRs and other ideas are welcome.
 
 ## Changes ##
-**August 2021**
-#### 2.5.0
+**October 2021**
+#### 2.5
 - Recurring Snooze Times!
 - Duplicate Sleeping Tabs
 - Selected Tabs grouped together

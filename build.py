@@ -32,6 +32,7 @@ for zippy in oldzip:
 #
 shitfiles = shutil.ignore_patterns('.DS_Store', '.git', '.Trashes', '.Spotlight-V100', '.github')
 shutil.copytree('html', FOLDER + '/html', ignore = shitfiles)
+shutil.copytree('scripts', FOLDER + '/scripts', ignore = shitfiles)
 shutil.copytree('icons', FOLDER + '/icons', dirs_exist_ok=True, ignore = shitfiles)
 with open(FOLDER + '/manifest.json', 'w+') as m:
 	m.write(json.dumps(data, indent=4))
@@ -68,7 +69,7 @@ def replaceInHTMLFiles(original, replacement):
 			file.write(data)
 			file.close()
 
-minifyFilesInDirectory('scripts', '.js', 'https://www.toptal.com/developers/javascript-minifier/raw')
+# minifyFilesInDirectory('scripts', '.js', 'https://www.toptal.com/developers/javascript-minifier/raw')
 minifyFilesInDirectory('styles', '.css', 'https://cssminifier.com/raw')
 
 #
