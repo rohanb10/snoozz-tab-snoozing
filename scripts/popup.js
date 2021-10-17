@@ -484,7 +484,8 @@ async function snooze(time, choice) {
 	if (!['tab', 'window', 'selection', 'group'].includes(target.id)) return;
 
 	if (document.getElementById('repeat').checked) {
-		var t, data = {type: choice.getAttribute('data-repeat-id'), time: [time.hour(), time.minute()]};
+		var t, data = {type: choice.getAttribute('data-repeat-id')}
+		data.time = data.type === 'startup' ? [0, 0] : [time.hour(), time.minute()];
 		if (data.type === 'daily') data.time = [dayjs().hour(), dayjs().minute()];
 		if (data.type === 'weekends') data.weekly = [6];
 		if (data.type === 'mondays') data.weekly = [1];
@@ -505,7 +506,7 @@ async function snooze(time, choice) {
 			if (parent && parent.deleteTabFromDiv) parent.deleteTabFromDiv(getUrlParam('tabId'));
 			response = await editRecurringSnoozed(getUrlParam('tabId'), data, isInDupeMode);
 			if (!response.edited && !response.duped) return;
-			await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', response.duped ? 'Welcome to the clone zone' : 'Going back to sleep');
+			await displayPreviewAnimation(choice, time.format ? time.format('.HHmm') : '', response.duped ? 'Duplicating...' : 'Going back to sleep');
 			if (parent && parent.closePopupModal) setTimeout(_ => parent.closePopupModal(), closeDelay);
 		} else {
 			response = await snoozeRecurring(target.id, data);

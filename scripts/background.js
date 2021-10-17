@@ -200,8 +200,8 @@ function sendToLogs([which, p1]) {
 
 async function init() {
 	var allTabs = await getSnoozedTabs();
-	if (allTabs && allTabs.length && allTabs.some(t => t.startUp && !t.opened)) {
-		allTabs.filter(t => t.startUp && !t.opened).forEach(t => t.wakeUpTime = dayjs().subtract(10, 's').valueOf());
+	if (allTabs && allTabs.length && allTabs.some(t => (t.startUp || (t.repeat && t.repeat.type === 'startup')) && !t.opened)) {
+		allTabs.filter(t => (t.startUp || (t.repeat && t.repeat.type === 'startup')) && !t.opened).forEach(t => t.wakeUpTime = dayjs().subtract(10, 's').valueOf());
 		await saveTabs(allTabs);
 	}
 	await wakeUpTask();

@@ -306,6 +306,19 @@ body.dark .day-choice span:before {
 	height: 4em;
 	justify-content: space-between;
 	cursor: pointer !important;
+	position: relative;
+}
+.choice.last:after, .custom-choice.last:after {
+	content: 'PREV';
+	position: absolute;
+	bottom: .5em;
+	left: 1.25em;
+	width: 100%;
+	display: block;
+	opacity: 0.5;
+	font-size: .7em;
+	font-weight: 600;
+	color: var(--color);
 }
 
 .choice.disabled, .choice.always-disabled, .custom-choice.disabled, h3.disabled,  div[data-preview].disabled .preview, .repeat-choice.disabled {

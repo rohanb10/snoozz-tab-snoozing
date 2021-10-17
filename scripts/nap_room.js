@@ -342,13 +342,13 @@ function getTimeGroup(tab, timeType = 'wakeUpTime', searchQuery = false) {
 	var group = [];
 	if (!tab.opened && !tab[timeType]) return group;
 	var now = dayjs(), time = searchQuery && tab.opened ? dayjs(tab.opened) : dayjs(tab[timeType]);
-	if (time.week() === now.subtract(1, 'week').week()) 						group.push('last_week');
-	if (time.dayOfYear() === now.subtract(1, 'd').dayOfYear()) 					group.push('yesterday');
-	if (time.dayOfYear() === now.dayOfYear() && time.year() == now.year()) 		group.push('today');
-	if (time.dayOfYear() === now.add(1, 'd').dayOfYear()) 						group.push('tomorrow');
-	if (time.week() === now.week()) 											group.push('this_week');
-	if (time.week() === now.add(1, 'week').week()) 								group.push('next_week');
-	if (time.valueOf() > now.add(1, 'week').valueOf())							group.push('later');
+	if (time.week() === now.subtract(1, 'week').week() && isSameYear(now, time)) 							group.push('last_week');
+	if (time.dayOfYear() === now.subtract(1, 'd').dayOfYear() && isSameYear(now, time)) 					group.push('yesterday');
+	if (time.dayOfYear() === now.dayOfYear() && time.year() == now.year() && isSameYear(now, time)) 		group.push('today');
+	if (time.dayOfYear() === now.add(1, 'd').dayOfYear() && isSameYear(now, time)) 							group.push('tomorrow');
+	if (time.week() === now.week() && isSameYear(now, time)) 												group.push('this_week');
+	if (time.week() === now.add(1, 'week').week() && isSameYear(now, time)) 								group.push('next_week');
+	if (time.valueOf() > now.add(1, 'week').valueOf())														group.push('later');
 	return searchQuery ? group : group[0];
 }
 
