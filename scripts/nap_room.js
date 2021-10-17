@@ -188,6 +188,10 @@ function search(t, query) {
 	if (t.startUp && !t.opened && ('start starting launch launching next time open opening').indexOf(query) > -1) return true;
 	if (!t.opened && ('snoozed sleeping asleep napping snoozzed snoozing snoozzing').indexOf(query) > -1) return true;
 	if (t.opened && ('manually deleted removed woke awake history').indexOf(query) > -1) return true;
+	if (t.tabs && t.tabs.length) {
+		if (t.tabs.map(tt => tt.url.toLowerCase()).some(url => url.indexOf(query) > -1)) return true;
+		if (t.tabs.map(tt => tt.title.toLowerCase()).some(title => title.indexOf(query) > -1)) return true;
+	}
 	// categories
 	if (matchQuery(query, getTimeGroup(t, 'wakeUpTime', true).map(tg => tg.replace(/_/g, ' ')))) return true;
 	if (matchQuery(query, getTimeGroup(t, 'timeCreated', true).map(tg => tg.replace(/_/g, ' ')))) return true;
