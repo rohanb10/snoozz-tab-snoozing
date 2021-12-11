@@ -282,6 +282,7 @@ body.dark .day-choice span:before {
 	text-align: center;
 	min-width: 70px;
 	background: rgba(0, 0, 0, .1);
+	user-select: none;
 }
 .action:not(.disabled):hover {
 	background: rgba(0, 0, 0, .2);
