@@ -210,7 +210,8 @@ async function init() {
 
 chrome.runtime.onInstalled.addListener(async details => {
 	setUpExtension();
-	if (chrome.runtime.setUninstallURL) chrome.runtime.setUninstallURL('https://tally.so/r/mO5GYw');
+	if (chrome.runtime.setUninstallURL) chrome.runtime.setUninstallURL('https://snoozz.me/bye');
+	if (details && details.reason && details.reason == 'install') await new Promise(r => chrome.tabs.create({url: 'https://snoozz.me/hello', active: true}, r));
 	if (details && details.reason && details.reason == 'update' && details.previousVersion && details.previousVersion != chrome.runtime.getManifest().version) {
 		if (chrome.runtime.getManifest().version.search(/^\d{1,3}(\.\d{1,3}){1,2}$/) !== 0) return;		// skip if minor version
 		await new Promise(r => chrome.storage.local.set({'updated': true}, r));
