@@ -442,7 +442,7 @@ async function getChoices(which) {
 			repeat_id: 'weekly',
 			menuLabel: 'for a week',
 			disabled: NOW.day() === 1,
-			repeatDisabled: NOW.day() === 1 || NOW.day() === 6,
+			// repeatDisabled: NOW.day() === 1 || NOW.day() === 6,
 		},
 		'month': {
 			label: 'Next Month',
