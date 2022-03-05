@@ -381,7 +381,7 @@ async function getChoices(which) {
 			repeatDisabled: true,
 		},
 		'today-evening': {
-			label: `Today ${getEveningLabel(config.evening[0])}`,
+			label: getEveningLabel(config.evening[0]),
 			repeatLabel: `Everyday, Now`,
 			time: NOW.startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm'),
 			timeString: 'Today',
@@ -402,8 +402,8 @@ async function getChoices(which) {
 			menuLabel: 'till tomorrow morning'
 		},
 		'tom-evening': {
-			label: `Tomorrow ${getEveningLabel(config.evening[0])}`,
-			repeatLabel: `Every ${getEveningLabel(config.evening[0])}`,
+			label: getEveningLabel(config.evening[0], 'tomorrow'),
+			repeatLabel: getEveningLabel(config.evening[0], 'everyday'),
 			time: NOW.startOf('d').add(1,'d').add(config.evening[0], 'h').add(config.evening[1], 'm'),
 			timeString: NOW.add(1,'d').format('ddd, D MMM'),
 			repeatTime: NOW.startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm').format(getHourFormat(true)),
@@ -532,7 +532,7 @@ var isValid = tabs => tabs.url && ['http', 'https', 'ftp', 'chrome-extension', '
 
 var isSameYear = (a, b) => dayjs(a).year() === dayjs(b).year();
 
-var capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
+var capitalize = s => s.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
 var wrapInDiv = (attr, ...nodes) => {
 	var div = Object.assign(document.createElement('div'), typeof attr === 'string' ? {className: attr} : attr);
@@ -574,10 +574,18 @@ var formatSnoozedUntil = t => {
 
 var getHourFormat = showZeros => (HOUR_FORMAT && HOUR_FORMAT === 24) ? 'HH:mm' : `h${showZeros ? ':mm' : ''} A`;
 
-var getEveningLabel = (hour, isToday) => {
-	if (hour && hour <= 16) return 'Afternoon';
-	if (hour && hour >= 20) return 'Night';
-	return 'Evening';
+var getEveningLabel = (hour, type) => {
+	var t = 'evening', prefix = 'this ';
+	if (type && type === 'tomorrow') prefix = 'tomorrow ';
+	if (type && type === 'every') prefix = 'every ';
+	if (hour && hour <= 16) t = 'afternoon';
+	if (hour && hour >= 20) t = 'night';
+	if (hour && hour >= 20 && !type) prefix = 'to';
+	return capitalize(prefix + t)
+
+	// if (hour && hour <= 16) return (isTomorrow ? 'Tomorrow ' : 'This ') + 'Afternoon';
+	// if (hour && hour >= 20) return isTomorrow ? 'Tomorrow Night' : 'Tonight';
+	return (isTomorrow ? 'Tomorrow ' : 'This ') + 'Evening';
 }
 var getOrdinal = num => {
 	num = parseInt(num);
