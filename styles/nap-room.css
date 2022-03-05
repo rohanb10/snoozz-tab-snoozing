@@ -142,6 +142,11 @@ body.dark .tab:focus-visible {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	font-weight: bold;
+	text-decoration: none;
+}
+.tab-name:hover, .tab-name:focus-within {
+	text-decoration: underline;
+	outline: none;
 }
 
 .tabs {

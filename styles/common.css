@@ -99,12 +99,12 @@ a {
 	cursor: pointer;
 	text-decoration: underline;
 }
-a:focus-visible {
+a:not(.tab-name):focus-visible {
 	outline-offset: 3px;
 	outline: 2px dashed crimson;
 	background: none;
 }
-a:hover {
+a:not(.tab-name):hover {
 	background: linear-gradient(90deg, #f3b845 0%, #df4e76 100%);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;

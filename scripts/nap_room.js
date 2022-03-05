@@ -224,9 +224,9 @@ function buildTabActions(t, tabDiv) {
 	var menuBtn = tabDiv.querySelector('img.overflow-button');
 	var removeBtn = tabDiv.querySelector('img.remove-button');
 
-	tabName.setAttribute('tabIndex', 0);
-	if (!t.tabs) tabName.onclick = _ => openTab(t);
-	if (!t.tabs) tabName.onkeyup = e => { if (e.keyCode === 13) openTab(t)};
+	if (!t.tabs) tabName.setAttribute('tabIndex', 0);
+	// if (!t.tabs) tabName.onclick = _ => openTab(t);
+	// if (!t.tabs) tabName.onkeyup = e => { if (e.keyCode === 13) openTab(t)};
 
 	if (t.opened) {
 		wakeUpBtn.remove();
@@ -279,7 +279,7 @@ function buildTabActions(t, tabDiv) {
 }
 
 function buildTab(t) {
-	var tab = wrapInDiv({className:`tab${t.tabs ? ' window collapsed':''}`, id: t.id});
+	var title, tab = wrapInDiv({className:`tab${t.tabs ? ' window collapsed':''}`, id: t.id});
 
 	var icon = Object.assign(document.createElement('img'), {
 		className: `icon ${t.tabs ? 'dropdown':'hidden lozad'}`,
@@ -293,7 +293,11 @@ function buildTab(t) {
 	if (!t.tabs) icon.setAttribute('data-src', getFaviconUrl(t.url));
 	var iconContainer = wrapInDiv('icon-container', icon, t.tabs ? '' : loadingIcon);
 
-	var title = wrapInDiv({className: 'tab-name', innerText: t.title, title: t.url ?? ''});
+	if (t.tabs) {
+		title = wrapInDiv({className: 'tab-name', innerText: t.title, title: t.url ?? ''});
+	} else {
+		title = Object.assign(document.createElement('a'), {className: 'tab-name', href: t.url, text: t.title, target: '_blank'})
+	}
 
 	var startedNap = wrapInDiv({className:'nap-time', innerText: `Started napping at ${dayjs(t.timeCreated).format(`${getHourFormat(dayjs(t.timeCreated).minute() !== 0)} [on] ddd D MMM YYYY`)}`})
 	if (t.modifiedTime) startedNap.innerText = `Last modified at ${dayjs(t.modifiedTime).format(`${getHourFormat(dayjs(t.modifiedTime).minute() !== 0)} [on] ddd D MMM YYYY`)}`;
@@ -308,10 +312,11 @@ function buildTab(t) {
 			var littleIcon = Object.assign(document.createElement('img'), {className: 'little-icon lozad'});
 			littleIcon.onerror = _ => littleIcon.src = '../icons/unknown.png';
 			littleIcon.setAttribute('data-src', getFaviconUrl(lt.url))
-			var littleTitle = wrapInDiv({className: 'tab-name', innerText: lt.title, src: '../icons/unknown.png'});
-			var littleTab = wrapInDiv({className: 'little-tab', tabIndex: 0}, littleIcon, littleTitle);
-			littleTab.onclick = _ => openTab(lt);
-			littleTab.onkeyup = e => {if (e.keyCode === 13) openTab(lt)};
+			// var littleTitle = wrapInDiv({className: 'tab-name', innerText: lt.title, src: '../icons/unknown.png'});
+			var littleTitle = Object.assign(document.createElement('a'), {className: 'tab-name', href: lt.url, text: lt.title, target: '_blank', tabIndex: 0})
+			var littleTab = wrapInDiv({className: 'little-tab'}, littleIcon, littleTitle);
+			// littleTab.onclick = _ => openTab(lt);
+			// littleTab.onkeyup = e => {if (e.keyCode === 13) openTab(lt)};
 			littleTabs.append(littleTab);
 		});
 
