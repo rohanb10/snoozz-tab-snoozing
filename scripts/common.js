@@ -492,13 +492,18 @@ async function calculateNextSnoozeTime(data) {
 }
 
 /* END ASYNC FUNCTIONS */
+var getFaviconUrl = url => {
+	if (url.indexOf('file://') === 0) return '../icons/file.svg'
+	// return `https://icons.duckduckgo.com/ip3/${getHostname(url)}.ico`
+	// return `https://www.google.com/s2/favicons?sz=64&domain_url=${getHostname(url)}`;
+	return `https://besticon.herokuapp.com/icon?url=${getHostname(url)}&size=32..48..64&fallback_icon_color=${getColorForUrl(getHostname(url)).replace('#', '')}`;
+}
+var getColorForUrl = (url = 'snoozz.me') => colours[url.split('').map(c => c.charCodeAt(0)).reduce((a, b) => a + b) % 100];
 
-// var getFaviconUrl = url => `https://icons.duckduckgo.com/ip3/${getHostname(url)}.ico`
-// var getFaviconUrl = url => `https://www.google.com/s2/favicons?sz=64&domain_url=${getHostname(url)}`;
-var getFaviconUrl = url => `https://besticon.herokuapp.com/icon?url=${getHostname(url)}&size=32..48..64&fallback_icon_color=${getColorForUrl(getHostname(url)).replace('#', '')}`;
-var getColorForUrl = url => colours[url.split('').map(c => c.charCodeAt(0)).reduce((a, b) => a + b) % 100];
-
-var getHostname = url => Object.assign(document.createElement('a'), {href: url}).hostname;
+var getHostname = url => {
+	var h = Object.assign(document.createElement('a'), {href: url}).hostname;
+	return (h && h.length) ? h : undefined;
+}
 
 var getBetterUrl = url => {
 	var a = Object.assign(document.createElement('a'), {href: url});
@@ -528,7 +533,11 @@ var today = tabs => tabs.filter(t => t.wakeUpTime && dayjs(t.wakeUpTime).dayOfYe
 
 var isDefault = tabs => tabs.title && ['nap room | snoozz', 'settings | snoozz', 'rise and shine | snoozz', 'New Tab', 'Start Page'].includes(tabs.title);
 
-var isValid = tabs => tabs.url && ['http', 'https', 'ftp', 'chrome-extension', 'web-extension', 'moz-extension', 'extension'].includes(tabs.url.substring(0, tabs.url.indexOf(':')));
+var isValid = tabs => {
+	var validProtocols = ['http', 'https', 'ftp', 'chrome-extension', 'web-extension', 'moz-extension', 'extension'];
+	if (getBrowser() == 'chrome') validProtocols.push('file');
+	return tabs.url && validProtocols.includes(tabs.url.substring(0, tabs.url.indexOf(':')));
+}
 
 var isSameYear = (a, b) => dayjs(a).year() === dayjs(b).year();
 
@@ -582,10 +591,6 @@ var getEveningLabel = (hour, type) => {
 	if (hour && hour >= 20) t = 'night';
 	if (hour && hour >= 20 && !type) prefix = 'to';
 	return capitalize(prefix + t)
-
-	// if (hour && hour <= 16) return (isTomorrow ? 'Tomorrow ' : 'This ') + 'Afternoon';
-	// if (hour && hour >= 20) return isTomorrow ? 'Tomorrow Night' : 'Tonight';
-	return (isTomorrow ? 'Tomorrow ' : 'This ') + 'Evening';
 }
 var getOrdinal = num => {
 	num = parseInt(num);
