@@ -169,22 +169,7 @@ async function setUpExtension() {
 	var snoozed = await getSnoozedTabs();
 	if (!snoozed || !snoozed.length || snoozed.length === 0) await saveTabs([]);
 	var options = await getOptions();
-	options = Object.assign({
-		morning: [9, 0],
-		evening: [18, 0],
-		hourFormat: 12,
-		icons: 'human',
-		notifications: 'on',
-		history: 14,
-		theme: 'light',
-		badge: 'today',
-		closeDelay: 1000,
-		polling: 'on',
-		napCollapsed: [],
-		weekStart: 0,
-		popup: {weekend: options.timeOfDay || 'morning', monday: options.timeOfDay || 'morning', week: options.timeOfDay || 'morning', month: options.timeOfDay || 'morning'},
-		contextMenu: ['startup', 'in-an-hour', 'today-evening', 'tom-morning', 'weekend']
-	}, options);
+	options = Object.assign(DEFAULT_OPTIONS, options);
 	options = upgradeSettings(options);
 	await saveOptions(options);
 	await init();

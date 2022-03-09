@@ -188,24 +188,8 @@ async function updateKeyBindings() {
 async function resetSettings() {
 	if (!confirm('Are you sure you want to reset all settings? \nYou can\'t undo this.')) return;
 
-	var defaultOptions = {
-		morning: [9, 0],
-		evening: [18, 0],
-		hourFormat: 12,
-		icons: 'human',
-		theme: 'light',
-		notifications: 'on',
-		history: 14,
-		badge: 'today',
-		closeDelay: 1000,
-		polling: 'on',
-		napCollapsed: [],
-		weekStart: 0,
-		popup: {weekend: 'morning', monday: 'morning', week: 'morning', month: 'morning'},
-		contextMenu: ['startup', 'in-an-hour', 'today-evening', 'tom-morning', 'weekend']
-	}
-	await saveOptions(defaultOptions);
-	updateFormValues(defaultOptions);
+	await saveOptions(DEFAULT_OPTIONS);
+	updateFormValues(DEFAULT_OPTIONS);
 	await setTheme();
 }
 

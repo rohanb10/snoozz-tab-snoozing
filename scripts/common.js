@@ -90,7 +90,8 @@ async function createAlarm(when, willWakeUpATab) {
 	await chrome.alarms.create('wakeUpTabs', {when});
 }
 async function createNotification(id, title, imgUrl, message, force) {
-	var n = typeof SAVED_OPTIONS !== 'undefined' && SAVED_OPTIONS.notifications ? SAVED_OPTIONS.notifications : await getOptions('notifications');
+	var n = await getOptions('notifications');
+	if (n === 'sound') try { new Audio(chrome.runtime.getURL('sounds/appointed.mp3')).play()} catch {}
 	if (!chrome.notifications || (n && n === 'off' && !force)) return;
 	await chrome.notifications.create(id, {type: 'basic', iconUrl: chrome.runtime.getURL(imgUrl), title, message});
 }
@@ -420,7 +421,7 @@ async function getChoices(which) {
 			repeatTimeString: `${NOW.weekday(6).format('dddd')}s at`,
 			repeat_id: 'weekends',
 			menuLabel: 'till the weekend',
-			disabled: NOW.day() === 6,
+			// disabled: NOW.day() === 6,
 		},
 		'monday': {
 			label: 'Next Monday',
@@ -441,7 +442,7 @@ async function getChoices(which) {
 			repeatTimeString: `${NOW.format('dddd')}s at`,
 			repeat_id: 'weekly',
 			menuLabel: 'for a week',
-			disabled: NOW.day() === 1,
+			// disabled: NOW.day() === 1,
 			// repeatDisabled: NOW.day() === 1 || NOW.day() === 6,
 		},
 		'month': {
@@ -560,6 +561,23 @@ var SIZES = {
 	number: _ => 8,
 	string: s => (new TextEncoder().encode(s)).length,
 	object: o => !o ? 0 : Object.keys(o).reduce((total, key) => calcObjectSize(key) + calcObjectSize(o[key]) + total, 0)
+}
+
+const DEFAULT_OPTIONS = {
+	morning: [9, 0],
+	evening: [18, 0],
+	hourFormat: 12,
+	icons: 'human',
+	theme: 'light',
+	notifications: 'on',
+	history: 30,
+	badge: 'today',
+	closeDelay: 1000,
+	polling: 'on',
+	napCollapsed: [],
+	weekStart: 0,
+	popup: {weekend: 'morning', monday: 'morning', week: 'morning', month: 'morning'},
+	contextMenu: ['startup', 'in-an-hour', 'today-evening', 'tom-morning', 'weekend']
 }
 
 var calcObjectSize = obj => SIZES[typeof obj](obj);
