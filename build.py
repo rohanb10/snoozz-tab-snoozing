@@ -1,20 +1,19 @@
 # usage
 # python3 build.py
+# local dependencies (npm) - uglifyjs, csso
 
 import json
 import shutil
-import re
+from re import search
 import os
-import io
-import requests
-from sys import argv
+from shell import ex
 
 FOLDER = 'build_temp'
 with open('manifest.json') as m: 
 	data = json.load(m)
 VERSION = data['version']
 
-print('\nBuilding \x1b[1;31;34mSnoozz v' + VERSION + '\x1b[0m\n');
+print('\n\nBuilding Snoozz \x1b[1;31;34mv' + VERSION + '\x1b[0m\n');
 
 #
 #	delete old files if they exist
@@ -32,53 +31,63 @@ for zippy in oldzip:
 #
 shitfiles = shutil.ignore_patterns('.DS_Store', '.git', '.Trashes', '.Spotlight-V100', '.github')
 shutil.copytree('html', FOLDER + '/html', ignore = shitfiles)
-shutil.copytree('scripts', FOLDER + '/scripts', ignore = shitfiles)
+# shutil.copytree('scripts', FOLDER + '/scripts', ignore = shitfiles)
 shutil.copytree('icons', FOLDER + '/icons', dirs_exist_ok=True, ignore = shitfiles)
-with open(FOLDER + '/manifest.json', 'w+') as m:
-	m.write(json.dumps(data, indent=4))
+shutil.copytree('sounds', FOLDER + '/sounds', dirs_exist_ok=True, ignore = shitfiles)
 
 #
 # Minify Files (JS + CSS)
 #
 def minifyFilesInDirectory(directory, ext, url):
+	sameSize = '{:<16}'
 	os.mkdir(FOLDER + '/' + directory)
 	for root, dirs, files in os.walk(directory):
 		for name in files:
+			print('\n⧖ Minifying  ' + '\x1b[1;32;33m' + sameSize.format(name) + '\x1b[0m ...', end='')
 			chars = len(ext)
-			if ext == '.js' or name.endswith('.min' + ext):
-			# if name.endswith(ext):
+			if name.endswith('.min' + ext):
 				shutil.copyfile(os.path.join(root, name), FOLDER + '/' + directory + '/' + name)
-			elif name.endswith(ext):
-				print('\n⧖ Minifying ' + '\x1b[1;32;33m' + name + '\x1b[0m ...', end='')
-				data = {'input': open(os.path.join(root, name), 'rb').read()}
-				response = requests.post(url, data=data)
-				f2 = open(FOLDER + '/' + directory + '/' + name[:-chars] + '.min' + ext, 'w')
-				f2.write(response.text)
-				f2.close()
+				print('\r✓ Copied    ' + '\x1b[1;32;33m' + sameSize.format(name) + '\x1b[0m -> \x1b[1;32;32m' + name[:-chars] + '.min' + ext + '\x1b[0m', end='', flush=True)
+			elif ext == '.js' and not name.endswith('.min' + ext):
+				ex('uglifyjs ' + directory + '/' + name + ' -c -m -o ' + FOLDER + '/' + directory + '/' + name[:-chars] + '.min' + ext).stdout()
 				replaceInHTMLFiles(name, name[:-chars] + '.min' + ext)
-				print('\r✓ Minified ' + '\x1b[1;32;33m' + name + '\x1b[0m -> \x1b[1;32;32m' + name[:-chars] + '.min' + ext + '\x1b[0m', end='', flush=True)
+				replaceInManfest(name, name[:-chars] + '.min' + ext)
+				print('\r✓ Minified  ' + '\x1b[1;32;33m' + sameSize.format(name) + '\x1b[0m -> \x1b[1;32;32m' + name[:-chars] + '.min' + ext + '\x1b[0m', end='', flush=True)
+			elif ext == '.css' and not name.endswith('.min' + ext):
+				ex('csso ' + directory + '/' + name + ' -o ' + FOLDER + '/' + directory + '/' + name[:-chars] + '.min' + ext).stdout()
+				replaceInHTMLFiles(name, name[:-chars] + '.min' + ext)
+				print('\r✓ Minified  ' + '\x1b[1;32;33m' + sameSize.format(name) + '\x1b[0m -> \x1b[1;32;32m' + name[:-chars] + '.min' + ext + '\x1b[0m', end='', flush=True)
 
 def replaceInHTMLFiles(original, replacement):
 	for root, dirs, files in os.walk(FOLDER + '/html'):
 		for name in files:
 			file = open(os.path.join(root, name), 'rt')
-			data = file.read()
-			data = data.replace(original, replacement)
+			h_data = file.read()
+			h_data = h_data.replace(original, replacement)
 			file.close()
 			file = open(os.path.join(root, name), 'wt')
-			file.write(data)
+			file.write(h_data)
 			file.close()
 
-# minifyFilesInDirectory('scripts', '.js', 'https://www.toptal.com/developers/javascript-minifier/raw')
+def replaceInManfest(original, replacement):
+	global data
+	data = json.loads(json.dumps(data).replace(original, replacement))
+
+minifyFilesInDirectory('scripts', '.js', 'https://www.toptal.com/developers/javascript-minifier/raw')
 minifyFilesInDirectory('styles', '.css', 'https://cssminifier.com/raw')
+
+#
+# Update manifest file
+#
+with open(FOLDER + '/manifest.json', 'w+') as m:
+	m.write(json.dumps(data, indent=4))
 
 #
 # Build release for chrome
 #
 name = 'snoozz-chrome-' + VERSION
 shutil.make_archive(name, 'zip', FOLDER)
-print('\n\nCreated Chrome Release: ' + '\x1b[1;31;40m' + name + '.zip' + '\x1b[0m')
-
+print('\n\nCreated Chrome Release: ' + '\x1b[35m ' + name + '.zip' + '\x1b[0m')
 
 #
 # Add Open popup shortcut to start of manifest.commands
@@ -96,7 +105,7 @@ with open(FOLDER + '/manifest.json', 'w+') as m:
 #
 name = 'snoozz-ff-' + VERSION
 shutil.make_archive(name, 'zip', FOLDER)
-print('Created Firefox Release: ' + '\x1b[1;31;40m' + name + '.zip' + '\x1b[0m')
+print('Created Firefox Release: ' + '\x1b[35m ' + name + '.zip' + '\x1b[0m')
 
 #
 # Build release for github
@@ -105,7 +114,7 @@ shutil.copy('LICENSE', FOLDER)
 
 name = 'snoozz-' + VERSION
 shutil.make_archive(name, 'zip', FOLDER)
-print('Created GH Release: ' + '\x1b[1;31;40m' + name + '.zip' + '\x1b[0m')
+print('Created GH Release: ' + '\x1b[35m ' + name + '.zip' + '\x1b[0m')
 
 #
 # Modify manifest file for safari and build
@@ -123,15 +132,8 @@ with open(FOLDER + '/manifest.json', 'w+') as m:
 
 name = 'snoozz-safari-' + VERSION
 shutil.make_archive(name, 'zip', FOLDER)
-print('Created Safari Release: ' + '\x1b[1;31;40m' + name + '.zip' + '\x1b[0m')
+print('Created Safari Release: ' + '\x1b[35m ' + name + '.zip' + '\x1b[0m')
 
-#
-# Print changelog
-#
-print('\nChanges in v' + VERSION)
-with open('docs/changelog.md', 'r') as c:
-	latest = re.search('#### ' + VERSION + '(.+?)(####|\*\*)', c.read().replace('\n', '¿'))
-	if latest: print(latest.group(1).replace('¿', '\n'))
 #
 # Cleanup
 #
