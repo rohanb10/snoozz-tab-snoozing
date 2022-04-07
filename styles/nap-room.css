@@ -56,7 +56,7 @@ body:not(.searching) .time-group.group-collapsed .time-action, body:not(.searchi
 	padding: .75rem 1rem;
 	cursor: pointer;
 }
-body.dark .expando img {
+body.dark .expando img, body.dark .edit-details-overlay .form-group.url-group .icon {
 	filter: invert(1);
 }
 .expando img {
@@ -287,7 +287,7 @@ body.dark .tooltip:focus-within:after, body.dark .tooltip:hover:after {
 	display: none;
 	position: absolute;
 	right: 7.5%;
-	top: 90%;
+	top: 60px;
 	transform: translateX(50%);
 	background-color: var(--bg-color);
 	z-index: 3;
@@ -490,7 +490,7 @@ body:not(.dark) > p {
 		display: none;
 	}
 }
-.iframe-overlay, .changelog-overlay, .overflow-overlay {
+.overlay {
 	z-index: 3;
 	position: absolute;
 	overflow: hidden;
@@ -504,7 +504,7 @@ body:not(.dark) > p {
 	flex-direction: column;
 	display: none;
 }
-.iframe-overlay.open, .changelog-overlay.open, .overflow-overlay.open {
+.overlay.open {
 	display: flex;
 }
 .overflow-overlay.open {
@@ -513,30 +513,95 @@ body:not(.dark) > p {
 	bottom: 0;
 	height: unset;
 }
-.iframe-overlay.open ~ div, .changelog-overlay.open ~ div {
+.blur-overlay.open ~ div {
 	filter: blur(5px);
 }
-.iframe-overlay iframe {
-	width: 48em;
+.popup-overlay iframe {
+	width: 49em;
 	border: 0;
-	border-radius: .5rem;
+	border-radius: .75rem;
 	transform: translateY(100vh);
 	transition: transform .5s ease-in-out;
-}
-.iframe-overlay.open iframe {
-	transform: translateY(0);
-}
-#changelog {
 	padding: .25rem;
 	background: linear-gradient(-45deg, rgba(223,78,118,1) 0%, rgba(243,184,69,1) 100%);
 }
-.changelog-container {
+.popup-overlay.open iframe {
+	transform: translateY(0);
+}
+.snoozz-border {
+	padding: .25rem;
+	border-radius: .75rem;
+	background: linear-gradient(-45deg, rgba(223,78,118,1) 0%, rgba(243,184,69,1) 100%);
+}
+.details-container .form-group {
+	border-radius: .5rem;
+	border: 2px solid #F3B845;
+	padding: .5rem;
+	margin-bottom: 1.25rem;
+}
+.details-container .form-group.hidden, .details-container .checkbox-group .checkbox.hidden {
+	display: none;
+}
+.details-container .form-group .icon-container {
+	padding-right: .5rem;
+	width: unset;
+}
+.details-container .form-group .icon-container .icon {
+	width: 3rem;
+	height: 3rem;
+	max-height: unset;
+	max-width: unset;
+}
+.details-input  {
+	width: 100%;
+}
+.details-input label  {
+	font-size: .8rem;
+	display: block;
+}
+.details-input input  {
+	font-size: 1.2rem;
+    border: none;
+    padding: 0;
+    width: 100%;
+    background-color: inherit;
+    color: var(--color);
+    outline: none;
+}
+.details-container .form-group, .details-container .checkbox-group {
+	justify-content: flex-start;
+}
+.details-container .checkbox-group .checkbox {
+	margin-right: 1rem;
+}
+.details-container .details-submit {
+	justify-content: flex-end;
+}
+.details-container .details-submit button {
+	background-color: #DF4E76;
+	border-radius: .25rem;
+	color: #FFF;
+	border: none;
+	padding: .5rem 1.5rem;
+	font-size: 1.2rem;
+	cursor: pointer;
+	position: relative;
+}
+.details-container .details-submit button:hover {
+	background-color: #C8466A;
+}
+.changelog-container, .details-container {
 	background-color: var(--bg-color);
 	width: 36rem;
 	min-height: 10rem;
 	padding: 1rem 1.5rem;
+	border-radius: .5rem;
 }
-.changelog-container h2 {
+.details-container {
+	width: 42rem;
+	padding-bottom: 1.5rem;
+}
+.changelog-container h2, .details-container h2 {
 	padding-bottom: 1rem;
 }
 .changelog-container li + p, .changelog-container li + p * {

@@ -7,6 +7,7 @@
 	<link rel="icon" type="image/png" sizes="96x96" href="../icons/ext-icon-128.png">
 	<link rel="stylesheet" href="../styles/common.css" />
 	<link rel="stylesheet" href="../styles/nap-room.css" />
+	<link rel="stylesheet" href="../styles/checkbox.css" />
 	<link rel="stylesheet" href="../styles/clock.css" />
 </head>
 <body>
@@ -16,20 +17,23 @@
 		<img class="snoozz-text" src="../icons/snoozz.png">
 	</div>
 	<div tabindex="0" data-hover="Settings" class="settings"><img src="../icons/settings.png"></div>
-	<div class="changelog-overlay">
-		<div id="changelog">
-		<!-- <div id="changelog" class="disabled"> -->
-			<div class="changelog-container">
+	<div class="overlay blur-overlay changelog-overlay">
+		<div class="snoozz-border">
+			<div class="changelog-container"> <!-- add 'disabled' class to hide -->
 				<h2 class="center">Snoozz has been updated <span id="v"></span>&nbsp;🎉</h2>
-				<p>It's been a while, but the first update of 2022 is here.</p>
+				<p>It's been a while, but here.</p>
 				<br>
 				<h3>What's new?</h3>
 				<ul>
 					<li>New Icons - Hats!</li>
 					<p>It's already summer here in Mumbai, so time to break out all the best headwear.</p>
-					<li>Notification Audio</li>
-					<p>Head over to the settings page if you want to hear some beeps.</p>
-					<li>Snooze local files (on Chrome)</li>
+					<li>Incognito Support</li>
+					<p>What kind of weirdos snooze their "private" tabs? Definitely not me.</p>
+					<li>Edit Tab Details in the Nap Room</li>
+					<p>Want to change a url or window name after snoozing it? Now you can.</p>
+					<li>Better Notifications</li>
+					<p>You now have even more control of what notifications you want to see (and hear).</p>
+					<li>Snooze local files (Chrome only)</li>
 					<li>Lots of smaller bug fixes and tweaks</li>
 				</ul>
 				<br>
@@ -37,8 +41,60 @@
 			</div>
 		</div>
 	</div>
-	<div class="iframe-overlay"></div>
-	<div class="overflow-overlay"></div>
+	<div class="overlay blur-overlay edit-details-overlay">
+		<div class="snoozz-border">
+			<div class="details-container">
+				<h2>Edit <span></span> Details</h2>
+				<div class="form-group flex">
+					<div class="icon-container title-group">
+						<img class="icon" id="details_icon" src="../icons/unknown.png">
+					</div>
+					<div class="details-input">
+						<label for="details_title">TITLE</label>
+						<input type="text" id="details_title" value="testing that booty">
+					</div>
+				</div>
+				<div class="form-group flex url-group">
+					<div class="icon-container">
+						<img class="icon" src="../icons/url.svg">
+					</div>
+					<div class="details-input">
+						<label for="details_url">URL</label>
+						<input type="text" id="details_url" value="who dat boy">
+					</div>
+				</div>
+				<div class="flex checkbox-group">
+					<label class="checkbox path pinned-checkbox flex">
+						<input type="checkbox" tabindex="0">
+						<svg viewBox="0 0 21 21">
+							<path d="M5 10.75 8.5 14.25 19.4 2.3C18.83 1.43 18.03 1 17 1L4 1C2.35 1 1 2.35 1 4L1 17C1 18.65 2.35 20 4 20L17 20C18.65 20 20 18.65 20 17L20 7.99"></path>
+						</svg>
+						<span>Pinned Tab</span>
+					</label>
+
+					<label class="checkbox path incognito-checkbox flex">
+						<input type="checkbox" tabindex="0">
+						<svg viewBox="0 0 21 21">
+							<path d="M5 10.75 8.5 14.25 19.4 2.3C18.83 1.43 18.03 1 17 1L4 1C2.35 1 1 2.35 1 4L1 17C1 18.65 2.35 20 4 20L17 20C18.65 20 20 18.65 20 17L20 7.99"></path>
+						</svg>
+						<span>Incognito</span>
+					</label>
+					<label class="checkbox path new-window-checkbox flex">
+						<input type="checkbox" tabindex="0">
+						<svg viewBox="0 0 21 21">
+							<path d="M5 10.75 8.5 14.25 19.4 2.3C18.83 1.43 18.03 1 17 1L4 1C2.35 1 1 2.35 1 4L1 17C1 18.65 2.35 20 4 20L17 20C18.65 20 20 18.65 20 17L20 7.99"></path>
+						</svg>
+						<span>Open in New Window</span>
+					</label>
+				</div>
+				<div class="details-submit flex">
+					<button id="save_details">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="overlay blur-overlay popup-overlay"></div>
+	<div class="overlay overflow-overlay"></div>
 	<div class="instructions hidden">
 		<img class="up-arrow" src="../icons/up-arrow.svg">
 		<div>Snoozz your first tab/window using the pop-up menu above.</div><br>

@@ -1,5 +1,5 @@
 const TIME_GROUPS = ['Recurring', 'Next Startup', 'Today', 'Tomorrow', 'This Week', 'Next Week', 'Later', 'History'];
-var HISTORY = -1, CACHED_TABS = [], ticktock, observer;
+var HISTORY = -1, CACHED_TABS = [], ticktock, observer, iconTheme;
 async function init() {
 	document.querySelector('.settings').onkeyup = e => {if (e.keyCode === 13) openExtensionTab('/html/settings.html')}
 	document.querySelector('.settings').addEventListener('click', _ => openExtensionTab('/html/settings.html'), {once:true})
@@ -33,6 +33,12 @@ async function init() {
 
 	CACHED_TABS = await getSnoozedTabs();
 	HISTORY = await getOptions('history');
+
+	iconTheme = await getOptions('icons');
+	if (!iconTheme) iconTheme = 'human';
+
+	if (!await isIncognitoAllowed()) document.querySelector('body > .edit-details-overlay .checkbox-group .incognito-checkbox').style.display = 'none';
+	document.querySelectorAll('body > .edit-details-overlay .details-container input[type="text"]').forEach(i => i.addEventListener('focus', function(){this.select()}));
 
 	buildTimeGroups();
 	await initializeExpandos();
@@ -97,7 +103,6 @@ function insertIntoCorrectPosition(t, alreadyExists = false) {
 	} else {
 		try {group.append(tab)}catch(e){}
 	}
-	console.log('taActions', t, tab);
 	buildTabActions(t, tab)
 }
 
@@ -253,9 +258,11 @@ function buildTabActions(t, tabDiv) {
 		removeBtn.onkeyup = async e => {if (e.keyCode === 13) await sendTabsToHistory([t.id])}
 
 		// menu items
-		var editMenuItem = '', dupeMenuItem = '', pauseMenuItem = '', resumeMenuItem = ''
-		editMenuItem = wrapInDiv({className: 'overflow-menu-item edit', innerText: 'Edit Snooze Time', tabIndex: 0});
-		editMenuItem.onclick = _ => openPopupModal(t.id, 'edit', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
+		var editSnoozeTimeMenuItem = '', editDetailsMenuItem = '', dupeMenuItem = '', pauseMenuItem = '', resumeMenuItem = ''
+		editSnoozeTimeMenuItem = wrapInDiv({className: 'overflow-menu-item edit-time', innerText: 'Edit Snooze Time', tabIndex: 0});
+		editSnoozeTimeMenuItem.onclick = _ => openPopupModal(t.id, 'edit', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
+		editDetailsMenuItem = wrapInDiv({className: 'overflow-menu-item', innerText: `Edit ${capitalize(getTabType(t))} Details`, tabIndex: 0});
+		editDetailsMenuItem.onclick = _ => openDetailsModal(t.id, tabDiv.querySelector('img.icon').getAttribute('src'))
 		dupeMenuItem = wrapInDiv({className: 'overflow-menu-item duplicate', innerText: 'Duplicate & Change Time', tabIndex: 0});
 		dupeMenuItem.onclick = _ => openPopupModal(t.id, 'clone', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
 		if (t.repeat) {
@@ -270,7 +277,7 @@ function buildTabActions(t, tabDiv) {
 		}
 		var menu = tabDiv.querySelector('.overflow-menu');
 		while (menu.firstChild) menu.removeChild(menu.firstChild);
-		menu.append(editMenuItem, dupeMenuItem, pauseMenuItem, resumeMenuItem);
+		menu.append(editSnoozeTimeMenuItem, editDetailsMenuItem, dupeMenuItem, pauseMenuItem, resumeMenuItem);
 	}
 	tabDiv.querySelector('.wakeup-label').innerText = t.deleted ? 'Deleted on' : (t.opened ? `Woke up ${t.opened < t.wakeUpTime ? 'manually' : ''} on` : t.repeat ? 'Next Wake Up' : 'Waking up')
 	tabDiv.querySelector('.wakeup-time').innerText = t.opened ? dayjs(t.opened).format('dddd, D MMM') : t.paused ? 'Paused' : formatSnoozedUntil(t);
@@ -303,7 +310,7 @@ function buildTab(t) {
 
 	var wakeUpTimeContainer = wrapInDiv('wakeup-time-container', wrapInDiv('wakeup-label'), wrapInDiv('wakeup-time'));
 
-	var littleTabs = '', editMenuItem = '', dupeMenuItem = '', pauseMenuItem = '', resumeMenuItem = '';
+	var littleTabs = '';
 	if (t.tabs && t.tabs.length) {
 		littleTabs = wrapInDiv('tabs');
 		t.tabs.forEach(lt => {
@@ -353,8 +360,8 @@ function getTimeGroup(tab, timeType = 'wakeUpTime', searchQuery = false) {
 }
 
 function openPopupModal(tabId, type, imgMissing) {
-	closeOverflows()
-	var overlay = document.querySelector('body > .iframe-overlay');
+	closeOverflows();
+	var overlay = document.querySelector('body > .popup-overlay');
 	overlay.style.top = window.scrollY + 'px';
 	var iframe = document.createElement('iframe');
 	iframe.setAttribute('tabIndex', '-1');
@@ -367,6 +374,64 @@ function openPopupModal(tabId, type, imgMissing) {
 	overlay.addEventListener('click', closeModalOnOutsideClick, {once: true});
 	document.addEventListener('keyup', closeModalOnOutsideClick);
 }
+async function openDetailsModal(tabId, imgUrl) {
+	var t = await getSnoozedTabs(tabId);
+	closeOverflows();
+	var overlay = document.querySelector('body > .edit-details-overlay'), form = overlay.querySelector('.details-container');
+
+	form.querySelector('h2 > span').innerText = capitalize(getTabType(t));
+	form.querySelector('#details_title').value = t.title;
+
+	if (t.tabs) {
+		form.querySelector('#details_icon').src = `../icons/${iconTheme}/${t.selection ? 'selection' : 'window'}.png`;
+		if (!t.selection) form.querySelector('.checkbox-group .new-window-checkbox input').checked = true;
+		form.querySelector('.form-group.url-group').classList.add('hidden');
+		form.querySelector('.checkbox-group .pinned-checkbox').classList.add('hidden');
+	} else {
+		form.querySelector('#details_icon').src = document.getElementById(t.id).querySelector('.icon').src;
+		form.querySelector('#details_url').value = t.url;
+		form.querySelector('.checkbox-group .new-window-checkbox').classList.add('hidden');
+		if (t.pinned) form.querySelector('.checkbox-group .pinned-checkbox input').checked = true;
+	}
+	if (t.incognito) form.querySelector('.checkbox-group .incognito-checkbox input').checked = true;
+	form.querySelector('#save_details').addEventListener('click', _ => saveDetailsModal(tabId));
+
+	overlay.style.top = window.scrollY + 'px';
+	overlay.classList.add('open');
+	bsf.freeze();
+	overlay.addEventListener('click', closeModalOnOutsideClick);
+	document.addEventListener('keyup', closeModalOnOutsideClick);
+}
+
+async function saveDetailsModal(tabId) {
+	var form = document.querySelector('body > .edit-details-overlay .details-container'), t = await getSnoozedTabs(tabId);
+	['pinned', 'incognito', 'newWindow'].forEach(prop => delete t[prop]);
+	t.title = `${form.querySelector('#details_title').value}`;
+	t.url = `${form.querySelector('#details_url').value}`;
+	if (form.querySelector('.checkbox-group .pinned-checkbox input').checked) t.pinned = true;
+	if (form.querySelector('.checkbox-group .new-window-checkbox input').checked) t.newWindow = true;
+	if (form.querySelector('.checkbox-group .incognito-checkbox input').checked) t.incognito = true;
+	// console.log(t);
+	deleteTabFromDiv(tabId);
+	await saveTab(t);
+	closeDetailsModal();	
+}
+
+function closeDetailsModal() {
+	var overlay = document.querySelector('body > .edit-details-overlay'), form = overlay.querySelector('.details-container');
+	form.querySelector('#save_details').replaceWith(form.querySelector('#save_details').cloneNode(true)); // reset event listener
+	form.querySelector('#details_icon').src = '../icons/unknown.png';
+	form.querySelectorAll('input[type="text"]').forEach(i => i.value = '');
+	form.querySelectorAll('.checkbox-group input[type="checkbox"]').forEach(c => c.checked = false);
+	form.querySelector('.form-group.url-group').classList.remove('hidden');
+	form.querySelectorAll('.checkbox-group .checkbox').forEach(c => c.classList.remove('hidden'));
+	overlay.classList.remove('open');
+	overlay.style.top = '';
+	bsf.unfreeze()
+	overlay.removeEventListener('click', closeModalOnOutsideClick);
+	document.removeEventListener('keyup', closeModalOnOutsideClick);
+}
+
 function deleteTabFromDiv(tabId) {
 	document.getElementById(tabId).outerHTML = '';
 }
@@ -375,18 +440,20 @@ function closeModalOnOutsideClick(e) {
 	if (e.keyCode && e.keyCode === 27) {
 		closePopupModal();
 		closeOverflows();
+		closeDetailsModal();
 	}
-	if (e.target && (e.target.classList.contains('iframe-overlay'))) closePopupModal();
+	if (e.target && (e.target.classList.contains('popup-overlay'))) closePopupModal();
 	if (e.target && (e.target.classList.contains('overflow-overlay'))) closeOverflows();
+	if (e.target && (e.target.classList.contains('edit-details-overlay'))) closeDetailsModal();
 }
 
-function resizeIframe() {
-	var frame = document.querySelector('body > .iframe-overlay > iframe');
-	frame.style.height = frame.contentWindow.document.documentElement.scrollHeight + 'px';
+function resizePopupIframe() {
+	var frame = document.querySelector('body > .popup-overlay > iframe');
+	frame.style.height = (frame.contentWindow.document.documentElement.scrollHeight + 8) + 'px';
 }
 
 function closePopupModal() {
-	var overlay = document.querySelector('body > .iframe-overlay');
+	var overlay = document.querySelector('body > .popup-overlay');
 	overlay.removeEventListener('click', closeModalOnOutsideClick);
 	document.removeEventListener('keyup', closeModalOnOutsideClick);
 	overlay.classList.remove('open');
@@ -492,7 +559,7 @@ async function checkForUpdates() {
 	var p = await new Promise(r => chrome.storage.local.get(['updated'], r));
 	if (!p || !p.updated) return;
 
-	if (!document.getElementById('changelog').classList.contains('disabled')) {
+	if (!document.querySelector('.changelog-container').classList.contains('disabled')) {
 		var overlay = document.querySelector('body > .changelog-overlay');
 		overlay.querySelector('#v').innerText = `to v${chrome.runtime.getManifest().version}`;
 		overlay.classList.add('open');

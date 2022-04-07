@@ -58,6 +58,9 @@ async function getStorageSize() {
 	var options = await getOptions();
 	return calcObjectSize(tabs) + calcObjectSize(options);
 }
+async function isIncognitoAllowed() {
+	return new Promise(r => chrome.extension.isAllowedIncognitoAccess(r));
+}
 
 /*	SAVE 	*/
 async function saveOption(key, val) {
@@ -91,13 +94,13 @@ async function createAlarm(when, willWakeUpATab) {
 }
 async function createNotification(id, title, imgUrl, message, force) {
 	var n = await getOptions('notifications');
-	if (n === 'sound') try { new Audio(chrome.runtime.getURL('sounds/appointed.mp3')).play()} catch {}
+	if (n === 'sound') try { new Audio(chrome.runtime.getURL('sounds/appointed.mp3')).play()} catch (e){}
 	if (!chrome.notifications || (n && n === 'off' && !force)) return;
 	await chrome.notifications.create(id, {type: 'basic', iconUrl: chrome.runtime.getURL(imgUrl), title, message});
 }
-async function createWindow(tabId) {
+async function createWindow(tabId, incognito) {
 	if (tabId) return new Promise(r => chrome.windows.create({url: `/html/rise-and-shine.html#${tabId}`}, r));
-	return new Promise(r => chrome.windows.create({}, r));
+	return new Promise(r => chrome.windows.create({incognito}, r));
 }
 
 /*	CONFIGURE	*/
@@ -147,7 +150,10 @@ async function openExtensionTab(url) {
 
 async function openTab(tab, windowId, automatic = false) {
 	var windows = await getAllWindows();
-	if (!windows || !windows.length) {
+	if (tab.incognito) {
+		var w = windows.find(i => i.incognito) || await createWindow(undefined, t.incognito);
+		await new Promise(r => chrome.tabs.create({url: tab.url, active: false, pinned: tab.pinned, windowId: w.id}, r));
+	} else if (!windows || !windows.filter(w => !w.incognito).length) {
 		await new Promise(r => chrome.windows.create({url: tab.url}, r));
 	} else {
 		await new Promise(r => chrome.tabs.create({url: tab.url, active: false, pinned: tab.pinned, windowId}, r));	
@@ -159,8 +165,8 @@ async function openTab(tab, windowId, automatic = false) {
 
 async function openSelection(t, automatic = false) {
 	var targetWindowID = null, windows = await getAllWindows();
-	if (!windows || !windows.length) {
-		var window = await createWindow();
+	if (!windows || !windows.length || t.newWindow) {
+		var window = await createWindow(undefined, t.incognito);
 		targetWindowID = window.id;
 	}
 	for (var s of t.tabs) await openTab(s, targetWindowID);
@@ -171,7 +177,7 @@ async function openSelection(t, automatic = false) {
 
 async function openWindow(t, automatic = false) {
 	var targetWindowID, currentWindow = await getTabsInWindow();
-	if (currentWindow.length && currentWindow.filter(isDefault).length === currentWindow.length) {
+	if (currentWindow.length && (currentWindow.filter(isDefault).length === currentWindow.length || (typeof t.newWindow === 'boolean' && t.newWindow === false))) {
 		await openExtensionTab(`/html/rise-and-shine.html#${t.id}`);
 		targetWindowID = currentWindow[0].windowId;
 	} else {
@@ -242,6 +248,7 @@ async function snoozeTab(snoozeTime, overrideTab) {
 		title: activeTab.title || getBetterUrl(activeTab.url),
 		url: activeTab.url,
 		...activeTab.pinned ? {pinned: true} : {},
+		...activeTab.incognito ? {incognito: true} : {},
 		wakeUpTime: snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
 	}
@@ -261,12 +268,12 @@ async function snoozeWindow(snoozeTime, isASelection) {
 		await snoozeTab(snoozeTime, validTabs[0])
 		return {windowId: tabsInWindow.find(w => w.active).windowId};
 	}
-
 	var sleepyGroup = {
 		id: getRandomId(),
 		wakeUpTime: snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
 		title: `${getTabCountLabel(validTabs)} from ${getSiteCountLabel(validTabs)}`,
+		...(validTabs.some(v => v.incognito)) ? {incognito: true} : {},
 	}
 	if (isASelection) {
 		sleepyGroup.title = sleepyGroup.title.replace(' tab', ' selected tab');
@@ -516,6 +523,12 @@ var getTabCountLabel = tabs => `${tabs.length} tab${tabs.length === 1 ? '' : 's'
 var getSiteCountLabel = tabs => {
 	var count = tabs.map(t => getHostname(t.url)).filter((v,i,s) => s.indexOf(v) === i).length;
 	return count > 1 ? `${count} different websites` : `${count} website`;
+}
+
+var getTabType = t => {
+	if (t.tabs && t.selection) return 'selection';
+	if (t.tabs) return 'window';
+	return 'tab';
 }
 
 var verifyTab = tab => {

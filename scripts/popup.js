@@ -68,7 +68,7 @@ async function init() {
 	} else {
 		await buildTargets();
 	}
-	if ((isInEditMode || isInDupeMode) && parent && parent.resizeIframe) parent.resizeIframe();
+	if ((isInEditMode || isInDupeMode) && parent && parent.resizePopupIframe) parent.resizePopupIframe();
 }
 async function initEditMode(isDupe) {
 	document.querySelector('h3').innerText = isDupe ? 'Duplicate What?' : 'Edit What?'
