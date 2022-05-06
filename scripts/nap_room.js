@@ -261,8 +261,8 @@ function buildTabActions(t, tabDiv) {
 		var editSnoozeTimeMenuItem = '', editDetailsMenuItem = '', dupeMenuItem = '', pauseMenuItem = '', resumeMenuItem = ''
 		editSnoozeTimeMenuItem = wrapInDiv({className: 'overflow-menu-item edit-time', innerText: 'Edit Snooze Time', tabIndex: 0});
 		editSnoozeTimeMenuItem.onclick = _ => openPopupModal(t.id, 'edit', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
-		editDetailsMenuItem = wrapInDiv({className: 'overflow-menu-item', innerText: `Edit ${capitalize(getTabType(t))} Details`, tabIndex: 0});
-		editDetailsMenuItem.onclick = _ => openDetailsModal(t.id, tabDiv.querySelector('img.icon').getAttribute('src'))
+		// editDetailsMenuItem = wrapInDiv({className: 'overflow-menu-item', innerText: `Edit ${capitalize(getTabType(t))} Details`, tabIndex: 0});
+		// editDetailsMenuItem.onclick = _ => openDetailsModal(t.id, tabDiv.querySelector('img.icon').getAttribute('src'))
 		dupeMenuItem = wrapInDiv({className: 'overflow-menu-item duplicate', innerText: 'Duplicate & Change Time', tabIndex: 0});
 		dupeMenuItem.onclick = _ => openPopupModal(t.id, 'clone', tabDiv.querySelector('img.icon').getAttribute('src') === '../icons/unknown.png');
 		if (t.repeat) {

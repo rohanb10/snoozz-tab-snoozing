@@ -8,6 +8,13 @@
 PRs and other ideas are welcome.
 
 ## Changes ##
+**May 2022**
+#### 2.5.1
+- New Theme - Hats
+- Notification Sounds
+- Incognito / Private Browser Support
+- Local File Support (Blink browsers only)
+
 **October 2021**
 #### 2.5
 - Recurring Snooze Times!
