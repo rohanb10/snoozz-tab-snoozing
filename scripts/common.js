@@ -150,13 +150,14 @@ async function openExtensionTab(url) {
 
 async function openTab(tab, windowId, automatic = false) {
 	var windows = await getAllWindows();
+	var cookieStoreId = tab.cookieStoreId ? { cookieStoreId: tab.cookieStoreId } : {};
 	if (tab.incognito) {
 		var w = windows.find(i => i.incognito) || await createWindow(undefined, t.incognito);
-		await new Promise(r => chrome.tabs.create({url: tab.url, active: false, pinned: tab.pinned, windowId: w.id}, r));
+		await new Promise(r => chrome.tabs.create({url: tab.url, active: false, pinned: tab.pinned, ...cookieStoreId, windowId: w.id}, r));
 	} else if (!windows || !windows.filter(w => !w.incognito).length) {
-		await new Promise(r => chrome.windows.create({url: tab.url}, r));
+		await new Promise(r => chrome.windows.create({url: tab.url, ...cookieStoreId}, r));
 	} else {
-		await new Promise(r => chrome.tabs.create({url: tab.url, active: false, pinned: tab.pinned, windowId}, r));	
+		await new Promise(r => chrome.tabs.create({url: tab.url, active: false, pinned: tab.pinned, ...cookieStoreId, windowId}, r));	
 	}
 	if (!automatic) return;
 	var msg = `${tab.title} -- snoozed ${dayjs(tab.timeCreated).fromNow()}`;
@@ -249,6 +250,7 @@ async function snoozeTab(snoozeTime, overrideTab) {
 		url: activeTab.url,
 		...activeTab.pinned ? {pinned: true} : {},
 		...activeTab.incognito ? {incognito: true} : {},
+		...activeTab.cookieStoreId ? {cookieStoreId: activeTab.cookieStoreId} : {},
 		wakeUpTime: snoozeTime === 'startup' ? dayjs().add(20, 'y').valueOf() : dayjs(snoozeTime).valueOf(),
 		timeCreated: dayjs().valueOf(),
 	}
@@ -285,7 +287,8 @@ async function snoozeWindow(snoozeTime, isASelection) {
 		tabs: validTabs.map(t => ({
 			title: t.title,
 			url: t.url,
-			...t.pinned ? {pinned: true} : {}
+			...t.pinned ? {pinned: true} : {},
+			...t.cookieStoreId ? {cookieStoreId: t.cookieStoreId} : {}
 		}))
 	});
 	await saveTab(sleepyGroup);
@@ -322,6 +325,7 @@ async function snoozeRecurring(target, data) {
 			title: activeTab.title || getBetterUrl(activeTab.url),
 			url: activeTab.url,
 			...activeTab.pinned ? {pinned: true} : {},
+			...activeTab.cookieStoreId ? {cookieStoreId: activeTab.cookieStoreId} : {}
 		});
 	} else {
 		Object.assign(sleepyObj, {
@@ -329,7 +333,8 @@ async function snoozeRecurring(target, data) {
 			tabs: validTabs.map(t => ({
 				title: t.title,
 				url: t.url,
-				...t.pinned ? {pinned: true} : {}
+				...t.pinned ? {pinned: true} : {},
+				...t.cookieStoreId ? {cookieStoreId: t.cookieStoreId} : {}
 			}))
 		})
 	}
