@@ -6,7 +6,7 @@ import json
 import shutil
 from re import search
 import os
-from shell import ex
+from shell import shell
 
 FOLDER = 'build_temp'
 with open('manifest.json') as m: 
@@ -49,12 +49,12 @@ def minifyFilesInDirectory(directory, ext, url):
 				shutil.copyfile(os.path.join(root, name), FOLDER + '/' + directory + '/' + name)
 				print('\r✓ Copied    ' + '\x1b[1;32;33m' + sameSize.format(name) + '\x1b[0m -> \x1b[1;32;32m' + name[:-chars] + '.min' + ext + '\x1b[0m', end='', flush=True)
 			elif ext == '.js' and not name.endswith('.min' + ext):
-				ex('uglifyjs ' + directory + '/' + name + ' -c -m -o ' + FOLDER + '/' + directory + '/' + name[:-chars] + '.min' + ext).stdout()
+				shell('uglifyjs ' + directory + '/' + name + ' -c -m -o ' + FOLDER + '/' + directory + '/' + name[:-chars] + '.min' + ext).output()
 				replaceInHTMLFiles(name, name[:-chars] + '.min' + ext)
 				replaceInManfest(name, name[:-chars] + '.min' + ext)
 				print('\r✓ Minified  ' + '\x1b[1;32;33m' + sameSize.format(name) + '\x1b[0m -> \x1b[1;32;32m' + name[:-chars] + '.min' + ext + '\x1b[0m', end='', flush=True)
 			elif ext == '.css' and not name.endswith('.min' + ext):
-				ex('csso ' + directory + '/' + name + ' -o ' + FOLDER + '/' + directory + '/' + name[:-chars] + '.min' + ext).stdout()
+				shell('csso ' + directory + '/' + name + ' -o ' + FOLDER + '/' + directory + '/' + name[:-chars] + '.min' + ext).output()
 				replaceInHTMLFiles(name, name[:-chars] + '.min' + ext)
 				print('\r✓ Minified  ' + '\x1b[1;32;33m' + sameSize.format(name) + '\x1b[0m -> \x1b[1;32;32m' + name[:-chars] + '.min' + ext + '\x1b[0m', end='', flush=True)
 

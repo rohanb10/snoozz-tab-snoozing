@@ -49,6 +49,14 @@ Available on [Chrome](https://chrome.google.com/webstore/detail/snoozz-snooze-ta
 
 Related repos: [Snoozz Website](https://github.com/rohanb10/snoozz-web) | [Snoozz Stats](https://github.com/rohanb10/snoozz-stats)
 
+## How to generate extension package
+
+1. `npm install` dependencies.
+1. Requires direnv or `npm bin` (most likely `./node_modules/.bin`) to be in the path.
+1. Install python dependencies `shell` and `re` (`python3 -m pip install ...`).
+1. Run `python3 build.py`.
+
+Tested on macos 13.0, Python 3.9.6, pip 22.3.1, node v16.13.0, npm 8.1.0.
 
 ## Colours
 

@@ -2,7 +2,7 @@
 	"name": "Snoozz - Snooze Tabs & Windows --Fork",
 	"short_name": "Snoozz --Fork",
 	"description": "Declutter your browser by snoozing tabs and windows until you actually need them.",
-	"version": "2.6.0",
+	"version": "2.6.1",
 	
 	"icons": {
 		"128": "icons/ext-icon-128.png",
