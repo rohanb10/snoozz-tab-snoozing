@@ -138,7 +138,8 @@ async function snoozeInBackground(item, tab) {
 	var title = !isHref ? tab.title : (item.linkText ? item.linkText : item.selectionText);
 	var wakeUpTime = snoozeTime.valueOf();
 	var pinned = !isHref && tab.pinned ? tab.pinned : undefined;
-	var assembledTab = Object.assign(item, {url, title, pinned, startUp, wakeUpTime})
+	var cookieStoreId = tab.cookieStoreId;
+	var assembledTab = Object.assign(item, {url, title, pinned, cookieStoreId, startUp, wakeUpTime})
 
 	var snoozed = await snoozeTab(item.menuItemId === 'startup' ? 'startup' : snoozeTime.valueOf(), assembledTab);
 	
