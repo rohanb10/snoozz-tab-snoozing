@@ -58,6 +58,8 @@ Related repos: [Snoozz Website](https://github.com/rohanb10/snoozz-web) | [Snooz
 
 Tested on macos 13.0, Python 3.9.6, pip 22.3.1, node v16.13.0, npm 8.1.0.
 
+Source code is packed for review with `zip -r -FS ../source-code.zip * --exclude '*.git*' --exclude '*node_modules*'`.
+
 ## Colours
 
 Orange: `#F3B845` | Pink: `#DF4E76`
