@@ -1,8 +1,8 @@
 {
-	"name": "Snoozz - Snooze Tabs & Windows for later",
+	"name": "MY Snoozz - Snooze Tabs & Windows for later",
 	"short_name": "Snoozz",
 	"description": "Declutter your browser by snoozing tabs and windows until you actually need them.",
-	"version": "2.5.1",
+	"version": "2.5.7",
 	
 	"icons": {
 		"128": "icons/ext-icon-128.png",
@@ -15,7 +15,7 @@
 	"browser_action": {
 		"default_popup": "html/popup.html"
 	},
-	"author": "Rohan Bhansali",
+	"author": "Sari Louis (forked from original by Rohan Bhansali)",
 	"options_ui": {
 		"page": "html/settings.html",
 		"open_in_tab": true
@@ -36,6 +36,9 @@
 	}],
 
 	"commands": {
+		"_execute_browser_action": {
+            "description": "Open the Snoozz popup"
+        },
 		"nap-room": {
 			"description": "Show me my sleeping tabs"
 		},
