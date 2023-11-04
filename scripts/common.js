@@ -1,7 +1,8 @@
 var colours = window.gradientSteps ? gradientSteps('#F3B845', '#DF4E76', 100) : [];
 function getBrowser() {
 	if (!!navigator.userAgent.match(/safari/i) && !navigator.userAgent.match(/chrome/i) && typeof document.body.style.webkitFilter !== 'undefined') return 'safari';
-	if (!!window.sidebar) return 'firefox';
+	//if (!!window.sidebar) return 'firefox';
+	if (!!navigator.userAgent.match(/firefox/i)) return 'firefox';
 	return 'chrome';
 }
 /*	ASYNCHRONOUS FUNCTIONS	*/
@@ -149,6 +150,8 @@ async function openExtensionTab(url) {
 }
 
 async function openTab(tab, windowId, automatic = false) {
+	if (tab.url.startsWith("about:reader"))
+		tab.url = decodeURIComponent(tab.url.substr(tab.url.lastIndexOf("url=") + 4));
 	var windows = await getAllWindows();
 	if (tab.incognito) {
 		var w = windows.find(i => i.incognito) || await createWindow(undefined, t.incognito);
@@ -357,8 +360,8 @@ async function getChoices(which) {
 	if (typeof config.morning === 'number' || typeof config.evening === 'number') config = upgradeSettings(config);
 	var all = {
 		'startup': {
-			label: 'On Next Startup',
-			repeatLabel: 'Every Browser Startup',
+			label: '1. On Next Startup',
+			repeatLabel: '1. Every Browser Startup',
 			startUp: true,
 			time: NOW.add(20, 'y'),
 			timeString: '',
@@ -368,8 +371,8 @@ async function getChoices(which) {
 			menuLabel: 'till next startup'
 		},
 		'in-an-hour': {
-			label: 'In One Hour',
-			repeatLabel: 'Every hour',
+			label: '2. In One Hour',
+			repeatLabel: '2. Every hour',
 			time: NOW.add(1, 'h'),
 			timeString: NOW.add(1, 'h').dayOfYear() == NOW.dayOfYear() ? 'Today' : 'Tomorrow',
 			repeatTime: NOW.add(1, 'h').format(getHourFormat(true)),
@@ -378,7 +381,7 @@ async function getChoices(which) {
 			menuLabel: 'for an hour'
 		},
 		'today-morning': {
-			label: 'This Morning',
+			label: '3. This Morning',
 			repeatLabel: '',
 			time: NOW.startOf('d').add(config.morning[0], 'h').add(config.morning[1], 'm'),
 			timeString: 'Today',
@@ -389,8 +392,8 @@ async function getChoices(which) {
 			repeatDisabled: true,
 		},
 		'today-evening': {
-			label: getEveningLabel(config.evening[0]),
-			repeatLabel: `Everyday, Now`,
+			label: '4. ' + getEveningLabel(config.evening[0]),
+			repeatLabel: '4. Everyday, Now',
 			time: NOW.startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm'),
 			timeString: 'Today',
 			repeatTime: NOW.format(getHourFormat(true)),
@@ -400,8 +403,8 @@ async function getChoices(which) {
 			disabled: NOW.startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm').valueOf() < dayjs(),
 		},
 		'tom-morning': {
-			label: 'Tomorrow Morning',
-			repeatLabel: 'Every Morning',
+			label: '5. Tomorrow Morning',
+			repeatLabel: '5. Every Morning',
 			time: NOW.startOf('d').add(1,'d').add(config.morning[0], 'h').add(config.morning[1], 'm'),
 			timeString: NOW.add(1,'d').format('ddd, D MMM'),
 			repeatTime: NOW.startOf('d').add(config.morning[0], 'h').add(config.morning[1], 'm').format(getHourFormat(true)),
@@ -410,8 +413,8 @@ async function getChoices(which) {
 			menuLabel: 'till tomorrow morning'
 		},
 		'tom-evening': {
-			label: getEveningLabel(config.evening[0], 'tomorrow'),
-			repeatLabel: getEveningLabel(config.evening[0], 'everyday'),
+			label: '6. ' + getEveningLabel(config.evening[0], 'tomorrow'),
+			repeatLabel: '6. ' + getEveningLabel(config.evening[0], 'everyday'),
 			time: NOW.startOf('d').add(1,'d').add(config.evening[0], 'h').add(config.evening[1], 'm'),
 			timeString: NOW.add(1,'d').format('ddd, D MMM'),
 			repeatTime: NOW.startOf('d').add(config.evening[0], 'h').add(config.evening[1], 'm').format(getHourFormat(true)),
@@ -420,8 +423,8 @@ async function getChoices(which) {
 			menuLabel: 'till tomorrow evening'
 		},
 		'weekend': {
-			label: 'Saturday',
-			repeatLabel: 'Every Saturday',
+			label: '7. Saturday',
+			repeatLabel: '7. Every Saturday',
 			time: NOW.startOf('d').weekday(6),
 			timeString: NOW.weekday(6).format('ddd, D MMM'),
 			repeatTime: NOW.startOf('d').format(getHourFormat(true)),
@@ -431,8 +434,8 @@ async function getChoices(which) {
 			// disabled: NOW.day() === 6,
 		},
 		'monday': {
-			label: 'Next Monday',
-			repeatLabel: 'Every Monday',
+			label: '8. Next Monday',
+			repeatLabel: '8. Every Monday',
 			time: NOW.startOf('d').weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8),
 			timeString: NOW.weekday(NOW.startOf('d') < dayjs().startOf('d').weekday(1) ? 1 : 8).format('ddd, D MMM'),
 			repeatTime: NOW.startOf('d').format(getHourFormat(true)),
@@ -441,8 +444,8 @@ async function getChoices(which) {
 			menuLabel: 'till next Monday'
 		},
 		'week': {
-			label: 'Next Week',
-			repeatLabel: 'Every ' + NOW.format('dddd'),
+			label: '9. Next Week',
+			repeatLabel: '9. Every ' + NOW.format('dddd'),
 			time: NOW.startOf('d').add(1, 'week'),
 			timeString: NOW.startOf('d').add(1, 'week').format('ddd, D MMM'),
 			repeatTime: NOW.format(getHourFormat(true)),
@@ -453,8 +456,8 @@ async function getChoices(which) {
 			// repeatDisabled: NOW.day() === 1 || NOW.day() === 6,
 		},
 		'month': {
-			label: 'Next Month',
-			repeatLabel: 'Every Month',
+			label: '0. Next Month',
+			repeatLabel: '0. Every Month',
 			time: NOW.startOf('d').add(1, 'M'),
 			timeString: NOW.startOf('d').add(1, 'M').format('ddd, D MMM'),
 			repeatTime: NOW.format(getHourFormat(true)),
@@ -491,7 +494,13 @@ async function calculateNextSnoozeTime(data) {
 			days = nextWeek.concat(thisWeek).map(day => dayjs().startOf('w').add(day, 'd').hour(HOUR).minute(MINUTE));
 		} else if (data.monthly) {
 			var thisMonth = data.monthly.filter(d => d <= dayjs().daysInMonth()).map(d => dayjs().startOf('M').date(d).hour(HOUR).minute(MINUTE));
+			if (thisMonth.length === 0) {
+				thisMonth = data.monthly.map(d => dayjs().endOf('M').hour(HOUR).minute(MINUTE));
+			}
 			var nextMonth = data.monthly.filter(d => d <= dayjs().add(1, 'M').daysInMonth()).map(d => dayjs().startOf('M').add(1, 'M').date(d).hour(HOUR).minute(MINUTE));
+			if (nextMonth.length === 0) {
+  				nextMonth = data.monthly.map(d => dayjs().startOf('M').add(1, 'M').endOf('M').hour(HOUR).minute(MINUTE));
+			}
 			days = nextMonth.concat(thisMonth);
 		}
 		return days.filter(d => d > NOW).pop().valueOf();
@@ -503,8 +512,8 @@ async function calculateNextSnoozeTime(data) {
 var getFaviconUrl = url => {
 	if (url.indexOf('file://') === 0) return '../icons/file.svg'
 	// return `https://icons.duckduckgo.com/ip3/${getHostname(url)}.ico`
-	// return `https://www.google.com/s2/favicons?sz=64&domain_url=${getHostname(url)}`;
-	return `https://besticon.herokuapp.com/icon?url=${getHostname(url)}&size=32..48..64&fallback_icon_color=${getColorForUrl(getHostname(url)).replace('#', '')}`;
+	return `https://www.google.com/s2/favicons?sz=64&domain_url=${getHostname(url)}`;
+	//return `https://besticon.herokuapp.com/icon?url=${getHostname(url)}&size=32..48..64&fallback_icon_color=${getColorForUrl(getHostname(url)).replace('#', '')}`;
 }
 var getColorForUrl = (url = 'snoozz.me') => colours[url.split('').map(c => c.charCodeAt(0)).reduce((a, b) => a + b) % 100];
 
@@ -548,8 +557,8 @@ var today = tabs => tabs.filter(t => t.wakeUpTime && dayjs(t.wakeUpTime).dayOfYe
 var isDefault = tabs => tabs.title && ['nap room | snoozz', 'settings | snoozz', 'rise and shine | snoozz', 'New Tab', 'Start Page'].includes(tabs.title);
 
 var isValid = tabs => {
-	var validProtocols = ['http', 'https', 'ftp', 'chrome-extension', 'web-extension', 'moz-extension', 'extension'];
-	if (getBrowser() == 'chrome') validProtocols.push('file');
+	var validProtocols = ['http', 'https', 'ftp', 'chrome-extension', 'web-extension', 'moz-extension', 'extension', 'read', 'file', 'about'];
+	//if (getBrowser() == 'chrome') validProtocols.push('file');
 	return tabs.url && validProtocols.includes(tabs.url.substring(0, tabs.url.indexOf(':')));
 }
 

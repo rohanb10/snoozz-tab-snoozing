@@ -1,5 +1,5 @@
 async function initialize() {
-	document.querySelector('.nap-room').addEventListener('keyup', e => {if (e.which === 13) openExtensionTab('/html/nap-room.html')})
+	document.querySelector('.nap-room').addEventListener('keyup', e => { if (e.which === 13) openExtensionTab('/html/nap-room.html') })
 	document.querySelector('.nap-room').addEventListener('click', _ => openExtensionTab('/html/nap-room.html'));
 	showIconOnScroll();
 	fillAbout()
@@ -13,29 +13,29 @@ async function initialize() {
 	options = upgradeSettings(options);
 	if (options.icons) document.querySelector('.nap-room img').src = `../icons/${options.icons}/nap-room.png`;
 
-	try {updateFormValues(options)} catch(e) {}
-	
+	try { updateFormValues(options) } catch (e) { }
+
 	addListeners();
 	await fetchHourFormat();
 
 	// calculateStorage();
 	// chrome.storage.onChanged.addListener(calculateStorage);
-	
 
-	if (getBrowser() === 'safari') chrome.runtime.sendMessage({wakeUp: true});
+
+	if (getBrowser() === 'safari') chrome.runtime.sendMessage({ wakeUp: true });
 }
 function highlightSetting(name, condition) {
 	var el = document.getElementById(name).closest('.input-container');
 	if (condition !== undefined) return el.classList.toggle('highlight', condition)
 	el.classList.add('highlight');
-	setTimeout(_ =>el.scrollIntoView({behavior: 'smooth', block: 'center'}), 1000);
-	document.getElementById(name).addEventListener('click', _ => el.classList.remove('highlight'), {once: true})
+	setTimeout(_ => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 1000);
+	document.getElementById(name).addEventListener('click', _ => el.classList.remove('highlight'), { once: true })
 }
 
 async function calculateStorage() {
 	var available = ((chrome.storage.local.QUOTA_BYTES || 5242880) / 1000).toFixed(1);
 	var used = (await getStorageSize() / 1000).toFixed(1);
-	var sizeAndSuffix = num => num < 1000 ? num + 'KB' : (num/1000).toFixed(2) + 'MB'
+	var sizeAndSuffix = num => num < 1000 ? num + 'KB' : (num / 1000).toFixed(2) + 'MB'
 	document.querySelector('.storage-used').style.clipPath = `inset(0 ${99 - (used * 100 / available)}% 0 0)`;
 	document.querySelector('.storage-text').innerText = `${sizeAndSuffix(used)} of ${sizeAndSuffix(available)} used.`
 	document.querySelector('.storage-low').classList.toggle('hidden', used / available < .75 || used / available >= 1);
@@ -67,24 +67,24 @@ function addListeners() {
 	document.querySelectorAll('#contextMenu input').forEach(c => c.addEventListener('change', e => save))
 
 	document.querySelector('#shortcut .btn').addEventListener('click', toggleShortcuts);
-	document.querySelector('#shortcut .btn').onkeyup = e => {if (e.which === 13) toggleShortcuts()}
+	document.querySelector('#shortcut .btn').onkeyup = e => { if (e.which === 13) toggleShortcuts() }
 
 	document.querySelector('#right-click .btn').addEventListener('click', toggleRightClickOptions);
-	document.querySelector('#right-click .btn').onkeyup = e => {if (e.which === 13) toggleRightClickOptions()}
+	document.querySelector('#right-click .btn').onkeyup = e => { if (e.which === 13) toggleRightClickOptions() }
 
 	document.addEventListener('visibilitychange', updateKeyBindings);
 
 	document.querySelectorAll('a[data-highlight="history"]').forEach(a => a.addEventListener('click', e => highlightSetting('history')))
 
 	document.getElementById('import').addEventListener('click', _ => document.getElementById('import_hidden').click());
-	document.getElementById('import').onkeyup = e => {if (e.which === 13) document.getElementById('import_hidden').click()}
-	document.getElementById('import_hidden').addEventListener('change', importTabs);
+	document.getElementById('import').onkeyup = e => { if (e.which === 13) document.getElementById('import_hidden').click() }
+	document.getElementById('import_hidden').addEventListener('change', importData);
 
-	document.getElementById('export').addEventListener('click', exportTabs);
-	document.getElementById('export').onkeyup = e => {if (e.which === 13) exportTabs()}
+	document.getElementById('export').addEventListener('click', exportData);
+	document.getElementById('export').onkeyup = e => { if (e.which === 13) exportData() }
 
-	document.getElementById('reset').addEventListener('click', resetSettings);
-	document.getElementById('reset').onkeyup = e => {if (e.which === 13) resetSettings()}
+	document.getElementById('reset').addEventListener('click', _ => resetSettings());
+	document.getElementById('reset').onkeyup = e => { if (e.which === 13) resetSettings() }
 
 	document.querySelector('code').addEventListener('click', _ => {
 		clipboard('about:addons')
@@ -103,7 +103,7 @@ async function save(e) {
 		}
 	}
 
-	var options = {popup: {}}
+	var options = { popup: {} }
 	if (e && ['morning', 'evening'].includes(e.target.id)) {
 		var tabs = await getSnoozedTabs();
 		var ot = parseInt(e.target.getAttribute('data-orig-value'));
@@ -134,7 +134,7 @@ Would you like to update ${tabsToChange.length > 1 ? 'them' : 'it'} to snooze ti
 }
 
 function toggleRightClickOptions(e) {
-	
+
 	var collapsed = document.getElementById('contextMenu');
 	var s = collapsed.closest('.input-container');
 	s.classList.toggle('show');
@@ -142,18 +142,18 @@ function toggleRightClickOptions(e) {
 }
 
 function toggleShortcuts(e) {
-	var s =  document.getElementById('shortcut').closest('.input-container');
+	var s = document.getElementById('shortcut').closest('.input-container');
 	s.classList.toggle('show');
 	s.querySelectorAll('.mini').forEach(el => {
 		el.style.maxHeight = '0';
-		el.style.visibility= 'hidden';
+		el.style.visibility = 'hidden';
 	});
 	updateKeyBindings();
 
 	var browserInfo = s.querySelector(`.${getBrowser()}-info`);
 	browserInfo.querySelectorAll('a[data-href]').forEach(s => {
-		s.onclick = e => chrome.tabs.create({url: e.target.getAttribute('data-href'), active: true});
-		s.onkeyUp = e => { if (e.which === 13) chrome.tabs.create({url: e.target.getAttribute('data-href'), active: true})}
+		s.onclick = e => chrome.tabs.create({ url: e.target.getAttribute('data-href'), active: true });
+		s.onkeyUp = e => { if (e.which === 13) chrome.tabs.create({ url: e.target.getAttribute('data-href'), active: true }) }
 	});
 	if (s.classList.contains('show')) {
 		browserInfo.style.maxHeight = browserInfo.scrollHeight + 'px';
@@ -175,21 +175,24 @@ async function updateKeyBindings() {
 	var splitShortcut = s => s.split(s.indexOf('+') > -1 ? '+' : '');
 
 	commands.forEach(c => {
-		var keys = wrapInDiv('', ...splitShortcut(c.shortcut).map(s => Object.assign(document.createElement('kbd'),{innerText: s})));
-		if (choices[c.name]) bindings.append(wrapInDiv('flex', wrapInDiv({innerText: choices[c.name].label}), keys));
-		if (c.name === 'nap-room') bindings.append(wrapInDiv('flex', wrapInDiv({innerText: 'Open Sleeping Tabs'}), keys));
-		if (c.name === '_execute_browser_action') bindings.append(wrapInDiv('flex', wrapInDiv({innerText: 'Open Popup'}), keys));
+		var keys = wrapInDiv('', ...splitShortcut(c.shortcut).map(s => Object.assign(document.createElement('kbd'), { innerText: s })));
+		if (choices[c.name]) bindings.append(wrapInDiv('flex', wrapInDiv({ innerText: choices[c.name].label }), keys));
+		if (c.name === 'nap-room') bindings.append(wrapInDiv('flex', wrapInDiv({ innerText: 'Open Sleeping Tabs' }), keys));
+		if (c.name === '_execute_browser_action') bindings.append(wrapInDiv('flex', wrapInDiv({ innerText: 'Open Popup' }), keys));
 	});
 	if (document.getElementById('shortcut').classList.contains('show')) {
-		document.querySelector('.shortcuts').style.maxHeight = document.querySelector('.shortcuts').scrollHeight + 'px';	
-	} 
+		document.querySelector('.shortcuts').style.maxHeight = document.querySelector('.shortcuts').scrollHeight + 'px';
+	}
 }
 
 async function resetSettings() {
 	if (!confirm('Are you sure you want to reset all settings? \nYou can\'t undo this.')) return;
+	await updateSettings(DEFAULT_OPTIONS);
+}
 
-	await saveOptions(DEFAULT_OPTIONS);
-	updateFormValues(DEFAULT_OPTIONS);
+async function updateSettings(options) {
+	await saveOptions(options);
+	updateFormValues(options);
 	await setTheme();
 }
 
@@ -199,11 +202,13 @@ async function changeIcons(name) {
 	document.querySelector('.nap-room img').src = `../icons/${name}/nap-room.png`;
 }
 
-async function exportTabs() {
+async function exportData() {
 	var tabs = await getSnoozedTabs();
+	var options = await getOptions();
+	var exportData = { "tabs": tabs, "options": options };
 	var now = dayjs();
 	var element = document.createElement('a');
-	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(tabs)));
+	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportData)));
 	element.setAttribute('download', `Snoozz_export_${now.format('YYYY')}_${now.format('MM')}_${now.format('DD')}.txt`);
 	element.style.display = 'none';
 	document.body.appendChild(element);
@@ -211,31 +216,37 @@ async function exportTabs() {
 	document.body.removeChild(element);
 }
 
-async function importTabs(e) {
+async function importData(e) {
 	try {
 		var text = await e.target.files[0].text();
-		var json_array = JSON.parse(text);
-		if (!json_array || !json_array.length) throw false;
+		var importData = JSON.parse(text);
+		if (!importData) throw false;
+		var tabsArray = importData.tabs;
+		var options = importData.options;
+		if (!tabsArray || !options) throw false;
 
-		var allTabs = await getSnoozedTabs();
-		var existing_ids = allTabs.map(at => at.id), needs_update = [];
+		if (tabsArray.length > 0) {
+			var allTabs = await getSnoozedTabs();
+			var existing_ids = allTabs.map(at => at.id), needs_update = [];
 
-		// remove tabs that already exist in the system, or are more recently updated
-		json_array = json_array.filter(t => {
-			if (!verifyTab(t)) return false;
-			if (!existing_ids.includes(t.id))return true;
-			var existing = allTabs.find(at => at.id === t.id);
-			if (!existing.opened && (t.opened || (t.modifiedTime && !existing.modifiedTime) || (existing.modifiedTime && t.modifiedTime && dayjs(t.modifiedTime) > dayjs(existing.modifiedTime)))) {
-				needs_update.push(existing.id);
-				return true;
-			}
-			return false;
-		});
+			// remove tabs that already exist in the system, or are more recently updated
+			tabsArray = tabsArray.filter(t => {
+				if (!verifyTab(t)) return false;
+				if (!existing_ids.includes(t.id)) return true;
+				var existing = allTabs.find(at => at.id === t.id);
+				if (!existing.opened && (t.opened || (t.modifiedTime && !existing.modifiedTime) || (existing.modifiedTime && t.modifiedTime && dayjs(t.modifiedTime) > dayjs(existing.modifiedTime)))) {
+					needs_update.push(existing.id);
+					return true;
+				}
+				return false;
+			});
 
-		await saveTabs(allTabs.filter(at => !needs_update.includes(at.id)).concat(json_array));
+			await saveTabs(allTabs.filter(at => !needs_update.includes(at.id)).concat(tabsArray));
+		}
+		updateSettings(options);
 
-		var count = json_array.length;
-		document.querySelector('body > .import-success').innerText = `${count} tab${count === 1 ? ' was' : 's were'} imported from ${e.target.files[0].name}`;
+		var count = tabsArray.length;
+		document.querySelector('body > .import-success').innerText = `Settings and ${count} tab${count === 1 ? ' was' : 's were'} imported from ${e.target.files[0].name}`;
 		document.querySelector('body > .import-success').classList.add('toast');
 		setTimeout(_ => document.querySelector('body > .import-success').remove('toast'), 4000)
 	} catch {
